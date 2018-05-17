@@ -1,0 +1,530 @@
+[
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "rulesMaster",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "attrCounter",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "ruleCounter",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "attributes",
+      "outputs": [
+        {
+          "name": "attrId",
+          "type": "uint256"
+        },
+        {
+          "name": "attrName",
+          "type": "bytes32"
+        },
+        {
+          "name": "maxLength",
+          "type": "uint256"
+        },
+        {
+          "name": "maxLengthTruncate",
+          "type": "bool"
+        },
+        {
+          "name": "maxNumValue",
+          "type": "uint256"
+        },
+        {
+          "name": "defaultValue",
+          "type": "string"
+        },
+        {
+          "name": "isString",
+          "type": "bool"
+        },
+        {
+          "name": "isDecimal",
+          "type": "bool"
+        },
+        {
+          "name": "isNumeric",
+          "type": "bool"
+        },
+        {
+          "name": "isValue",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "rulesets",
+      "outputs": [
+        {
+          "name": "ruleSetId",
+          "type": "bytes32"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "parentRuleSetId",
+          "type": "bytes32"
+        },
+        {
+          "name": "severeFailure",
+          "type": "bool"
+        },
+        {
+          "name": "andOp",
+          "type": "bool"
+        },
+        {
+          "name": "failImmediately",
+          "type": "bool"
+        },
+        {
+          "name": "isLeaf",
+          "type": "bool"
+        },
+        {
+          "name": "isValue",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "ruler",
+          "type": "address"
+        }
+      ],
+      "name": "CallAddRuleTree",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "ruler",
+          "type": "address"
+        }
+      ],
+      "name": "CallRuleTree",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "ruler",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "tmpRuleSetId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "CallRuleSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "ruler",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "ruleSetId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "name": "ruleId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "ruleType",
+          "type": "uint256"
+        }
+      ],
+      "name": "CallRule",
+      "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "pAttrName",
+          "type": "bytes32"
+        },
+        {
+          "name": "pMaxLen",
+          "type": "uint256"
+        },
+        {
+          "name": "pMaxNumVal",
+          "type": "uint256"
+        },
+        {
+          "name": "pDefVal",
+          "type": "string"
+        },
+        {
+          "name": "pIsStr",
+          "type": "bool"
+        },
+        {
+          "name": "pIsNum",
+          "type": "bool"
+        }
+      ],
+      "name": "addAttribute",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
+        },
+        {
+          "name": "rsName",
+          "type": "bytes32"
+        },
+        {
+          "name": "desc",
+          "type": "string"
+        },
+        {
+          "name": "severeFailureFlag",
+          "type": "bool"
+        },
+        {
+          "name": "useAndOperator",
+          "type": "bool"
+        },
+        {
+          "name": "flagFailImmediately",
+          "type": "bool"
+        }
+      ],
+      "name": "addRuleTree",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
+        },
+        {
+          "name": "ruleSetName",
+          "type": "bytes32"
+        },
+        {
+          "name": "desc",
+          "type": "string"
+        },
+        {
+          "name": "parentRSName",
+          "type": "bytes32"
+        },
+        {
+          "name": "severeFailureFlag",
+          "type": "bool"
+        },
+        {
+          "name": "useAndOperator",
+          "type": "bool"
+        },
+        {
+          "name": "flagFailImmediately",
+          "type": "bool"
+        }
+      ],
+      "name": "addRuleSet",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
+        },
+        {
+          "name": "ruleSetId",
+          "type": "bytes32"
+        },
+        {
+          "name": "ruleName",
+          "type": "bytes32"
+        },
+        {
+          "name": "attrName",
+          "type": "bytes32"
+        },
+        {
+          "name": "rType",
+          "type": "uint256"
+        },
+        {
+          "name": "rVal",
+          "type": "string"
+        },
+        {
+          "name": "notFlag",
+          "type": "bool"
+        },
+        {
+          "name": "passiveFlag",
+          "type": "bool"
+        }
+      ],
+      "name": "addRule",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
+        }
+      ],
+      "name": "execute",
+      "outputs": [
+        {
+          "name": "executeSuccess",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
+        }
+      ],
+      "name": "executeWithReport",
+      "outputs": [
+        {
+          "name": "fails",
+          "type": "uint256"
+        },
+        {
+          "name": "rsets",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "rules",
+          "type": "bytes32[]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "idx",
+          "type": "uint256"
+        }
+      ],
+      "name": "getAttributeName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
+        },
+        {
+          "name": "key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getValueOnRecord",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getNumberOfAttributes",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
+        }
+      ],
+      "name": "hasRuleTree",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
+        },
+        {
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "name": "setValueOnRecord",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "x",
+          "type": "bytes32"
+        }
+      ],
+      "name": "bytes32ToString",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ]

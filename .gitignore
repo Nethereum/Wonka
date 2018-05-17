@@ -1,1 +1,14 @@
 Solidity/WonkaEngine/build/contracts/
+WonkaSystem/.vs/
+WonkaSystem/WonkaBre/WonkaBreRuleMediator.xml
+WonkaSystem/WonkaBre/bin/
+WonkaSystem/WonkaBre/obj/._.DS_Store
+WonkaSystem/WonkaBre/obj/
+WonkaSystem/WonkaEth/bin/
+WonkaSystem/WonkaEth/WonkaEth.csproj.user
+WonkaSystem/WonkaEth/obj/
+WonkaSystem/WonkaPrd/bin/
+WonkaSystem/WonkaSystem/obj/
+WonkaSystem/WonkaSystem/bin/
+WonkaSystem/WonkaRef/bin/
+WonkaSystem/WonkaRef/obj/

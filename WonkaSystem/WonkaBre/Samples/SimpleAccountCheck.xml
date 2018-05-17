@@ -1,0 +1,48 @@
+﻿<?xml version="1.0"?>
+<RuleTree xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+   <if description="Set the status for the incoming record">
+      <criteria op="AND">
+         <eval id="pop1">(N.BankAccoutName) POPULATED</eval>
+         <eval id="dom1">(N.BankAccoutName) == ('JohnSmithFirstCheckingAccount')</eval>
+      </criteria>
+
+	  <if description="Setting Account Status">
+           <criteria op="OR">
+               <eval id="pop2">(O.AccountStatus) NOT POPULATED</eval>
+               <eval id="dom2">(O.AccountStatus) == ('OOS')</eval>
+			   <eval id="arl1">(O.AccountCurrValue) LT (10.00)</eval>
+			   <eval id="arl2">(N.AccountCurrValue) LT (10.00)</eval>
+           </criteria>
+
+           <validate err="severe">
+               <criteria op="AND">
+                   <eval id="asn1">(N.AccountStatus) ASSIGN ('OOS')</eval>
+               </criteria>
+
+               <failure_message/>
+               <success_message/>
+           </validate>           
+       </if>
+
+	   <if description="Validating Account Type">
+			<criteria op="AND">
+                <eval id="pop3">(N.AccountType) POPULATED</eval>
+                <eval id="dom3">(N.AccountType) != (O.AccountType)</eval>
+                <!-- <eval>(N.CreationDate) IS BEFORE (TODAY)</eval> -->
+                <!-- <eval>(N.CreationDate) IS BEFORE (TODAY)</eval> -->
+            </criteria>
+
+            <validate err="severe">
+                <criteria op="AND">
+                    <eval id="dom4">(N.AccountType) IN ('Checking', 'Savings', 'Tax Haven in Cayman')</eval>
+                </criteria>
+
+                <failure_message/>
+                <success_message/>
+            </validate>
+		</if>
+
+   </if>	
+    
+</RuleTree>
