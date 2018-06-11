@@ -38,7 +38,7 @@ namespace WonkaBre
         public const int CONST_MAX_PROPS = 32;
         public const int MAX_RULESET_NES = 32;
 
-        public const int RULE_EXEC_SEVERE_FAIL     = -1;
+        public const int RULE_EXEC_SEVERE_FAIL = -1;
         public const int RULE_EXEC_SEVERE_FAIL_VAL = 666;
 
         public const int RULE_VALUE_MAX = 9;
@@ -56,7 +56,7 @@ namespace WonkaBre
 
             UsingOrchestrationMode = false;
 
-            Init(piMetadataSource);
+            RefEnvHandle = Init(piMetadataSource);
 
             WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRulesFilepath);
 
@@ -70,7 +70,7 @@ namespace WonkaBre
 
             UsingOrchestrationMode = false;
 
-            Init(piMetadataSource);
+            RefEnvHandle = Init(piMetadataSource);
 
             WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
 
@@ -116,33 +116,40 @@ namespace WonkaBre
                 foreach (string sTmpAttName in SourceMap.Keys)
                 {
                     WonkaBreSource TmpSource = SourceMap[sTmpAttName];
+                    WonkaRefAttr TargetAttr  = RefEnvHandle.GetAttributeByAttrName(sTmpAttName);
 
                     string sTmpValue = TmpSource.RetrievalDelegate.Invoke(poKeyValues);
 
-                    // NOTE: Do the work of setting the value on the record for the Attribute
-                    // NOTE: Maybe there should some offical extensions for this stuff in the Prd library
+                    CurrentProduct.SetAttribute(TargetAttr, sTmpValue);
                 }
             }
 
             return CurrentProduct;
         }
 
-        private void Init(IMetadataRetrievable piMetadataSource)
+        private WonkaRefEnvironment Init(IMetadataRetrievable piMetadataSource)
         {
+
+            WonkaRefEnvironment RefEnv = null;
+
             try
             {
-                WonkaRefEnvironment.GetInstance();
+                RefEnv = WonkaRefEnvironment.GetInstance();
             }
             catch (Exception ex)
             {
-                WonkaRefEnvironment.CreateInstance(false, piMetadataSource);
+                RefEnv = WonkaRefEnvironment.CreateInstance(false, piMetadataSource);
             }
 
             this.CurrentProductOnDB = null;
-            this.TempDirectory      = "C:\tmp";
+
+            this.TempDirectory = "C:\tmp";
+
             this.RetrieveCurrRecord = null;
 
             SourceMap = new Dictionary<string, WonkaBreSource>();
+
+            return RefEnv;
         }
 
         /// <summary>
@@ -215,11 +222,13 @@ namespace WonkaBre
 
         #region Properties
 
-        public readonly bool UsingOrchestrationMode;
+        private string TempDirectory { get; set; }
 
         private RetrieveOldRecordDelegate RetrieveCurrRecord;
 
-        private string TempDirectory { get; set; }
+        public readonly bool UsingOrchestrationMode;
+
+        public readonly WonkaRefEnvironment RefEnvHandle;
 
         public WonkaBreRuleSet RuleTreeRoot { get; set; }
 
