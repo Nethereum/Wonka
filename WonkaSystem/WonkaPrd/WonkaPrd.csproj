@@ -50,6 +50,7 @@
     <Compile Include="WonkaProduct.cs" />
     <Compile Include="WonkaProductError.cs" />
     <Compile Include="WonkaProductField.cs" />
+    <Compile Include="WonkaPrdExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaRef\WonkaRef.csproj">
