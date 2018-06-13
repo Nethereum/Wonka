@@ -115,6 +115,7 @@
     <Compile Include="CQS\Contracts\AccountDeleteCommand.cs" />
     <Compile Include="CQS\Validation\AccountUpdateValidator.cs" />
     <Compile Include="TestHarness\WonkaCQSTest.cs" />
+    <Compile Include="TestHarness\WonkaSimpleOrchestrationTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

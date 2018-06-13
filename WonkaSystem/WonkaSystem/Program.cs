@@ -28,15 +28,17 @@ namespace WonkaSystem
         {
             try
             {
-                var sSenderAddress   = "0x5cb75438635f709bee95379c6bded85dd18ff5d5";
-                var sPassword        = "cbcf952676232464c6a6243643f480ec8c98857d4f3e00c8eb9a5661beb35102";
-                var sContractAddress = "0x12d87ba51c7cad35e9ed5bc219f49515ca6f3500";
+                var sSenderAddress   = "0xa709d323a60e5c6d3c64d4229de974a0e40cd2d1";
+                var sPassword        = "066a59c536d598c987422f76c09ed048f61717fe9b4545887cde6919121712fa";
+                var sContractAddress = "0xe630d05f6437d3a4b7f983e118ec7ecae0bc1ce3";
 
                 // SimpleTest(sSenderAddress, sPassword, sContractAddress);
 
                 // NoviceTest(sSenderAddress, sPassword, sContractAddress);
 
-                CQSDemoTest(sSenderAddress, sPassword, sContractAddress);
+                // CQSDemoTest(sSenderAddress, sPassword, sContractAddress);
+
+                SimpleOrchestrationTest(sSenderAddress, sPassword, sContractAddress);
             }
             catch (WonkaEth.Validation.WonkaValidatorException ex)
             {
@@ -52,6 +54,12 @@ namespace WonkaSystem
             }
 
             return;
+        }
+
+        static void SimpleOrchestrationTest(string psSenderAddress, string psPassword, string psContractAddress)
+        {
+            WonkaSimpleOrchestrationTest SimpleOrchTest = new WonkaSimpleOrchestrationTest(psSenderAddress, psPassword, psContractAddress);
+            SimpleOrchTest.Execute();
         }
 
         static void SimpleTest(string psSenderAddress, string psPassword, string psContractAddress)
