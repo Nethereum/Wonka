@@ -20,7 +20,7 @@ namespace WonkaBre.RuleTree
     {
         #region Delegates
 
-        public delegate string RetrieveDataMethod(Dictionary<string, string> psKeyValues);
+        public delegate string RetrieveDataMethod(WonkaBreSource TargetSource, string psAttrName);
 
         #endregion
 

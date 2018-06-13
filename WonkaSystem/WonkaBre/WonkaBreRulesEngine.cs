@@ -115,10 +115,10 @@ namespace WonkaBre
             {
                 foreach (string sTmpAttName in SourceMap.Keys)
                 {
-                    WonkaBreSource TmpSource = SourceMap[sTmpAttName];
-                    WonkaRefAttr TargetAttr  = RefEnvHandle.GetAttributeByAttrName(sTmpAttName);
+                    WonkaBreSource TmpSource  = SourceMap[sTmpAttName];
+                    WonkaRefAttr   TargetAttr = RefEnvHandle.GetAttributeByAttrName(sTmpAttName);
 
-                    string sTmpValue = TmpSource.RetrievalDelegate.Invoke(poKeyValues);
+                    string sTmpValue = TmpSource.RetrievalDelegate.Invoke(TmpSource, TargetAttr.AttrName);
 
                     CurrentProduct.SetAttribute(TargetAttr, sTmpValue);
                 }
