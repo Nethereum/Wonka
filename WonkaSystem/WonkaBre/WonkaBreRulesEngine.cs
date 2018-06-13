@@ -84,7 +84,7 @@ namespace WonkaBre
 
             UsingOrchestrationMode = true;
 
-            Init(piMetadataSource);
+            RefEnvHandle = Init(piMetadataSource);
 
             WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
 
