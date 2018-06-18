@@ -32,16 +32,18 @@ contract WonkaEngine {
         bool isValue;
     }
 
-	/// @title A data structure that represents a Source (i.e., a provider of a record)
-	/// @author Aaron Kendall
-	/// @notice This structure isn't currently used
+    /// @title A data structure that represents a Source (i.e., a provider of a record)
+    /// @author Aaron Kendall
+    /// @notice This structure isn't currently used
     struct WonkaSource {
-
-        int sourceId;
 
         bytes32 sourceName;
 
         bytes32 status;
+
+        bytes32 methodName;
+        
+        address contractAddress;
     }
 
 	/// @title Defines a rule (i.e., a logical unit for testing the validity of an Attribute value in a record)
@@ -164,9 +166,13 @@ contract WonkaEngine {
     enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, MAX_TYPE }
     RuleTypes constant defaultType = RuleTypes.IsEqual;
 
+    string constant blankValue = "";
+
     address public rulesMaster;
     uint    public attrCounter;
     uint    public ruleCounter;
+
+    bool orchestrationMode;
 
     // The Attributes known by this instance of the rules engine
     mapping(bytes32 => WonkaAttr) private attrMap;    
@@ -181,6 +187,9 @@ contract WonkaEngine {
     // The cache of records that are owned by "rulers" and that are validated when invoking a rule tree
     mapping(address => mapping(bytes32 => string)) currentRecords;
 
+    // The cache of available sources
+    mapping(bytes32 => WonkaSource) sourceMap;
+
     // For the function splitStr(...)
     // Currently unsure how the function will perform in a multithreaded scenario
     bytes splitTempStr; // temporarily holds the string part until a space is received
@@ -191,6 +200,8 @@ contract WonkaEngine {
 	/// @notice Currently, the engine will create three dummy Attributes within the cache by default, but they will be removed later
     function WonkaEngine() public { 
     // constructor() public {
+
+        orchestrationMode = false;
 
         rulesMaster = msg.sender;
 
@@ -388,6 +399,22 @@ contract WonkaEngine {
         }
     }
 
+    /// @dev This method will add a new source to the mapping cache.
+    /// @author Aaron Kendall
+    /// @notice 
+    function addSource(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName) public {
+
+        require(msg.sender == rulesMaster);
+
+        sourceMap[srcName] = 
+            WonkaSource({
+                sourceName: srcName,
+                status: sts,
+                contractAddress: cntrtAddr,
+                methodName: methName
+        });
+    }
+
  	/// @dev This method will check a provided string value and see if it qualifies as an instance of a defined Attribute
 	/// @author Aaron Kendall
 	/// @notice Some of the more proactive sections are not yet implemented
@@ -559,7 +586,8 @@ contract WonkaEngine {
         uint testNumValue = 0;
         uint ruleNumValue = 0;
 
-        string memory tempValue = (currentRecords[ruler])[targetRule.targetAttr.attrName];
+        // string memory tempValue = (currentRecords[ruler])[targetRule.targetAttr.attrName];
+        string memory tempValue = getValueOnRecord(ruler, targetRule.targetAttr.attrName);
 
         emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
 
@@ -649,6 +677,17 @@ contract WonkaEngine {
 
         return (ruletrees[ruler].isValue == true) && (ruletrees[ruler].allRuleSetList.length > 0) && (ruletrees[ruler].rootRuleSetName != "");
     }
+
+    /// @dev This method will set the flag as to whether or not the engine should run in Orchestration mode (i.e., use the sourceMap)
+    /// @author Aaron Kendall
+    /// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
+    function setOrchestrationMode(bool orchMode) public { 
+
+        require(msg.sender == rulesMaster);
+
+        orchestrationMode = orchMode;
+    }    
+
 
  	/// @dev This method will set an Attribute value on the record associated with the provided address/account
 	/// @author Aaron Kendall
@@ -833,8 +872,6 @@ contract WonkaEngine {
     }
 
     /*
-     * NOT YET SUPPORTED
-     *
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
@@ -843,9 +880,9 @@ contract WonkaEngine {
 
         //
         // Visual Code plugin hates this stuff - says no soup for you!
-        //assembly {
-        //    result := mload(add(source, 32))
-        //}
+        assembly {
+            result := mload(add(source, 32))
+        }
         
     }
     */
