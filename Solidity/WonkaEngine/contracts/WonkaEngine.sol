@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 /// @title An Ethereum library that contains the functionality for a rules engine
 /// @author Aaron Kendall
@@ -198,8 +198,7 @@ contract WonkaEngine {
  	/// @dev Constructor for the rules engine
 	/// @author Aaron Kendall
 	/// @notice Currently, the engine will create three dummy Attributes within the cache by default, but they will be removed later
-    function WonkaEngine() public { 
-    // constructor() public {
+    constructor() public {
 
         orchestrationMode = false;
 
@@ -601,7 +600,7 @@ contract WonkaEngine {
             if (targetRule.targetAttr.isNumeric) {
                 ruleResult = (testNumValue == ruleNumValue);
             } else {
-                ruleResult = (keccak256(tempValue) == keccak256(targetRule.ruleValue));
+                ruleResult = (keccak256(abi.encodePacked(tempValue)) == keccak256(abi.encodePacked(targetRule.ruleValue)));
             }
 
         } else if (uint(RuleTypes.IsLessThan) == targetRule.ruleType) {
@@ -616,11 +615,11 @@ contract WonkaEngine {
         }
         else if (uint(RuleTypes.Populated) == targetRule.ruleType) {
 
-            ruleResult = (keccak256(tempValue) != keccak256(""));
+            ruleResult = (keccak256(abi.encodePacked(tempValue)) != keccak256(abi.encodePacked("")));
 
         } else if (uint(RuleTypes.InDomain) == targetRule.ruleType) {
 
-            ruleResult = (keccak256(targetRule.ruleValueDomain[tempValue]) == keccak256("Y"));
+            ruleResult = (keccak256(abi.encodePacked(targetRule.ruleValueDomain[tempValue])) == keccak256(abi.encodePacked("Y")));
 
         } else if (uint(RuleTypes.Assign) == targetRule.ruleType) {
 
