@@ -44,6 +44,8 @@ contract WonkaEngine {
         bytes32 methodName;
         
         address contractAddress;
+
+        bool isValue;
     }
 
 	/// @title Defines a rule (i.e., a logical unit for testing the validity of an Attribute value in a record)
@@ -172,7 +174,8 @@ contract WonkaEngine {
     uint    public attrCounter;
     uint    public ruleCounter;
 
-    bool orchestrationMode;
+    bool    orchestrationMode;
+    bytes32 defaultTargetSource;
 
     // The Attributes known by this instance of the rules engine
     mapping(bytes32 => WonkaAttr) private attrMap;    
@@ -340,10 +343,18 @@ contract WonkaEngine {
         }
     }
 
- 	/// @dev This method will add a new Rule to the indicated RuleSet
-	/// @author Aaron Kendall
-	/// @notice Currently, a Rule can only belong to one RuleSet
+    /// @dev This method will add a new Rule to the indicated RuleSet
+    /// @author Aaron Kendall
+    /// @notice Currently, a Rule can only belong to one RuleSet
     function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string rVal, bool notFlag, bool passiveFlag) public {
+
+        addRuleWithTarget(ruler, ruleSetId, ruleName, attrName, rType, rVal, notFlag, passiveFlag, "");      
+    }
+
+    /// @dev This method will add a new Rule to the indicated RuleSet
+    /// @author Aaron Kendall
+    /// @notice Currently, a Rule can only belong to one RuleSet.  Also, we had to rename the function since Solidity doesn't really support overloading.
+    function addRuleWithTarget(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string rVal, bool notFlag, bool passiveFlag, bytes32 targetContract) public {
 
         require((msg.sender == rulesMaster) || (msg.sender == ruler));
 
@@ -410,7 +421,8 @@ contract WonkaEngine {
                 sourceName: srcName,
                 status: sts,
                 contractAddress: cntrtAddr,
-                methodName: methName
+                methodName: methName,
+                isValue: true
         });
     }
 
@@ -585,7 +597,6 @@ contract WonkaEngine {
         uint testNumValue = 0;
         uint ruleNumValue = 0;
 
-        // string memory tempValue = (currentRecords[ruler])[targetRule.targetAttr.attrName];
         string memory tempValue = getValueOnRecord(ruler, targetRule.targetAttr.attrName);
 
         emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
@@ -650,16 +661,29 @@ contract WonkaEngine {
         return attributes[idx].attrName;
     }
 
- 	/// @dev This method will return the value for an Attribute that is currently stored within the ruler's record
-	/// @author Aaron Kendall
-	/// @notice This method should only be used for debugging purposes.
-    function getValueOnRecord(address ruler, bytes32 key) public view returns(string) { 
+    /// @dev This method will return the value for an Attribute that is currently stored within the ruler's record
+    /// @author Aaron Kendall
+    /// @notice This method should only be used for debugging purposes.
+    function getValueOnRecord(address ruler, bytes32 key) public returns(string) { 
 
         require(ruletrees[ruler].isValue);
 
         require (attrMap[key].isValue == true);
 
-        return (currentRecords[ruler])[key];
+        if (!orchestrationMode) {
+            return (currentRecords[ruler])[key];
+        }
+        else {
+
+            if (sourceMap[key].isValue){
+                return invokeValueRetrieval(sourceMap[key].contractAddress, ruler, sourceMap[key].methodName, key);
+            }
+            else if (sourceMap[defaultTargetSource].isValue){
+                return invokeValueRetrieval(sourceMap[defaultTargetSource].contractAddress, ruler, sourceMap[defaultTargetSource].methodName, key);
+            }
+            else
+                return blankValue;
+        }
     }
 
  	/// @dev This method will return the current number of Attributes in the cache
@@ -677,9 +701,17 @@ contract WonkaEngine {
         return (ruletrees[ruler].isValue == true) && (ruletrees[ruler].allRuleSetList.length > 0) && (ruletrees[ruler].rootRuleSetName != "");
     }
 
+    /// @dev This method will set the default contract to use when in Orchestration mode, if one has not been specified for an Attribute
+    /// @author Aaron Kendall
+    function setDefaultSource(bytes32 defaultContract) public { 
+
+        require(msg.sender == rulesMaster);
+
+        defaultTargetSource = defaultContract;
+    }    
+
     /// @dev This method will set the flag as to whether or not the engine should run in Orchestration mode (i.e., use the sourceMap)
     /// @author Aaron Kendall
-    /// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
     function setOrchestrationMode(bool orchMode) public { 
 
         require(msg.sender == rulesMaster);
