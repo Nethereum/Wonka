@@ -1,4 +1,5 @@
-var WonkaEngine = artifacts.require("./WonkaEngine.sol");
+var WonkaEngine      = artifacts.require("./WonkaEngine.sol");
+var OrchTestContract = artifacts.require("./OrchTestContract.sol");
 
 // create an instance of web3 using the HTTP provider.
 // NOTE: in mist web3 is already available, so check first if it's available before instantiating
@@ -16,6 +17,7 @@ var IN_DOMAIN_RULE    = 4;
 var ASSIGN_RULE       = 5;
 
 contract('WonkaEngine', function(accounts) {
+contract('OrchTestContract', function(accounts) {
  
   /*
   beforeEach(function () {
@@ -139,8 +141,8 @@ contract('WonkaEngine', function(accounts) {
 
       instance.setValueOnRecord(accounts[0], web3.fromAscii('BankAccountID'), new String('1234567890').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('BankAccountName'), new String('JohnSmithFirstCheckingAccount').valueOf());
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountStatus'), new String('OOS').valueOf());
-      // instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountStatus'), new String('ACT').valueOf());
+      //instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountStatus'), new String('OOS').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountStatus'), new String('ACT').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountCurrValue'), new String('999').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountCurrency'), new String('USD').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountType'), new String('Checking').valueOf());
@@ -187,6 +189,33 @@ contract('WonkaEngine', function(accounts) {
       console.log("Current record for owner(" + accounts[0] + ") is valid?  [" + recordValid + "]");      
     });
   });
+  it("Running the rules engine with Orchestration mode enabled", function() {
+    return WonkaEngine.deployed().then(function(wInstance) {      
+      return OrchTestContract.deployed().then(function(testInstance) {
+
+        wInstance.setOrchestrationMode(true);
+
+        console.log("Set Orchestration mode to on");
+
+        wInstance.addSource(web3.fromAscii('TEST'), web3.fromAscii('ACT'), testInstance.address, web3.fromAscii('getAttrValueBytes32'));
+
+        wInstance.setDefaultSource(web3.fromAscii('TEST'));
+
+        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('AccountStatus'));
+
+      }).then(function(accountStatus) {
+
+        // console.log("Value of AccountStatus attribute is (" + web3.toAscii(accountStatus.valueOf()) + ")");
+        console.log("Value of AccountStatus attribute is (" + new String(accountStatus).valueOf() + ")");
+
+        return wInstance.execute.call(accounts[0]);
+
+      }).then(function(recordValid) {
+  
+        console.log("Current record for owner(" + accounts[0] + ") is valid?  [" + recordValid + "]");      
+      });
+    });
+  });  
   it("name of fourth Attribute should be 'Language'", function() {
     return WonkaEngine.deployed().then(function(instance) {
       return instance.getAttributeName.call(3);
@@ -210,4 +239,5 @@ contract('WonkaEngine', function(accounts) {
     });
   });
 
-});
+})  // end of the scope for OrchTestContract
+}); // end of the scope for WonkaEngine
