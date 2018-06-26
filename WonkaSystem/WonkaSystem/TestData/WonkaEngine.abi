@@ -371,6 +371,78 @@
         {
           "name": "ruler",
           "type": "address"
+        },
+        {
+          "name": "ruleSetId",
+          "type": "bytes32"
+        },
+        {
+          "name": "ruleName",
+          "type": "bytes32"
+        },
+        {
+          "name": "attrName",
+          "type": "bytes32"
+        },
+        {
+          "name": "rType",
+          "type": "uint256"
+        },
+        {
+          "name": "rVal",
+          "type": "string"
+        },
+        {
+          "name": "notFlag",
+          "type": "bool"
+        },
+        {
+          "name": "passiveFlag",
+          "type": "bool"
+        },
+        {
+          "name": "targetContract",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addRuleWithTarget",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "srcName",
+          "type": "bytes32"
+        },
+        {
+          "name": "sts",
+          "type": "bytes32"
+        },
+        {
+          "name": "cntrtAddr",
+          "type": "address"
+        },
+        {
+          "name": "methName",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addSource",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
         }
       ],
       "name": "execute",
@@ -431,7 +503,7 @@
       "type": "function"
     },
     {
-      "constant": true,
+      "constant": false,
       "inputs": [
         {
           "name": "ruler",
@@ -450,7 +522,7 @@
         }
       ],
       "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -484,6 +556,34 @@
       ],
       "payable": false,
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "defaultContract",
+          "type": "bytes32"
+        }
+      ],
+      "name": "setDefaultSource",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "orchMode",
+          "type": "bool"
+        }
+      ],
+      "name": "setOrchestrationMode",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -526,5 +626,36 @@
       "payable": false,
       "stateMutability": "pure",
       "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "targetContract",
+          "type": "address"
+        },
+        {
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "name": "methodName",
+          "type": "bytes32"
+        },
+        {
+          "name": "attrName",
+          "type": "bytes32"
+        }
+      ],
+      "name": "invokeValueRetrieval",
+      "outputs": [
+        {
+          "name": "strAnswer",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
-  ]
+ ]
