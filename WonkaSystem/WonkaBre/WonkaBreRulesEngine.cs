@@ -147,7 +147,8 @@ namespace WonkaBre
 
             this.RetrieveCurrRecord = null;
 
-            SourceMap = new Dictionary<string, WonkaBreSource>();
+            SourceMap     = new Dictionary<string, WonkaBreSource>();
+            DefaultSource = "";
 
             return RefEnv;
         }
@@ -251,6 +252,8 @@ namespace WonkaBre
         }
 
         public Dictionary<string, WonkaBreSource> SourceMap { get; set; }
+
+        public string DefaultSource { get; set; }
 
         #endregion
 
