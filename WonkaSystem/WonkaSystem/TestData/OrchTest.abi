@@ -30,7 +30,7 @@
           "type": "bytes32"
         }
       ],
-      "name": "getAttrValueBytes32",
+      "name": "getAttrValueBytes",
       "outputs": [
         {
           "name": "",
@@ -41,4 +41,4 @@
       "stateMutability": "nonpayable",
       "type": "function"
     }
- ]
+  ]

@@ -30,7 +30,7 @@ contract OrchTestContract {
             return "";
     }
 
-    function getAttrValueBytes32(address ruler, bytes32 key) public returns(bytes32) { 
+    function getAttrValueBytes(address ruler, bytes32 key) public returns(bytes32) { 
 
         lastAddressProvided = ruler;
 
