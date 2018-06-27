@@ -120,6 +120,8 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="TestData\OrchTest.abi" />
+    <None Include="TestData\OrchTest.bin" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj">
