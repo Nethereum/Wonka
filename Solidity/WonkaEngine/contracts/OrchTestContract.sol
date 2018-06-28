@@ -17,9 +17,9 @@ contract OrchTestContract {
         else if (key == "BankAccountName")
             return "JohnSmithFirstCheckingAccount";
         else if (key == "AccountStatus")
-            return "OOS";
+            return "ACT"; // return "OOS";
         else if (key == "AccountCurrValue")
-            return "9999.99";
+            return "999";
         else if (key == "AccountType")
             return "Checking";
         else if (key == "AccountCurrency")
@@ -45,9 +45,9 @@ contract OrchTestContract {
         else if (key == "BankAccountName")
             return "JohnSmithFirstCheckingAccount";
         else if (key == "AccountStatus")
-            return "OOS";
+            return "ACT"; // return "OOS";
         else if (key == "AccountCurrValue")
-            return "9999.99";
+            return "999";
         else if (key == "AccountType")
             return "Checking";
         else if (key == "AccountCurrency")
