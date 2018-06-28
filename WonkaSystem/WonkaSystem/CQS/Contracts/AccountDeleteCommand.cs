@@ -31,7 +31,7 @@ namespace WonkaSystem.CQS.Contracts
                 if (Prop.Name == "AccountId")
                     PropertyMap[Prop] = RefEnv.GetAttributeByAttrName("BankAccountID");
                 else if (Prop.Name == "AccountName")
-                    PropertyMap[Prop] = RefEnv.GetAttributeByAttrName("BankAccoutName");
+                    PropertyMap[Prop] = RefEnv.GetAttributeByAttrName("BankAccountName");
             }
 
             return PropertyMap;

@@ -274,7 +274,7 @@ namespace WonkaEth.Validation
 
                 /*
                 WonkaRefAttr AccountIDAttr       = WonkaRefEnv.GetAttributeByAttrName("BankAccountID");
-                WonkaRefAttr AccountNameAttr     = WonkaRefEnv.GetAttributeByAttrName("BankAccoutName");
+                WonkaRefAttr AccountNameAttr     = WonkaRefEnv.GetAttributeByAttrName("BankAccountName");
                 WonkaRefAttr AccountStsAttr      = WonkaRefEnv.GetAttributeByAttrName("AccountStatus");
                 WonkaRefAttr AccountCurrValAttr  = WonkaRefEnv.GetAttributeByAttrName("AccountCurrValue");
                 WonkaRefAttr AccountTypeAttr     = WonkaRefEnv.GetAttributeByAttrName("AccountType");

@@ -3,8 +3,8 @@
 
    <if description="Set the status for the incoming record">
       <criteria op="AND">
-         <eval id="pop1">(N.BankAccoutName) POPULATED</eval>
-         <eval id="dom1">(N.BankAccoutName) == ('JohnSmithFirstCheckingAccount')</eval>
+         <eval id="pop1">(N.BankAccountName) POPULATED</eval>
+         <eval id="dom1">(N.BankAccountName) == ('JohnSmithFirstCheckingAccount')</eval>
       </criteria>
 
 	  <if description="Setting Account Status">
