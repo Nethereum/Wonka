@@ -24,8 +24,9 @@ namespace WonkaBre.RuleTree
 
         #endregion
 
-        public WonkaBreSource(string psSenderAddr, string psPwd, string psContractAddr, string psABI, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
+        public WonkaBreSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
         {
+            SourceId     = psSourceId;
             TypeOfSource = SOURCE_TYPE.SRC_TYPE_CONTRACT;
 
             SenderAddress   = psSenderAddr;
@@ -40,8 +41,9 @@ namespace WonkaBre.RuleTree
             RetrievalDelegate = poRetrievalDelegate;
         }
 
-        public WonkaBreSource(string psAPISrvrAddr, int pnAPISrvrPort, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
+        public WonkaBreSource(string psSourceId, string psAPISrvrAddr, int pnAPISrvrPort, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
         {
+            SourceId     = psSourceId;
             TypeOfSource = SOURCE_TYPE.SRC_TYPE_API;
 
             SenderAddress = Password = ContractAddress = ContractABI = "";
@@ -54,6 +56,8 @@ namespace WonkaBre.RuleTree
         }
 
         #region Properties for all scenarios
+
+        public readonly string SourceId;
 
         public readonly SOURCE_TYPE TypeOfSource;
 
