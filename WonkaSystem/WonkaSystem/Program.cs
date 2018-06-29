@@ -28,9 +28,9 @@ namespace WonkaSystem
         {
             try
             {
-                var sSenderAddress   = "0xa709d323a60e5c6d3c64d4229de974a0e40cd2d1";
-                var sPassword        = "066a59c536d598c987422f76c09ed048f61717fe9b4545887cde6919121712fa";
-                var sContractAddress = "0xe630d05f6437d3a4b7f983e118ec7ecae0bc1ce3";
+                var sSenderAddress   = "0xb482fbf39276a48fc608bbd90faa11f12178246a";
+                var sPassword        = "eca20e969724c4d52493f37b90b628ee3540751c5d17be7efc2d6cb796c8d398";
+                var sContractAddress = "0x0081fc1ed23fc179aa89c5ebc2ad35345a4689e2";
 
                 // SimpleTest(sSenderAddress, sPassword, sContractAddress);
 
@@ -38,7 +38,8 @@ namespace WonkaSystem
 
                 // CQSDemoTest(sSenderAddress, sPassword, sContractAddress);
 
-                SimpleOrchestrationTest(sSenderAddress, sPassword, sContractAddress);
+                string sOrchTestContractAddress = "0x945b91f25d809fce26c144244136fc11a50b8409";
+                SimpleOrchestrationTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
             }
             catch (WonkaEth.Validation.WonkaValidatorException ex)
             {
@@ -56,10 +57,11 @@ namespace WonkaSystem
             return;
         }
 
-        static void SimpleOrchestrationTest(string psSenderAddress, string psPassword, string psContractAddress)
+        static void SimpleOrchestrationTest(string psSenderAddress, string psPassword, string psContractAddress, string psOrchTestContractAddress)
         {
             WonkaSimpleOrchestrationTest SimpleOrchTest = new WonkaSimpleOrchestrationTest(psSenderAddress, psPassword, psContractAddress);
-            SimpleOrchTest.Execute();
+
+            SimpleOrchTest.Execute(psOrchTestContractAddress);
         }
 
         static void SimpleTest(string psSenderAddress, string psPassword, string psContractAddress)
