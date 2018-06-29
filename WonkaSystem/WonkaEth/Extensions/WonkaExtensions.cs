@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.ABI.Model;
@@ -12,6 +13,7 @@ using Nethereum.Geth.RPC.Miner;
 using Nethereum.RPC.Eth.DTOs;
 
 using WonkaBre;
+using WonkaBre.RuleTree;
 using WonkaRef;
 
 namespace WonkaEth.Extensions
@@ -82,6 +84,9 @@ namespace WonkaEth.Extensions
 
             treeRoot.SerializeTreeRoot(sSenderAddress, contract);
 
+            if (poEngine.UsingOrchestrationMode)
+                poEngine.SerializeOrchestrationInfo(sSenderAddress, contract);
+
             return bResult;
         }
 
@@ -135,6 +140,64 @@ namespace WonkaEth.Extensions
 
                     var receiptAddAttribute =
                         addAttrFunction.SendTransactionAsync(psSenderAddress, gas, null, sAttrName, MaxLen, MaxNumVal, DefVal, IsString, IsNumeric).Result;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to call upon an instance of the Ethgine contract and 
+        /// to set the Orchestration mode information.
+        /// 
+        /// <param name="poEngine">The instance of an engine which contains the Orchestration info/param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account/param>
+        /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree/param>
+        /// <returns>Indicates whether or not the Orchestration info was submitted to the blockchain</returns>
+        /// </summary>
+        private static bool SerializeOrchestrationInfo(this WonkaBreRulesEngine poEngine, string psSenderAddress, Nethereum.Contracts.Contract poContract)
+        {
+            var addSourceFunction     = poContract.GetFunction("addSource");
+            var setDefaultSrcFunction = poContract.GetFunction("setDefaultSource");
+            var setOrchModeFunction   = poContract.GetFunction("setOrchestrationMode");
+
+            HashSet<string> SourcesAdded = new HashSet<string>();
+
+            if (poEngine.UsingOrchestrationMode)
+            {
+                string result = "";
+
+                var gas = setOrchModeFunction.EstimateGasAsync(true).Result;
+
+                result =
+                    setOrchModeFunction.SendTransactionAsync(psSenderAddress, gas, null, true).Result;
+
+                if (!String.IsNullOrEmpty(poEngine.DefaultSource))
+                {
+                    // NOTE: Causes "out of gas" exception to be thrown?
+                    // var gas = setDefaultSrcFunction.EstimateGasAsync("Something").Result;
+                    var addDefSrcGas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+                    result = setDefaultSrcFunction.SendTransactionAsync(psSenderAddress, addDefSrcGas, null, poEngine.DefaultSource).Result;
+                }
+
+
+                foreach (string sTmpAttrId in poEngine.SourceMap.Keys)
+                {
+                    WonkaBreSource TmpSource = poEngine.SourceMap[sTmpAttrId];
+
+                    // NOTE: Causes "out of gas" exception to be thrown?
+                    // var gas = addSourceFunction.EstimateGasAsync("Something", "Something", "Something", "Something").Result;
+                    var addSrcGas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+                    if (!SourcesAdded.Contains(TmpSource.SourceId))
+                    {
+                        result =
+                            addSourceFunction.SendTransactionAsync(psSenderAddress, addSrcGas, null, TmpSource.SourceId, "ACT", TmpSource.ContractAddress, TmpSource.MethodName).Result;
+
+                        SourcesAdded.Add(TmpSource.SourceId);
+                    }
                 }
             }
 
