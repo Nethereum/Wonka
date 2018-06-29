@@ -28,7 +28,7 @@
 	   <if description="Validating Account Type">
 			<criteria op="AND">
                 <eval id="pop3">(N.AccountType) POPULATED</eval>
-                <eval id="dom3">(N.AccountType) != (O.AccountType)</eval>
+                <!-- <eval id="dom3">(N.AccountType) != (O.AccountType)</eval> -->
                 <!-- <eval>(N.CreationDate) IS BEFORE (TODAY)</eval> -->
                 <!-- <eval>(N.CreationDate) IS BEFORE (TODAY)</eval> -->
             </criteria>
