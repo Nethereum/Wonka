@@ -154,6 +154,7 @@ contract('OrchTestContract', function(accounts) {
   it("run the business rules on the currently populated record", function() {
     return WonkaEngine.deployed().then(function(instance) {
 
+      /*
       var eventRT = instance.CallRuleTree(function(error, result) {
         if (!error)
           console.log("CALLBACK -> Entering the ruletree assigned to ruler: (" + result.args.ruler + ")");
@@ -170,23 +171,14 @@ contract('OrchTestContract', function(accounts) {
                       ") with RSID(" + result.args.ruleSetId + ") -> RuleId(" + result.args.ruleId + 
                       ") and Type(" + result.args.ruleType + ")");
       });
-
-      //
-      //var event = instance.CallRuleTree({ruler:accounts[0]});
-      //event.watch(function(error, result){
-      //    if (!error) {
-      //        // alert("wait for a while, check for block Synchronization or block creation");
-      //        console.log(result);
-      //    }
-      //});
-      //
+      */
 
       return instance.execute.call(accounts[0]);
       // instance.executeWithReport(accounts[0]);
 
     }).then(function(recordValid) {
 
-      console.log("Current record for owner(" + accounts[0] + ") is valid?  [" + recordValid + "]");      
+      console.log("Current record for owner(" + accounts[0] + ") is valid through default execution?  [" + recordValid + "]");      
     });
   });
   it("Running the rules engine with Orchestration mode enabled", function() {
@@ -197,7 +189,7 @@ contract('OrchTestContract', function(accounts) {
 
         console.log("Set Orchestration mode to on");
 
-        wInstance.addSource(web3.fromAscii('TEST'), web3.fromAscii('ACT'), testInstance.address, web3.fromAscii('getAttrValueBytes32'));
+        wInstance.addSource(web3.fromAscii('TEST'), web3.fromAscii('ACT'), testInstance.address, web3.fromAscii('getAttrValueBytes32'), web3.fromAscii('setAttrValueBytes32'));
 
         wInstance.setDefaultSource(web3.fromAscii('TEST'));
 
@@ -212,7 +204,30 @@ contract('OrchTestContract', function(accounts) {
 
       }).then(function(recordValid) {
   
-        console.log("Current record for owner(" + accounts[0] + ") is valid?  [" + recordValid + "]");      
+        console.log("Current record for owner is valid through Orchestration execution?  [" + recordValid + "]");
+
+        // Now let's add an assignment rule to the last ruleset, where we set the Language to '???'
+        wInstance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('AssignLangRule'), web3.fromAscii('Language'), ASSIGN_RULE, new String('???').valueOf(), false, true);
+
+        console.log("Added assignment rule to set a value on the Orchestration contract using Assembly.");
+     
+        // Since we've now added an assignment rule (which can now change the blockchain), we must execute the engine's validation within a transaction
+        wInstance.execute(accounts[0]);
+
+        // Now let's check the validation result, which should still be false
+        return wInstance.getLastTransactionSuccess.call();
+
+      }).then(function(recordValid) {
+  
+        console.log("Current record for owner is valid, with added Assignment rule?  [" + recordValid + "]");   
+
+        // Now let's check the record on the Orchestration contract, to ensure that the Language has been set to '???'
+        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('Language'));
+
+      }).then(function(currLang) {
+  
+        console.log("Current value of Language is (" + new String(currLang).valueOf() + ")");      
+   
       });
     });
   });  

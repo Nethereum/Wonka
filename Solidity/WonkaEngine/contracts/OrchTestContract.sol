@@ -4,57 +4,52 @@ contract OrchTestContract {
      
     address lastAddressProvided;
 
-    function getAttrValueBytes32(bytes32 key) public pure returns(bytes32) { 
+    mapping(bytes32 => bytes32) private testRecord;
 
-        if (key == "Title")
-            return "The First Book";
-        else if (key == "Price")
-            return "0999";
-        else if (key == "PageAmount")
-            return "289";
-        else if (key == "BankAccountID")
-            return "1234567890";
-        else if (key == "BankAccountName")
-            return "JohnSmithFirstCheckingAccount";
-        else if (key == "AccountStatus")
-            return "ACT"; // return "OOS";
-        else if (key == "AccountCurrValue")
-            return "999";
-        else if (key == "AccountType")
-            return "Checking";
-        else if (key == "AccountCurrency")
-            return "USD";
-        else if (key == "Language")
-            return "ENG";
-        else
-            return "";
+    /// @dev Constructor for the Orchestration contract
+    /// @author Aaron Kendall
+    constructor() public {
+
+        //testRecord["Title"] = "The First Book";
+        //testRecord["Price"] = "0999";
+        //testRecord["PageAmount"] = "289";
+
+        testRecord["BankAccountID"] = "1234567890";
+        testRecord["BankAccountName"] = "JohnSmithFirstCheckingAccount";
+        // testRecord["AccountStatus"] = "OOS";
+        testRecord["AccountStatus"] = "ACT";
+        testRecord["AccountCurrValue"] = "999";
+        testRecord["AccountType"] = "Checking";
+        testRecord["AccountCurrency"] = "USD";
+        testRecord["Language"] = "ENG";
+    }    
+
+    function getAttrValueBytes32(bytes32 key) public view returns(bytes32) { 
+
+        return testRecord[key];
     }
 
     function getAttrValueBytes(address ruler, bytes32 key) public returns(bytes32) { 
 
         lastAddressProvided = ruler;
 
-        if (key == "Title")
-            return "The First Book";
-        else if (key == "Price")
-            return "0999";
-        else if (key == "PageAmount")
-            return "289";
-        else if (key == "BankAccountID")
-            return "1234567890";
-        else if (key == "BankAccountName")
-            return "JohnSmithFirstCheckingAccount";
-        else if (key == "AccountStatus")
-            return "ACT"; // return "OOS";
-        else if (key == "AccountCurrValue")
-            return "999";
-        else if (key == "AccountType")
-            return "Checking";
-        else if (key == "AccountCurrency")
-            return "USD";
-        else if (key == "Language")
-            return "ENG";
-        else
-            return "";
+        return testRecord[key];
     }
+    
+    function setAttrValueBytes32(bytes32 key, bytes32 value) public returns(bytes32) { 
+
+        testRecord[key] = value;
+
+        return value;
+    }
+
+    function setAttrValueBytes(address ruler, bytes32 key, bytes32 value) public returns(bytes32) { 
+
+        lastAddressProvided = ruler;
+
+        testRecord[key] = value;
+
+        return value;
+    }    
+
 }

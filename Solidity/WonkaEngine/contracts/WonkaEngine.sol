@@ -41,7 +41,11 @@ contract WonkaEngine {
 
         bytes32 status;
 
+        // For retrieving an Attribute value
         bytes32 methodName;
+
+        // For setting an Attribute value
+        bytes32 setMethodName;
         
         address contractAddress;
 
@@ -174,6 +178,7 @@ contract WonkaEngine {
     uint    public attrCounter;
     uint    public ruleCounter;
 
+    bool    lastTransactionSuccess;
     bool    orchestrationMode;
     bytes32 defaultTargetSource;
 
@@ -204,6 +209,7 @@ contract WonkaEngine {
     constructor() public {
 
         orchestrationMode = false;
+        lastTransactionSuccess = false;
 
         rulesMaster = msg.sender;
 
@@ -348,14 +354,6 @@ contract WonkaEngine {
     /// @notice Currently, a Rule can only belong to one RuleSet
     function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string rVal, bool notFlag, bool passiveFlag) public {
 
-        addRuleWithTarget(ruler, ruleSetId, ruleName, attrName, rType, rVal, notFlag, passiveFlag, "");      
-    }
-
-    /// @dev This method will add a new Rule to the indicated RuleSet
-    /// @author Aaron Kendall
-    /// @notice Currently, a Rule can only belong to one RuleSet.  Also, we had to rename the function since Solidity doesn't really support overloading.
-    function addRuleWithTarget(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string rVal, bool notFlag, bool passiveFlag, bytes32 targetContract) public {
-
         require((msg.sender == rulesMaster) || (msg.sender == ruler));
 
         require(ruletrees[ruler].isValue == true);
@@ -412,7 +410,7 @@ contract WonkaEngine {
     /// @dev This method will add a new source to the mapping cache.
     /// @author Aaron Kendall
     /// @notice 
-    function addSource(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName) public {
+    function addSource(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName, bytes32 setMethName) public {
 
         require(msg.sender == rulesMaster);
 
@@ -422,6 +420,7 @@ contract WonkaEngine {
                 status: sts,
                 contractAddress: cntrtAddr,
                 methodName: methName,
+                setMethodName: setMethName,
                 isValue: true
         });
     }
@@ -506,7 +505,7 @@ contract WonkaEngine {
 
         executeWithReport(ruler, ruletrees[ruler].allRuleSets[ruletrees[ruler].rootRuleSetName], report);
 
-        executeSuccess = (report.ruleFailCount == 0);
+        executeSuccess = lastTransactionSuccess = (report.ruleFailCount == 0);
     }
 
  	/// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
@@ -634,7 +633,8 @@ contract WonkaEngine {
 
         } else if (uint(RuleTypes.Assign) == targetRule.ruleType) {
 
-            (currentRecords[ruler])[targetRule.targetAttr.attrName] = targetRule.ruleValue;
+            // (currentRecords[ruler])[targetRule.targetAttr.attrName] = targetRule.ruleValue;
+            setValueOnRecord(ruler, targetRule.targetAttr.attrName, targetRule.ruleValue);
 
         }  
 
@@ -659,6 +659,13 @@ contract WonkaEngine {
         require(idx < attributes.length);
 
         return attributes[idx].attrName;
+    }
+
+    /// @dev This method will return the indicator of whether or not the last execuction of the engine was a validation success
+    /// @author Aaron Kendall
+    function getLastTransactionSuccess() public view returns(bool) {
+
+        return lastTransactionSuccess;
     }
 
     /// @dev This method will return the value for an Attribute that is currently stored within the ruler's record
@@ -719,17 +726,30 @@ contract WonkaEngine {
         orchestrationMode = orchMode;
     }    
 
-
- 	/// @dev This method will set an Attribute value on the record associated with the provided address/account
-	/// @author Aaron Kendall
-	/// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
-    function setValueOnRecord(address ruler, bytes32 key, string value) public { 
+    /// @dev This method will set an Attribute value on the record associated with the provided address/account
+    /// @author Aaron Kendall
+    /// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
+    function setValueOnRecord(address ruler, bytes32 key, string value) public returns(string) { 
 
         require(ruletrees[ruler].isValue);
 
         require(attrMap[key].isValue == true);
+        
+        if (!orchestrationMode) {
+            (currentRecords[ruler])[key] = value;
+            return (currentRecords[ruler])[key];
+        }
+        else {
 
-        (currentRecords[ruler])[key] = value;
+            bytes32 bytes32Value = stringToBytes32(value);
+
+            if (sourceMap[key].isValue && (keccak256(abi.encodePacked(sourceMap[key].setMethodName)) != keccak256(abi.encodePacked("")))) {
+                return invokeValueSetter(sourceMap[key].contractAddress, ruler, sourceMap[key].setMethodName, key, bytes32Value);
+            }
+            else if (sourceMap[defaultTargetSource].isValue && (keccak256(abi.encodePacked(sourceMap[defaultTargetSource].setMethodName)) != keccak256(abi.encodePacked("")))){                
+                return invokeValueSetter(sourceMap[defaultTargetSource].contractAddress, ruler, sourceMap[defaultTargetSource].setMethodName, key, bytes32Value);
+            }
+        }
     }
 
     /***********************
@@ -791,6 +811,46 @@ contract WonkaEngine {
             
             answer := mload(ptr) // Assign output to answer var
             mstore(0x40,add(ptr,0x24)) // Set storage pointer to new space
+        }
+
+        strAnswer = bytes32ToString(answer);
+    }
+
+    function invokeValueSetter(address targetContract, address sender, bytes32 methodName, bytes32 attrName, bytes32 value) public returns (string strAnswer) {
+
+        bytes32 answer = methodName;
+
+        string memory strMethodName = bytes32ToString(methodName);
+
+        string memory functionNameAndParams = strConcat(strMethodName, "(bytes32,bytes32)");
+
+        bytes4 sig = bytes4(keccak256(abi.encodePacked(functionNameAndParams)));        
+
+        assembly {
+            // move pointer to free memory spot
+            let ptr := mload(0x40)
+            // put function sig at memory spot
+            mstore(ptr,sig)
+            // append argument after function sig
+            mstore(add(ptr,0x04), attrName)
+            //Place second argument next to first, padded to 32 bytes
+            mstore(add(ptr,0x24), value)
+
+            let result := call(
+                300000, // gas limit
+                targetContract,
+                0, // not transfer any ether
+                ptr, // Inputs are stored at location ptr
+                0x44, // Inputs are 56 bytes long
+                ptr,  //Store output over input
+                0x20) //Outputs are 32 bytes long
+
+            if eq(result, 0) {
+                revert(0, 0)
+            }
+            
+            answer := mload(ptr) // Assign output to answer var
+            mstore(0x40,add(ptr,0x44)) // Set storage pointer to new space
         }
 
         strAnswer = bytes32ToString(answer);
@@ -940,19 +1000,15 @@ contract WonkaEngine {
         return strConcat(_a, _b, "", "", "");
     }
 
-    /*
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
             return 0x0;
         }
 
-        //
-        // Visual Code plugin hates this stuff - says no soup for you!
         assembly {
             result := mload(add(source, 32))
         }
         
     }
-    */
 }
