@@ -369,52 +369,6 @@
       "constant": false,
       "inputs": [
         {
-          "name": "ruler",
-          "type": "address"
-        },
-        {
-          "name": "ruleSetId",
-          "type": "bytes32"
-        },
-        {
-          "name": "ruleName",
-          "type": "bytes32"
-        },
-        {
-          "name": "attrName",
-          "type": "bytes32"
-        },
-        {
-          "name": "rType",
-          "type": "uint256"
-        },
-        {
-          "name": "rVal",
-          "type": "string"
-        },
-        {
-          "name": "notFlag",
-          "type": "bool"
-        },
-        {
-          "name": "passiveFlag",
-          "type": "bool"
-        },
-        {
-          "name": "targetContract",
-          "type": "bytes32"
-        }
-      ],
-      "name": "addRuleWithTarget",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
           "name": "srcName",
           "type": "bytes32"
         },
@@ -428,6 +382,10 @@
         },
         {
           "name": "methName",
+          "type": "bytes32"
+        },
+        {
+          "name": "setMethName",
           "type": "bytes32"
         }
       ],
@@ -496,6 +454,20 @@
         {
           "name": "",
           "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getLastTransactionSuccess",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
         }
       ],
       "payable": false,
@@ -603,7 +575,12 @@
         }
       ],
       "name": "setValueOnRecord",
-      "outputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
@@ -657,5 +634,40 @@
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "targetContract",
+          "type": "address"
+        },
+        {
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "name": "methodName",
+          "type": "bytes32"
+        },
+        {
+          "name": "attrName",
+          "type": "bytes32"
+        },
+        {
+          "name": "value",
+          "type": "bytes32"
+        }
+      ],
+      "name": "invokeValueSetter",
+      "outputs": [
+        {
+          "name": "strAnswer",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
- ]
+  ]

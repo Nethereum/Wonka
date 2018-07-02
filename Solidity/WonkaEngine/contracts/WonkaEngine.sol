@@ -178,6 +178,7 @@ contract WonkaEngine {
     uint    public attrCounter;
     uint    public ruleCounter;
 
+    address lastSenderAddressProvided;
     bool    lastTransactionSuccess;
     bool    orchestrationMode;
     bytes32 defaultTargetSource;
@@ -780,6 +781,8 @@ contract WonkaEngine {
 
     function invokeValueRetrieval(address targetContract, address sender, bytes32 methodName, bytes32 attrName) public returns (string strAnswer) {
 
+        lastSenderAddressProvided = sender;
+
         bytes32 answer;
 
         string memory strMethodName = bytes32ToString(methodName);
@@ -817,6 +820,8 @@ contract WonkaEngine {
     }
 
     function invokeValueSetter(address targetContract, address sender, bytes32 methodName, bytes32 attrName, bytes32 value) public returns (string strAnswer) {
+
+        lastSenderAddressProvided = sender;
 
         bytes32 answer = methodName;
 
