@@ -37,6 +37,7 @@ contract('OrchTestContract', function(accounts) {
       assert.equal(balance.valueOf(), 3, "More or less than 3 attributes populated");
     });
   });
+  /*
   it("name of first Attribute should be 'Title'", function() {
     return WonkaEngine.deployed().then(function(instance) {
       return instance.getAttributeName.call(0);
@@ -44,6 +45,7 @@ contract('OrchTestContract', function(accounts) {
       console.log("Name of first attribute is (" + web3.toAscii(attrName.valueOf()) + ")");
     });
   });
+  */
   it("add a new Attribute called 'Language'", function() {
     return WonkaEngine.deployed().then(function(instance) {
 
@@ -60,6 +62,7 @@ contract('OrchTestContract', function(accounts) {
       console.log("Added more Attributes!");
     });
   });
+  /*
   it("name of fourth Attribute should be 'Language'", function() {
     return WonkaEngine.deployed().then(function(instance) {
       return instance.getAttributeName.call(3);
@@ -67,6 +70,7 @@ contract('OrchTestContract', function(accounts) {
       console.log("Name of last attribute is (" + web3.toAscii(attrName.valueOf()) + ")");
     });
   });
+  */
   it("check for the ruletree", function() {
     return WonkaEngine.deployed().then(function(instance) {
       return instance.hasRuleTree.call(accounts[0]);
@@ -185,13 +189,11 @@ contract('OrchTestContract', function(accounts) {
     return WonkaEngine.deployed().then(function(wInstance) {      
       return OrchTestContract.deployed().then(function(testInstance) {
 
-        wInstance.setOrchestrationMode(true);
+        wInstance.setOrchestrationMode(true, web3.fromAscii('TEST'));
 
         console.log("Set Orchestration mode to on");
 
         wInstance.addSource(web3.fromAscii('TEST'), web3.fromAscii('ACT'), testInstance.address, web3.fromAscii('getAttrValueBytes32'), web3.fromAscii('setAttrValueBytes32'));
-
-        wInstance.setDefaultSource(web3.fromAscii('TEST'));
 
         return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('AccountStatus'));
 
@@ -227,32 +229,25 @@ contract('OrchTestContract', function(accounts) {
       }).then(function(currLang) {
   
         console.log("Current value of Language is (" + new String(currLang).valueOf() + ")");      
+
+        /*
+        ** 
+        // Sleep for 5 seconds, in order to get all event output
+        var delay = 5; // 5 second delay
+        var now = new Date();
+        var desiredTime = new Date().setSeconds(now.getSeconds() + delay);
+        
+        while (now < desiredTime) {
+            now = new Date(); // update the current time
+        }
+        */
+        
+        // If I don't call this method, this script never dies and the Ethereum node keeps printing 'eth_getFilterChanges()'
+        process.exit();
    
       });
     });
   });  
-  it("name of fourth Attribute should be 'Language'", function() {
-    return WonkaEngine.deployed().then(function(instance) {
-      return instance.getAttributeName.call(3);
-    }).then(function(attrName) {
-      console.log("Name of last attribute is (" + web3.toAscii(attrName.valueOf()) + ")");
-
-      /*
-      ** 
-      // Sleep for 5 seconds, in order to get all event output
-      var delay = 5; // 5 second delay
-      var now = new Date();
-      var desiredTime = new Date().setSeconds(now.getSeconds() + delay);
-      
-      while (now < desiredTime) {
-          now = new Date(); // update the current time
-      }
-      */
-      
-      // If I don't call this method, this script never dies and the Ethereum node keeps printing 'eth_getFilterChanges()'
-      process.exit();
-    });
-  });
 
 })  // end of the scope for OrchTestContract
 }); // end of the scope for WonkaEngine
