@@ -443,17 +443,20 @@
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "idx",
-          "type": "uint256"
-        }
-      ],
-      "name": "getAttributeName",
+      "inputs": [],
+      "name": "getLastRuleReport",
       "outputs": [
         {
-          "name": "",
-          "type": "bytes32"
+          "name": "fails",
+          "type": "uint256"
+        },
+        {
+          "name": "rsets",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "rules",
+          "type": "bytes32[]"
         }
       ],
       "payable": false,
@@ -534,22 +537,12 @@
       "constant": false,
       "inputs": [
         {
-          "name": "defaultContract",
-          "type": "bytes32"
-        }
-      ],
-      "name": "setDefaultSource",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
           "name": "orchMode",
           "type": "bool"
+        },
+        {
+          "name": "defSource",
+          "type": "bytes32"
         }
       ],
       "name": "setOrchestrationMode",
