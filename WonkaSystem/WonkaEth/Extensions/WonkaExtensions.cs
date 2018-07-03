@@ -342,11 +342,6 @@ namespace WonkaEth.Extensions
             // var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeRSID", "SomeRuleName", "SomeAttrName", 0, "SomeVal", false, false).Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
-            if (poRuleSet.Description == "Validating Account Type")
-            {
-                int x = 1;
-            }
-
             // NOTE: ADD RULES HERE
             foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in poRuleSet.EvaluativeRules)
             {
@@ -437,8 +432,10 @@ namespace WonkaEth.Extensions
                 var    sAttrName    = TempRule.TargetAttribute.AttrName;
                 uint   nRuleType    = 0;
                 string sValue       = "";
-                var    passFlag     = TempRule.IsPassive;
                 var    notFlag      = TempRule.NotOperator;
+
+                // This is a legacy issue that will be addressed in the near future
+                var passFlag = true; //TempRule.IsPassive;
 
                 if (TempRule.RuleType == RULE_TYPE.RT_ASSIGNMENT)
                 {
