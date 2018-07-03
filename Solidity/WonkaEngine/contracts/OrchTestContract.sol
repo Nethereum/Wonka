@@ -16,10 +16,16 @@ contract OrchTestContract {
 
         testRecord["BankAccountID"] = "1234567890";
         testRecord["BankAccountName"] = "JohnSmithFirstCheckingAccount";
-        // testRecord["AccountStatus"] = "OOS";
-        testRecord["AccountStatus"] = "ACT";
+
+        testRecord["AccountStatus"] = "OOS";
+        // testRecord["AccountStatus"] = "ACT";
+
         testRecord["AccountCurrValue"] = "999";
-        testRecord["AccountType"] = "Checking";
+        // testRecord["AccountCurrValue"] = "9";
+
+        //testRecord["AccountType"] = "Checking";
+        testRecord["AccountType"] = "WillCauseAnError";
+
         testRecord["AccountCurrency"] = "USD";
         testRecord["Language"] = "ENG";
     }    
@@ -35,7 +41,7 @@ contract OrchTestContract {
 
         return testRecord[key];
     }
-    
+
     function setAttrValueBytes32(bytes32 key, bytes32 value) public returns(bytes32) { 
 
         testRecord[key] = value;
