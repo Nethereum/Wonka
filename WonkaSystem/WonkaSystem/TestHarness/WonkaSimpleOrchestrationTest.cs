@@ -231,7 +231,7 @@ namespace WonkaSystem.TestHarness
 
                 string sBeforeOrchestrationAssignment = RetrieveValueMethod(poFlagSource, OwnerRankAttr.AttrName);
 
-                var receiptAddAttribute = executeWithReportFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress).Result;
+                var receiptExecution = executeWithReportFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress).Result;
 
                 string sAfterOrchestrationAssignment = RetrieveValueMethod(poFlagSource, OwnerRankAttr.AttrName);
 
