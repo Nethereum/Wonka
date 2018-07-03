@@ -29,8 +29,9 @@ namespace WonkaSystem.TestHarness
     {
         private const int CONST_CONTRACT_ATTR_NUM_ON_START = 3;
 
-        public const string CONST_CONTRACT_FUNCTION_EXEC_RPT = "executeWithReport"; 
-        public const string CONST_CONTRACT_FUNCTION_HAS_RT   = "hasRuleTree";
+        public const string CONST_CONTRACT_FUNCTION_EXEC_RPT     = "executeWithReport";
+        public const string CONST_CONTRACT_FUNCTION_GET_LAST_RPT = "getLastRuleReport";
+        public const string CONST_CONTRACT_FUNCTION_HAS_RT       = "hasRuleTree";
 
         private readonly string msRulesContents;
         private readonly string msAbiWonka;
@@ -90,11 +91,12 @@ namespace WonkaSystem.TestHarness
             WonkaRefAttr        AccountCurrValAttr  = WonkaRefEnv.GetAttributeByAttrName("AccountCurrValue");
             WonkaRefAttr        AccountTypeAttr     = WonkaRefEnv.GetAttributeByAttrName("AccountType");
             WonkaRefAttr        AccountCurrencyAttr = WonkaRefEnv.GetAttributeByAttrName("AccountCurrency");
+            WonkaRefAttr        RvwFlagAttr         = WonkaRefEnv.GetAttributeByAttrName("AuditReviewFlag");
 
             moTargetAttrList = new List<WonkaRefAttr>();
 
             moTargetAttrList =
-                new List<WonkaRefAttr>() { AccountIDAttr, AccountNameAttr, AccountStsAttr, AccountCurrValAttr, AccountTypeAttr, AccountCurrencyAttr };
+                new List<WonkaRefAttr>() { AccountIDAttr, AccountNameAttr, AccountStsAttr, AccountCurrValAttr, AccountTypeAttr, AccountCurrencyAttr, RvwFlagAttr };
 
             if (pbSerializeMetadataToBlockchain)
             {
@@ -102,7 +104,7 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        public void Execute(string psOrchestrationTestAddress = null)
+        public void Execute(string psOrchestrationTestAddress = null, bool pbValidateWithinTransaction = false)
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
@@ -113,25 +115,28 @@ namespace WonkaSystem.TestHarness
             string sContractSourceId   = sDefaultSource;
             string sContractAddress    = "";
             string sContractAbi        = "";
-            string sOrchTestMethodName = "";
+            string sOrchGetterMethod   = "";
+            string sOrchSetterMethod   = "";
 
             if (!String.IsNullOrEmpty(psOrchestrationTestAddress))
             {
-                sContractAddress    = psOrchestrationTestAddress;
-                sContractAbi        = msAbiOrchTest;
-                sOrchTestMethodName = "getAttrValueBytes32";
+                sContractAddress  = psOrchestrationTestAddress;
+                sContractAbi      = msAbiOrchTest;
+                sOrchGetterMethod = "getAttrValueBytes32";
+                sOrchSetterMethod = "setAttrValueBytes32";
             }
             else 
             {
-                sContractAddress    = msContractAddress;
-                sContractAbi        = msAbiWonka;
-                sOrchTestMethodName = "getValueOnRecord";
+                sContractAddress  = msContractAddress;
+                sContractAbi      = msAbiWonka;
+                sOrchGetterMethod = "getValueOnRecord";
+                sOrchSetterMethod = "";
             }
 
             foreach (WonkaRefAttr TempAttr in moTargetAttrList)
             {                
                 WonkaBreSource TempSource =
-                    new WonkaBreSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchTestMethodName, RetrieveValueMethod);
+                    new WonkaBreSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchGetterMethod, sOrchSetterMethod, RetrieveValueMethod);
 
                 SourceMap[TempAttr.AttrName] = TempSource;
             }
@@ -151,12 +156,14 @@ namespace WonkaSystem.TestHarness
             SerializeRulesEngineToBlockchain(RulesEngine);
 
             WonkaRefAttr AccountStsAttr = RefEnv.GetAttributeByAttrName("AccountStatus");
+            WonkaRefAttr RvwFlagAttr    = RefEnv.GetAttributeByAttrName("AuditReviewFlag");
 
             WonkaProduct NewProduct = GetNewProduct();
 
             string sStatusValueBefore = GetAttributeValue(NewProduct, AccountStsAttr);
+            string sFlagValueBefore   = GetAttributeValue(NewProduct, RvwFlagAttr);
 
-            SerializeProductToBlockchain(NewProduct);
+            // SerializeProductToBlockchain(NewProduct);
 
             /**
              ** Test the .NET side
@@ -164,6 +171,7 @@ namespace WonkaSystem.TestHarness
             WonkaBre.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
             string sStatusValueAfter = GetAttributeValue(NewProduct, AccountStsAttr);
+            string sFlagValueAfter   = GetAttributeValue(NewProduct, RvwFlagAttr);
 
             if (Report.OverallRuleTreeResult == ERR_CD.CD_SUCCESS)
             {
@@ -180,7 +188,7 @@ namespace WonkaSystem.TestHarness
 
             if (!String.IsNullOrEmpty(psOrchestrationTestAddress))
             {
-                var BlockchainReport = ExecuteWithReport();
+                var BlockchainReport = ExecuteWithReport(RulesEngine, pbValidateWithinTransaction, SourceMap[RvwFlagAttr.AttrName]);
 
                 if (BlockchainReport.NumberOfRuleFailures == 0)
                 {
@@ -197,11 +205,11 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        public RuleTreeReport ExecuteWithReport()
+        public RuleTreeReport ExecuteWithReport(WonkaBreRulesEngine poRulesEngine, bool pbValidateWithinTransaction, WonkaBreSource poFlagSource)
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
-            WonkaRefAttr AccountStsAttr = RefEnv.GetAttributeByAttrName("AccountStatus");
+            WonkaRefAttr OwnerRankAttr = RefEnv.GetAttributeByAttrName("AuditReviewFlag");
 
             Dictionary<string, string> PrdKeys = new Dictionary<string, string>();
 
@@ -209,7 +217,28 @@ namespace WonkaSystem.TestHarness
 
             var executeWithReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC_RPT);
 
-            var ruleTreeReport = executeWithReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>(msSenderAddress).Result;
+            RuleTreeReport ruleTreeReport = null;
+
+            if (pbValidateWithinTransaction)
+            {
+                var executeGetLastReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_GET_LAST_RPT);
+
+                // NOTE: Caused exception to be thrown
+                // var gas = executeWithReportFunction.EstimateGasAsync(msSenderAddress).Result;
+                var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+                WonkaProduct OrchContractCurrValues = poRulesEngine.AssembleCurrentProduct(new Dictionary<string, string>());
+
+                string sBeforeOrchestrationAssignment = RetrieveValueMethod(poFlagSource, OwnerRankAttr.AttrName);
+
+                var receiptAddAttribute = executeWithReportFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress).Result;
+
+                string sAfterOrchestrationAssignment = RetrieveValueMethod(poFlagSource, OwnerRankAttr.AttrName);
+
+                ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>().Result;
+            }
+            else 
+                ruleTreeReport = executeWithReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>(msSenderAddress).Result;
 
             return ruleTreeReport;
         }
@@ -265,6 +294,7 @@ namespace WonkaSystem.TestHarness
             WonkaRefAttr        AccountCurrValAttr  = WkaRefEnv.GetAttributeByAttrName("AccountCurrValue");
             WonkaRefAttr        AccountTypeAttr     = WkaRefEnv.GetAttributeByAttrName("AccountType");
             WonkaRefAttr        AccountCurrencyAttr = WkaRefEnv.GetAttributeByAttrName("AccountCurrency");
+            WonkaRefAttr        ReviewFlagAttr      = WkaRefEnv.GetAttributeByAttrName("AuditReviewFlag");
 
             WonkaProduct NewProduct = new WonkaProduct();
 
@@ -273,6 +303,7 @@ namespace WonkaSystem.TestHarness
             NewProduct.SetAttribute(AccountStsAttr,      "ACT");
             NewProduct.SetAttribute(AccountCurrValAttr,  "101.00");
             NewProduct.SetAttribute(AccountCurrencyAttr, "USD");
+            NewProduct.SetAttribute(ReviewFlagAttr,      "N");
             NewProduct.SetAttribute(AccountTypeAttr,     "Checking");
             // NewProduct.SetAttribute(AccountTypeAttr,     "CompletelyBogusTypeThatWillCauseAnError");
 
@@ -284,7 +315,9 @@ namespace WonkaSystem.TestHarness
             if (poTargetProduct.GetProductGroup(poTargetAttr.GroupId).GetRowCount() <= 0)
                 throw new Exception("ERROR!  Provided incoming product has empty group.");
 
-            string sAttrValue = poTargetProduct.GetProductGroup(poTargetAttr.GroupId)[0][poTargetAttr.AttrId];
+            string sAttrValue = "";
+            if (poTargetProduct.GetProductGroup(poTargetAttr.GroupId)[0].ContainsKey(poTargetAttr.AttrId))
+                sAttrValue = poTargetProduct.GetProductGroup(poTargetAttr.GroupId)[0][poTargetAttr.AttrId];
 
             if (String.IsNullOrEmpty(sAttrValue))
                 throw new Exception("ERROR!  Provided incoming product has no value for needed key(" + poTargetAttr.AttrName + ").");

@@ -159,7 +159,6 @@ namespace WonkaEth.Extensions
         private static bool SerializeOrchestrationInfo(this WonkaBreRulesEngine poEngine, string psSenderAddress, Nethereum.Contracts.Contract poContract)
         {
             var addSourceFunction     = poContract.GetFunction("addSource");
-            var setDefaultSrcFunction = poContract.GetFunction("setDefaultSource");
             var setOrchModeFunction   = poContract.GetFunction("setOrchestrationMode");
 
             HashSet<string> SourcesAdded = new HashSet<string>();
@@ -167,34 +166,34 @@ namespace WonkaEth.Extensions
             if (poEngine.UsingOrchestrationMode)
             {
                 string result = "";
+                string defSrc = (!String.IsNullOrEmpty(poEngine.DefaultSource)) ? poEngine.DefaultSource : "";
 
-                var gas = setOrchModeFunction.EstimateGasAsync(true).Result;
+                // NOTE: Causes "out of gas" exception to be thrown?
+                // var gas = setOrchModeFunction.EstimateGasAsync(true).Result;
+                var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
                 result =
-                    setOrchModeFunction.SendTransactionAsync(psSenderAddress, gas, null, true).Result;
-
-                if (!String.IsNullOrEmpty(poEngine.DefaultSource))
-                {
-                    // NOTE: Causes "out of gas" exception to be thrown?
-                    // var gas = setDefaultSrcFunction.EstimateGasAsync("Something").Result;
-                    var addDefSrcGas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
-
-                    result = setDefaultSrcFunction.SendTransactionAsync(psSenderAddress, addDefSrcGas, null, poEngine.DefaultSource).Result;
-                }
-
+                    setOrchModeFunction.SendTransactionAsync(psSenderAddress, gas, null, true, defSrc).Result;
 
                 foreach (string sTmpAttrId in poEngine.SourceMap.Keys)
                 {
                     WonkaBreSource TmpSource = poEngine.SourceMap[sTmpAttrId];
 
                     // NOTE: Causes "out of gas" exception to be thrown?
-                    // var gas = addSourceFunction.EstimateGasAsync("Something", "Something", "Something", "Something").Result;
+                    // var gas = addSourceFunction.EstimateGasAsync("Something", "Something", "Something", "Something", "Something").Result;
                     var addSrcGas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
                     if (!SourcesAdded.Contains(TmpSource.SourceId))
                     {
                         result =
-                            addSourceFunction.SendTransactionAsync(psSenderAddress, addSrcGas, null, TmpSource.SourceId, "ACT", TmpSource.ContractAddress, TmpSource.MethodName).Result;
+                            addSourceFunction.SendTransactionAsync(psSenderAddress, 
+                                                                   addSrcGas, 
+                                                                   null, 
+                                                                   TmpSource.SourceId, 
+                                                                   "ACT", 
+                                                                   TmpSource.ContractAddress, 
+                                                                   TmpSource.MethodName, 
+                                                                   TmpSource.SetterMethodName).Result;
 
                         SourcesAdded.Add(TmpSource.SourceId);
                     }
@@ -408,12 +407,45 @@ namespace WonkaEth.Extensions
                     sAltRuleName = "Domain(" + sDomainAbbr + ") for [" +
                         ((TempRule.TargetAttribute.AttrName.Length > 13) ? TempRule.TargetAttribute.AttrName.Substring(0, 13) : TempRule.TargetAttribute.AttrName);                        
                 }
-                else if (TempRule.RuleType == RULE_TYPE.RT_ASSIGNMENT)
+
+                if (!String.IsNullOrEmpty(TempRule.DescRuleId))
+                    sRuleName = TempRule.DescRuleId;
+                else
+                {
+                    if (sAltRuleName.Length > CONST_CONTRACT_BYTE32_MAX)
+                        sAltRuleName = sAltRuleName.Substring(0, CONST_CONTRACT_BYTE32_MAX - 1);
+
+                    sRuleName = sAltRuleName;
+                }
+
+                // if ((nRuleType > 0) && !TempRule.NotOperator)
+                if (nRuleType > 0)
+                {
+                    var result =
+                        addRuleTreeFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
+                }
+                else 
+                {
+                    System.Console.WriteLine("ERROR!  This rule doesn't qualify for serialization!");    
+                }
+            }
+
+            foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in poRuleSet.AssertiveRules)
+            {
+                var    sRuleName    = "";
+                var    sAltRuleName = "Rule" + TempRule.RuleId;
+                var    sAttrName    = TempRule.TargetAttribute.AttrName;
+                uint   nRuleType    = 0;
+                string sValue       = "";
+                var    passFlag     = TempRule.IsPassive;
+                var    notFlag      = TempRule.NotOperator;
+
+                if (TempRule.RuleType == RULE_TYPE.RT_ASSIGNMENT)
                 {
                     var AssignRule =
                         (WonkaBre.RuleTree.RuleTypes.AssignmentRule) TempRule;
 
-                    nRuleType = (uint)CONTRACT_RULE_TYPES.ASSIGN_RULE;
+                    nRuleType = (uint) CONTRACT_RULE_TYPES.ASSIGN_RULE;
 
                     sValue = AssignRule.AssignValue;
 
@@ -431,7 +463,7 @@ namespace WonkaEth.Extensions
                     sRuleName = sAltRuleName;
                 }
 
-                if ((nRuleType > 0) && !TempRule.NotOperator)
+                if (nRuleType > 0)
                 {
                     var result =
                         addRuleTreeFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
