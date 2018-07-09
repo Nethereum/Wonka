@@ -655,7 +655,6 @@ contract WonkaEngine {
         return attributes.length;
     }
 
-    // SAVING CHANGE
     /// @dev This method will indicate whether or not the provided address/account has a RuleTree associated with it
     /// @author Aaron Kendall
     /// @notice This method should only be used for debugging purposes.
@@ -729,6 +728,9 @@ contract WonkaEngine {
         return string(bytesStringTrimmed);
     }
 
+    /// @dev This method allows the rules engine to call another contract's method via assembly, retrieving a value for evaluation
+    /// @author Aaron Kendall
+    /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
     function invokeValueRetrieval(address targetContract, address sender, bytes32 methodName, bytes32 attrName) public returns (string strAnswer) {
 
         lastSenderAddressProvided = sender;
@@ -769,6 +771,9 @@ contract WonkaEngine {
         strAnswer = bytes32ToString(answer);
     }
 
+    /// @dev This method allows the rules engine to call another contract's method via assembly, for the purpose of assigning a value
+    /// @author Aaron Kendall
+    /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
     function invokeValueSetter(address targetContract, address sender, bytes32 methodName, bytes32 attrName, bytes32 value) public returns (string strAnswer) {
 
         lastSenderAddressProvided = sender;
@@ -920,6 +925,8 @@ contract WonkaEngine {
         return strConcat(_a, _b, "", "", "");
     }
 
+    /// @dev This method will convert a 'string' type to a 'bytes32' type
+    /// @notice 
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
