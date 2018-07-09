@@ -9,5 +9,11 @@ module.exports = {
     , gas: 8388608
     // , gas: 20000000
    }
+  }
+  , solc: {
+    optimizer: {
+      enabled: true,
+      runs: 200
+    }
   } 
 };
