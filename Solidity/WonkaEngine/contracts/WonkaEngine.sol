@@ -169,7 +169,7 @@ contract WonkaEngine {
     );
 
     // An enum for the type of rules currently supported
-    enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, MAX_TYPE }
+    enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, MAX_TYPE }
     RuleTypes constant defaultType = RuleTypes.IsEqual;
 
     string constant blankValue = "";
@@ -389,7 +389,11 @@ contract WonkaEngine {
                     isPassiveFlag: passiveFlag
                 });
 
-            if (uint(RuleTypes.InDomain) == rType) {
+            if ( (uint(RuleTypes.InDomain) == rType) || 
+                 (uint(RuleTypes.OpAdd) == rType)    || 
+                 (uint(RuleTypes.OpSub) == rType)    || 
+                 (uint(RuleTypes.OpMult) == rType) )  {
+                     
                 splitStrIntoMap(rVal, ",", ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId]);
             }
 
