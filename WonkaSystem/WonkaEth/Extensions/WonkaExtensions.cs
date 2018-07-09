@@ -342,7 +342,6 @@ namespace WonkaEth.Extensions
             // var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeRSID", "SomeRuleName", "SomeAttrName", 0, "SomeVal", false, false).Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
-            // NOTE: ADD RULES HERE
             foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in poRuleSet.EvaluativeRules)
             {
                 var    sRuleName    = "";
@@ -413,7 +412,6 @@ namespace WonkaEth.Extensions
                     sRuleName = sAltRuleName;
                 }
 
-                // if ((nRuleType > 0) && !TempRule.NotOperator)
                 if (nRuleType > 0)
                 {
                     var result =
@@ -434,7 +432,7 @@ namespace WonkaEth.Extensions
                 string sValue       = "";
                 var    notFlag      = TempRule.NotOperator;
 
-                // This is a legacy issue that will be addressed in the near future
+                // NOTE: This is a legacy issue that will be addressed in the near future
                 var passFlag = true; //TempRule.IsPassive;
 
                 if (TempRule.RuleType == RULE_TYPE.RT_ASSIGNMENT)
