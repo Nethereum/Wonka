@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,15 +28,18 @@ namespace WonkaSystem
         {
             try
             {
-                var sSenderAddress   = "0x5cb75438635f709bee95379c6bded85dd18ff5d5";
-                var sPassword        = "cbcf952676232464c6a6243643f480ec8c98857d4f3e00c8eb9a5661beb35102";
-                var sContractAddress = "0x12d87ba51c7cad35e9ed5bc219f49515ca6f3500";
+                var sSenderAddress = "0xd723597d75f7d49f2d2bd30b2e62b5b45b44056f";
+                var sPassword = "6dd43218d638c84e4674a3836dceb69552e25d433aa301aad962b4467b312ae6";
+                var sContractAddress = "0x6cb6d7a788bb8e9006a8a51806e1c6fcfec08d52";
 
                 // SimpleTest(sSenderAddress, sPassword, sContractAddress);
 
                 // NoviceTest(sSenderAddress, sPassword, sContractAddress);
 
-                CQSDemoTest(sSenderAddress, sPassword, sContractAddress);
+                // CQSDemoTest(sSenderAddress, sPassword, sContractAddress);
+
+                string sOrchTestContractAddress = "0x6cfcc94b8d196d3aa99c0ebe3c08610b012869fe";
+                SimpleOrchestrationTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
             }
             catch (WonkaEth.Validation.WonkaValidatorException ex)
             {
@@ -52,6 +55,15 @@ namespace WonkaSystem
             }
 
             return;
+        }
+
+        static void SimpleOrchestrationTest(string psSenderAddress, string psPassword, string psContractAddress, string psOrchTestContractAddress)
+        {
+            WonkaSimpleOrchestrationTest SimpleOrchTest = new WonkaSimpleOrchestrationTest(psSenderAddress, psPassword, psContractAddress);
+
+            bool bValidateWithinTransaction = true;
+
+            SimpleOrchTest.Execute(psOrchTestContractAddress, bValidateWithinTransaction);
         }
 
         static void SimpleTest(string psSenderAddress, string psPassword, string psContractAddress)
@@ -72,7 +84,7 @@ namespace WonkaSystem
         }
 
         static void CQSDemoTest(string psSenderAddress, string psPassword, string psContractAddress)
-        {         
+        {
             WonkaCQSTest CQSTest = new WonkaCQSTest(psSenderAddress, psPassword, psContractAddress);
             CQSTest.Execute();
         }

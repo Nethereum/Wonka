@@ -64,4 +64,11 @@
         TRID_OLD_RECORD,
         TRID_NONE
     }
+
+    public enum SOURCE_TYPE
+    {
+        SRC_TYPE_CONTRACT = 1,
+        SRC_TYPE_API,
+        SRC_TYPE_NONE
+    }
 }

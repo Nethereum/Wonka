@@ -115,6 +115,7 @@
     <Compile Include="CQS\Contracts\AccountDeleteCommand.cs" />
     <Compile Include="CQS\Validation\AccountUpdateValidator.cs" />
     <Compile Include="TestHarness\WonkaCQSTest.cs" />
+    <Compile Include="TestHarness\WonkaSimpleOrchestrationTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -148,6 +149,8 @@
     <EmbeddedResource Include="TestData\SimpleAccountCheck.xml" />
     <EmbeddedResource Include="TestData\WonkaEngine.abi" />
     <EmbeddedResource Include="TestData\WonkaEngine.bin" />
+    <EmbeddedResource Include="TestData\OrchTest.abi" />
+    <EmbeddedResource Include="TestData\OrchTest.bin" />        
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\xunit.core.2.3.1\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core.2.3.1\build\xunit.core.targets')" />

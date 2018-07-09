@@ -18,7 +18,7 @@ namespace WonkaBre.RuleTree
 	///     <!--description = "For all accounts that aren't BitCoin, the following is required" -->
 	///     <validate err="severe">
 	///         <criteria op="AND" >
-	///            <eval>(N.BankAccoutName) POPULATED</eval>
+    ///            <eval>(N.BankAccountName) POPULATED</eval>
 	///            <eval>(O.AccountCurrValue) POPULATED</eval>
 	///            <eval>(N.AccountCurrValue) POPULATED</eval>
 	///            <eval>(O.AccountCurrValue) GT (10.00)</eval>

@@ -369,6 +369,36 @@
       "constant": false,
       "inputs": [
         {
+          "name": "srcName",
+          "type": "bytes32"
+        },
+        {
+          "name": "sts",
+          "type": "bytes32"
+        },
+        {
+          "name": "cntrtAddr",
+          "type": "address"
+        },
+        {
+          "name": "methName",
+          "type": "bytes32"
+        },
+        {
+          "name": "setMethName",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addSource",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
           "name": "ruler",
           "type": "address"
         }
@@ -413,17 +443,20 @@
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "idx",
-          "type": "uint256"
-        }
-      ],
-      "name": "getAttributeName",
+      "inputs": [],
+      "name": "getLastRuleReport",
       "outputs": [
         {
-          "name": "",
-          "type": "bytes32"
+          "name": "fails",
+          "type": "uint256"
+        },
+        {
+          "name": "rsets",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "rules",
+          "type": "bytes32[]"
         }
       ],
       "payable": false,
@@ -432,6 +465,20 @@
     },
     {
       "constant": true,
+      "inputs": [],
+      "name": "getLastTransactionSuccess",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
       "inputs": [
         {
           "name": "ruler",
@@ -450,7 +497,7 @@
         }
       ],
       "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -490,6 +537,24 @@
       "constant": false,
       "inputs": [
         {
+          "name": "orchMode",
+          "type": "bool"
+        },
+        {
+          "name": "defSource",
+          "type": "bytes32"
+        }
+      ],
+      "name": "setOrchestrationMode",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
           "name": "ruler",
           "type": "address"
         },
@@ -503,7 +568,12 @@
         }
       ],
       "name": "setValueOnRecord",
-      "outputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
@@ -525,6 +595,72 @@
       ],
       "payable": false,
       "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "targetContract",
+          "type": "address"
+        },
+        {
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "name": "methodName",
+          "type": "bytes32"
+        },
+        {
+          "name": "attrName",
+          "type": "bytes32"
+        }
+      ],
+      "name": "invokeValueRetrieval",
+      "outputs": [
+        {
+          "name": "strAnswer",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "targetContract",
+          "type": "address"
+        },
+        {
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "name": "methodName",
+          "type": "bytes32"
+        },
+        {
+          "name": "attrName",
+          "type": "bytes32"
+        },
+        {
+          "name": "value",
+          "type": "bytes32"
+        }
+      ],
+      "name": "invokeValueSetter",
+      "outputs": [
+        {
+          "name": "strAnswer",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]

@@ -3,21 +3,21 @@
 
    <if description="Set the status for the incoming record">
       <criteria op="AND">
-         <eval id="pop1">(N.BankAccoutName) POPULATED</eval>
-         <eval id="dom1">(N.BankAccoutName) == ('JohnSmithFirstCheckingAccount')</eval>
+         <eval id="pop1">(N.BankAccountName) POPULATED</eval>
+         <eval id="dom1">(N.BankAccountName) == ('JohnSmithFirstCheckingAccount')</eval>
       </criteria>
 
-	  <if description="Setting Account Status">
+      <if description="Setting Account Status">
            <criteria op="OR">
                <eval id="pop2">(N.AccountStatus) NOT POPULATED</eval>
                <eval id="dom2">(N.AccountStatus) == ('OOS')</eval>
-			   <!-- <eval id="arl1">(O.AccountCurrValue) LT (10.00)</eval> -->
-			   <eval id="arl2">(N.AccountCurrValue) LT (10.00)</eval>
+               <!-- <eval id="arl1">(O.AccountCurrValue) LT (10.00)</eval> -->
+               <eval id="arl2">(N.AccountCurrValue) LT (10.00)</eval>
            </criteria>
 
            <validate err="severe">
                <criteria op="AND">
-                   <eval id="asn1">(N.AccountStatus) ASSIGN ('OOS')</eval>
+                   <eval id="asn1">(N.AuditReviewFlag) ASSIGN ('???')</eval>
                </criteria>
 
                <failure_message/>
@@ -25,10 +25,10 @@
            </validate>           
        </if>
 
-	   <if description="Validating Account Type">
-			<criteria op="AND">
+       <if description="Validating Account Type">
+            <criteria op="AND">
                 <eval id="pop3">(N.AccountType) POPULATED</eval>
-                <eval id="dom3">(N.AccountType) != (O.AccountType)</eval>
+                <!-- <eval id="dom3">(N.AccountType) != (O.AccountType)</eval> -->
                 <!-- <eval>(N.CreationDate) IS BEFORE (TODAY)</eval> -->
                 <!-- <eval>(N.CreationDate) IS BEFORE (TODAY)</eval> -->
             </criteria>
@@ -41,8 +41,8 @@
                 <failure_message/>
                 <success_message/>
             </validate>
-		</if>
+        </if>
 
-   </if>	
+   </if>    
     
 </RuleTree>

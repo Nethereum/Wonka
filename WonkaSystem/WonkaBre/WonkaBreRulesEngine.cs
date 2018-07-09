@@ -23,7 +23,7 @@ namespace WonkaBre
     {
         #region Delegates
         //public delegate bool ComplexEditsDelegate(WonkaProduct poNewProduct, WonkaProduct poOldProduct);
-        public delegate WonkaProduct RetrieveOldRecordDelegate(Dictionary<string,string> KeyValues);
+        public delegate WonkaProduct RetrieveOldRecordDelegate(Dictionary<string, string> KeyValues);
         #endregion
 
         #region CONSTANTS
@@ -38,7 +38,7 @@ namespace WonkaBre
         public const int CONST_MAX_PROPS = 32;
         public const int MAX_RULESET_NES = 32;
 
-        public const int RULE_EXEC_SEVERE_FAIL     = -1;
+        public const int RULE_EXEC_SEVERE_FAIL = -1;
         public const int RULE_EXEC_SEVERE_FAIL_VAL = 666;
 
         public const int RULE_VALUE_MAX = 9;
@@ -54,7 +54,9 @@ namespace WonkaBre
             if (!File.Exists(psRulesFilepath))
                 throw new Exception("ERROR!  Provided rules file(" + psRulesFilepath + ") does not exist on the filesystem.");
 
-            Init(piMetadataSource);
+            UsingOrchestrationMode = false;
+
+            RefEnvHandle = Init(piMetadataSource);
 
             WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRulesFilepath);
 
@@ -66,61 +68,116 @@ namespace WonkaBre
             if ((psRules == null) || (psRules.Length <= 0))
                 throw new Exception("ERROR!  Provided rules are null or empty!");
 
-            Init(piMetadataSource);
+            UsingOrchestrationMode = false;
+
+            RefEnvHandle = Init(piMetadataSource);
 
             WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
         }
 
+        public WonkaBreRulesEngine(StringBuilder psRules, Dictionary<string, WonkaBreSource> poSourceMap, IMetadataRetrievable piMetadataSource = null)
+        {
+            if ((psRules == null) || (psRules.Length <= 0))
+                throw new Exception("ERROR!  Provided rules are null or empty!");
+
+            UsingOrchestrationMode = true;
+
+            RefEnvHandle = Init(piMetadataSource);
+
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
+
+            RuleTreeRoot = BreXmlReader.ParseRuleTree();
+            SourceMap    = poSourceMap;
+
+            this.RetrieveCurrRecord = AssembleCurrentProduct;
+        }
+
         #endregion
 
         #region Methods
 
-        private void Init(IMetadataRetrievable piMetadataSource)
+        /// <summary>
+        /// 
+        /// This method will assemble the new product by iterating through each specified source
+        /// and retrieving the data from it.
+        /// 
+        /// <param name="poKeyValues">The keys for the product whose data we wish to extract/param>
+        /// <returns>Contains the assembled product data that represents the current product</returns>
+        /// </summary>
+        public WonkaProduct AssembleCurrentProduct(Dictionary<string, string> poKeyValues)
         {
+            WonkaProduct CurrentProduct = new WonkaProduct();
+
+            // NOTE: Do work here
+            if (SourceMap != null)
+            {
+                foreach (string sTmpAttName in SourceMap.Keys)
+                {
+                    WonkaBreSource TmpSource  = SourceMap[sTmpAttName];
+                    WonkaRefAttr   TargetAttr = RefEnvHandle.GetAttributeByAttrName(sTmpAttName);
+
+                    string sTmpValue = TmpSource.RetrievalDelegate.Invoke(TmpSource, TargetAttr.AttrName);
+
+                    CurrentProduct.SetAttribute(TargetAttr, sTmpValue);
+                }
+            }
+
+            return CurrentProduct;
+        }
+
+        private WonkaRefEnvironment Init(IMetadataRetrievable piMetadataSource)
+        {
+
+            WonkaRefEnvironment RefEnv = null;
+
             try
             {
-                WonkaRefEnvironment.GetInstance();
+                RefEnv = WonkaRefEnvironment.GetInstance();
             }
             catch (Exception ex)
             {
-                WonkaRefEnvironment.CreateInstance(false, piMetadataSource);
+                RefEnv = WonkaRefEnvironment.CreateInstance(false, piMetadataSource);
             }
 
-            CurrentProductOnDB = null;
+            this.CurrentProductOnDB = null;
 
-            SourceId      = -1;
-            TempDirectory = "C:\tmp";
+            this.TempDirectory = "C:\tmp";
 
-            GetCurrentProductDelegate = null;
+            this.RetrieveCurrRecord = null;
+
+            SourceMap     = new Dictionary<string, WonkaBreSource>();
+            DefaultSource = "";
+
+            return RefEnv;
         }
 
-		/// <summary>
-		/// 
-		/// This method will extract the keys from the product and return them in a Dictionary.
-		/// 
-		/// <param name="poTargetProduct">The product whose keys we wish to extract/param>
-		/// <returns>Contains the keys for the provided product</returns>
-		/// </summary>
-		public Dictionary<string, string> GetProductKeys(WonkaProduct poTargetProduct)
+        /// <summary>
+        /// 
+        /// This method will extract the keys from the product and return them in a Dictionary.
+        /// 
+        /// <param name="poTargetProduct">The product whose keys we wish to extract/param>
+        /// <returns>Contains the keys for the provided product</returns>
+        /// </summary>
+        public Dictionary<string, string> GetProductKeys(WonkaProduct poTargetProduct)
         {
-			WonkaRefEnvironment WonkaRefEnv = WonkaRefEnvironment.GetInstance();
+            WonkaRefEnvironment WonkaRefEnv = WonkaRefEnvironment.GetInstance();
 
-			Dictionary<string, string> ProductKeys = new Dictionary<string, string>();
+            Dictionary<string, string> ProductKeys = new Dictionary<string, string>();
 
             foreach (WonkaRefAttr TempAttrKey in WonkaRefEnv.AttrKeys)
             {
-				if (poTargetProduct.GetProductGroup(TempAttrKey.GroupId).GetRowCount() <= 0)
+                if (poTargetProduct.GetProductGroup(TempAttrKey.GroupId).GetRowCount() <= 0)
                     throw new Exception("ERROR!  Provided incoming product has empty group for needed key (" + TempAttrKey.AttrName + ").");
 
-				string sTempKeyValue = poTargetProduct.GetProductGroup(TempAttrKey.GroupId)[0][TempAttrKey.AttrId];
+                string sTempKeyValue = poTargetProduct.GetProductGroup(TempAttrKey.GroupId)[0][TempAttrKey.AttrId];
 
-				if (String.IsNullOrEmpty(sTempKeyValue))
-					throw new Exception("ERROR!  Provided incoming product has no value for needed key(" + TempAttrKey.AttrName + ").");
+                if (String.IsNullOrEmpty(sTempKeyValue))
+                    throw new Exception("ERROR!  Provided incoming product has no value for needed key(" + TempAttrKey.AttrName + ").");
 
                 ProductKeys[TempAttrKey.AttrName] = sTempKeyValue;
-			}
+            }
 
             return ProductKeys;
         }
@@ -166,15 +223,37 @@ namespace WonkaBre
 
         #region Properties
 
-        private int SourceId { get; set; }
-
         private string TempDirectory { get; set; }
+
+        private RetrieveOldRecordDelegate RetrieveCurrRecord;
+
+        public readonly bool UsingOrchestrationMode;
+
+        public readonly WonkaRefEnvironment RefEnvHandle;
 
         public WonkaBreRuleSet RuleTreeRoot { get; set; }
 
         public WonkaProduct CurrentProductOnDB { get; set; }
 
-        public RetrieveOldRecordDelegate GetCurrentProductDelegate { get; set; }
+        public RetrieveOldRecordDelegate GetCurrentProductDelegate
+        {
+            get
+            {
+                return RetrieveCurrRecord;
+            }
+
+            set
+            {
+                if (!UsingOrchestrationMode)
+                    RetrieveCurrRecord = value;
+                else
+                    throw new Exception("ERROR!  Cannot reassign the delegate when running in orchestration mode.");
+            }
+        }
+
+        public Dictionary<string, WonkaBreSource> SourceMap { get; set; }
+
+        public string DefaultSource { get; set; }
 
         #endregion
 

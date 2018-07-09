@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 /// @title An Ethereum library that contains the functionality for a rules engine
 /// @author Aaron Kendall
@@ -32,16 +32,24 @@ contract WonkaEngine {
         bool isValue;
     }
 
-	/// @title A data structure that represents a Source (i.e., a provider of a record)
-	/// @author Aaron Kendall
-	/// @notice This structure isn't currently used
+    /// @title A data structure that represents a Source (i.e., a provider of a record)
+    /// @author Aaron Kendall
+    /// @notice This structure isn't currently used
     struct WonkaSource {
-
-        int sourceId;
 
         bytes32 sourceName;
 
         bytes32 status;
+
+        // For retrieving an Attribute value
+        bytes32 methodName;
+
+        // For setting an Attribute value
+        bytes32 setMethodName;
+        
+        address contractAddress;
+
+        bool isValue;
     }
 
 	/// @title Defines a rule (i.e., a logical unit for testing the validity of an Attribute value in a record)
@@ -164,9 +172,18 @@ contract WonkaEngine {
     enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, MAX_TYPE }
     RuleTypes constant defaultType = RuleTypes.IsEqual;
 
+    string constant blankValue = "";
+
     address public rulesMaster;
     uint    public attrCounter;
     uint    public ruleCounter;
+
+    address         lastSenderAddressProvided;
+    bool            lastTransactionSuccess;
+    WonkaRuleReport lastRuleReport;
+
+    bool    orchestrationMode;
+    bytes32 defaultTargetSource;
 
     // The Attributes known by this instance of the rules engine
     mapping(bytes32 => WonkaAttr) private attrMap;    
@@ -181,6 +198,9 @@ contract WonkaEngine {
     // The cache of records that are owned by "rulers" and that are validated when invoking a rule tree
     mapping(address => mapping(bytes32 => string)) currentRecords;
 
+    // The cache of available sources
+    mapping(bytes32 => WonkaSource) sourceMap;
+
     // For the function splitStr(...)
     // Currently unsure how the function will perform in a multithreaded scenario
     bytes splitTempStr; // temporarily holds the string part until a space is received
@@ -189,8 +209,11 @@ contract WonkaEngine {
  	/// @dev Constructor for the rules engine
 	/// @author Aaron Kendall
 	/// @notice Currently, the engine will create three dummy Attributes within the cache by default, but they will be removed later
-    function WonkaEngine() public { 
-    // constructor() public {
+    constructor() public {
+
+        orchestrationMode = false;
+        lastTransactionSuccess = false;
+        lastSenderAddressProvided = 0;
 
         rulesMaster = msg.sender;
 
@@ -330,9 +353,9 @@ contract WonkaEngine {
         }
     }
 
- 	/// @dev This method will add a new Rule to the indicated RuleSet
-	/// @author Aaron Kendall
-	/// @notice Currently, a Rule can only belong to one RuleSet
+    /// @dev This method will add a new Rule to the indicated RuleSet
+    /// @author Aaron Kendall
+    /// @notice Currently, a Rule can only belong to one RuleSet
     function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string rVal, bool notFlag, bool passiveFlag) public {
 
         require((msg.sender == rulesMaster) || (msg.sender == ruler));
@@ -388,59 +411,22 @@ contract WonkaEngine {
         }
     }
 
- 	/// @dev This method will check a provided string value and see if it qualifies as an instance of a defined Attribute
-	/// @author Aaron Kendall
-	/// @notice Some of the more proactive sections are not yet implemented
-    function checkCurrValue(WonkaAttr checkAttr, string checkVal) private pure returns(bool valuePasses) {
+    /// @dev This method will add a new source to the mapping cache.
+    /// @author Aaron Kendall
+    /// @notice 
+    function addSource(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName, bytes32 setMethName) public {
 
-        require(checkAttr.attrName.length != 0);
+        require(msg.sender == rulesMaster);
 
-        bytes memory testValue = bytes(checkVal);
-        require(testValue.length != 0);
-
-        if (checkAttr.maxLength > 0) {
-
-            if (checkAttr.maxLengthTruncate) {
-                // NOTE: Not yet currently supported
-            }
-
-            // NOTE: Not yet currently supported
-            // if (checkAttr.defaultValue)
-
-            require(testValue.length < checkAttr.maxLength);
-        }
-
-        if (checkAttr.isNumeric) {
-            uint testNum = 0;
-            
-            testNum = parseInt(checkVal, 0);
-            require(testNum > 0);
-
-            if (checkAttr.maxNumValue > 0)
-                require(testNum < checkAttr.maxNumValue);
-        } 
-
-        valuePasses = true;
-    }
-
- 	/// @dev This method will check the ruler's record and ensure that all of its Attribute values qualify by the Attribute's definition.  This function should only be called when the ruler's record has uncertain data and we wish to assert its general quality.
-	/// @author Aaron Kendall
-	/// @notice Some of the more proactive sections are not yet implemented
-    function checkRecord(address ruler, bytes32[] attrNames) private view returns(bool recordPasses) {
-
-        require(ruletrees[ruler].isValue);
-
-        for (uint idx; idx < attrNames.length; idx++) {
-
-            require(attrMap[attrNames[idx]].isValue == true);
-            
-            string memory tempValue = currentRecords[ruler][attrMap[attrNames[idx]].attrName];
-
-            if (checkCurrValue(attrMap[attrNames[idx]], tempValue) == false)
-                recordPasses = false;
-        }
-
-        recordPasses = true;
+        sourceMap[srcName] = 
+            WonkaSource({
+                sourceName: srcName,
+                status: sts,
+                contractAddress: cntrtAddr,
+                methodName: methName,
+                setMethodName: setMethName,
+                isValue: true
+        });
     }
 
  	/// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
@@ -460,6 +446,8 @@ contract WonkaEngine {
 
         emit CallRuleTree(ruler);
 
+        lastSenderAddressProvided = ruler;
+
         WonkaRuleReport memory report = WonkaRuleReport({
             ruleFailCount: 0,
             ruleSetIds: new bytes32[](ruletrees[ruler].totalRuleCount),
@@ -468,7 +456,7 @@ contract WonkaEngine {
 
         executeWithReport(ruler, ruletrees[ruler].allRuleSets[ruletrees[ruler].rootRuleSetName], report);
 
-        executeSuccess = (report.ruleFailCount == 0);
+        executeSuccess = lastTransactionSuccess = (report.ruleFailCount == 0);
     }
 
  	/// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
@@ -486,13 +474,17 @@ contract WonkaEngine {
 
         emit CallRuleTree(ruler);
 
+        lastSenderAddressProvided = ruler;
+
         WonkaRuleReport memory report = WonkaRuleReport({
             ruleFailCount: 0,
             ruleSetIds: new bytes32[](ruletrees[ruler].totalRuleCount),
             ruleIds: new bytes32[](ruletrees[ruler].totalRuleCount)
             });
 
-        executeWithReport(ruler, ruletrees[ruler].allRuleSets[ruletrees[ruler].rootRuleSetName], report); 
+        executeWithReport(ruler, ruletrees[ruler].allRuleSets[ruletrees[ruler].rootRuleSetName], report);
+
+        lastRuleReport = report;
 
         return (report.ruleFailCount, report.ruleSetIds, report.ruleIds);       
     }
@@ -559,7 +551,7 @@ contract WonkaEngine {
         uint testNumValue = 0;
         uint ruleNumValue = 0;
 
-        string memory tempValue = (currentRecords[ruler])[targetRule.targetAttr.attrName];
+        string memory tempValue = getValueOnRecord(ruler, targetRule.targetAttr.attrName);
 
         emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
 
@@ -573,7 +565,7 @@ contract WonkaEngine {
             if (targetRule.targetAttr.isNumeric) {
                 ruleResult = (testNumValue == ruleNumValue);
             } else {
-                ruleResult = (keccak256(tempValue) == keccak256(targetRule.ruleValue));
+                ruleResult = (keccak256(abi.encodePacked(tempValue)) == keccak256(abi.encodePacked(targetRule.ruleValue)));
             }
 
         } else if (uint(RuleTypes.IsLessThan) == targetRule.ruleType) {
@@ -588,15 +580,16 @@ contract WonkaEngine {
         }
         else if (uint(RuleTypes.Populated) == targetRule.ruleType) {
 
-            ruleResult = (keccak256(tempValue) != keccak256(""));
+            ruleResult = (keccak256(abi.encodePacked(tempValue)) != keccak256(abi.encodePacked("")));
 
         } else if (uint(RuleTypes.InDomain) == targetRule.ruleType) {
 
-            ruleResult = (keccak256(targetRule.ruleValueDomain[tempValue]) == keccak256("Y"));
+            ruleResult = (keccak256(abi.encodePacked(targetRule.ruleValueDomain[tempValue])) == keccak256(abi.encodePacked("Y")));
 
         } else if (uint(RuleTypes.Assign) == targetRule.ruleType) {
 
-            (currentRecords[ruler])[targetRule.targetAttr.attrName] = targetRule.ruleValue;
+            // (currentRecords[ruler])[targetRule.targetAttr.attrName] = targetRule.ruleValue;
+            setValueOnRecord(ruler, targetRule.targetAttr.attrName, targetRule.ruleValue);
 
         }  
 
@@ -613,53 +606,100 @@ contract WonkaEngine {
 
     }
 
- 	/// @dev This method will return the name of an Attribute within the cache by the provided index
-	/// @author Aaron Kendall
-	/// @notice This method should only be used for debugging purposes.
-    function getAttributeName(uint idx) public view returns(bytes32) {
+    /// @dev This method will return the report generated by the engine's last execution
+    /// @author Aaron Kendall
+    function getLastRuleReport() public view returns (uint fails, bytes32[] rsets, bytes32[] rules) {
 
-        require(idx < attributes.length);
+        require(lastSenderAddressProvided > 0);
 
-        return attributes[idx].attrName;
+        return (lastRuleReport.ruleFailCount, lastRuleReport.ruleSetIds, lastRuleReport.ruleIds);
     }
 
- 	/// @dev This method will return the value for an Attribute that is currently stored within the ruler's record
-	/// @author Aaron Kendall
-	/// @notice This method should only be used for debugging purposes.
-    function getValueOnRecord(address ruler, bytes32 key) public view returns(string) { 
+    /// @dev This method will return the indicator of whether or not the last execuction of the engine was a validation success
+    /// @author Aaron Kendall
+    function getLastTransactionSuccess() public view returns(bool) {
+
+        return lastTransactionSuccess;
+    }
+
+    /// @dev This method will return the value for an Attribute that is currently stored within the ruler's record
+    /// @author Aaron Kendall
+    /// @notice This method should only be used for debugging purposes.
+    function getValueOnRecord(address ruler, bytes32 key) public returns(string) { 
 
         require(ruletrees[ruler].isValue);
 
         require (attrMap[key].isValue == true);
 
-        return (currentRecords[ruler])[key];
+        if (!orchestrationMode) {
+            return (currentRecords[ruler])[key];
+        }
+        else {
+
+            if (sourceMap[key].isValue){
+                return invokeValueRetrieval(sourceMap[key].contractAddress, ruler, sourceMap[key].methodName, key);
+            }
+            else if (sourceMap[defaultTargetSource].isValue){
+                return invokeValueRetrieval(sourceMap[defaultTargetSource].contractAddress, ruler, sourceMap[defaultTargetSource].methodName, key);
+            }
+            else
+                return blankValue;
+        }
     }
 
  	/// @dev This method will return the current number of Attributes in the cache
 	/// @author Aaron Kendall
 	/// @notice This method should only be used for debugging purposes.
     function getNumberOfAttributes() public view returns(uint) {
+
         return attributes.length;
     }
 
- 	/// @dev This method will indicate whether or not the provided address/account has a RuleTree associated with it
-	/// @author Aaron Kendall
-	/// @notice This method should only be used for debugging purposes.
+    /// @dev This method will indicate whether or not the provided address/account has a RuleTree associated with it
+    /// @author Aaron Kendall
+    /// @notice This method should only be used for debugging purposes.
     function hasRuleTree(address ruler) public view returns(bool) {
 
-        return (ruletrees[ruler].isValue == true) && (ruletrees[ruler].allRuleSetList.length > 0) && (ruletrees[ruler].rootRuleSetName != "");
+        // return (ruletrees[ruler].isValue == true) && (ruletrees[ruler].allRuleSetList.length > 0) && (ruletrees[ruler].rootRuleSetName != "");
+
+        return (ruletrees[ruler].isValue == true);
     }
 
- 	/// @dev This method will set an Attribute value on the record associated with the provided address/account
-	/// @author Aaron Kendall
-	/// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
-    function setValueOnRecord(address ruler, bytes32 key, string value) public { 
+    /// @dev This method will set the flag as to whether or not the engine should run in Orchestration mode (i.e., use the sourceMap)
+    /// @author Aaron Kendall
+    function setOrchestrationMode(bool orchMode, bytes32 defSource) public { 
+
+        require(msg.sender == rulesMaster);
+
+        orchestrationMode = orchMode;
+
+        defaultTargetSource = defSource;
+    }    
+
+    /// @dev This method will set an Attribute value on the record associated with the provided address/account
+    /// @author Aaron Kendall
+    /// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
+    function setValueOnRecord(address ruler, bytes32 key, string value) public returns(string) { 
 
         require(ruletrees[ruler].isValue);
 
         require(attrMap[key].isValue == true);
+        
+        if (!orchestrationMode) {
+            (currentRecords[ruler])[key] = value;
+            return (currentRecords[ruler])[key];
+        }
+        else {
 
-        (currentRecords[ruler])[key] = value;
+            bytes32 bytes32Value = stringToBytes32(value);
+
+            if (sourceMap[key].isValue && (keccak256(abi.encodePacked(sourceMap[key].setMethodName)) != keccak256(abi.encodePacked("")))) {
+                return invokeValueSetter(sourceMap[key].contractAddress, ruler, sourceMap[key].setMethodName, key, bytes32Value);
+            }
+            else if (sourceMap[defaultTargetSource].isValue && (keccak256(abi.encodePacked(sourceMap[defaultTargetSource].setMethodName)) != keccak256(abi.encodePacked("")))){                
+                return invokeValueSetter(sourceMap[defaultTargetSource].contractAddress, ruler, sourceMap[defaultTargetSource].setMethodName, key, bytes32Value);
+            }
+        }
     }
 
     /***********************
@@ -686,6 +726,94 @@ contract WonkaEngine {
         }
 
         return string(bytesStringTrimmed);
+    }
+
+    /// @dev This method allows the rules engine to call another contract's method via assembly, retrieving a value for evaluation
+    /// @author Aaron Kendall
+    /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
+    function invokeValueRetrieval(address targetContract, address sender, bytes32 methodName, bytes32 attrName) public returns (string strAnswer) {
+
+        lastSenderAddressProvided = sender;
+
+        bytes32 answer;
+
+        string memory strMethodName = bytes32ToString(methodName);
+
+        string memory functionNameAndParams = strConcat(strMethodName, "(bytes32)");
+
+        bytes4 sig = bytes4(keccak256(abi.encodePacked(functionNameAndParams)));
+
+        assembly {
+            // move pointer to free memory spot
+            let ptr := mload(0x40)
+            // put function sig at memory spot
+            mstore(ptr,sig)
+            // append argument after function sig
+            mstore(add(ptr,0x04), attrName)
+
+            let result := call(
+                15000, // gas limit
+                targetContract,
+                0, // not transfer any ether
+                ptr, // Inputs are stored at location ptr
+                0x24, // Inputs are 36 bytes long
+                ptr,  //Store output over input
+                0x20) //Outputs are 32 bytes long
+            
+            if eq(result, 0) {
+                revert(0, 0)
+            }
+            
+            answer := mload(ptr) // Assign output to answer var
+            mstore(0x40,add(ptr,0x24)) // Set storage pointer to new space
+        }
+
+        strAnswer = bytes32ToString(answer);
+    }
+
+    /// @dev This method allows the rules engine to call another contract's method via assembly, for the purpose of assigning a value
+    /// @author Aaron Kendall
+    /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
+    function invokeValueSetter(address targetContract, address sender, bytes32 methodName, bytes32 attrName, bytes32 value) public returns (string strAnswer) {
+
+        lastSenderAddressProvided = sender;
+
+        bytes32 answer = methodName;
+
+        string memory strMethodName = bytes32ToString(methodName);
+
+        string memory functionNameAndParams = strConcat(strMethodName, "(bytes32,bytes32)");
+
+        bytes4 sig = bytes4(keccak256(abi.encodePacked(functionNameAndParams)));        
+
+        assembly {
+            // move pointer to free memory spot
+            let ptr := mload(0x40)
+            // put function sig at memory spot
+            mstore(ptr,sig)
+            // append argument after function sig
+            mstore(add(ptr,0x04), attrName)
+            //Place second argument next to first, padded to 32 bytes
+            mstore(add(ptr,0x24), value)
+
+            let result := call(
+                300000, // gas limit
+                targetContract,
+                0, // not transfer any ether
+                ptr, // Inputs are stored at location ptr
+                0x44, // Inputs are 56 bytes long
+                ptr,  //Store output over input
+                0x20) //Outputs are 32 bytes long
+
+            if eq(result, 0) {
+                revert(0, 0)
+            }
+            
+            answer := mload(ptr) // Assign output to answer var
+            mstore(0x40,add(ptr,0x44)) // Set storage pointer to new space
+        }
+
+        strAnswer = bytes32ToString(answer);
     }
 
     /// @author 
@@ -716,35 +844,6 @@ contract WonkaEngine {
         }
 
         return mint;
-    }
-
- 	/// @dev This method will parse a delimited string into an array of strings
-	/// @notice 
-    function splitStrIntoArray(string str, string delimiter) private returns (string[]) {  
-
-        bytes memory b = bytes(str); //cast the string to bytes to iterate
-        bytes memory delm = bytes(delimiter); 
-
-        // There is no way to reinitialize?
-        // splitArray = string[];
-
-        splitTempStr = "";
-
-        for(uint i; i<b.length ; i++){          
-
-            if(b[i] != delm[0]) { //check if a not space
-                splitTempStr.push(b[i]);             
-            }
-            else { 
-                splitArray.push(string(splitTempStr));
-                splitTempStr = "";                 
-            }                
-        }
-
-        if(b[b.length-1] != delm[0]) { 
-            splitArray.push(string(splitTempStr));
-        }
-        return splitArray;
     }
 
  	/// @dev This method will parse a delimited string and insert them into the Domain map of a Rule
@@ -816,12 +915,6 @@ contract WonkaEngine {
 
  	/// @dev This method will concatenate the provided strings into one larger string
 	/// @notice 
-    function strConcat(string _a, string _b, string _c, string _d) private pure returns (string) {
-        return strConcat(_a, _b, _c, _d, "");
-    }
-
- 	/// @dev This method will concatenate the provided strings into one larger string
-	/// @notice 
     function strConcat(string _a, string _b, string _c) private pure returns (string) {
         return strConcat(_a, _b, _c, "", "");
     }
@@ -832,21 +925,17 @@ contract WonkaEngine {
         return strConcat(_a, _b, "", "", "");
     }
 
-    /*
-     * NOT YET SUPPORTED
-     *
+    /// @dev This method will convert a 'string' type to a 'bytes32' type
+    /// @notice 
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
             return 0x0;
         }
 
-        //
-        // Visual Code plugin hates this stuff - says no soup for you!
-        //assembly {
-        //    result := mload(add(source, 32))
-        //}
+        assembly {
+            result := mload(add(source, 32))
+        }
         
     }
-    */
 }

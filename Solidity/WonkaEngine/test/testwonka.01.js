@@ -1,4 +1,5 @@
-var WonkaEngine = artifacts.require("./WonkaEngine.sol");
+var WonkaEngine      = artifacts.require("./WonkaEngine.sol");
+var OrchTestContract = artifacts.require("./OrchTestContract.sol");
 
 // create an instance of web3 using the HTTP provider.
 // NOTE: in mist web3 is already available, so check first if it's available before instantiating
@@ -16,6 +17,7 @@ var IN_DOMAIN_RULE    = 4;
 var ASSIGN_RULE       = 5;
 
 contract('WonkaEngine', function(accounts) {
+contract('OrchTestContract', function(accounts) {
  
   /*
   beforeEach(function () {
@@ -35,6 +37,7 @@ contract('WonkaEngine', function(accounts) {
       assert.equal(balance.valueOf(), 3, "More or less than 3 attributes populated");
     });
   });
+  /*
   it("name of first Attribute should be 'Title'", function() {
     return WonkaEngine.deployed().then(function(instance) {
       return instance.getAttributeName.call(0);
@@ -42,6 +45,7 @@ contract('WonkaEngine', function(accounts) {
       console.log("Name of first attribute is (" + web3.toAscii(attrName.valueOf()) + ")");
     });
   });
+  */
   it("add a new Attribute called 'Language'", function() {
     return WonkaEngine.deployed().then(function(instance) {
 
@@ -58,6 +62,7 @@ contract('WonkaEngine', function(accounts) {
       console.log("Added more Attributes!");
     });
   });
+  /*
   it("name of fourth Attribute should be 'Language'", function() {
     return WonkaEngine.deployed().then(function(instance) {
       return instance.getAttributeName.call(3);
@@ -65,6 +70,7 @@ contract('WonkaEngine', function(accounts) {
       console.log("Name of last attribute is (" + web3.toAscii(attrName.valueOf()) + ")");
     });
   });
+  */
   it("check for the ruletree", function() {
     return WonkaEngine.deployed().then(function(instance) {
       return instance.hasRuleTree.call(accounts[0]);
@@ -140,7 +146,7 @@ contract('WonkaEngine', function(accounts) {
       instance.setValueOnRecord(accounts[0], web3.fromAscii('BankAccountID'), new String('1234567890').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('BankAccountName'), new String('JohnSmithFirstCheckingAccount').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountStatus'), new String('OOS').valueOf());
-      // instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountStatus'), new String('ACT').valueOf());
+      //instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountStatus'), new String('ACT').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountCurrValue'), new String('999').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountCurrency'), new String('USD').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountType'), new String('Checking').valueOf());
@@ -152,6 +158,7 @@ contract('WonkaEngine', function(accounts) {
   it("run the business rules on the currently populated record", function() {
     return WonkaEngine.deployed().then(function(instance) {
 
+      /*
       var eventRT = instance.CallRuleTree(function(error, result) {
         if (!error)
           console.log("CALLBACK -> Entering the ruletree assigned to ruler: (" + result.args.ruler + ")");
@@ -168,46 +175,79 @@ contract('WonkaEngine', function(accounts) {
                       ") with RSID(" + result.args.ruleSetId + ") -> RuleId(" + result.args.ruleId + 
                       ") and Type(" + result.args.ruleType + ")");
       });
-
-      //
-      //var event = instance.CallRuleTree({ruler:accounts[0]});
-      //event.watch(function(error, result){
-      //    if (!error) {
-      //        // alert("wait for a while, check for block Synchronization or block creation");
-      //        console.log(result);
-      //    }
-      //});
-      //
+      */
 
       return instance.execute.call(accounts[0]);
       // instance.executeWithReport(accounts[0]);
 
     }).then(function(recordValid) {
 
-      console.log("Current record for owner(" + accounts[0] + ") is valid?  [" + recordValid + "]");      
+      console.log("Current record for owner(" + accounts[0] + ") is valid through default execution?  [" + recordValid + "]");      
     });
   });
-  it("name of fourth Attribute should be 'Language'", function() {
-    return WonkaEngine.deployed().then(function(instance) {
-      return instance.getAttributeName.call(3);
-    }).then(function(attrName) {
-      console.log("Name of last attribute is (" + web3.toAscii(attrName.valueOf()) + ")");
+  it("Running the rules engine with Orchestration mode enabled", function() {
+    return WonkaEngine.deployed().then(function(wInstance) {      
+      return OrchTestContract.deployed().then(function(testInstance) {
 
-      /*
-      ** 
-      // Sleep for 5 seconds, in order to get all event output
-      var delay = 5; // 5 second delay
-      var now = new Date();
-      var desiredTime = new Date().setSeconds(now.getSeconds() + delay);
-      
-      while (now < desiredTime) {
-          now = new Date(); // update the current time
-      }
-      */
-      
-      // If I don't call this method, this script never dies and the Ethereum node keeps printing 'eth_getFilterChanges()'
-      process.exit();
+        wInstance.setOrchestrationMode(true, web3.fromAscii('TEST'));
+
+        console.log("Set Orchestration mode to on");
+
+        wInstance.addSource(web3.fromAscii('TEST'), web3.fromAscii('ACT'), testInstance.address, web3.fromAscii('getAttrValueBytes32'), web3.fromAscii('setAttrValueBytes32'));
+
+        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('AccountStatus'));
+
+      }).then(function(accountStatus) {
+
+        // console.log("Value of AccountStatus attribute is (" + web3.toAscii(accountStatus.valueOf()) + ")");
+        console.log("Value of AccountStatus attribute is (" + new String(accountStatus).valueOf() + ")");
+
+        return wInstance.execute.call(accounts[0]);
+
+      }).then(function(recordValid) {
+  
+        console.log("Current record for owner is valid through Orchestration execution?  [" + recordValid + "]");
+
+        // Now let's add an assignment rule to the last ruleset, where we set the Language to '???'
+        wInstance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('AssignLangRule'), web3.fromAscii('Language'), ASSIGN_RULE, new String('???').valueOf(), false, true);
+
+        console.log("Added assignment rule to set a value on the Orchestration contract using Assembly.");
+     
+        // Since we've now added an assignment rule (which can now change the blockchain), we must execute the engine's validation within a transaction
+        wInstance.execute(accounts[0]);
+
+        // Now let's check the validation result, which should still be false
+        return wInstance.getLastTransactionSuccess.call();
+
+      }).then(function(recordValid) {
+  
+        console.log("Current record for owner is valid, with added Assignment rule?  [" + recordValid + "]");   
+
+        // Now let's check the record on the Orchestration contract, to ensure that the Language has been set to '???'
+        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('Language'));
+
+      }).then(function(currLang) {
+  
+        console.log("Current value of Language is (" + new String(currLang).valueOf() + ")");      
+
+        /*
+        ** 
+        // Sleep for 5 seconds, in order to get all event output
+        var delay = 5; // 5 second delay
+        var now = new Date();
+        var desiredTime = new Date().setSeconds(now.getSeconds() + delay);
+        
+        while (now < desiredTime) {
+            now = new Date(); // update the current time
+        }
+        */
+        
+        // If I don't call this method, this script never dies and the Ethereum node keeps printing 'eth_getFilterChanges()'
+        process.exit();
+   
+      });
     });
-  });
+  });  
 
-});
+})  // end of the scope for OrchTestContract
+}); // end of the scope for WonkaEngine

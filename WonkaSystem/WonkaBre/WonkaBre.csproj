@@ -57,6 +57,7 @@
     <Compile Include="Reporting\WonkaBreRuleTreeReport.cs" />
     <Compile Include="WonkaBreRuleMediator.cs" />
     <Compile Include="WonkaBreRulesEngine.cs" />
+    <Compile Include="RuleTree\WonkaBreSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj">
