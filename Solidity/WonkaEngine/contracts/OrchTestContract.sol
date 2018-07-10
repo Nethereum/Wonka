@@ -17,11 +17,13 @@ contract OrchTestContract {
         testRecord["BankAccountID"] = "1234567890";
         testRecord["BankAccountName"] = "JohnSmithFirstCheckingAccount";
 
-        testRecord["AccountStatus"] = "OOS";
-        // testRecord["AccountStatus"] = "ACT";
+        // testRecord["AccountStatus"] = "OOS";
+        testRecord["AccountStatus"] = "ACT";
 
         testRecord["AccountCurrValue"] = "999";
         // testRecord["AccountCurrValue"] = "9";
+
+        testRecord["AccountPrevValue"] = "1500";
 
         //testRecord["AccountType"] = "Checking";
         testRecord["AccountType"] = "WillCauseAnError";

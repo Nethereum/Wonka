@@ -15,6 +15,9 @@ var GREATER_THAN_RULE = 2;
 var POPULATED_RULE    = 3;
 var IN_DOMAIN_RULE    = 4;
 var ASSIGN_RULE       = 5;
+var OP_ADD_RULE       = 6;
+var OP_SUB_RULE       = 7;
+var OP_MUL_RULE       = 8;
 
 contract('WonkaEngine', function(accounts) {
 contract('OrchTestContract', function(accounts) {
@@ -58,6 +61,7 @@ contract('OrchTestContract', function(accounts) {
       instance.addAttribute(web3.fromAscii('AccountCurrValue'), 64, 100000, new String('').valueOf(), false, true);
       instance.addAttribute(web3.fromAscii('AccountType'),    1024, 0, new String('Checking').valueOf(), true, false);
       instance.addAttribute(web3.fromAscii('AccountCurrency'),   3, 0, new String('USD').valueOf(), true, false);
+      instance.addAttribute(web3.fromAscii('AccountPrevValue'), 64, 100000, new String('').valueOf(), false, true);
 
       console.log("Added more Attributes!");
     });
@@ -229,6 +233,28 @@ contract('OrchTestContract', function(accounts) {
       }).then(function(currLang) {
   
         console.log("Current value of Language is (" + new String(currLang).valueOf() + ")");      
+
+        // Now let's add an OpAdd rule to the last ruleset, where we set the AccountCurrValue = AccountCurrValue + AccountPrevValue + 50
+        wInstance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('SumForCurrValue'), web3.fromAscii('AccountCurrValue'), OP_ADD_RULE, new String('AccountCurrValue,AccountPrevValue,1').valueOf(), false, true);      
+
+        console.log("Added OP_ADD rule to set a value on the Orchestration contract using Assembly.");
+     
+        // Since we've now added an assignment rule (which can now change the blockchain), we must execute the engine's validation within a transaction
+        wInstance.execute(accounts[0]);
+
+        // Now let's check the validation result, which should still be false
+        return wInstance.getLastTransactionSuccess.call();
+
+      }).then(function(recordValid) {
+  
+        console.log("Current record for owner is valid, with added OP_ADD rule?  [" + recordValid + "]");   
+
+        // Now let's check the record on the Orchestration contract, to ensure that the Language has been set to '???'
+        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('AccountCurrValue'));
+
+      }).then(function(currAcctValue) {
+  
+        console.log("Current value of AccountCurrValue is (" + new String(currAcctValue).valueOf() + ")");      
 
         /*
         ** 
