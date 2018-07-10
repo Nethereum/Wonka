@@ -70,6 +70,8 @@ contract WonkaEngine {
 
         mapping(string => string) ruleValueDomain;
 
+        string[] ruleDomainKeys;
+
         bytes32 parentRuleSetId;
 
         bool notOpFlag;
@@ -384,17 +386,17 @@ contract WonkaEngine {
                     ruleType: rType,
                     targetAttr: attrMap[attrName],
                     ruleValue: rVal,
+                    ruleDomainKeys: new string[](0),                    
                     parentRuleSetId: ruleSetId,
                     notOpFlag: notFlag,
                     isPassiveFlag: passiveFlag
                 });
 
-            if ( (uint(RuleTypes.InDomain) == rType) || 
-                 (uint(RuleTypes.OpAdd) == rType)    || 
-                 (uint(RuleTypes.OpSub) == rType)    || 
-                 (uint(RuleTypes.OpMult) == rType) )  {
+            bool isOpRule = ((uint(RuleTypes.OpAdd) == rType) || (uint(RuleTypes.OpSub) == rType) || (uint(RuleTypes.OpMult) == rType) );
+
+            if ( (uint(RuleTypes.InDomain) == rType) || isOpRule)  {
                      
-                splitStrIntoMap(rVal, ",", ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId]);
+                splitStrIntoMap(rVal, ",", ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId], isOpRule);
             }
 
         } else {
@@ -407,6 +409,7 @@ contract WonkaEngine {
                     ruleType: rType,
                     targetAttr: attrMap[attrName],
                     ruleValue: rVal,
+                    ruleDomainKeys: new string[](0),                    
                     parentRuleSetId: ruleSetId,
                     notOpFlag: notFlag,
                     isPassiveFlag: passiveFlag
@@ -595,7 +598,17 @@ contract WonkaEngine {
             // (currentRecords[ruler])[targetRule.targetAttr.attrName] = targetRule.ruleValue;
             setValueOnRecord(ruler, targetRule.targetAttr.attrName, targetRule.ruleValue);
 
-        }  
+        }
+        else if ( (uint(RuleTypes.OpAdd) == targetRule.ruleType) ||
+                  (uint(RuleTypes.OpSub) == targetRule.ruleType) || 
+                  (uint(RuleTypes.OpMult) == targetRule.ruleType) ) {
+
+            uint calculatedValue = calculateValue(ruler, targetRule);
+
+            string memory convertedValue = bytes32ToString(uintToBytes(calculatedValue));
+
+            setValueOnRecord(ruler, targetRule.targetAttr.attrName, convertedValue);
+        }        
 
         if (!ruleResult && ruletrees[ruler].allRuleSets[targetRule.parentRuleSetId].isLeaf) {            
 
@@ -732,6 +745,39 @@ contract WonkaEngine {
         return string(bytesStringTrimmed);
     }
 
+    /// @dev This method will calculate the value for a Rule according to its type (Add, Subtract, etc.) and its domain values
+    /// @notice 
+    function calculateValue(address ruler, WonkaRule storage targetRule) private returns (uint calcValue){  
+
+        uint tmpValue = 0;
+        uint finalValue = 0;
+
+        for (uint i = 0; i < targetRule.ruleDomainKeys.length; i++) {
+
+            bytes32 keyName = stringToBytes32(targetRule.ruleDomainKeys[i]);
+
+            if (attrMap[keyName].isValue)
+                tmpValue = parseInt(getValueOnRecord(ruler, keyName), 0);
+            else
+                tmpValue = parseInt(targetRule.ruleDomainKeys[i], 0);
+
+            if (i == 0)
+                finalValue = tmpValue;
+            else {
+
+                if ( uint(RuleTypes.OpAdd) == targetRule.ruleType )
+                    finalValue += tmpValue;
+                else if ( uint(RuleTypes.OpSub) == targetRule.ruleType )
+                    finalValue -= tmpValue;
+                else if ( uint(RuleTypes.OpMult) == targetRule.ruleType )
+                    finalValue *= tmpValue;
+            }
+
+        }
+
+        calcValue = finalValue;
+    }
+
     /// @dev This method allows the rules engine to call another contract's method via assembly, retrieving a value for evaluation
     /// @author Aaron Kendall
     /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
@@ -850,9 +896,9 @@ contract WonkaEngine {
         return mint;
     }
 
- 	/// @dev This method will parse a delimited string and insert them into the Domain map of a Rule
-	/// @notice 
-    function splitStrIntoMap(string str, string delimiter, WonkaRule storage targetRule) private {  
+    /// @dev This method will parse a delimited string and insert them into the Domain map of a Rule
+    /// @notice 
+    function splitStrIntoMap(string str, string delimiter, WonkaRule storage targetRule, bool isOpRule) private {  
 
         bytes memory b = bytes(str); //cast the string to bytes to iterate
         bytes memory delm = bytes(delimiter); 
@@ -871,6 +917,9 @@ contract WonkaEngine {
                 string memory sTempVal = string(splitTempStr);
                 targetRule.ruleValueDomain[sTempVal] = "Y";
 
+                if (isOpRule)
+                    targetRule.ruleDomainKeys.push(sTempVal);
+
                 splitTempStr = "";                 
             }                
         }
@@ -878,6 +927,9 @@ contract WonkaEngine {
         if(b[b.length-1] != delm[0]) { 
             string memory sTempValLast = string(splitTempStr);
             targetRule.ruleValueDomain[sTempValLast] = "Y";
+
+            if (isOpRule)
+                targetRule.ruleDomainKeys.push(sTempValLast);
         }
     }
 
@@ -942,4 +994,25 @@ contract WonkaEngine {
         }
         
     }
+
+    /// @notice Copied this code from MIT implentation
+    /// @dev This method will convert a 'uint' type to a 'bytes32' type
+    function uintToBytes(uint targetVal) private pure returns (bytes32 ret) {
+
+        uint v = targetVal;
+
+        if (v == 0) {
+            ret = "0";
+        }
+        else {
+            while (v > 0) {
+                ret = bytes32(uint(ret) / (2 ** 8));
+                ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
+                v /= 10;
+            }
+        }
+
+        return ret;
+    }
+
 }
