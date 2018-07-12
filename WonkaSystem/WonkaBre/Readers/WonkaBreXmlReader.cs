@@ -265,6 +265,12 @@ namespace WonkaBre.Readers
                 NewRule = new DomainRule() { RuleId = nNewRuleId, NotOperator = false, SearchAllDataRows = true };
             else if (sRuleExpression.Contains("DEFAULT"))
                 NewRule = new AssignmentRule() { RuleId = nNewRuleId, NotOperator = false, DefaultAssignment = true };
+            else if (sRuleExpression.Contains("ASSIGN_SUM"))
+                NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_SUM };
+            else if (sRuleExpression.Contains("ASSIGN_DIFF"))
+                NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_DIFF };            
+            else if (sRuleExpression.Contains("ASSIGN_PROD"))
+                NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_PROD };            
             else if (sRuleExpression.Contains("ASSIGN"))
                 NewRule = new AssignmentRule() { RuleId = nNewRuleId, NotOperator = false };
             else if (this.ArithmeticLimitOps.Any(s => sRuleExpression.Contains(s)))
@@ -310,6 +316,12 @@ namespace WonkaBre.Readers
                     if (poTargetRule.RuleType == RULE_TYPE.RT_DOMAIN)
                     {
                         DomainRule Rule = (DomainRule) poTargetRule;
+
+                        Rule.SetDomain(asValueSet);
+                    }
+                    else if (poTargetRule.RuleType == RULE_TYPE.RT_ARITHMETIC)
+                    {
+                        ArithmeticRule Rule = (ArithmeticRule) poTargetRule;
 
                         Rule.SetDomain(asValueSet);
                     }
