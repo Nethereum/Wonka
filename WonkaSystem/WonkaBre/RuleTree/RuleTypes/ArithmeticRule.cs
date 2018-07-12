@@ -105,8 +105,15 @@ namespace WonkaBre.RuleTree.RuleTypes
 
             foreach (string sTempValue in DomainCache)
             {
-                if (UInt32.TryParse(sTempValue, out nTmpVal))
-                    nTmpVal = 0;
+                try
+                {
+                    nTmpVal = 
+                        (uint) Convert.ToDouble(sTempValue, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                }
+                catch (Exception ex)
+                { 
+                    nTmpVal = 0; 
+                }
 
                 if (nTmpIdx == 0)
                     nResult = nTmpVal;
@@ -388,5 +395,4 @@ namespace WonkaBre.RuleTree.RuleTypes
         #endregion
     }
 }
-
 
