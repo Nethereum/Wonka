@@ -58,6 +58,7 @@
     <Compile Include="WonkaBreRuleMediator.cs" />
     <Compile Include="WonkaBreRulesEngine.cs" />
     <Compile Include="RuleTree\WonkaBreSource.cs" />
+    <Compile Include="RuleTree\RuleTypes\ArithmeticRule.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj">
