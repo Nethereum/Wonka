@@ -177,13 +177,13 @@ namespace WonkaSystem.TestHarness
             {
                 // Serialize(NewProduct);
             }
-            else if (Report.GetRuleSetFailureCount() > 0)                
+            else if (Report.GetRuleSetFailureCount() > 0)
             {
-                throw new Exception("Oh heavens to Betsy! Something bad happened!"); 
+                System.Console.WriteLine(".NET Engine says \"Oh heavens to Betsy! Something bad happened!\"");
             }
             else
             {
-                throw new Exception("What in the world is happening?!");
+                System.Console.WriteLine(".NET Engine says \"What in the world is happening?\"");
             }
 
             if (!String.IsNullOrEmpty(psOrchestrationTestAddress))
@@ -209,7 +209,8 @@ namespace WonkaSystem.TestHarness
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
-            WonkaRefAttr OwnerRankAttr = RefEnv.GetAttributeByAttrName("AuditReviewFlag");
+            WonkaRefAttr CurrValueAttr  = RefEnv.GetAttributeByAttrName("AccountCurrValue");
+            WonkaRefAttr ReviewFlagAttr = RefEnv.GetAttributeByAttrName("AuditReviewFlag");
 
             Dictionary<string, string> PrdKeys = new Dictionary<string, string>();
 
@@ -229,11 +230,13 @@ namespace WonkaSystem.TestHarness
 
                 WonkaProduct OrchContractCurrValues = poRulesEngine.AssembleCurrentProduct(new Dictionary<string, string>());
 
-                string sBeforeOrchestrationAssignment = RetrieveValueMethod(poFlagSource, OwnerRankAttr.AttrName);
+                string sFlagBeforeOrchestrationAssignment  = RetrieveValueMethod(poFlagSource, ReviewFlagAttr.AttrName);
+                string sValueBeforeOrchestrationAssignment = RetrieveValueMethod(poFlagSource, CurrValueAttr.AttrName);
 
-                var receiptExecution = executeWithReportFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress).Result;
+                var receiptAddAttribute = executeWithReportFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress).Result;
 
-                string sAfterOrchestrationAssignment = RetrieveValueMethod(poFlagSource, OwnerRankAttr.AttrName);
+                string sFlagAfterOrchestrationAssignment  = RetrieveValueMethod(poFlagSource, ReviewFlagAttr.AttrName);
+                string sValueAfterOrchestrationAssignment = RetrieveValueMethod(poFlagSource, CurrValueAttr.AttrName);
 
                 ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>().Result;
             }

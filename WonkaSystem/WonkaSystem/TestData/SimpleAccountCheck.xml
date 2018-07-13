@@ -12,12 +12,13 @@
                <eval id="pop2">(N.AccountStatus) NOT POPULATED</eval>
                <eval id="dom2">(N.AccountStatus) == ('OOS')</eval>
                <!-- <eval id="arl1">(O.AccountCurrValue) LT (10.00)</eval> -->
-               <eval id="arl2">(N.AccountCurrValue) LT (10.00)</eval>
+               <eval id="arl2">(N.AccountCurrValue) LT (1000.00)</eval>
            </criteria>
 
            <validate err="severe">
                <criteria op="AND">
                    <eval id="asn1">(N.AuditReviewFlag) ASSIGN ('???')</eval>
+                   <eval id="asn1">(N.AccountCurrValue) ASSIGN_SUM ('15.00', N.AccountCurrValue)</eval>                    
                </criteria>
 
                <failure_message/>
