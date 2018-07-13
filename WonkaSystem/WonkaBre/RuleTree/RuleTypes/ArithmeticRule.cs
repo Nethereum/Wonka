@@ -232,7 +232,7 @@ namespace WonkaBre.RuleTree.RuleTypes
 
         private void Init(TARGET_RECORD peTargetRecord, int pnTargetAttrId, ARITH_OP_TYPE poArithOpType)
         {
-            this.IsPassive = true;
+            this.IsPassive = false;
             this.OpType    = poArithOpType; 
 
             this.RecordOfInterest = peTargetRecord;
