@@ -171,7 +171,7 @@ contract WonkaEngine {
     );
 
     // An enum for the type of rules currently supported
-    enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, MAX_TYPE }
+    enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, CustomOp, MAX_TYPE }
     RuleTypes constant defaultType = RuleTypes.IsEqual;
 
     string constant blankValue = "";
@@ -200,8 +200,11 @@ contract WonkaEngine {
     // The cache of records that are owned by "rulers" and that are validated when invoking a rule tree
     mapping(address => mapping(bytes32 => string)) currentRecords;
 
-    // The cache of available sources
+    // The cache of available sources for retrieving and setting attribute values found on other contracts
     mapping(bytes32 => WonkaSource) sourceMap;
+
+    // The cache of available sources for calling 'op' methods (i.e., that contain special logic to implement a custom operator)
+    mapping(bytes32 => WonkaSource) opMap;
 
     // For the function splitStr(...)
     // Currently unsure how the function will perform in a multithreaded scenario
@@ -316,6 +319,24 @@ contract WonkaEngine {
 
         addRuleSet(ruler, rsName, desc, "", severeFailureFlag, useAndOperator, flagFailImmediately);
     }
+
+    /// @dev This method will add a new custom operator to the cache.
+    /// @author Aaron Kendall
+    /// @notice 
+    function addCustomOp(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName, bytes32 setMethName) public {
+
+        require(msg.sender == rulesMaster);
+
+        opMap[srcName] = 
+            WonkaSource({
+                sourceName: srcName,
+                status: sts,
+                contractAddress: cntrtAddr,
+                methodName: methName,
+                setMethodName: setMethName,
+                isValue: true
+        });
+    }    
 
  	/// @dev This method will add a new RuleSet to the cache and to the indicated RuleTree.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
 	/// @author Aaron Kendall
