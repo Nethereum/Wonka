@@ -24,6 +24,12 @@ namespace WonkaBre.Readers
     /// </summary>
     public class WonkaBreXmlReader
     {
+        #region Delegates
+
+        public delegate string ExecuteCustomOperator(string psArg1, string psArg2, string psArg3, string psArg4);
+
+        #endregion
+
         #region CONSTANTS
 
         public const string CONST_RS_FLOW_TAG       = "if";
@@ -46,6 +52,19 @@ namespace WonkaBre.Readers
         public const string CONST_RULE_TOKEN_START_DELIM = "(";
         public const string CONST_RULE_TOKEN_END_DELIM   = ")";
         public const string CONST_RULE_TOKEN_VAL_DELIM   = ",";
+
+        public const string CONST_BASIC_OP_NOT_POP     = "NOT POPULATED";
+        public const string CONST_BASIC_OP_POP         = "POPULATED";
+        public const string CONST_BASIC_OP_NOT_EQ      = "!=";
+        public const string CONST_BASIC_OP_EQ          = "==";
+        public const string CONST_BASIC_OP_NOT_IN      = "NOT IN";
+        public const string CONST_BASIC_OP_IN          = "IN";
+        public const string CONST_BASIC_OP_EXISTS_AS   = "EXISTS AS";
+        public const string CONST_BASIC_OP_DEFAULT     = "DEFAULT";
+        public const string CONST_BASIC_OP_ASSIGN_SUM  = "ASSIGN_SUM";
+        public const string CONST_BASIC_OP_ASSIGN_DIFF = "ASSIGN_DIFF";
+        public const string CONST_BASIC_OP_ASSIGN_PROD = "ASSIGN_PROD";
+        public const string CONST_BASIC_OP_ASSIGN      = "ASSIGN";
 
         public const string CONST_AL_GT     = "GT";
         public const string CONST_AL_NOT_GT = "NOT GT";
@@ -94,11 +113,49 @@ namespace WonkaBre.Readers
             Init(piMetadataSource);
         }
 
+        // NOTE: That says "po-Op-Source", but if you want to look at it as "poOp-Source", well, that's up to you,
+        // and try not laugh yourself silly
+        public void AddCustomOperator(string psCustomOpName, ExecuteCustomOperator poExecuteDelegate, WonkaBreSource poOpSource = null)
+        {
+            if (BasicOps.Contains(psCustomOpName))
+                throw new Exception("ERROR!  Provided operator is already a basic operator within the rules engine.");
+            
+            if (ArithmeticLimitOps.Contains(psCustomOpName))
+                throw new Exception("ERROR!  Provided operator is already a arithmetic limit operator within the rules engine.");
+            
+            if (DateLimitOps.Contains(psCustomOpName))
+                throw new Exception("ERROR!  Provided operator is already a date limit operator within the rules engine.");
+
+            CustomOpDelegates[psCustomOpName] = poExecuteDelegate;
+
+            if (poOpSource != null)
+                CustomOpSources[psCustomOpName] = poOpSource;
+            else
+                CustomOpSources[psCustomOpName] = new WonkaBreSource("", "", "", "", "", "", "", null);
+        }
+
         private void Init(IMetadataRetrievable piMetadataSource)
         {
             RuleSetIdCounter = 0;
             RuleIdCounter    = 0;
             ValSeqIdCounter  = 0;
+
+            CustomOpDelegates = new Dictionary<string, ExecuteCustomOperator>();
+            CustomOpSources   = new Dictionary<string, WonkaBreSource>();
+
+            BasicOps = new HashSet<string>();
+            BasicOps.Add(CONST_BASIC_OP_NOT_POP);
+            BasicOps.Add(CONST_BASIC_OP_POP);
+            BasicOps.Add(CONST_BASIC_OP_NOT_EQ);
+            BasicOps.Add(CONST_BASIC_OP_EQ);
+            BasicOps.Add(CONST_BASIC_OP_NOT_IN);
+            BasicOps.Add(CONST_BASIC_OP_IN);
+            BasicOps.Add(CONST_BASIC_OP_EXISTS_AS);
+            BasicOps.Add(CONST_BASIC_OP_DEFAULT);
+            BasicOps.Add(CONST_BASIC_OP_ASSIGN_SUM);
+            BasicOps.Add(CONST_BASIC_OP_ASSIGN_DIFF);
+            BasicOps.Add(CONST_BASIC_OP_ASSIGN_PROD);
+            BasicOps.Add(CONST_BASIC_OP_ASSIGN);
 
             ArithmeticLimitOps = new HashSet<string>();
             ArithmeticLimitOps.Add(CONST_AL_GT);
@@ -407,9 +464,15 @@ namespace WonkaBre.Readers
 
         private string BreXmlContents { get; set; }
 
+        private HashSet<string> BasicOps { get; set; }
+
         private HashSet<string> ArithmeticLimitOps { get; set; }
 
         private HashSet<string> DateLimitOps { get; set; }
+
+        private Dictionary<string, ExecuteCustomOperator> CustomOpDelegates { get; set; }
+
+        private Dictionary<string, WonkaBreSource> CustomOpSources { get; set; }
 
         public WonkaBreRuleSet RootRuleSet { get; set; }
 
