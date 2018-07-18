@@ -44,6 +44,45 @@ contract OrchTestContract {
         return testRecord[key];
     }
 
+    function performMyCalc(bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public pure returns(bytes32)    
+    {
+        uint finalAmt = 125;
+        uint minusAmt = 0;
+        uint addAmt = 0;
+        uint divAmt = 0;
+
+        string memory tmpValue = delimValue;
+
+        if (arg1 != "") {
+
+            tmpValue = bytes32ToString(arg1);
+            finalAmt = parseInt(tmpValue, 0);
+
+            if (arg2 != "") {
+                tmpValue = bytes32ToString(arg2);
+                minusAmt = parseInt(tmpValue, 0);
+
+                finalAmt -= minusAmt;
+
+                if (arg3 != "") {
+                    tmpValue = bytes32ToString(arg3);
+                    addAmt = parseInt(tmpValue, 0);
+
+                    finalAmt += addAmt;
+
+                    if (arg4 != ""){
+                        tmpValue = bytes32ToString(arg4);
+                        divAmt = parseInt(tmpValue, 0);
+
+                        finalAmt /= divAmt;
+                    }
+                }
+            }
+        }
+
+        return uintToBytes(finalAmt);
+    }    
+
     function setAttrValueBytes32(bytes32 key, bytes32 value) public returns(bytes32) { 
 
         testRecord[key] = value;
@@ -59,5 +98,54 @@ contract OrchTestContract {
 
         return value;
     }    
+
+    /**
+     ** SUPPORT METHODS
+     **/
+
+    /// @dev This method will convert a 'uint' type to a 'bytes32' type     
+    function parseInt(string _a, uint _b) internal pure returns (uint) {
+
+        bytes memory bresult = bytes(_a);
+        uint bint = _b;
+        uint mint = 0;
+        bool decimals = false;
+
+        for (uint i = 0; i < bresult.length; i++) {
+            if ((bresult[i] >= 48) && (bresult[i] <= 57)) {
+                if (decimals) {
+                    if (bint == 0) 
+                        break;
+                    else 
+                        bint--;
+                }
+                mint *= 10;
+                mint += uint(bresult[i]) - 48;
+            } else if (bresult[i] == 46) 
+                decimals = true;
+        }
+
+        return mint;
+    }
+
+    /// @notice Copied this code from MIT implentation
+    /// @dev This method will convert a 'uint' type to a 'bytes32' type
+    function uintToBytes(uint targetVal) private pure returns (bytes32 ret) {
+
+        uint v = targetVal;
+
+        if (v == 0) {
+            ret = "0";
+        }
+        else {
+            while (v > 0) {
+                ret = bytes32(uint(ret) / (2 ** 8));
+                ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
+                v /= 10;
+            }
+        }
+
+        return ret;
+    }
 
 }
