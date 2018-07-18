@@ -631,24 +631,27 @@ contract WonkaEngine {
 
         } else if (uint(RuleTypes.CustomOp) == targetRule.ruleType) {
 
-            // NOTE: This isn't right - this needs to be fixed
-            bytes32 customOpName = stringToBytes32(targetRule.ruleValue);
-
             bytes32[] memory argsDomain = new bytes32[](4);
 
-            for (uint idx = 0; idx < 4; ++idx) {
+            bytes32 customOpName = "";
+
+            if (targetRule.ruleDomainKeys.length > 0)
+                customOpName = stringToBytes32(targetRule.ruleDomainKeys[0]);
+
+            for (uint idx = 1; idx < 5; ++idx) {
                 if (idx < targetRule.ruleDomainKeys.length)
-                    argsDomain[idx] = stringToBytes32(determineDomainValue(ruler, idx, targetRule));
+                    argsDomain[idx-1] = stringToBytes32(determineDomainValue(ruler, idx, targetRule));
                 else
-                    argsDomain[idx] = "";
+                    argsDomain[idx-1] = "";                    
             }
 
             // string memory customOpResult = invokeCustomOperator(opMap[customOpName].contractAddress, ruler, opMap[customOpName].methodName, argsDomain);
-
             string memory customOpResult = invokeCustomOperator(opMap[customOpName].contractAddress, ruler, opMap[customOpName].methodName, argsDomain[0], argsDomain[1], argsDomain[2], argsDomain[3]);
 
             setValueOnRecord(ruler, targetRule.targetAttr.attrName, customOpResult);
         }
+
+
         if (!ruleResult && ruletrees[ruler].allRuleSets[targetRule.parentRuleSetId].isLeaf) {            
 
             emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
