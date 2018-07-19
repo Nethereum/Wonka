@@ -51,7 +51,7 @@ contract OrchTestContract {
         uint addAmt = 0;
         uint divAmt = 0;
 
-        string memory tmpValue = delimValue;
+        string memory tmpValue;
 
         if (arg1 != "") {
 
@@ -102,6 +102,28 @@ contract OrchTestContract {
     /**
      ** SUPPORT METHODS
      **/
+
+    /// @dev This method will convert a bytes32 type to a String
+    /// @notice 
+    function bytes32ToString(bytes32 x) public pure returns (string) {
+
+        bytes memory bytesString = new bytes(32);
+        uint charCount = 0;
+        for (uint j = 0; j < 32; j++) {
+            byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
+            if (char != 0) {
+                bytesString[charCount] = char;
+                charCount++;
+            }
+        }
+
+        bytes memory bytesStringTrimmed = new bytes(charCount);
+        for (j = 0; j < charCount; j++) {
+            bytesStringTrimmed[j] = bytesString[j];
+        }
+
+        return string(bytesStringTrimmed);
+    }     
 
     /// @dev This method will convert a 'uint' type to a 'bytes32' type     
     function parseInt(string _a, uint _b) internal pure returns (uint) {
