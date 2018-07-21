@@ -94,6 +94,39 @@ namespace WonkaBre
             this.RetrieveCurrRecord = AssembleCurrentProduct;
         }
 
+        public WonkaBreRulesEngine(StringBuilder                                               psRules, 
+                                   Dictionary<string, WonkaBreSource>                          poSourceMap, 
+                                   Dictionary<string, WonkaBreXmlReader.ExecuteCustomOperator> poCustomOpDelegates,
+                                   Dictionary<string, WonkaBreSource>                          poCustomOpBlockchainSources,
+                                   IMetadataRetrievable                                        piMetadataSource = null)
+        {
+            if ((psRules == null) || (psRules.Length <= 0))
+                throw new Exception("ERROR!  Provided rules are null or empty!");
+
+            UsingOrchestrationMode = true;
+
+            RefEnvHandle = Init(piMetadataSource);
+
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
+
+            foreach (string sKey in poCustomOpDelegates.Keys)
+            {
+                WonkaBreXmlReader.ExecuteCustomOperator oTargetDelegate = poCustomOpDelegates[sKey];
+
+                WonkaBreSource oTargetSource = null;
+
+                if (poCustomOpBlockchainSources.Keys.Contains(sKey))
+                    oTargetSource = poCustomOpBlockchainSources[sKey];
+
+                BreXmlReader.AddCustomOperator(sKey, oTargetDelegate, oTargetSource);
+            }
+
+            RuleTreeRoot = BreXmlReader.ParseRuleTree();
+            SourceMap    = poSourceMap;
+
+            this.RetrieveCurrRecord = AssembleCurrentProduct;
+        }
+
         #endregion
 
         #region Methods
