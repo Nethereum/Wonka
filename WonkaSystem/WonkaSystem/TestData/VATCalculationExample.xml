@@ -10,7 +10,7 @@
            <criteria op="AND">
                <eval id="pop2">(N.NewSaleEAN) POPULATED</eval>
                <!-- Since Solidity does not support decimals, we must divide in order to get a close (but still imprecise) estimate -->
-               <eval id="cmp1">(N.NewSaleVATRateDenom) GT (0.00)</eval>                
+               <eval id="asn0">(N.NewSaleVATRateDenom) INVOKE_VAT_LOOKUP (N.NewSaleItemType, N.CountryOfSale)</eval>                
            </criteria>
 
            <validate err="severe">
