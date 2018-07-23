@@ -40,6 +40,7 @@
         RT_COMPLEX,
         RT_PARSER,
         RT_ARITHMETIC,
+        RT_CUSTOM_OP,
         RT_NONE
     }
 
