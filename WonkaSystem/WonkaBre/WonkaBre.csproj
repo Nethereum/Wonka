@@ -59,6 +59,7 @@
     <Compile Include="WonkaBreRulesEngine.cs" />
     <Compile Include="RuleTree\WonkaBreSource.cs" />
     <Compile Include="RuleTree\RuleTypes\ArithmeticRule.cs" />
+    <Compile Include="RuleTree\RuleTypes\CustomOperatorRule.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj">
