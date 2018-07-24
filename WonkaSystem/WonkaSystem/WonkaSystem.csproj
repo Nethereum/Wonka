@@ -116,6 +116,7 @@
     <Compile Include="CQS\Validation\AccountUpdateValidator.cs" />
     <Compile Include="TestHarness\WonkaCQSTest.cs" />
     <Compile Include="TestHarness\WonkaSimpleOrchestrationTest.cs" />
+    <Compile Include="TestHarness\WonkaSimpleCustomOpsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
