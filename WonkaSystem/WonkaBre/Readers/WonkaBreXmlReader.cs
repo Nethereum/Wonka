@@ -334,6 +334,8 @@ namespace WonkaBre.Readers
                 NewRule = new ArithmeticLimitRule() { RuleId = nNewRuleId };
             else if (this.DateLimitOps.Any(s => sRuleExpression.Contains(s)))
                 NewRule = new DateLimitRule() { RuleId = nNewRuleId };
+            else if (this.CustomOpDelegates.Keys.Any(s => sRuleExpression.Contains(s)))
+                NewRule = new CustomOperatorRule() { RuleId = nNewRuleId };
 
             if (NewRule != null)
             {
@@ -399,6 +401,21 @@ namespace WonkaBre.Readers
                         DateLimitRule Rule = (DateLimitRule) poTargetRule;
 
                         Rule.SetMinAndMax(psRuleExpression, asValueSet);
+                    }
+                    else if (poTargetRule.RuleType == RULE_TYPE.RT_CUSTOM_OP)
+                    {
+                        CustomOperatorRule Rule = (CustomOperatorRule) poTargetRule;
+
+                        string sCustomOpKey = CustomOpDelegates.Keys.Where(s => psRuleExpression.Contains(s)).FirstOrDefault();
+
+                        if (!String.IsNullOrEmpty(sCustomOpKey))
+                        {                            
+                            Rule.SetDomain(asValueSet);
+
+                            Rule.CustomOpName           = sCustomOpKey;
+                            Rule.CustomOpDelegate       = CustomOpDelegates[sCustomOpKey];
+                            Rule.CustomOpContractSource = CustomOpSources[sCustomOpKey];
+                        }
                     }
                 }
             }
