@@ -117,6 +117,7 @@
     <Compile Include="TestHarness\WonkaCQSTest.cs" />
     <Compile Include="TestHarness\WonkaSimpleOrchestrationTest.cs" />
     <Compile Include="TestHarness\WonkaSimpleCustomOpsTest.cs" />
+    <Compile Include="TestHarness\WonkaMetadataVATSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
