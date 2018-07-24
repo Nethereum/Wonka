@@ -255,6 +255,32 @@
       "constant": false,
       "inputs": [
         {
+          "name": "srcName",
+          "type": "bytes32"
+        },
+        {
+          "name": "sts",
+          "type": "bytes32"
+        },
+        {
+          "name": "cntrtAddr",
+          "type": "address"
+        },
+        {
+          "name": "methName",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addCustomOp",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
           "name": "ruler",
           "type": "address"
         },
@@ -613,6 +639,49 @@
           "type": "bytes32"
         },
         {
+          "name": "arg1",
+          "type": "bytes32"
+        },
+        {
+          "name": "arg2",
+          "type": "bytes32"
+        },
+        {
+          "name": "arg3",
+          "type": "bytes32"
+        },
+        {
+          "name": "arg4",
+          "type": "bytes32"
+        }
+      ],
+      "name": "invokeCustomOperator",
+      "outputs": [
+        {
+          "name": "strAnswer",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "targetContract",
+          "type": "address"
+        },
+        {
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "name": "methodName",
+          "type": "bytes32"
+        },
+        {
           "name": "attrName",
           "type": "bytes32"
         }
@@ -663,4 +732,4 @@
       "stateMutability": "nonpayable",
       "type": "function"
     }
-  ]
+ ]
