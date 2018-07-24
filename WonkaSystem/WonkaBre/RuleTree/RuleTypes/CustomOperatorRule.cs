@@ -52,12 +52,14 @@ namespace WonkaBre.RuleTree.RuleTypes
         public CustomOperatorRule(int                                     pnRuleID, 
                                   TARGET_RECORD                           peTargetRecord, 
                                   int                                     pnTargetAttrId, 
+                                  string                                  psCustomOpName,
                                   WonkaBreXmlReader.ExecuteCustomOperator poCustomOpDelegate,
                                   WonkaBreSource                          poCustomOpContractSource) :
             base(pnRuleID, RULE_TYPE.RT_CUSTOM_OP)
         {
             Init(peTargetRecord, pnTargetAttrId, null);
 
+            CustomOpName           = psCustomOpName;
             CustomOpDelegate       = poCustomOpDelegate;
             CustomOpContractSource = poCustomOpContractSource; 
         }
@@ -370,6 +372,8 @@ namespace WonkaBre.RuleTree.RuleTypes
 
         public bool HasAttrIdTargets { get; set; }
 
+        public string CustomOpName { get; set; }
+
         public WonkaBreXmlReader.ExecuteCustomOperator CustomOpDelegate { get; set; }
 
         public WonkaBreSource CustomOpContractSource { get; set; }
@@ -381,3 +385,4 @@ namespace WonkaBre.RuleTree.RuleTypes
         #endregion
     }
 }
+
