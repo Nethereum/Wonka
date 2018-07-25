@@ -115,7 +115,7 @@ namespace WonkaBre.Readers
 
         // NOTE: That says "po-Op-Source", but if you want to look at it as "poOp-Source", well, that's up to you,
         // and try not laugh yourself silly
-        public void AddCustomOperator(string psCustomOpName, ExecuteCustomOperator poExecuteDelegate, WonkaBreSource poOpSource = null)
+        public void AddCustomOperator(string psCustomOpName, WonkaBreSource poOpSource = null)
         {
             if (BasicOps.Contains(psCustomOpName))
                 throw new Exception("ERROR!  Provided operator is already a basic operator within the rules engine.");
