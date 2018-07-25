@@ -126,8 +126,6 @@ namespace WonkaBre.Readers
             if (DateLimitOps.Contains(psCustomOpName))
                 throw new Exception("ERROR!  Provided operator is already a date limit operator within the rules engine.");
 
-            CustomOpDelegates[psCustomOpName] = poExecuteDelegate;
-
             if (poOpSource != null)
                 CustomOpSources[psCustomOpName] = poOpSource;
             else
@@ -139,9 +137,7 @@ namespace WonkaBre.Readers
             RuleSetIdCounter = 0;
             RuleIdCounter    = 0;
             ValSeqIdCounter  = 0;
-
-            CustomOpDelegates = new Dictionary<string, ExecuteCustomOperator>();
-            CustomOpSources   = new Dictionary<string, WonkaBreSource>();
+            CustomOpSources  = new Dictionary<string, WonkaBreSource>();
 
             BasicOps = new HashSet<string>();
             BasicOps.Add(CONST_BASIC_OP_NOT_POP);
@@ -334,7 +330,7 @@ namespace WonkaBre.Readers
                 NewRule = new ArithmeticLimitRule() { RuleId = nNewRuleId };
             else if (this.DateLimitOps.Any(s => sRuleExpression.Contains(s)))
                 NewRule = new DateLimitRule() { RuleId = nNewRuleId };
-            else if (this.CustomOpDelegates.Keys.Any(s => sRuleExpression.Contains(s)))
+            else if (this.CustomOpSources.Keys.Any(s => sRuleExpression.Contains(s)))
                 NewRule = new CustomOperatorRule() { RuleId = nNewRuleId };
 
             if (NewRule != null)
@@ -406,14 +402,13 @@ namespace WonkaBre.Readers
                     {
                         CustomOperatorRule Rule = (CustomOperatorRule) poTargetRule;
 
-                        string sCustomOpKey = CustomOpDelegates.Keys.Where(s => psRuleExpression.Contains(s)).FirstOrDefault();
+                        string sCustomOpKey = CustomOpSources.Keys.Where(s => psRuleExpression.Contains(s)).FirstOrDefault();
 
                         if (!String.IsNullOrEmpty(sCustomOpKey))
                         {                            
                             Rule.SetDomain(asValueSet);
 
                             Rule.CustomOpName           = sCustomOpKey;
-                            Rule.CustomOpDelegate       = CustomOpDelegates[sCustomOpKey];
                             Rule.CustomOpContractSource = CustomOpSources[sCustomOpKey];
                         }
                     }
@@ -486,8 +481,6 @@ namespace WonkaBre.Readers
         private HashSet<string> ArithmeticLimitOps { get; set; }
 
         private HashSet<string> DateLimitOps { get; set; }
-
-        private Dictionary<string, ExecuteCustomOperator> CustomOpDelegates { get; set; }
 
         private Dictionary<string, WonkaBreSource> CustomOpSources { get; set; }
 
