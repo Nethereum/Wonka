@@ -94,11 +94,10 @@ namespace WonkaBre
             this.RetrieveCurrRecord = AssembleCurrentProduct;
         }
 
-        public WonkaBreRulesEngine(StringBuilder                                               psRules, 
-                                   Dictionary<string, WonkaBreSource>                          poSourceMap, 
-                                   Dictionary<string, WonkaBreXmlReader.ExecuteCustomOperator> poCustomOpDelegates,
-                                   Dictionary<string, WonkaBreSource>                          poCustomOpBlockchainSources,
-                                   IMetadataRetrievable                                        piMetadataSource = null)
+        public WonkaBreRulesEngine(StringBuilder                      psRules, 
+                                   Dictionary<string, WonkaBreSource> poSourceMap, 
+                                   Dictionary<string, WonkaBreSource> poCustomOpBlockchainSources,
+                                   IMetadataRetrievable               piMetadataSource = null)
         {
             if ((psRules == null) || (psRules.Length <= 0))
                 throw new Exception("ERROR!  Provided rules are null or empty!");
@@ -109,14 +108,9 @@ namespace WonkaBre
 
             WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
 
-            foreach (string sKey in poCustomOpDelegates.Keys)
+            foreach (string sKey in poCustomOpBlockchainSources.Keys)
             {
-                WonkaBreXmlReader.ExecuteCustomOperator oTargetDelegate = poCustomOpDelegates[sKey];
-
-                WonkaBreSource oTargetSource = null;
-
-                if (poCustomOpBlockchainSources.Keys.Contains(sKey))
-                    oTargetSource = poCustomOpBlockchainSources[sKey];
+                WonkaBreSource oTargetSource = poCustomOpBlockchainSources[sKey];
 
                 BreXmlReader.AddCustomOperator(sKey, oTargetSource);
             }
