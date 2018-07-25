@@ -118,7 +118,7 @@ namespace WonkaBre
                 if (poCustomOpBlockchainSources.Keys.Contains(sKey))
                     oTargetSource = poCustomOpBlockchainSources[sKey];
 
-                BreXmlReader.AddCustomOperator(sKey, oTargetDelegate, oTargetSource);
+                BreXmlReader.AddCustomOperator(sKey, oTargetSource);
             }
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
