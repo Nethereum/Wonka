@@ -42,6 +42,23 @@ namespace WonkaBre.RuleTree
             RetrievalDelegate = poRetrievalDelegate;
         }
 
+        public WonkaBreSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, WonkaBreXmlReader.ExecuteCustomOperator poCustomOpDelegate, string psCustomOpMethodName)
+        {
+            SourceId     = psSourceId;
+            TypeOfSource = SOURCE_TYPE.SRC_TYPE_CONTRACT;
+
+            SenderAddress   = psSenderAddr;
+            Password        = psPwd;
+            ContractAddress = psContractAddr;
+            ContractABI     = psABI;
+
+            APIServerAddress = "";
+            APIServerPort    = -1;
+
+            CustomOpDelegate   = poCustomOpDelegate;
+            CustomOpMethodName = psCustomOpMethodName; 
+        }
+
         public WonkaBreSource(string psSourceId, string psAPISrvrAddr, int pnAPISrvrPort, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
         {
             SourceId     = psSourceId;
@@ -63,11 +80,23 @@ namespace WonkaBre.RuleTree
 
         public readonly SOURCE_TYPE TypeOfSource;
 
+        #endregion
+
+        #region Properties for Simple Orchestration (i.e., data getter/setter)
+
         public readonly RetrieveDataMethod RetrievalDelegate;
 
         public readonly string MethodName;
 
         public readonly string SetterMethodName;
+
+        #endregion
+
+        #region Properties for Custom Orchestration (i.e., custom operators)
+
+        public readonly WonkaBreXmlReader.ExecuteCustomOperator CustomOpDelegate;
+
+        public readonly string CustomOpMethodName;
 
         #endregion
 
@@ -92,4 +121,5 @@ namespace WonkaBre.RuleTree
         #endregion
     }
 }
+
 
