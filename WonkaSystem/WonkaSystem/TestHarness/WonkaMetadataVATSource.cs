@@ -22,11 +22,12 @@ namespace WonkaSystem.TestHarness
             AttrCache.Add(new WonkaRefAttr() { AttrId = 1, AttrName = "NewSalesTransSeq",    FieldId = 101, GroupId = 1, IsAudited = false, IsNumeric = true, IsKey = true });
             AttrCache.Add(new WonkaRefAttr() { AttrId = 2, AttrName = "NewSaleVATRateDenom", FieldId = 102, GroupId = 1, IsAudited = true, IsNumeric = true, });
             AttrCache.Add(new WonkaRefAttr() { AttrId = 3, AttrName = "NewSaleItemType",     FieldId = 103, GroupId = 1, IsAudited = false, MaxLength = 1024 });
-            AttrCache.Add(new WonkaRefAttr() { AttrId = 6, AttrName = "CountryOfSale",       FieldId = 104, GroupId = 1, IsAudited = true, MaxLength = 3 });
-            AttrCache.Add(new WonkaRefAttr() { AttrId = 7, AttrName = "NewSalePrice",        FieldId = 105, GroupId = 1, IsAudited = true, IsNumeric = true });
-            AttrCache.Add(new WonkaRefAttr() { AttrId = 8, AttrName = "PrevSellTaxAmount",   FieldId = 106, GroupId = 1, IsAudited = true, IsNumeric = true });
-            AttrCache.Add(new WonkaRefAttr() { AttrId = 9, AttrName = "NewSellTaxAmount",    FieldId = 107, GroupId = 1, IsAudited = true, IsNumeric = true });
-            AttrCache.Add(new WonkaRefAttr() { AttrId = 9, AttrName = "NewVATAmountForHMRC", FieldId = 108, GroupId = 1, IsAudited = true, IsNumeric = true });
+            AttrCache.Add(new WonkaRefAttr() { AttrId = 4, AttrName = "CountryOfSale",       FieldId = 104, GroupId = 1, IsAudited = true, MaxLength = 3 });
+            AttrCache.Add(new WonkaRefAttr() { AttrId = 5, AttrName = "NewSalePrice",        FieldId = 105, GroupId = 1, IsAudited = true, IsNumeric = true });
+            AttrCache.Add(new WonkaRefAttr() { AttrId = 6, AttrName = "PrevSellTaxAmount",   FieldId = 106, GroupId = 1, IsAudited = true, IsNumeric = true });
+            AttrCache.Add(new WonkaRefAttr() { AttrId = 7, AttrName = "NewSellTaxAmount",    FieldId = 107, GroupId = 1, IsAudited = true, IsNumeric = true });
+            AttrCache.Add(new WonkaRefAttr() { AttrId = 8, AttrName = "NewVATAmountForHMRC", FieldId = 108, GroupId = 1, IsAudited = true, IsNumeric = true });
+            AttrCache.Add(new WonkaRefAttr() { AttrId = 9, AttrName = "NewSaleEAN",          FieldId = 109, GroupId = 1, IsAudited = false, IsNumeric = true, IsKey = false });
 
             return AttrCache;
         }
@@ -35,11 +36,11 @@ namespace WonkaSystem.TestHarness
         {
             List<WonkaRefCurrency> CurrencyCache = new List<WonkaRefCurrency>();
 
-            CurrencyCache.Add(new WonkaRefCurrency() { CurrencyId = 1, CurrencyCd = "USD", USDCost = 1, USDList = 1 });
-            CurrencyCache.Add(new WonkaRefCurrency() { CurrencyId = 2, CurrencyCd = "EUR", USDCost = 1.24f, USDList = 1.24f });
-            CurrencyCache.Add(new WonkaRefCurrency() { CurrencyId = 3, CurrencyCd = "CNY", USDCost = 0.16f, USDList = 0.16f });
+            CurrencyCache.Add(new WonkaRefCurrency() { CurrencyId = 1, CurrencyCd = "USD", USDCost = 1,        USDList = 1 });
+            CurrencyCache.Add(new WonkaRefCurrency() { CurrencyId = 2, CurrencyCd = "EUR", USDCost = 1.24f,    USDList = 1.24f });
+            CurrencyCache.Add(new WonkaRefCurrency() { CurrencyId = 3, CurrencyCd = "CNY", USDCost = 0.16f,    USDList = 0.16f });
             CurrencyCache.Add(new WonkaRefCurrency() { CurrencyId = 4, CurrencyCd = "BTC", USDCost = 9722.73f, USDList = 9722.73f });
-            CurrencyCache.Add(new WonkaRefCurrency() { CurrencyId = 5, CurrencyCd = "USD", USDCost = 811.68f, USDList = 811.68f });
+            CurrencyCache.Add(new WonkaRefCurrency() { CurrencyId = 5, CurrencyCd = "USD", USDCost = 811.68f,  USDList = 811.68f });
 
             return CurrencyCache;
         }
@@ -56,6 +57,7 @@ namespace WonkaSystem.TestHarness
             FieldCache.Add(new WonkaRefField() { FieldId = 106, FieldName = "PrevSellTaxAmount",   GroupId = 1, AttrIds = new List<int>() { 6 } });
             FieldCache.Add(new WonkaRefField() { FieldId = 107, FieldName = "NewSellTaxAmount",    GroupId = 1, AttrIds = new List<int>() { 7 } });
             FieldCache.Add(new WonkaRefField() { FieldId = 108, FieldName = "NewVATAmountForHMRC", GroupId = 1, AttrIds = new List<int>() { 8 } });
+            FieldCache.Add(new WonkaRefField() { FieldId = 109, FieldName = "NewSaleEAN",          GroupId = 1, AttrIds = new List<int>() { 9 } });
 
             return FieldCache;
         }
@@ -84,9 +86,9 @@ namespace WonkaSystem.TestHarness
             List<WonkaRefSourceField> SourceFieldCache = new List<WonkaRefSourceField>();
 
             SourceFieldCache.Add(new WonkaRefSourceField() { SourceFieldId = 1, SourceId = 1, FieldId = 102, SecurityLevel = 3 });
-            SourceFieldCache.Add(new WonkaRefSourceField() { SourceFieldId = 2, SourceId = 1, FieldId = 2, SecurityLevel = 1 });
+            SourceFieldCache.Add(new WonkaRefSourceField() { SourceFieldId = 2, SourceId = 1, FieldId = 2,   SecurityLevel = 1 });
             SourceFieldCache.Add(new WonkaRefSourceField() { SourceFieldId = 3, SourceId = 2, FieldId = 102, SecurityLevel = 3 });
-            SourceFieldCache.Add(new WonkaRefSourceField() { SourceFieldId = 4, SourceId = 2, FieldId = 2, SecurityLevel = 1 });
+            SourceFieldCache.Add(new WonkaRefSourceField() { SourceFieldId = 4, SourceId = 2, FieldId = 2,   SecurityLevel = 1 });
 
             return SourceFieldCache;
         }
@@ -112,4 +114,3 @@ namespace WonkaSystem.TestHarness
         #endregion
     }
 }
-
