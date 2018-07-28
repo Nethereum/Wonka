@@ -32,7 +32,7 @@
 
            <validate err="severe">
                <criteria op="AND">
-                   <eval id="asn1">(N.NewSellTaxAmount) ASSIGN_QUOTIENT ('NewSalePrice, NewSaleVATRateDenom')</eval>
+                   <eval id="asn1">(N.NewSellTaxAmount) ASSIGN_QUOT ('NewSalePrice, NewSaleVATRateDenom')</eval>
                    <eval id="asn2">(N.NewVATAmountForHMRC) ASSIGN_DIFF ('NewSellTaxAmount, PrevSellTaxAmount')</eval>
                </criteria>
 

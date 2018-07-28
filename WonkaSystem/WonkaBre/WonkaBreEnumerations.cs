@@ -49,6 +49,7 @@
         AOT_SUM = 1,
         AOT_DIFF,
         AOT_PROD,
+        AOT_QUOT,
         AOT_NONE
     }
 

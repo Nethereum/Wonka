@@ -54,6 +54,8 @@ namespace WonkaEth.Extensions
             ARITH_OP_SUM,
             ARITH_OP_DIFF,
             ARITH_OP_PROD,
+            ARITH_OP_QUOT,
+            CUSTOM_OP_RULE,
             MODE_MAX
         }
 
@@ -461,8 +463,10 @@ namespace WonkaEth.Extensions
                         nRuleType = (uint)CONTRACT_RULE_TYPES.ARITH_OP_SUM;
                     else if (AssignArithmeticRule.OpType == ARITH_OP_TYPE.AOT_DIFF)
                         nRuleType = (uint)CONTRACT_RULE_TYPES.ARITH_OP_DIFF;
-                    if (AssignArithmeticRule.OpType == ARITH_OP_TYPE.AOT_PROD)
+                    else if (AssignArithmeticRule.OpType == ARITH_OP_TYPE.AOT_PROD)
                         nRuleType = (uint)CONTRACT_RULE_TYPES.ARITH_OP_PROD;                    
+                    else if (AssignArithmeticRule.OpType == ARITH_OP_TYPE.AOT_QUOT)
+                        nRuleType = (uint)CONTRACT_RULE_TYPES.ARITH_OP_QUOT;                    
 
                     if (nRuleType > 0)
                     {

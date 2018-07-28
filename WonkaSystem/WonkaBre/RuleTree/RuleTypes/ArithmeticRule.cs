@@ -122,7 +122,9 @@ namespace WonkaBre.RuleTree.RuleTypes
                 else if (this.OpType == ARITH_OP_TYPE.AOT_DIFF)
                     nResult -= nTmpVal;
                 else if (this.OpType == ARITH_OP_TYPE.AOT_PROD)
-                    nResult *= nTmpVal;                
+                    nResult *= nTmpVal;
+                else if (this.OpType == ARITH_OP_TYPE.AOT_QUOT)
+                    nResult /= nTmpVal;                
 
                 ++nTmpIdx;
             }
@@ -213,7 +215,9 @@ namespace WonkaBre.RuleTree.RuleTypes
             else if (this.OpType == ARITH_OP_TYPE.AOT_DIFF)
                 sResultType = "difference";
             else if (this.OpType == ARITH_OP_TYPE.AOT_PROD)
-                sResultType = "product";                
+                sResultType = "product";
+            else if (this.OpType == ARITH_OP_TYPE.AOT_QUOT)
+                sResultType = "quotient";            
 
             VerboseErrorBuilder.Append(sAttrName);
             VerboseErrorBuilder.Append(" ");

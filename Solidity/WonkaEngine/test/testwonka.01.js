@@ -18,7 +18,8 @@ var ASSIGN_RULE       = 5;
 var OP_ADD_RULE       = 6;
 var OP_SUB_RULE       = 7;
 var OP_MUL_RULE       = 8;
-var CUSTOM_OP_RULE    = 9;
+var OP_DIV_RULE       = 9;
+var CUSTOM_OP_RULE    = 10;
 
 contract('WonkaEngine', function(accounts) {
 contract('OrchTestContract', function(accounts) {

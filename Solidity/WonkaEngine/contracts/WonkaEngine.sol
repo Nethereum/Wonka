@@ -171,7 +171,7 @@ contract WonkaEngine {
     );
 
     // An enum for the type of rules currently supported
-    enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, CustomOp, MAX_TYPE }
+    enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, OpDiv, CustomOp, MAX_TYPE }
     RuleTypes constant defaultType = RuleTypes.IsEqual;
 
     string constant blankValue = "";
@@ -413,7 +413,7 @@ contract WonkaEngine {
                     isPassiveFlag: passiveFlag
                 });
 
-            bool isOpRule = ((uint(RuleTypes.OpAdd) == rType) || (uint(RuleTypes.OpSub) == rType) || (uint(RuleTypes.OpMult) == rType) || (uint(RuleTypes.CustomOp) == rType));
+            bool isOpRule = ((uint(RuleTypes.OpAdd) == rType) || (uint(RuleTypes.OpSub) == rType) || (uint(RuleTypes.OpMult) == rType) || (uint(RuleTypes.OpDiv) == rType) || (uint(RuleTypes.CustomOp) == rType));
 
             if ( (uint(RuleTypes.InDomain) == rType) || isOpRule)  {                     
                 splitStrIntoMap(rVal, ",", ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId], isOpRule);
@@ -618,10 +618,10 @@ contract WonkaEngine {
             // (currentRecords[ruler])[targetRule.targetAttr.attrName] = targetRule.ruleValue;
             setValueOnRecord(ruler, targetRule.targetAttr.attrName, targetRule.ruleValue);
 
-        }
-        else if ( (uint(RuleTypes.OpAdd) == targetRule.ruleType) ||
-                  (uint(RuleTypes.OpSub) == targetRule.ruleType) || 
-                  (uint(RuleTypes.OpMult) == targetRule.ruleType) ) {
+        } else if ( (uint(RuleTypes.OpAdd) == targetRule.ruleType) ||
+                    (uint(RuleTypes.OpSub) == targetRule.ruleType) || 
+                    (uint(RuleTypes.OpMult) == targetRule.ruleType) ||
+                    (uint(RuleTypes.OpDiv) == targetRule.ruleType) ) {
 
             uint calculatedValue = calculateValue(ruler, targetRule);
 
@@ -646,6 +646,7 @@ contract WonkaEngine {
             }
 
             // string memory customOpResult = invokeCustomOperator(opMap[customOpName].contractAddress, ruler, opMap[customOpName].methodName, argsDomain);
+
             string memory customOpResult = invokeCustomOperator(opMap[customOpName].contractAddress, ruler, opMap[customOpName].methodName, argsDomain[0], argsDomain[1], argsDomain[2], argsDomain[3]);
 
             setValueOnRecord(ruler, targetRule.targetAttr.attrName, customOpResult);
@@ -813,6 +814,8 @@ contract WonkaEngine {
                     finalValue -= tmpValue;
                 else if ( uint(RuleTypes.OpMult) == targetRule.ruleType )
                     finalValue *= tmpValue;
+                else if ( uint(RuleTypes.OpDiv) == targetRule.ruleType )
+                    finalValue /= tmpValue;                    
             }
 
         }
@@ -830,7 +833,7 @@ contract WonkaEngine {
             retValue = getValueOnRecord(ruler, keyName);
         else
             retValue = targetRule.ruleDomainKeys[domainIdx];
-    } 
+    }  
 
     /// @author Aaron Kendall
     /// @dev This method will supply the functionality for a Custom Operator rule, calling a method on another contract (like perform a calculation) via assembly
