@@ -32,8 +32,8 @@
 
            <validate err="severe">
                <criteria op="AND">
-                   <eval id="asn1">(N.NewSellTaxAmount) ASSIGN_QUOT ('NewSalePrice, NewSaleVATRateDenom')</eval>
-                   <eval id="asn2">(N.NewVATAmountForHMRC) ASSIGN_DIFF ('NewSellTaxAmount, PrevSellTaxAmount')</eval>
+                   <eval id="asn1">(N.NewSellTaxAmount) ASSIGN_QUOT (N.NewSalePrice, N.NewSaleVATRateDenom)</eval>
+                   <eval id="asn2">(N.NewVATAmountForHMRC) ASSIGN_DIFF (N.NewSellTaxAmount, N.PrevSellTaxAmount)</eval>
                </criteria>
 
                <failure_message>ERROR!  Unable to assign the figures related to the VAT.</failure_message>
