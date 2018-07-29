@@ -345,7 +345,7 @@ namespace WonkaEth.Extensions
 
             // NOTE: Caused exception to be thrown
             // var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeRSID", "SomeRuleName", "SomeAttrName", 0, "SomeVal", false, false).Result;
-            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1500000);
 
             // NOTE: ADD RULES HERE
             foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in poRuleSet.EvaluativeRules)
@@ -480,6 +480,26 @@ namespace WonkaEth.Extensions
                         sAltRuleName = "Arithmetic Elements (" + sValue + ") for -> [" +
                             ((TempRule.TargetAttribute.AttrName.Length > 8) ? TempRule.TargetAttribute.AttrName.Substring(0, 8) : TempRule.TargetAttribute.AttrName);
                     }
+                }
+                else if (TempRule.RuleType == RULE_TYPE.RT_CUSTOM_OP)
+                {
+                    var CustomOpRule =
+                        (WonkaBre.RuleTree.RuleTypes.CustomOperatorRule) TempRule;
+
+                    nRuleType = (uint) CONTRACT_RULE_TYPES.CUSTOM_OP_RULE;
+
+                    sValue = CustomOpRule.CustomOpName;
+
+                    foreach (string sTempVal in CustomOpRule.DomainValueProps.Keys)
+                    {
+                        if (!String.IsNullOrEmpty(sValue)) sValue += ",";
+
+                        sValue += sTempVal;    
+                    }
+
+                    string sParamsAbbr = (sValue.Length > 8) ? sValue.Substring(0, 8) + "..." : sValue;
+                    sAltRuleName = "Parameters(" + sParamsAbbr + ") for [" +
+                        ((TempRule.TargetAttribute.AttrName.Length > 13) ? TempRule.TargetAttribute.AttrName.Substring(0, 13) : TempRule.TargetAttribute.AttrName);                        
                 }
 
                 if (!String.IsNullOrEmpty(TempRule.DescRuleId))
