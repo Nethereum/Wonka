@@ -117,6 +117,7 @@ namespace WonkaBre
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             SourceMap    = poSourceMap;
+            CustomOpMap  = poCustomOpBlockchainSources;
 
             this.RetrieveCurrRecord = AssembleCurrentProduct;
         }
@@ -175,6 +176,7 @@ namespace WonkaBre
             this.RetrieveCurrRecord = null;
 
             SourceMap     = new Dictionary<string, WonkaBreSource>();
+            CustomOpMap   = new Dictionary<string, WonkaBreSource>();
             DefaultSource = "";
 
             return RefEnv;
@@ -279,6 +281,8 @@ namespace WonkaBre
         }
 
         public Dictionary<string, WonkaBreSource> SourceMap { get; set; }
+
+        public Dictionary<string, WonkaBreSource> CustomOpMap { get; set; }
 
         public string DefaultSource { get; set; }
 
