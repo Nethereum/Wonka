@@ -162,6 +162,9 @@ namespace WonkaBre.RuleTree.RuleTypes
             else
                 TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
 
+            if ((CustomOpDelegate == null) && (CustomOpContractSource.CustomOpDelegate != null))
+                CustomOpDelegate = CustomOpContractSource.CustomOpDelegate;
+
             if (CustomOpDelegate != null)
             {
                 string[] CustomOpArgs = new string[4];
@@ -228,6 +231,9 @@ namespace WonkaBre.RuleTree.RuleTypes
         {
             this.IsPassive        = false;
             this.HasAttrIdTargets = false;
+
+            DomainCache      = new HashSet<string>();
+            DomainValueProps = new Dictionary<string, WonkaBreRuleValueProps>();
 
             this.RecordOfInterest = peTargetRecord;
 
@@ -384,5 +390,6 @@ namespace WonkaBre.RuleTree.RuleTypes
 
         #endregion
     }
+}
 }
 
