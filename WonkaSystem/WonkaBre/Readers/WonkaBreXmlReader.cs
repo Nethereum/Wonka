@@ -64,6 +64,7 @@ namespace WonkaBre.Readers
         public const string CONST_BASIC_OP_ASSIGN_SUM  = "ASSIGN_SUM";
         public const string CONST_BASIC_OP_ASSIGN_DIFF = "ASSIGN_DIFF";
         public const string CONST_BASIC_OP_ASSIGN_PROD = "ASSIGN_PROD";
+        public const string CONST_BASIC_OP_ASSIGN_QUOT = "ASSIGN_QUOT";
         public const string CONST_BASIC_OP_ASSIGN      = "ASSIGN";
 
         public const string CONST_AL_GT     = "GT";
@@ -302,7 +303,13 @@ namespace WonkaBre.Readers
             string     sRuleExpression = poRuleXmlNode.InnerText;
             WonkaBreRule NewRule         = null;
 
-            if (sRuleExpression.Contains("NOT POPULATED"))
+            if (this.CustomOpSources.Keys.Any(s => sRuleExpression.Contains(s)))
+                NewRule = new CustomOperatorRule() { RuleId = nNewRuleId };
+            else if (this.ArithmeticLimitOps.Any(s => sRuleExpression.Contains(s)))
+                NewRule = new ArithmeticLimitRule() { RuleId = nNewRuleId };
+            else if (this.DateLimitOps.Any(s => sRuleExpression.Contains(s)))
+                NewRule = new DateLimitRule() { RuleId = nNewRuleId };
+            else if (sRuleExpression.Contains("NOT POPULATED"))
                 NewRule = new PopulatedRule() { RuleId = nNewRuleId, NotOperator = true };
             else if (sRuleExpression.Contains("POPULATED"))
                 NewRule = new PopulatedRule() { RuleId = nNewRuleId, NotOperator = false };
@@ -321,19 +328,13 @@ namespace WonkaBre.Readers
             else if (sRuleExpression.Contains("ASSIGN_SUM"))
                 NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_SUM };
             else if (sRuleExpression.Contains("ASSIGN_DIFF"))
-                NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_DIFF };            
+                NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_DIFF };
             else if (sRuleExpression.Contains("ASSIGN_PROD"))
                 NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_PROD };
             else if (sRuleExpression.Contains("ASSIGN_QUOT"))
                 NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_QUOT };            
             else if (sRuleExpression.Contains("ASSIGN"))
                 NewRule = new AssignmentRule() { RuleId = nNewRuleId, NotOperator = false };
-            else if (this.ArithmeticLimitOps.Any(s => sRuleExpression.Contains(s)))
-                NewRule = new ArithmeticLimitRule() { RuleId = nNewRuleId };
-            else if (this.DateLimitOps.Any(s => sRuleExpression.Contains(s)))
-                NewRule = new DateLimitRule() { RuleId = nNewRuleId };
-            else if (this.CustomOpSources.Keys.Any(s => sRuleExpression.Contains(s)))
-                NewRule = new CustomOperatorRule() { RuleId = nNewRuleId };
 
             if (NewRule != null)
             {
