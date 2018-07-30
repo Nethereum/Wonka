@@ -16,6 +16,7 @@ using Nethereum.RPC.Eth.DTOs;
 using Xunit;
 
 using WonkaBre;
+using WonkaBre.Readers;
 using WonkaBre.RuleTree;
 using WonkaPrd;
 using WonkaRef;
@@ -53,7 +54,7 @@ namespace WonkaSystem.TestHarness
             msPassword        = psPassword;
             msContractAddress = psContractAddress; 
 
-            moMetadataSource = new WonkaMetadataTestSource();
+            moMetadataSource = new WonkaMetadataVATSource();
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
@@ -77,7 +78,7 @@ namespace WonkaSystem.TestHarness
                 msByteCodeOrchTest = ByteCodeReader.ReadToEnd();
             }
 
-            using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.SimpleAccountCheck.xml")))
+            using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATExample.xml")))
             {
                 msRulesContents = RulesReader.ReadToEnd();
             }
@@ -85,18 +86,22 @@ namespace WonkaSystem.TestHarness
             WonkaRefEnvironment WonkaRefEnv =
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
-            WonkaRefAttr        AccountIDAttr       = WonkaRefEnv.GetAttributeByAttrName("BankAccountID");
-            WonkaRefAttr        AccountNameAttr     = WonkaRefEnv.GetAttributeByAttrName("BankAccountName");
-            WonkaRefAttr        AccountStsAttr      = WonkaRefEnv.GetAttributeByAttrName("AccountStatus");
-            WonkaRefAttr        AccountCurrValAttr  = WonkaRefEnv.GetAttributeByAttrName("AccountCurrValue");
-            WonkaRefAttr        AccountTypeAttr     = WonkaRefEnv.GetAttributeByAttrName("AccountType");
-            WonkaRefAttr        AccountCurrencyAttr = WonkaRefEnv.GetAttributeByAttrName("AccountCurrency");
-            WonkaRefAttr        RvwFlagAttr         = WonkaRefEnv.GetAttributeByAttrName("AuditReviewFlag");
+            WonkaRefAttr NewSalesTransSeqAttr    = WonkaRefEnv.GetAttributeByAttrName("NewSalesTransSeq");
+            WonkaRefAttr NewSaleVATRateDenomAttr = WonkaRefEnv.GetAttributeByAttrName("NewSaleVATRateDenom");
+            WonkaRefAttr NewSaleItemTypeAttr     = WonkaRefEnv.GetAttributeByAttrName("NewSaleItemType");
+            WonkaRefAttr CountryOfSaleAttr       = WonkaRefEnv.GetAttributeByAttrName("CountryOfSale");
+            WonkaRefAttr NewSalePriceAttr        = WonkaRefEnv.GetAttributeByAttrName("NewSalePrice");
+            WonkaRefAttr PrevSellTaxAmountAttr   = WonkaRefEnv.GetAttributeByAttrName("PrevSellTaxAmount");
+            WonkaRefAttr NewSellTaxAmountAttr    = WonkaRefEnv.GetAttributeByAttrName("NewSellTaxAmount");
+            WonkaRefAttr NewVATAmountForHMRCAttr = WonkaRefEnv.GetAttributeByAttrName("NewVATAmountForHMRC");
+            WonkaRefAttr NewSaleEANAttr          = WonkaRefEnv.GetAttributeByAttrName("NewSaleEAN");
 
             moTargetAttrList = new List<WonkaRefAttr>();
 
             moTargetAttrList =
-                new List<WonkaRefAttr>() { AccountIDAttr, AccountNameAttr, AccountStsAttr, AccountCurrValAttr, AccountTypeAttr, AccountCurrencyAttr, RvwFlagAttr };
+                new List<WonkaRefAttr>() { NewSalesTransSeqAttr, NewSaleVATRateDenomAttr, NewSaleItemTypeAttr,  
+                                           CountryOfSaleAttr, NewSalePriceAttr, PrevSellTaxAmountAttr, 
+                                           NewSellTaxAmountAttr, NewVATAmountForHMRCAttr, NewSaleEANAttr};
 
             if (pbSerializeMetadataToBlockchain)
             {
@@ -111,12 +116,14 @@ namespace WonkaSystem.TestHarness
             Dictionary<string, WonkaBre.RuleTree.WonkaBreSource> SourceMap =
                 new Dictionary<string, WonkaBre.RuleTree.WonkaBreSource>();
 
-            string sDefaultSource      = "S";
-            string sContractSourceId   = sDefaultSource;
+            string sDefaultSourceId    = "S";
+            string sContractSourceId   = sDefaultSourceId;
             string sContractAddress    = "";
             string sContractAbi        = "";
             string sOrchGetterMethod   = "";
             string sOrchSetterMethod   = "";
+            string sCustomOpId         = "INVOKE_VAT_LOOKUP";
+            string sCustomOpMethod     = "lookupVATDenominator";
 
             if (!String.IsNullOrEmpty(psOrchestrationTestAddress))
             {
@@ -133,45 +140,49 @@ namespace WonkaSystem.TestHarness
                 sOrchSetterMethod = "";
             }
 
+            WonkaBreSource DefaultSource =
+                new WonkaBreSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchGetterMethod, sOrchSetterMethod, RetrieveValueMethod);
+
             foreach (WonkaRefAttr TempAttr in moTargetAttrList)
             {                
-                WonkaBreSource TempSource =
-                    new WonkaBreSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchGetterMethod, sOrchSetterMethod, RetrieveValueMethod);
-
-                SourceMap[TempAttr.AttrName] = TempSource;
+                SourceMap[TempAttr.AttrName] = DefaultSource;
             }
+
+            Dictionary<string, WonkaBreSource> CustomOpSourceMap = new Dictionary<string, WonkaBreSource>();
+
+            WonkaBreSource CustomOpSource =
+                new WonkaBreSource(sCustomOpId, msSenderAddress, msPassword, sContractAddress, sContractAbi, LookupVATDenominator, sCustomOpMethod);
+
+            CustomOpSourceMap[sCustomOpId] = CustomOpSource;
 
             // Cue the rules engine
-            WonkaBreRulesEngine RulesEngine = null;
+            WonkaBreRulesEngine RulesEngine = new WonkaBreRulesEngine(new StringBuilder(msRulesContents), SourceMap, CustomOpSourceMap, moMetadataSource);
 
-            if (psOrchestrationTestAddress == null)
-                RulesEngine = new WonkaBreRulesEngine(new StringBuilder(msRulesContents), moMetadataSource);
-            else
-            {
-                RulesEngine = new WonkaBreRulesEngine(new StringBuilder(msRulesContents), SourceMap, moMetadataSource);
-                RulesEngine.DefaultSource = sDefaultSource;
-            }
+            RulesEngine.DefaultSource = sDefaultSourceId;
 
             // The contract dictates that a rules engine is serialized to the blockchain before interacting with it
             SerializeRulesEngineToBlockchain(RulesEngine);
 
-            WonkaRefAttr AccountStsAttr = RefEnv.GetAttributeByAttrName("AccountStatus");
-            WonkaRefAttr RvwFlagAttr    = RefEnv.GetAttributeByAttrName("AuditReviewFlag");
+            WonkaRefAttr NewSellTaxAmountAttr    = RefEnv.GetAttributeByAttrName("NewSellTaxAmount");
+            WonkaRefAttr NewVATAmountForHMRCAttr = RefEnv.GetAttributeByAttrName("NewVATAmountForHMRC");
 
             WonkaProduct NewProduct = GetNewProduct();
 
+            /*
             string sStatusValueBefore = GetAttributeValue(NewProduct, AccountStsAttr);
             string sFlagValueBefore   = GetAttributeValue(NewProduct, RvwFlagAttr);
+             */
 
-            // SerializeProductToBlockchain(NewProduct);
+            string sSellAmtBefore = GetAttributeValue(NewProduct, NewSellTaxAmountAttr);
+            string sVATAmtBefore  = GetAttributeValue(NewProduct, NewVATAmountForHMRCAttr);
 
             /**
              ** Test the .NET side
              */
             WonkaBre.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
-            string sStatusValueAfter = GetAttributeValue(NewProduct, AccountStsAttr);
-            string sFlagValueAfter   = GetAttributeValue(NewProduct, RvwFlagAttr);
+            string sSellAmtAfter = GetAttributeValue(NewProduct, NewSellTaxAmountAttr);
+            string sVATAmtAfter  = GetAttributeValue(NewProduct, NewVATAmountForHMRCAttr);
 
             if (Report.OverallRuleTreeResult == ERR_CD.CD_SUCCESS)
             {
@@ -188,7 +199,7 @@ namespace WonkaSystem.TestHarness
 
             if (!String.IsNullOrEmpty(psOrchestrationTestAddress))
             {
-                var BlockchainReport = ExecuteWithReport(RulesEngine, pbValidateWithinTransaction, SourceMap[RvwFlagAttr.AttrName]);
+                var BlockchainReport = ExecuteWithReport(RulesEngine, pbValidateWithinTransaction, SourceMap[NewSellTaxAmountAttr.AttrName], psOrchestrationTestAddress);
 
                 if (BlockchainReport.NumberOfRuleFailures == 0)
                 {
@@ -205,12 +216,19 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        public RuleTreeReport ExecuteWithReport(WonkaBreRulesEngine poRulesEngine, bool pbValidateWithinTransaction, WonkaBreSource poFlagSource)
+        public RuleTreeReport ExecuteWithReport(WonkaBreRulesEngine poRulesEngine, bool pbValidateWithinTransaction, WonkaBreSource poSource, string psOrchestrationAddress)
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
-            WonkaRefAttr CurrValueAttr  = RefEnv.GetAttributeByAttrName("AccountCurrValue");
-            WonkaRefAttr ReviewFlagAttr = RefEnv.GetAttributeByAttrName("AuditReviewFlag");
+            WonkaRefAttr NewSellTaxAmountAttr    = RefEnv.GetAttributeByAttrName("NewSellTaxAmount");
+            WonkaRefAttr NewVATAmountForHMRCAttr = RefEnv.GetAttributeByAttrName("NewVATAmountForHMRC");
+            WonkaRefAttr NewSalesTransSeqAttr    = RefEnv.GetAttributeByAttrName("NewSalesTransSeq");
+            WonkaRefAttr NewSaleVATRateDenomAttr = RefEnv.GetAttributeByAttrName("NewSaleVATRateDenom");
+            WonkaRefAttr PrevSellTaxAmtAttr      = RefEnv.GetAttributeByAttrName("PrevSellTaxAmount");
+            WonkaRefAttr NewSaleItemTypeAttr     = RefEnv.GetAttributeByAttrName("NewSaleItemType");
+            WonkaRefAttr CountryOfSaleAttr       = RefEnv.GetAttributeByAttrName("CountryOfSale");
+
+            bool bTestLookupMethod = true;
 
             Dictionary<string, string> PrdKeys = new Dictionary<string, string>();
 
@@ -220,25 +238,47 @@ namespace WonkaSystem.TestHarness
 
             RuleTreeReport ruleTreeReport = null;
 
+            if (bTestLookupMethod)
+            {
+                var contractOrchTest = GetContractOrchTest(psOrchestrationAddress);
+
+                var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+                var executeLookupFunction = contractOrchTest.GetFunction("lookupVATDenominator");
+                var lookupValue = executeLookupFunction.CallAsync<string>("Widget", "UK", "", "").Result;
+
+                var getValOnRecordFunction = contract.GetFunction("getValueOnRecord");
+                var attrVal = getValOnRecordFunction.CallAsync<string>(poSource.SenderAddress, "NewSaleItemType").Result;
+            }
+
             if (pbValidateWithinTransaction)
             {
                 var executeGetLastReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_GET_LAST_RPT);
 
                 // NOTE: Caused exception to be thrown
                 // var gas = executeWithReportFunction.EstimateGasAsync(msSenderAddress).Result;
-                var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+                var gas = new Nethereum.Hex.HexTypes.HexBigInteger(2000000);
 
                 WonkaProduct OrchContractCurrValues = poRulesEngine.AssembleCurrentProduct(new Dictionary<string, string>());
 
-                // ResetValueMethod(ReviewFlagAttr.AttrName, "X");
+                string sNSTABeforeOrchestrationAssignment  = RetrieveValueMethod(poSource, NewSellTaxAmountAttr.AttrName);
+                string sNVABeforeOrchestrationAssignment   = RetrieveValueMethod(poSource, NewVATAmountForHMRCAttr.AttrName);
+                string sNSTSBeforeOrchestrationAssignment  = RetrieveValueMethod(poSource, NewSalesTransSeqAttr.AttrName);
+                string sNSVRDBeforeOrchestrationAssignment = RetrieveValueMethod(poSource, NewSaleVATRateDenomAttr.AttrName);
+                string sPSTABeforeOrchestrationAssignment  = RetrieveValueMethod(poSource, PrevSellTaxAmtAttr.AttrName);
+                string sNSITDBeforeOrchestrationAssignment = RetrieveValueMethod(poSource, NewSaleItemTypeAttr.AttrName);
+                string sCoSBeforeOrchestrationAssignment   = RetrieveValueMethod(poSource, CountryOfSaleAttr.AttrName);
 
-                string sFlagBeforeOrchestrationAssignment  = RetrieveValueMethod(poFlagSource, ReviewFlagAttr.AttrName);
-                string sValueBeforeOrchestrationAssignment = RetrieveValueMethod(poFlagSource, CurrValueAttr.AttrName);
+                var receiptAddAttribute = 
+                    executeWithReportFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress).Result;
 
-                var receiptAddAttribute = executeWithReportFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress).Result;
-
-                string sFlagAfterOrchestrationAssignment  = RetrieveValueMethod(poFlagSource, ReviewFlagAttr.AttrName);
-                string sValueAfterOrchestrationAssignment = RetrieveValueMethod(poFlagSource, CurrValueAttr.AttrName);
+                string sNSTAfterOrchestrationAssignment    = RetrieveValueMethod(poSource, NewSellTaxAmountAttr.AttrName);
+                string sNVAAfterOrchestrationAssignment    = RetrieveValueMethod(poSource, NewVATAmountForHMRCAttr.AttrName);
+                string sNSTSAfterOrchestrationAssignment   = RetrieveValueMethod(poSource, NewSalesTransSeqAttr.AttrName);
+                string sNSVRDAfterOrchestrationAssignment  = RetrieveValueMethod(poSource, NewSaleVATRateDenomAttr.AttrName);
+                string sPSTAAfterOrchestrationAssignment   = RetrieveValueMethod(poSource, PrevSellTaxAmtAttr.AttrName);
+                string sNSITDAfterOrchestrationAssignment  = RetrieveValueMethod(poSource, NewSaleItemTypeAttr.AttrName);
+                string sCoSAfterOrchestrationAssignment    = RetrieveValueMethod(poSource, CountryOfSaleAttr.AttrName);
 
                 ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>().Result;
             }
@@ -248,71 +288,12 @@ namespace WonkaSystem.TestHarness
             return ruleTreeReport;
         }
 
-        public WonkaProduct GetOldProduct(Dictionary<string,string> poProductKeys)
+        public string LookupVATDenominator(string psSaleItemType, string psCountryOfSale, string psDummyVal1, string psDummyVal2)
         {
-            WonkaProduct OldProduct = new WonkaProduct();
-
-            Dictionary<WonkaRefAttr, string> EthereumRecord = GetOldRecordViaEthereum(moTargetAttrList, poProductKeys);
-
-            foreach (WonkaRefAttr TempAttr in EthereumRecord.Keys)
-            {
-                OldProduct.SetAttribute(TempAttr, EthereumRecord[TempAttr]);
-            }
-
-            return OldProduct;            
-        }
-
-        public Dictionary<WonkaRefAttr, string> GetOldRecordViaEthereum(List<WonkaRefAttr> poTargetAttrList, Dictionary<string, string> poProductKeys)
-        {
-            Dictionary<WonkaRefAttr, string> EthereumRecord = new Dictionary<WonkaRefAttr, string>();
-
-            string sSenderAddress = msSenderAddress;
-
-            var account = new Account(msPassword);
-
-            var web3 = new Nethereum.Web3.Web3(account);
-
-            var contractAddress = msContractAddress;
-             
-            var contract = web3.Eth.GetContract(msAbiWonka, contractAddress);
-
-            var getAttrNumFunction     = contract.GetFunction("getNumberOfAttributes");
-            var getRecordValueFunction = contract.GetFunction("getValueOnRecord");
-
-            var attrNum = getAttrNumFunction.CallAsync<uint>().Result;
-
-            foreach (WonkaRefAttr TempAttr in poTargetAttrList)
-            {
-                var result = getRecordValueFunction.CallAsync<string>(sSenderAddress, TempAttr.AttrName).Result;
-                EthereumRecord[TempAttr] = result;
-            }
-
-            return EthereumRecord;
-        }
-
-        public WonkaProduct GetNewProduct()
-        {
-            WonkaRefEnvironment WkaRefEnv           = WonkaRefEnvironment.GetInstance();
-            WonkaRefAttr        AccountIDAttr       = WkaRefEnv.GetAttributeByAttrName("BankAccountID");
-            WonkaRefAttr        AccountNameAttr     = WkaRefEnv.GetAttributeByAttrName("BankAccountName");
-            WonkaRefAttr        AccountStsAttr      = WkaRefEnv.GetAttributeByAttrName("AccountStatus");
-            WonkaRefAttr        AccountCurrValAttr  = WkaRefEnv.GetAttributeByAttrName("AccountCurrValue");
-            WonkaRefAttr        AccountTypeAttr     = WkaRefEnv.GetAttributeByAttrName("AccountType");
-            WonkaRefAttr        AccountCurrencyAttr = WkaRefEnv.GetAttributeByAttrName("AccountCurrency");
-            WonkaRefAttr        ReviewFlagAttr      = WkaRefEnv.GetAttributeByAttrName("AuditReviewFlag");
-
-            WonkaProduct NewProduct = new WonkaProduct();
-
-            NewProduct.SetAttribute(AccountIDAttr,       "1234567890");
-            NewProduct.SetAttribute(AccountNameAttr,     "JohnSmithFirstCheckingAccount");
-            NewProduct.SetAttribute(AccountStsAttr,      "ACT");
-            NewProduct.SetAttribute(AccountCurrValAttr,  "101.00");
-            NewProduct.SetAttribute(AccountCurrencyAttr, "USD");
-            NewProduct.SetAttribute(ReviewFlagAttr,      "N");
-            NewProduct.SetAttribute(AccountTypeAttr,     "Checking");
-            // NewProduct.SetAttribute(AccountTypeAttr,     "CompletelyBogusTypeThatWillCauseAnError");
-
-            return NewProduct;
+            if (psSaleItemType == "Widget" && psCountryOfSale == "UK")
+                return "5";
+            else
+                return "1";            
         }
 
         public string GetAttributeValue(WonkaProduct poTargetProduct, WonkaRefAttr poTargetAttr)
@@ -343,6 +324,19 @@ namespace WonkaSystem.TestHarness
             return contract;
         }
 
+        public Nethereum.Contracts.Contract GetContractOrchTest(string psOrchContractAddress)
+        {
+            var account = new Account(msPassword);
+
+            var web3 = new Nethereum.Web3.Web3(account);
+
+            var contractAddress = psOrchContractAddress;
+
+            var contract = web3.Eth.GetContract(msAbiOrchTest, contractAddress);
+
+            return contract;
+        }
+
         public Nethereum.Contracts.Contract GetContract(WonkaBre.RuleTree.WonkaBreSource TargetSource)
         {
             var account  = new Account(TargetSource.Password);
@@ -350,6 +344,34 @@ namespace WonkaSystem.TestHarness
             var contract = web3.Eth.GetContract(TargetSource.ContractABI, TargetSource.ContractAddress);
 
             return contract;
+        }
+
+        public WonkaProduct GetNewProduct()
+        {
+            WonkaRefEnvironment WkaRefEnv               = WonkaRefEnvironment.GetInstance();
+            WonkaRefAttr        NewSalesTransSeqAttr    = WkaRefEnv.GetAttributeByAttrName("NewSalesTransSeq");
+            WonkaRefAttr        NewSaleEANAttr          = WkaRefEnv.GetAttributeByAttrName("NewSaleEAN");
+            WonkaRefAttr        NewSaleVATRateDenomAttr = WkaRefEnv.GetAttributeByAttrName("NewSaleVATRateDenom");
+            WonkaRefAttr        NewSaleItemTypeAttr     = WkaRefEnv.GetAttributeByAttrName("NewSaleItemType");
+            WonkaRefAttr        CountryOfSaleAttr       = WkaRefEnv.GetAttributeByAttrName("CountryOfSale");
+            WonkaRefAttr        NewSalePriceAttr        = WkaRefEnv.GetAttributeByAttrName("NewSalePrice");
+            WonkaRefAttr        PrevSellTaxAmountAttr   = WkaRefEnv.GetAttributeByAttrName("PrevSellTaxAmount");
+            WonkaRefAttr        NewSellTaxAmountAttr    = WkaRefEnv.GetAttributeByAttrName("NewSellTaxAmount");
+            WonkaRefAttr        NewVATAmountForHMRCAttr = WkaRefEnv.GetAttributeByAttrName("NewVATAmountForHMRC");
+
+            WonkaProduct NewProduct = new WonkaProduct();
+
+            NewProduct.SetAttribute(NewSalesTransSeqAttr,    "123456789");
+            NewProduct.SetAttribute(NewSaleEANAttr,          "9781234567890");
+            NewProduct.SetAttribute(NewSaleVATRateDenomAttr, "2");
+            NewProduct.SetAttribute(NewSaleItemTypeAttr,     "Widget");
+            NewProduct.SetAttribute(CountryOfSaleAttr,       "UK");
+            NewProduct.SetAttribute(NewSalePriceAttr,        "200");
+            NewProduct.SetAttribute(PrevSellTaxAmountAttr,   "5");
+            NewProduct.SetAttribute(NewSellTaxAmountAttr,    "0");
+            NewProduct.SetAttribute(NewVATAmountForHMRCAttr, "0");
+
+            return NewProduct;
         }
 
         public void ResetValueMethod(string psAttrName, string psAttrValue)
