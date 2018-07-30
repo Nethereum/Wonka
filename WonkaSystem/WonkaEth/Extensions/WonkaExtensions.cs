@@ -163,10 +163,12 @@ namespace WonkaEth.Extensions
         /// </summary>
         private static bool SerializeOrchestrationInfo(this WonkaBreRulesEngine poEngine, string psSenderAddress, Nethereum.Contracts.Contract poContract)
         {
-            var addSourceFunction     = poContract.GetFunction("addSource");
-            var setOrchModeFunction   = poContract.GetFunction("setOrchestrationMode");
+            var addSourceFunction   = poContract.GetFunction("addSource");
+            var addCustomOpFunction = poContract.GetFunction("addCustomOp");
+            var setOrchModeFunction = poContract.GetFunction("setOrchestrationMode");
 
-            HashSet<string> SourcesAdded = new HashSet<string>();
+            HashSet<string> SourcesAdded   = new HashSet<string>();
+            HashSet<string> CustomOpsAdded = new HashSet<string>();
 
             if (poEngine.UsingOrchestrationMode)
             {
@@ -201,6 +203,29 @@ namespace WonkaEth.Extensions
                                                                    TmpSource.SetterMethodName).Result;
 
                         SourcesAdded.Add(TmpSource.SourceId);
+                    }
+                }
+
+                foreach (string sCustomOpName in poEngine.CustomOpMap.Keys)
+                {
+                    WonkaBreSource TmpSource = poEngine.CustomOpMap[sCustomOpName];
+
+                    // NOTE: Causes "out of gas" exception to be thrown?
+                    // var gas = addSourceFunction.EstimateGasAsync("Something", "Something", "Something", "Something", "Something").Result;
+                    var addSrcGas = new Nethereum.Hex.HexTypes.HexBigInteger(1500000);
+
+                    if (!CustomOpsAdded.Contains(TmpSource.SourceId))
+                    {
+                        result =
+                            addCustomOpFunction.SendTransactionAsync(psSenderAddress,
+                                                                     addSrcGas,
+                                                                     null,
+                                                                     TmpSource.SourceId,
+                                                                     "ACT",
+                                                                     TmpSource.ContractAddress,
+                                                                     TmpSource.CustomOpMethodName).Result;
+
+                        CustomOpsAdded.Add(TmpSource.SourceId);
                     }
                 }
             }
@@ -496,6 +521,10 @@ namespace WonkaEth.Extensions
 
                         sValue += sTempVal;    
                     }
+
+                    int nEmptyArgs = (CustomOpRule.DomainValueProps.Count >= 4) ? 0 : (4 - CustomOpRule.DomainValueProps.Count);
+                    for (int idx = 0; idx < nEmptyArgs; ++idx)
+                        sValue += ",dval";
 
                     string sParamsAbbr = (sValue.Length > 8) ? sValue.Substring(0, 8) + "..." : sValue;
                     sAltRuleName = "Parameters(" + sParamsAbbr + ") for [" +
