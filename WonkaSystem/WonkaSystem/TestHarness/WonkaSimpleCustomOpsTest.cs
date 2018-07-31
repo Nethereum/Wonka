@@ -78,7 +78,7 @@ namespace WonkaSystem.TestHarness
                 msByteCodeOrchTest = ByteCodeReader.ReadToEnd();
             }
 
-            using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATExample.xml")))
+            using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATCalculationExample.xml")))
             {
                 msRulesContents = RulesReader.ReadToEnd();
             }
@@ -269,6 +269,12 @@ namespace WonkaSystem.TestHarness
                 string sNSITDBeforeOrchestrationAssignment = RetrieveValueMethod(poSource, NewSaleItemTypeAttr.AttrName);
                 string sCoSBeforeOrchestrationAssignment   = RetrieveValueMethod(poSource, CountryOfSaleAttr.AttrName);
 
+                /*
+                 * BUG: For some unknown reason, the Solidity function "stringToBytes32()" is failing when iterating
+                 *       through the arguments for the Custom Operator, which needs all arguments to become 'bytes32'
+                 *       when invoking the method on the target contract.  So, the contract method for the Custom Operator
+                 *       is called, but its provided arguments are garbage.  For now.
+                 */
                 var receiptAddAttribute = 
                     executeWithReportFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress).Result;
 
