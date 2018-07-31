@@ -28,9 +28,11 @@ namespace WonkaSystem
         {
             try
             {
-                var sSenderAddress = "0xd723597d75f7d49f2d2bd30b2e62b5b45b44056f";
-                var sPassword = "6dd43218d638c84e4674a3836dceb69552e25d433aa301aad962b4467b312ae6";
-                var sContractAddress = "0x6cb6d7a788bb8e9006a8a51806e1c6fcfec08d52";
+                var sSenderAddress   = "0x5c908564bf9190b44366a183bfb311c6c74454fe";
+                var sPassword        = "2cad4cbef21b0543b0ef69765104ce6cafe0815af6bf1ae36cbebd3e14e37cbc";
+                var sContractAddress = "0xa1829891ef8aa4ce671e0081f751996da1c6c89e";
+
+                // SimpleTest();
 
                 // SimpleTest(sSenderAddress, sPassword, sContractAddress);
 
@@ -38,8 +40,11 @@ namespace WonkaSystem
 
                 // CQSDemoTest(sSenderAddress, sPassword, sContractAddress);
 
-                string sOrchTestContractAddress = "0x6cfcc94b8d196d3aa99c0ebe3c08610b012869fe";
-                SimpleOrchestrationTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
+                // string sOrchTestContractAddress = "0x5f2d3b580e45ea133d368c66fff30cdd211a9372";
+                // SimpleOrchestrationTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
+
+                string sOrchTestContractAddress = "0x288fd917c4b39dc4c43d6d11a81d59aacf4f4aa1";
+                SimpleCustomOpsTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
             }
             catch (WonkaEth.Validation.WonkaValidatorException ex)
             {
@@ -66,6 +71,23 @@ namespace WonkaSystem
             SimpleOrchTest.Execute(psOrchTestContractAddress, bValidateWithinTransaction);
         }
 
+        static void SimpleCustomOpsTest(string psSenderAddress, string psPassword, string psContractAddress, string psOrchTestContractAddress)
+        {
+            WonkaSimpleCustomOpsTest SimpleOrchTest = new WonkaSimpleCustomOpsTest(psSenderAddress, psPassword, psContractAddress);
+            //WonkaSimpleCustomOpsTest SimpleOrchTest = new WonkaSimpleCustomOpsTest(psSenderAddress, psPassword, psContractAddress, false);
+
+            bool bValidateWithinTransaction = true;
+
+            SimpleOrchTest.Execute(psOrchTestContractAddress, bValidateWithinTransaction);
+            // SimpleOrchTest.Execute();
+        }
+
+        static void SimpleTest()
+        {
+            WonkaSimpleTest SimpleTest = new WonkaSimpleTest();
+            SimpleTest.Execute();
+        }
+
         static void SimpleTest(string psSenderAddress, string psPassword, string psContractAddress)
         {
             WonkaSimpleNethereumTest SimpleNethTest = new WonkaSimpleNethereumTest(psSenderAddress, psPassword, psContractAddress);
@@ -84,7 +106,7 @@ namespace WonkaSystem
         }
 
         static void CQSDemoTest(string psSenderAddress, string psPassword, string psContractAddress)
-        {
+        {         
             WonkaCQSTest CQSTest = new WonkaCQSTest(psSenderAddress, psPassword, psContractAddress);
             CQSTest.Execute();
         }
