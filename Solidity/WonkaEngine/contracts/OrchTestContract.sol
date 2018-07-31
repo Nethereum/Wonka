@@ -6,6 +6,8 @@ contract OrchTestContract {
 
     mapping(bytes32 => bytes32) private testRecord;
 
+    bytes32 valueHolder;
+
     /// @dev Constructor for the Orchestration contract
     /// @author Aaron Kendall
     constructor() public {
@@ -28,9 +30,16 @@ contract OrchTestContract {
         //testRecord["AccountType"] = "Checking";
         testRecord["AccountType"] = "WillCauseAnError";
 
-        testRecord["AccountCurrency"] = "USD";
-        testRecord["Language"] = "ENG";
-    }    
+        testRecord["NewSalesTransSeq"] = "123456789";
+        testRecord["NewSaleEAN"] = "9781234567890";
+        testRecord["NewSaleVATRateDenom"] = "0";
+        testRecord["NewSaleItemType"] = "Widget";
+        testRecord["CountryOfSale"] = "UK";
+        testRecord["NewSalePrice"] = "100";
+        testRecord["PrevSellTaxAmount"] = "5";
+        testRecord["NewSellTaxAmount"] = "0";
+        testRecord["NewVATAmountForHMRC"] = "0";
+    }
 
     function getAttrValueBytes32(bytes32 key) public view returns(bytes32) { 
 
@@ -42,6 +51,19 @@ contract OrchTestContract {
         lastAddressProvided = ruler;
 
         return testRecord[key];
+    }
+
+    function lookupVATDenominator(bytes32 saleItemType, bytes32 countryOfSale, bytes32 dummyVal1, bytes32 dummyVal2) public returns(bytes32)
+    {
+        valueHolder = dummyVal1;
+        valueHolder = dummyVal2;
+
+        if (saleItemType == "Widget" && countryOfSale == "UK")
+            return "5";
+        else if (saleItemType == "Widget")
+            return "10";
+        else
+            return "20";
     }
 
     function performMyCalc(bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public pure returns(bytes32)    
