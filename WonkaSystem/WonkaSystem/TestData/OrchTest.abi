@@ -9,132 +9,6 @@
       "constant": true,
       "inputs": [
         {
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "name": "greeting",
-          "type": "string"
-        }
-      ],
-      "name": "CallMe",
-      "outputs": [
-        {
-          "name": "test",
-          "type": "bytes"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "name",
-          "type": "bytes32"
-        },
-        {
-          "name": "greeting",
-          "type": "bytes32"
-        }
-      ],
-      "name": "CallMeBytes32",
-      "outputs": [
-        {
-          "name": "test",
-          "type": "bytes"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_val",
-          "type": "uint256"
-        }
-      ],
-      "name": "setA",
-      "outputs": [
-        {
-          "name": "result",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_val",
-          "type": "uint256"
-        }
-      ],
-      "name": "setB",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_val",
-          "type": "uint256"
-        }
-      ],
-      "name": "setC",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "ruler",
-          "type": "address"
-        },
-        {
-          "name": "key",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getAttrValue",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
           "name": "key",
           "type": "bytes32"
         }
@@ -177,19 +51,27 @@
       "constant": false,
       "inputs": [
         {
-          "name": "ruler",
-          "type": "address"
+          "name": "saleItemType",
+          "type": "bytes32"
         },
         {
-          "name": "key",
+          "name": "countryOfSale",
+          "type": "bytes32"
+        },
+        {
+          "name": "dummyVal1",
+          "type": "bytes32"
+        },
+        {
+          "name": "dummyVal2",
           "type": "bytes32"
         }
       ],
-      "name": "getValueOnRecord",
+      "name": "lookupVATDenominator",
       "outputs": [
         {
           "name": "",
-          "type": "string"
+          "type": "bytes32"
         }
       ],
       "payable": false,
@@ -240,25 +122,6 @@
         }
       ],
       "name": "setAttrValueBytes32",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "keyAndValue",
-          "type": "bytes32"
-        }
-      ],
-      "name": "setAttrValueBytes32WithSplit",
       "outputs": [
         {
           "name": "",

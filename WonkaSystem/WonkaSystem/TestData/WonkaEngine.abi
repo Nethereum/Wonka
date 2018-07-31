@@ -255,32 +255,6 @@
       "constant": false,
       "inputs": [
         {
-          "name": "srcName",
-          "type": "bytes32"
-        },
-        {
-          "name": "sts",
-          "type": "bytes32"
-        },
-        {
-          "name": "cntrtAddr",
-          "type": "address"
-        },
-        {
-          "name": "methName",
-          "type": "bytes32"
-        }
-      ],
-      "name": "addCustomOp",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
           "name": "ruler",
           "type": "address"
         },
@@ -306,6 +280,32 @@
         }
       ],
       "name": "addRuleTree",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "srcName",
+          "type": "bytes32"
+        },
+        {
+          "name": "sts",
+          "type": "bytes32"
+        },
+        {
+          "name": "cntrtAddr",
+          "type": "address"
+        },
+        {
+          "name": "methName",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addCustomOp",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -732,4 +732,4 @@
       "stateMutability": "nonpayable",
       "type": "function"
     }
- ]
+]
