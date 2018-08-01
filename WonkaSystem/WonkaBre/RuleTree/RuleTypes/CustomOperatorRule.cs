@@ -391,5 +391,4 @@ namespace WonkaBre.RuleTree.RuleTypes
         #endregion
     }
 }
-}
 
