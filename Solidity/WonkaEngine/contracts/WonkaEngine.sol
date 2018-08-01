@@ -72,6 +72,8 @@ contract WonkaEngine {
 
         string[] ruleDomainKeys;
 
+        bytes32[] customOpArgs;
+
         bytes32 parentRuleSetId;
 
         bool notOpFlag;
@@ -176,9 +178,12 @@ contract WonkaEngine {
 
     string constant blankValue = "";
 
+    uint constant CONST_CUSTOM_OP_ARGS = 4;
+
     address public rulesMaster;
     uint    public attrCounter;
     uint    public ruleCounter;
+    uint    public lastRuleId;
 
     address         lastSenderAddressProvided;
     bool            lastTransactionSuccess;
@@ -222,7 +227,7 @@ contract WonkaEngine {
 
         rulesMaster = msg.sender;
 
-        ruleCounter = 1;
+        ruleCounter = lastRuleId = 1;
 
         attributes.push(WonkaAttr({
             attrId: 1,
@@ -391,7 +396,7 @@ contract WonkaEngine {
 
         require(rType < uint(RuleTypes.MAX_TYPE));
 
-        uint currRuleId = ruleCounter;
+        uint currRuleId = lastRuleId = ruleCounter;
 
         ruleCounter = ruleCounter + 1;
 
@@ -407,7 +412,8 @@ contract WonkaEngine {
                     ruleType: rType,
                     targetAttr: attrMap[attrName],
                     ruleValue: rVal,
-                    ruleDomainKeys: new string[](0),                    
+                    ruleDomainKeys: new string[](0),   
+                    customOpArgs: new bytes32[](CONST_CUSTOM_OP_ARGS),
                     parentRuleSetId: ruleSetId,
                     notOpFlag: notFlag,
                     isPassiveFlag: passiveFlag
@@ -429,7 +435,8 @@ contract WonkaEngine {
                     ruleType: rType,
                     targetAttr: attrMap[attrName],
                     ruleValue: rVal,
-                    ruleDomainKeys: new string[](0),                    
+                    ruleDomainKeys: new string[](0),
+                    customOpArgs: new bytes32[](CONST_CUSTOM_OP_ARGS),
                     parentRuleSetId: ruleSetId,
                     notOpFlag: notFlag,
                     isPassiveFlag: passiveFlag
@@ -437,6 +444,25 @@ contract WonkaEngine {
 
         }
     }
+
+    /// @dev This method will supply the args to the last rule added (of type Custom Operator)
+    /// @author Aaron Kendall
+    /// @notice Currently, a Rule can only belong to one RuleSet
+    function addRuleCustomOpArgs(address ruler, bytes32 ruleSetId, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public {
+
+        require((msg.sender == rulesMaster) || (msg.sender == ruler));
+
+        require(ruletrees[ruler].isValue == true);
+
+        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true);
+
+        require(ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].ruleType == uint(RuleTypes.CustomOp));
+
+        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[0] = arg1;
+        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[1] = arg2;
+        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[2] = arg3;
+        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[3] = arg4;
+    }    
 
     /// @dev This method will add a new source to the mapping cache.
     /// @author Aaron Kendall
@@ -631,27 +657,25 @@ contract WonkaEngine {
 
         } else if (uint(RuleTypes.CustomOp) == targetRule.ruleType) {
 
-            bytes32[] memory argsDomain = new bytes32[](4);
-
             bytes32 customOpName = "";
 
             if (targetRule.ruleDomainKeys.length > 0)
                 customOpName = stringToBytes32(targetRule.ruleDomainKeys[0]);
 
-            for (uint idx = 1; idx < 5; ++idx) {
-                if (idx < targetRule.ruleDomainKeys.length)
-                    argsDomain[idx-1] = stringToBytes32(determineDomainValue(ruler, idx, targetRule));
+            bytes32[] memory argsDomain = new bytes32[](CONST_CUSTOM_OP_ARGS);
+
+            for (uint idx = 0; idx < CONST_CUSTOM_OP_ARGS; ++idx) {
+                if (idx < targetRule.customOpArgs.length)
+                    argsDomain[idx] = stringToBytes32(determineDomainValue(ruler, idx, targetRule));
                 else
-                    argsDomain[idx-1] = "";                    
+                    argsDomain[idx] = "";                    
             }
 
             // string memory customOpResult = invokeCustomOperator(opMap[customOpName].contractAddress, ruler, opMap[customOpName].methodName, argsDomain);
-
             string memory customOpResult = invokeCustomOperator(opMap[customOpName].contractAddress, ruler, opMap[customOpName].methodName, argsDomain[0], argsDomain[1], argsDomain[2], argsDomain[3]);
 
             setValueOnRecord(ruler, targetRule.targetAttr.attrName, customOpResult);
         }
-
 
         if (!ruleResult && ruletrees[ruler].allRuleSets[targetRule.parentRuleSetId].isLeaf) {            
 
@@ -827,12 +851,12 @@ contract WonkaEngine {
     /// @dev This method will assist by returning the correct value, either a literal static value or one obtained through retrieval
     function determineDomainValue(address ruler, uint domainIdx, WonkaRule storage targetRule) private returns (string retValue) {
 
-        bytes32 keyName = stringToBytes32(targetRule.ruleDomainKeys[domainIdx]);
+        bytes32 keyName = targetRule.customOpArgs[domainIdx];
 
         if (attrMap[keyName].isValue)
             retValue = getValueOnRecord(ruler, keyName);
         else
-            retValue = targetRule.ruleDomainKeys[domainIdx];
+            retValue = bytes32ToString(keyName);
     }  
 
     /// @author Aaron Kendall

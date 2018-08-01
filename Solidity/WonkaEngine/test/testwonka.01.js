@@ -271,8 +271,11 @@ contract('OrchTestContract', function(accounts) {
 
         console.log("Add a new rule with the new custom operator focused on the AccountCurrValue");
 
-        // The value "MyCustomOp,AccountCurrValue,11,40,50" indicates that this Custom Operator will invoke the method defined by 'MyCustomOp' with the arguments 'AccountCurrValue,11,40,50'
-        wInstance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('InvokeCustomOp'), web3.fromAscii('AccountCurrValue'), CUSTOM_OP_RULE, new String('MyCustomOp,AccountCurrValue,500,1000,100').valueOf(), false, true); 
+        // The value "MyCustomOp,AccountCurrValue,11,40,50" indicates that this Custom Operator will invoke the method defined by 'MyCustomOp' with the arguments AccountCurrValue,500,1000,100
+        wInstance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('InvokeCustomOp'), web3.fromAscii('AccountCurrValue'), CUSTOM_OP_RULE, new String('MyCustomOp').valueOf(), false, true); 
+
+        console.log("Add args to the custom operator");
+        wInstance.addRuleCustomOpArgs(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('AccountCurrValue'), web3.fromAscii('500'), web3.fromAscii('1000'), web3.fromAscii('100'));
 
         console.log("Running the engine now with the new Custom Operator rule");
 
