@@ -16,6 +16,20 @@
     {
       "constant": true,
       "inputs": [],
+      "name": "lastRuleId",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
       "name": "attrCounter",
       "outputs": [
         {
@@ -395,6 +409,40 @@
       "constant": false,
       "inputs": [
         {
+          "name": "ruler",
+          "type": "address"
+        },
+        {
+          "name": "ruleSetId",
+          "type": "bytes32"
+        },
+        {
+          "name": "arg1",
+          "type": "bytes32"
+        },
+        {
+          "name": "arg2",
+          "type": "bytes32"
+        },
+        {
+          "name": "arg3",
+          "type": "bytes32"
+        },
+        {
+          "name": "arg4",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addRuleCustomOpArgs",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
           "name": "srcName",
           "type": "bytes32"
         },
@@ -732,4 +780,4 @@
       "stateMutability": "nonpayable",
       "type": "function"
     }
-]
+ ]
