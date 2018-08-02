@@ -105,6 +105,8 @@ namespace WonkaBre.RuleTree.RuleTypes
                 HasAttrIdTargets = true;
             }
 
+            CustomOpPropArgs.Add(psDomainVal);
+
             DomainValueProps[psDomainVal] = oValueProps;
         }
 
@@ -232,8 +234,9 @@ namespace WonkaBre.RuleTree.RuleTypes
             this.IsPassive        = false;
             this.HasAttrIdTargets = false;
 
-            DomainCache      = new HashSet<string>();
+            DomainCache      = new List<string>();
             DomainValueProps = new Dictionary<string, WonkaBreRuleValueProps>();
+            CustomOpPropArgs = new List<string>();
 
             this.RecordOfInterest = peTargetRecord;
 
@@ -263,7 +266,7 @@ namespace WonkaBre.RuleTree.RuleTypes
         /// <param name="poDomainCache">Our domain cache that will be refreshed</param>
         /// <returns>Indicator of whether the set was refreshed successfully</returns>
         /// </summary>
-        public bool RefreshCache(WonkaProduct poNewProduct, WonkaProduct poOldProduct, HashSet<string> poDomainCache)
+        public bool RefreshCache(WonkaProduct poNewProduct, WonkaProduct poOldProduct, List<string> poDomainCache)
         {
             bool bResult  = true;
             int  nAttrId  = 0;
@@ -384,9 +387,11 @@ namespace WonkaBre.RuleTree.RuleTypes
 
         public WonkaBreSource CustomOpContractSource { get; set; }
 
-        public HashSet<string> DomainCache { get; set; }
+        public List<string> DomainCache { get; set; }
 
         public Dictionary<string, WonkaBreRuleValueProps> DomainValueProps { get; set; }
+
+        public List<string> CustomOpPropArgs { get; set; }
 
         #endregion
     }
