@@ -41,6 +41,8 @@ namespace WonkaEth.Extensions
         private const int CONST_CONTRACT_ATTR_NUM_ON_START = 3;
         private const int CONST_CONTRACT_BYTE32_MAX        = 32;
 
+        private const int CONST_CUSTOM_OP_ARG_COUNT        = 4;
+
         private static WonkaRefEnvironment moWonkaRevEnv = WonkaRefEnvironment.GetInstance();
 
         public enum CONTRACT_RULE_TYPES
@@ -366,7 +368,8 @@ namespace WonkaEth.Extensions
         /// </summary>
         private static bool SerializeRules(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, string psSenderAddress, Nethereum.Contracts.Contract poContract, string psRuleSetId)
         {
-            var addRuleTreeFunction = poContract.GetFunction("addRule");
+            var addRuleTreeFunction     = poContract.GetFunction("addRule");
+            var addCustomOpArgsFunction = poContract.GetFunction("addRuleCustomOpArgs");
 
             // NOTE: Caused exception to be thrown
             // var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeRSID", "SomeRuleName", "SomeAttrName", 0, "SomeVal", false, false).Result;
@@ -464,6 +467,8 @@ namespace WonkaEth.Extensions
                 string sValue       = "";
                 var    notFlag      = TempRule.NotOperator;
 
+                List<string> CustomOpArgs = new List<string>();
+
                 // This is a legacy issue that will be addressed in the near future
                 var passFlag = true; //TempRule.IsPassive;
 
@@ -515,16 +520,13 @@ namespace WonkaEth.Extensions
 
                     sValue = CustomOpRule.CustomOpName;
 
-                    foreach (string sTempVal in CustomOpRule.DomainValueProps.Keys)
+                    for (int idx = 0; idx < CONST_CUSTOM_OP_ARG_COUNT; ++idx)
                     {
-                        if (!String.IsNullOrEmpty(sValue)) sValue += ",";
-
-                        sValue += sTempVal;    
+                        if (idx < CustomOpRule.CustomOpPropArgs.Count)
+                            CustomOpArgs.Add(CustomOpRule.CustomOpPropArgs[idx]);
+                        else
+                            CustomOpArgs.Add("dummyValue");
                     }
-
-                    int nEmptyArgs = (CustomOpRule.DomainValueProps.Count >= 4) ? 0 : (4 - CustomOpRule.DomainValueProps.Count);
-                    for (int idx = 0; idx < nEmptyArgs; ++idx)
-                        sValue += ",dval";
 
                     string sParamsAbbr = (sValue.Length > 8) ? sValue.Substring(0, 8) + "..." : sValue;
                     sAltRuleName = "Parameters(" + sParamsAbbr + ") for [" +
@@ -545,6 +547,11 @@ namespace WonkaEth.Extensions
                 {
                     var result =
                         addRuleTreeFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
+
+                    if (TempRule.RuleType == RULE_TYPE.RT_CUSTOM_OP)
+                    {
+                        var result2 = addCustomOpArgsFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psRuleSetId, CustomOpArgs[0], CustomOpArgs[1], CustomOpArgs[2], CustomOpArgs[3]).Result;
+                    }
                 }
                 else 
                 {
@@ -555,5 +562,4 @@ namespace WonkaEth.Extensions
             return true;
         }
     }
-
 }
