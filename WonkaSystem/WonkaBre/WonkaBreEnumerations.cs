@@ -39,7 +39,18 @@
         RT_TRANSLATION,
         RT_COMPLEX,
         RT_PARSER,
+        RT_ARITHMETIC,
+        RT_CUSTOM_OP,
         RT_NONE
+    }
+
+    public enum ARITH_OP_TYPE
+    {
+        AOT_SUM = 1,
+        AOT_DIFF,
+        AOT_PROD,
+        AOT_QUOT,
+        AOT_NONE
     }
 
     public enum COMPLEX_RULE_ID

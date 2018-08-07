@@ -70,6 +70,10 @@ contract WonkaEngine {
 
         mapping(string => string) ruleValueDomain;
 
+        string[] ruleDomainKeys;
+
+        bytes32[] customOpArgs;
+
         bytes32 parentRuleSetId;
 
         bool notOpFlag;
@@ -169,14 +173,17 @@ contract WonkaEngine {
     );
 
     // An enum for the type of rules currently supported
-    enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, MAX_TYPE }
+    enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, OpDiv, CustomOp, MAX_TYPE }
     RuleTypes constant defaultType = RuleTypes.IsEqual;
 
     string constant blankValue = "";
 
+    uint constant CONST_CUSTOM_OP_ARGS = 4;
+
     address public rulesMaster;
     uint    public attrCounter;
     uint    public ruleCounter;
+    uint    public lastRuleId;
 
     address         lastSenderAddressProvided;
     bool            lastTransactionSuccess;
@@ -198,8 +205,11 @@ contract WonkaEngine {
     // The cache of records that are owned by "rulers" and that are validated when invoking a rule tree
     mapping(address => mapping(bytes32 => string)) currentRecords;
 
-    // The cache of available sources
+    // The cache of available sources for retrieving and setting attribute values found on other contracts
     mapping(bytes32 => WonkaSource) sourceMap;
+
+    // The cache of available sources for calling 'op' methods (i.e., that contain special logic to implement a custom operator)
+    mapping(bytes32 => WonkaSource) opMap;
 
     // For the function splitStr(...)
     // Currently unsure how the function will perform in a multithreaded scenario
@@ -217,7 +227,7 @@ contract WonkaEngine {
 
         rulesMaster = msg.sender;
 
-        ruleCounter = 1;
+        ruleCounter = lastRuleId = 1;
 
         attributes.push(WonkaAttr({
             attrId: 1,
@@ -315,6 +325,24 @@ contract WonkaEngine {
         addRuleSet(ruler, rsName, desc, "", severeFailureFlag, useAndOperator, flagFailImmediately);
     }
 
+    /// @dev This method will add a new custom operator to the cache.
+    /// @author Aaron Kendall
+    /// @notice 
+    function addCustomOp(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName) public {
+
+        require(msg.sender == rulesMaster);
+
+        opMap[srcName] = 
+            WonkaSource({
+                sourceName: srcName,
+                status: sts,
+                contractAddress: cntrtAddr,
+                methodName: methName,
+                setMethodName: "",
+                isValue: true
+        });
+    }
+
  	/// @dev This method will add a new RuleSet to the cache and to the indicated RuleTree.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
 	/// @author Aaron Kendall
 	/// @notice Currently, a RuleSet can only belong to one RuleTree and be a child of one parent RuleSet, though there are plans to have a RuleSet capable of being shared among parents
@@ -368,7 +396,7 @@ contract WonkaEngine {
 
         require(rType < uint(RuleTypes.MAX_TYPE));
 
-        uint currRuleId = ruleCounter;
+        uint currRuleId = lastRuleId = ruleCounter;
 
         ruleCounter = ruleCounter + 1;
 
@@ -384,13 +412,17 @@ contract WonkaEngine {
                     ruleType: rType,
                     targetAttr: attrMap[attrName],
                     ruleValue: rVal,
+                    ruleDomainKeys: new string[](0),   
+                    customOpArgs: new bytes32[](CONST_CUSTOM_OP_ARGS),
                     parentRuleSetId: ruleSetId,
                     notOpFlag: notFlag,
                     isPassiveFlag: passiveFlag
                 });
 
-            if (uint(RuleTypes.InDomain) == rType) {
-                splitStrIntoMap(rVal, ",", ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId]);
+            bool isOpRule = ((uint(RuleTypes.OpAdd) == rType) || (uint(RuleTypes.OpSub) == rType) || (uint(RuleTypes.OpMult) == rType) || (uint(RuleTypes.OpDiv) == rType) || (uint(RuleTypes.CustomOp) == rType));
+
+            if ( (uint(RuleTypes.InDomain) == rType) || isOpRule)  {                     
+                splitStrIntoMap(rVal, ",", ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId], isOpRule);
             }
 
         } else {
@@ -403,6 +435,8 @@ contract WonkaEngine {
                     ruleType: rType,
                     targetAttr: attrMap[attrName],
                     ruleValue: rVal,
+                    ruleDomainKeys: new string[](0),
+                    customOpArgs: new bytes32[](CONST_CUSTOM_OP_ARGS),
                     parentRuleSetId: ruleSetId,
                     notOpFlag: notFlag,
                     isPassiveFlag: passiveFlag
@@ -410,6 +444,25 @@ contract WonkaEngine {
 
         }
     }
+
+    /// @dev This method will supply the args to the last rule added (of type Custom Operator)
+    /// @author Aaron Kendall
+    /// @notice Currently, a Rule can only belong to one RuleSet
+    function addRuleCustomOpArgs(address ruler, bytes32 ruleSetId, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public {
+
+        require((msg.sender == rulesMaster) || (msg.sender == ruler));
+
+        require(ruletrees[ruler].isValue == true);
+
+        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true);
+
+        require(ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].ruleType == uint(RuleTypes.CustomOp));
+
+        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[0] = arg1;
+        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[1] = arg2;
+        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[2] = arg3;
+        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[3] = arg4;
+    }    
 
     /// @dev This method will add a new source to the mapping cache.
     /// @author Aaron Kendall
@@ -591,7 +644,38 @@ contract WonkaEngine {
             // (currentRecords[ruler])[targetRule.targetAttr.attrName] = targetRule.ruleValue;
             setValueOnRecord(ruler, targetRule.targetAttr.attrName, targetRule.ruleValue);
 
-        }  
+        } else if ( (uint(RuleTypes.OpAdd) == targetRule.ruleType) ||
+                    (uint(RuleTypes.OpSub) == targetRule.ruleType) || 
+                    (uint(RuleTypes.OpMult) == targetRule.ruleType) ||
+                    (uint(RuleTypes.OpDiv) == targetRule.ruleType) ) {
+
+            uint calculatedValue = calculateValue(ruler, targetRule);
+
+            string memory convertedValue = bytes32ToString(uintToBytes(calculatedValue));
+
+            setValueOnRecord(ruler, targetRule.targetAttr.attrName, convertedValue);
+
+        } else if (uint(RuleTypes.CustomOp) == targetRule.ruleType) {
+
+            bytes32 customOpName = "";
+
+            if (targetRule.ruleDomainKeys.length > 0)
+                customOpName = stringToBytes32(targetRule.ruleDomainKeys[0]);
+
+            bytes32[] memory argsDomain = new bytes32[](CONST_CUSTOM_OP_ARGS);
+
+            for (uint idx = 0; idx < CONST_CUSTOM_OP_ARGS; ++idx) {
+                if (idx < targetRule.customOpArgs.length)
+                    argsDomain[idx] = stringToBytes32(determineDomainValue(ruler, idx, targetRule));
+                else
+                    argsDomain[idx] = "";                    
+            }
+
+            // string memory customOpResult = invokeCustomOperator(opMap[customOpName].contractAddress, ruler, opMap[customOpName].methodName, argsDomain);
+            string memory customOpResult = invokeCustomOperator(opMap[customOpName].contractAddress, ruler, opMap[customOpName].methodName, argsDomain[0], argsDomain[1], argsDomain[2], argsDomain[3]);
+
+            setValueOnRecord(ruler, targetRule.targetAttr.attrName, customOpResult);
+        }
 
         if (!ruleResult && ruletrees[ruler].allRuleSets[targetRule.parentRuleSetId].isLeaf) {            
 
@@ -728,6 +812,100 @@ contract WonkaEngine {
         return string(bytesStringTrimmed);
     }
 
+    /// @dev This method will calculate the value for a Rule according to its type (Add, Subtract, etc.) and its domain values
+    /// @notice 
+    function calculateValue(address ruler, WonkaRule storage targetRule) private returns (uint calcValue){  
+
+        uint tmpValue = 0;
+        uint finalValue = 0;
+
+        for (uint i = 0; i < targetRule.ruleDomainKeys.length; i++) {
+
+            bytes32 keyName = stringToBytes32(targetRule.ruleDomainKeys[i]);
+
+            if (attrMap[keyName].isValue)
+                tmpValue = parseInt(getValueOnRecord(ruler, keyName), 0);
+            else
+                tmpValue = parseInt(targetRule.ruleDomainKeys[i], 0);
+
+            if (i == 0)
+                finalValue = tmpValue;
+            else {
+
+                if ( uint(RuleTypes.OpAdd) == targetRule.ruleType )
+                    finalValue += tmpValue;
+                else if ( uint(RuleTypes.OpSub) == targetRule.ruleType )
+                    finalValue -= tmpValue;
+                else if ( uint(RuleTypes.OpMult) == targetRule.ruleType )
+                    finalValue *= tmpValue;
+                else if ( uint(RuleTypes.OpDiv) == targetRule.ruleType )
+                    finalValue /= tmpValue;                    
+            }
+
+        }
+
+        calcValue = finalValue;
+    }
+
+    /// @author Aaron Kendall
+    /// @dev This method will assist by returning the correct value, either a literal static value or one obtained through retrieval
+    function determineDomainValue(address ruler, uint domainIdx, WonkaRule storage targetRule) private returns (string retValue) {
+
+        bytes32 keyName = targetRule.customOpArgs[domainIdx];
+
+        if (attrMap[keyName].isValue)
+            retValue = getValueOnRecord(ruler, keyName);
+        else
+            retValue = bytes32ToString(keyName);
+    }  
+
+    /// @author Aaron Kendall
+    /// @dev This method will supply the functionality for a Custom Operator rule, calling a method on another contract (like perform a calculation) via assembly
+    function invokeCustomOperator(address targetContract, address sender, bytes32 methodName, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public returns (string strAnswer) {
+
+        lastSenderAddressProvided = sender;
+
+        bytes32 answer = methodName;
+
+        // Since the Solidity compiler complains about the stack being too deep with local stack variables,
+        // we must consolidate the code here to be one line
+        bytes4 sig = bytes4(keccak256(abi.encodePacked(strConcat(bytes32ToString(methodName), "(bytes32,bytes32,bytes32,bytes32)"))));
+
+        assembly {
+            // move pointer to free memory spot
+            let ptr := mload(0x40)
+            // put function sig at memory spot
+            mstore(ptr,sig)
+
+            // append argument after function sig
+            mstore(add(ptr,0x04), arg1)
+            //Place second argument next to first, padded to 32 bytes
+            mstore(add(ptr,0x24), arg2)
+            //Place third argument next to second, padded to 64 bytes
+            mstore(add(ptr,0x44), arg3)
+            //Place fourth argument next to second, padded to 96 bytes
+            mstore(add(ptr,0x64), arg4)
+
+            let result := call(
+                300000, // gas limit
+                targetContract,
+                0, // not transfer any ether
+                ptr, // Inputs are stored at location ptr
+                0x84, // Inputs are 132 bytes long
+                ptr,  //Store output over input
+                0x20) //Outputs are 32 bytes long
+
+            if eq(result, 0) {
+                revert(0, 0)
+            }
+            
+            answer := mload(ptr) // Assign output to answer var
+            mstore(0x40,add(ptr,0x84)) // Set storage pointer to new space
+        }
+
+        strAnswer = bytes32ToString(answer);
+    }
+
     /// @dev This method allows the rules engine to call another contract's method via assembly, retrieving a value for evaluation
     /// @author Aaron Kendall
     /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
@@ -846,9 +1024,9 @@ contract WonkaEngine {
         return mint;
     }
 
- 	/// @dev This method will parse a delimited string and insert them into the Domain map of a Rule
-	/// @notice 
-    function splitStrIntoMap(string str, string delimiter, WonkaRule storage targetRule) private {  
+    /// @dev This method will parse a delimited string and insert them into the Domain map of a Rule
+    /// @notice 
+    function splitStrIntoMap(string str, string delimiter, WonkaRule storage targetRule, bool isOpRule) private {  
 
         bytes memory b = bytes(str); //cast the string to bytes to iterate
         bytes memory delm = bytes(delimiter); 
@@ -867,6 +1045,9 @@ contract WonkaEngine {
                 string memory sTempVal = string(splitTempStr);
                 targetRule.ruleValueDomain[sTempVal] = "Y";
 
+                if (isOpRule)
+                    targetRule.ruleDomainKeys.push(sTempVal);
+
                 splitTempStr = "";                 
             }                
         }
@@ -874,6 +1055,9 @@ contract WonkaEngine {
         if(b[b.length-1] != delm[0]) { 
             string memory sTempValLast = string(splitTempStr);
             targetRule.ruleValueDomain[sTempValLast] = "Y";
+
+            if (isOpRule)
+                targetRule.ruleDomainKeys.push(sTempValLast);
         }
     }
 
@@ -938,4 +1122,25 @@ contract WonkaEngine {
         }
         
     }
+
+    /// @notice Copied this code from MIT implentation
+    /// @dev This method will convert a 'uint' type to a 'bytes32' type
+    function uintToBytes(uint targetVal) private pure returns (bytes32 ret) {
+
+        uint v = targetVal;
+
+        if (v == 0) {
+            ret = "0";
+        }
+        else {
+            while (v > 0) {
+                ret = bytes32(uint(ret) / (2 ** 8));
+                ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
+                v /= 10;
+            }
+        }
+
+        return ret;
+    }
+
 }

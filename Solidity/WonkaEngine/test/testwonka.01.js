@@ -15,6 +15,11 @@ var GREATER_THAN_RULE = 2;
 var POPULATED_RULE    = 3;
 var IN_DOMAIN_RULE    = 4;
 var ASSIGN_RULE       = 5;
+var OP_ADD_RULE       = 6;
+var OP_SUB_RULE       = 7;
+var OP_MUL_RULE       = 8;
+var OP_DIV_RULE       = 9;
+var CUSTOM_OP_RULE    = 10;
 
 contract('WonkaEngine', function(accounts) {
 contract('OrchTestContract', function(accounts) {
@@ -58,6 +63,7 @@ contract('OrchTestContract', function(accounts) {
       instance.addAttribute(web3.fromAscii('AccountCurrValue'), 64, 100000, new String('').valueOf(), false, true);
       instance.addAttribute(web3.fromAscii('AccountType'),    1024, 0, new String('Checking').valueOf(), true, false);
       instance.addAttribute(web3.fromAscii('AccountCurrency'),   3, 0, new String('USD').valueOf(), true, false);
+      instance.addAttribute(web3.fromAscii('AccountPrevValue'), 64, 100000, new String('').valueOf(), false, true);
 
       console.log("Added more Attributes!");
     });
@@ -110,7 +116,7 @@ contract('OrchTestContract', function(accounts) {
       console.log("Added the first child ruleset to the root ruleset!");
 
       instance.addRule(accounts[0], web3.fromAscii('CheckAccntSts'), web3.fromAscii('CheckForTooLittleRule'), web3.fromAscii('AccountCurrValue'), LESS_THAN_RULE, new String('1000').valueOf(), false, true);
-      instance.addRule(accounts[0], web3.fromAscii('CheckAccntSts'), web3.fromAscii('CheckForTooMuchRule'), web3.fromAscii('AccountCurrValue'), GREATER_THAN_RULE, new String('1000000').valueOf(), false, true);
+      instance.addRule(accounts[0], web3.fromAscii('CheckAccntSts'), web3.fromAscii('CheckForTooMuchRule'), web3.fromAscii('AccountCurrValue'), GREATER_THAN_RULE, new String('2000').valueOf(), false, true);
       instance.addRule(accounts[0], web3.fromAscii('CheckAccntSts'), web3.fromAscii('AccountTypeRule'), web3.fromAscii('AccountType'), IN_DOMAIN_RULE, new String('Checking,Savings,TaxHaven').valueOf(), false, true);
 
       console.log("Added the rules to the first child ruleset!");
@@ -119,7 +125,7 @@ contract('OrchTestContract', function(accounts) {
 
       console.log("Added the leaf ruleset to the first child ruleset!");
 
-      instance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('ValidateStatusRule'), web3.fromAscii('AccountStatus'), EQUAL_TO_RULE, new String('OOS').valueOf(), false, true);
+      instance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('ValidateStatusRule'), web3.fromAscii('AccountStatus'), EQUAL_TO_RULE, new String('ACT').valueOf(), false, true);
       instance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('PopulatedValueRule'), web3.fromAscii('Language'), POPULATED_RULE, new String('').valueOf(), false, true);
 
       console.log("Added the rules to the leaf ruleset for the first child RS!");
@@ -230,6 +236,65 @@ contract('OrchTestContract', function(accounts) {
   
         console.log("Current value of Language is (" + new String(currLang).valueOf() + ")");      
 
+        // Now let's add an OpAdd rule to the last ruleset, where we set the AccountCurrValue = AccountCurrValue + AccountPrevValue + 1 (i.e., 2500 = 999 + 1500 + 1)
+        wInstance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('SumForCurrValue'), web3.fromAscii('AccountCurrValue'), OP_ADD_RULE, new String('AccountCurrValue,AccountPrevValue,1').valueOf(), false, true);      
+
+        console.log("Added OP_ADD rule to set a value on the Orchestration contract using Assembly.");
+     
+        // Since we've now added an assignment rule (which can now change the blockchain), we must execute the engine's validation within a transaction
+        wInstance.execute(accounts[0]);
+
+        // Now let's check the validation result, which should still be false
+        return wInstance.getLastTransactionSuccess.call();
+
+      }).then(function(recordValid) {
+  
+        console.log("Current record for owner is valid, with added OP_ADD rule?  [" + recordValid + "]");   
+
+        // Now let's check the record on the Orchestration contract, to ensure that the Language has been set to '???'
+        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('AccountCurrValue'));
+
+      }).then(function(currAcctValue) {
+  
+        console.log("Current value of AccountCurrValue is (" + new String(currAcctValue).valueOf() + ")");      
+   
+      });
+    });
+  });
+  it("Running the rules engine with a Custom Operator rule", function() {
+    return WonkaEngine.deployed().then(function(wInstance) {      
+      return OrchTestContract.deployed().then(function(testInstance) {
+
+        console.log("Define a new custom operator");
+
+        wInstance.addCustomOp(web3.fromAscii('MyCustomOp'), web3.fromAscii('ACT'), testInstance.address, web3.fromAscii('performMyCalc'));
+
+        console.log("Add a new rule with the new custom operator focused on the AccountCurrValue");
+
+        // The value "MyCustomOp,AccountCurrValue,11,40,50" indicates that this Custom Operator will invoke the method defined by 'MyCustomOp' with the arguments AccountCurrValue,500,1000,100
+        wInstance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('InvokeCustomOp'), web3.fromAscii('AccountCurrValue'), CUSTOM_OP_RULE, new String('MyCustomOp').valueOf(), false, true); 
+
+        console.log("Add args to the custom operator");
+        wInstance.addRuleCustomOpArgs(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('AccountCurrValue'), web3.fromAscii('500'), web3.fromAscii('1000'), web3.fromAscii('100'));
+
+        console.log("Running the engine now with the new Custom Operator rule");
+
+        // First, invoke the OpAdd rule, where AccountCurrValue = AccountCurrValue + AccountPrevValue + 1 (i.e., 4001 = 2500 + 1500 + 1)
+        // And then, we invoke the Custom Operator rule, where we set the AccountCurrValue = (((AccountCurrValue - 500) + 1000) / 100) [i.e., 45 = (((4001 - 500) + 1000) / 100)]
+        wInstance.execute(accounts[0]);
+
+        return wInstance.getLastTransactionSuccess.call();
+
+      }).then(function(recordValid) {
+  
+        console.log("O -> Current record for owner(" + accounts[0] + ") is valid?  [" + recordValid + "]");
+
+        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('AccountCurrValue'));
+
+      }).then(function(acctCurrValue) {
+
+        console.log("Value of AccountCurrValue attribute is (" + new String(acctCurrValue).valueOf() + ")");        
+
         /*
         ** 
         // Sleep for 5 seconds, in order to get all event output
@@ -243,11 +308,10 @@ contract('OrchTestContract', function(accounts) {
         */
         
         // If I don't call this method, this script never dies and the Ethereum node keeps printing 'eth_getFilterChanges()'
-        process.exit();
-   
+        process.exit();     
       });
     });
-  });  
+  });
 
 })  // end of the scope for OrchTestContract
 }); // end of the scope for WonkaEngine

@@ -1,0 +1,46 @@
+﻿<?xml version="1.0"?>
+<RuleTree xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+   <if description="Start a new sales transaction">
+      <criteria op="AND">
+         <eval id="pop1">(N.NewSalesTransSeq) POPULATED</eval>
+      </criteria>
+
+      <if description="Checking Input Values">
+           <criteria op="AND">
+               <eval id="pop2">(N.NewSaleEAN) POPULATED</eval>
+               <!-- Since Solidity does not support decimals, we must divide in order to get a close (but still imprecise) estimate -->
+               <eval id="asn0">(N.NewSaleVATRateDenom) INVOKE_VAT_LOOKUP (N.NewSaleItemType, N.CountryOfSale)</eval>
+           </criteria>
+
+           <validate err="severe">
+               <criteria op="AND">
+                   <eval id="cmp2">(N.NewSalePrice) GT (0.00)</eval>
+                   <eval id="cmp3">(N.PrevSellTaxAmount) GT (0.00)</eval>
+               </criteria>
+
+               <failure_message>ERROR!  Required inputs for VAT calculation have not been provided.</failure_message>
+               <success_message/>
+           </validate>           
+       </if>
+
+      <if description="Execution of the VAT Calculation">
+           <criteria op="AND">
+               <eval id="cmp4">(N.NewSaleVATRateDenom) GT (0.00)</eval>
+               <eval id="cmp5">(N.PrevSellTaxAmount) GT (0.00)</eval>
+           </criteria>
+
+           <validate err="severe">
+               <criteria op="AND">
+                   <eval id="asn1">(N.NewSellTaxAmount) ASSIGN_QUOT (N.NewSalePrice, N.NewSaleVATRateDenom)</eval>
+                   <eval id="asn2">(N.NewVATAmountForHMRC) ASSIGN_DIFF (N.NewSellTaxAmount, N.PrevSellTaxAmount)</eval>
+               </criteria>
+
+               <failure_message>ERROR!  Unable to assign the figures related to the VAT.</failure_message>
+               <success_message/>
+           </validate>           
+       </if>        
+
+   </if>    
+    
+</RuleTree>

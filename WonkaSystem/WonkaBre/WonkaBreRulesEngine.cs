@@ -94,6 +94,34 @@ namespace WonkaBre
             this.RetrieveCurrRecord = AssembleCurrentProduct;
         }
 
+        public WonkaBreRulesEngine(StringBuilder                      psRules, 
+                                   Dictionary<string, WonkaBreSource> poSourceMap, 
+                                   Dictionary<string, WonkaBreSource> poCustomOpBlockchainSources,
+                                   IMetadataRetrievable               piMetadataSource = null)
+        {
+            if ((psRules == null) || (psRules.Length <= 0))
+                throw new Exception("ERROR!  Provided rules are null or empty!");
+
+            UsingOrchestrationMode = true;
+
+            RefEnvHandle = Init(piMetadataSource);
+
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
+
+            foreach (string sKey in poCustomOpBlockchainSources.Keys)
+            {
+                WonkaBreSource oTargetSource = poCustomOpBlockchainSources[sKey];
+
+                BreXmlReader.AddCustomOperator(sKey, oTargetSource);
+            }
+
+            RuleTreeRoot = BreXmlReader.ParseRuleTree();
+            SourceMap    = poSourceMap;
+            CustomOpMap  = poCustomOpBlockchainSources;
+
+            this.RetrieveCurrRecord = AssembleCurrentProduct;
+        }
+
         #endregion
 
         #region Methods
@@ -148,6 +176,7 @@ namespace WonkaBre
             this.RetrieveCurrRecord = null;
 
             SourceMap     = new Dictionary<string, WonkaBreSource>();
+            CustomOpMap   = new Dictionary<string, WonkaBreSource>();
             DefaultSource = "";
 
             return RefEnv;
@@ -252,6 +281,8 @@ namespace WonkaBre
         }
 
         public Dictionary<string, WonkaBreSource> SourceMap { get; set; }
+
+        public Dictionary<string, WonkaBreSource> CustomOpMap { get; set; }
 
         public string DefaultSource { get; set; }
 
