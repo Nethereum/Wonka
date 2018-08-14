@@ -87,6 +87,8 @@
     <Compile Include="Contracts\ICommand.cs" />
     <Compile Include="Misc\WonkaMetadataTestSource.cs" />
     <Compile Include="Validation\WonkaValidatorException.cs" />
+    <Compile Include="Orchestration\AbstractWonkaOrchestrator.cs" />
+    <Compile Include="Orchestration\WonkaOrchestratorException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -96,6 +98,7 @@
     <Folder Include="Validation\" />
     <Folder Include="Contracts\" />
     <Folder Include="Misc\" />
+    <Folder Include="Orchestration\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaBre\WonkaBre.csproj">
