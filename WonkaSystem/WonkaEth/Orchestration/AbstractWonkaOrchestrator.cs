@@ -153,6 +153,42 @@ namespace WonkaEth.Orchestration
             }
         }
 
+        protected virtual void DeserializeRecordFromBlockchain(T poCommand, WonkaBreRulesEngine poRulesEngine)
+        {
+            Hashtable DataValues = new Hashtable();
+
+            Dictionary<string, Contract> Sources = new Dictionary<string, Contract>();
+
+            foreach (string sAttrName in poRulesEngine.SourceMap.Keys)
+            {
+                var contract = this.GetContract(poRulesEngine.SourceMap[sAttrName]);
+
+                Sources[poRulesEngine.SourceMap[sAttrName].SourceId] = contract;
+            }
+
+            // Out of gas exception
+            // var gas = setValueOnRecordFunction.EstimateGasAsync(sSenderAddress, "SomeAttr", "SomeValue").Result;
+            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+            foreach (String sTempAttrName in DataValues.Keys)
+            {
+                WonkaBreSource TempSource = poRulesEngine.SourceMap[sTempAttrName];
+
+                string sSenderAddr = TempSource.SenderAddress;
+
+                var contract = Sources[TempSource.SourceId];
+
+                var getValueOnRecordFunction = contract.GetFunction(TempSource.MethodName);
+
+                string sAttrValue = getValueOnRecordFunction.CallAsync<string>(sTempAttrName).Result;
+
+                if (!String.IsNullOrEmpty(sAttrValue))
+                    DataValues[sTempAttrName] = sAttrValue;
+            }
+
+            AssignPropertiesViaReflection(poCommand, DataValues);
+        }
+
         protected Nethereum.Contracts.Contract GetContract(WonkaBreSource poBlockchainSource)
         {
             var account = new Account(poBlockchainSource.Password);
@@ -322,11 +358,20 @@ namespace WonkaEth.Orchestration
             var executeWithReportFunction    = contract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC_RPT);
             var executeGetLastReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_GET_LAST_RPT);
 
+            // First, let's provide the input to the orchestration (i.e., sending the data to their proper contract destinations)
+            SerializeRecordToBlockchain(instance, moRulesEngine);
+
+            // Next, we execute the rules engine within a transaction, so that the any persistence will actually change the state of the blockchain
             var receiptAddAttribute =
                 executeWithReportFunction.SendTransactionAsync(moInitData.BlockchainEngine.SenderAddress, gas, null, moInitData.BlockchainEngine.SenderAddress).Result;
 
+            // Now, we get a full report on the execution of the rules engine, including the possibility of any failures
             var ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<WonkaRuleTreeReport>().Result;
 
+            // Then, we pull back the values from the contract(s) in order to assemble our record
+            DeserializeRecordFromBlockchain(instance, moRulesEngine);
+
+            // Finally, we handle any events that have been issued during the execution of the rules engine
             HandleEvents(callRuleTreeEvent, callRuleSetEvent, callRuleEvent, filterCRTAll, filterCRSAll, filterCRAll);
 
             if (ruleTreeReport.NumberOfRuleFailures <= 0)
@@ -335,6 +380,44 @@ namespace WonkaEth.Orchestration
                 throw new WonkaOrchestratorException(ruleTreeReport);
 
             return bValid;
+        }
+
+        protected virtual void SerializeRecordToBlockchain(T poCommand, WonkaBreRulesEngine poRulesEngine)
+        {
+            Hashtable DataValues = new Hashtable();
+
+            GetPropertiesViaReflection(poCommand, DataValues);
+
+            Dictionary<string, Contract> Sources = new Dictionary<string, Contract>();
+
+            foreach (string sAttrName in poRulesEngine.SourceMap.Keys)
+            {
+                var contract = this.GetContract(poRulesEngine.SourceMap[sAttrName]);
+
+                Sources[poRulesEngine.SourceMap[sAttrName].SourceId] = contract;
+            }
+
+            // Out of gas exception
+            // var gas = setValueOnRecordFunction.EstimateGasAsync(sSenderAddress, "SomeAttr", "SomeValue").Result;
+            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+            foreach (String sTempAttrName in DataValues.Keys)
+            {
+                WonkaBreSource TempSource = poRulesEngine.SourceMap[sTempAttrName];
+
+                string sSenderAddr = TempSource.SenderAddress;
+                string sAttrValue  = (string)DataValues[sTempAttrName];
+
+                var contract = Sources[TempSource.SourceId];
+
+                var setValueOnRecordFunction = contract.GetFunction(TempSource.SetterMethodName);
+
+                if (!String.IsNullOrEmpty(sAttrValue))
+                {
+                    var receiptSetValueOnRecord =
+                        setValueOnRecordFunction.SendTransactionAsync(sSenderAddr, gas, null, sSenderAddr, sTempAttrName, sAttrValue).Result;
+                }
+            }
         }
 
         protected void SerializeRulesEngineToBlockchain()
