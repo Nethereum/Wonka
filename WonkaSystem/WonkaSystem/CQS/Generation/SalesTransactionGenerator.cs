@@ -20,7 +20,8 @@ namespace WonkaSystem.CQS.Generation
         public SalesTransactionGenerator(SalesTrxCreateCommand command, StringBuilder psRulesContents, OrchestrationInitData poInitData) :
             base(command, psRulesContents, poInitData)
         {
-            base.SerializeRulesEngineToBlockchain();
+            // NOTE: Not necessary here
+            // base.SerializeRulesEngineToBlockchain();
         }
 
         public bool GenerateSalesTransaction(SalesTrxCreateCommand poCommand)
