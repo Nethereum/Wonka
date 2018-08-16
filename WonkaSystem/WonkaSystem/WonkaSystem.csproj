@@ -119,6 +119,8 @@
     <Compile Include="TestHarness\WonkaSimpleCustomOpsTest.cs" />
     <Compile Include="TestHarness\WonkaMetadataVATSource.cs" />
     <Compile Include="TestHarness\WonkaCQSOrchTest.cs" />
+    <Compile Include="CQS\Contracts\SalesTrxCreateCommand.cs" />
+    <Compile Include="CQS\Generation\SalesTransactionGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -147,6 +149,7 @@
     <Folder Include="CQS\Contracts\" />
     <Folder Include="CQS\Validation\" />
     <Folder Include="TestData\" />
+    <Folder Include="CQS\Generation\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="TestData\SimpleAccountCheck.xml" />
