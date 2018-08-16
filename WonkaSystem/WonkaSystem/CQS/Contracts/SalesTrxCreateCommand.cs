@@ -10,18 +10,24 @@ namespace WonkaSystem.CQS.Contracts
 {
     public class SalesTrxCreateCommand : ICommand
     {
-        public long   NewSalesTrxSeq      { get; set; }
-        public int    NewSaleVATRateDenom { get; set; }
-        public string NewSaleItemType     { get; set; }
-        public string CountryOfSale       { get; set; }
-        public double NewSalePrice        { get; set; }
-        public double PrevSellTaxAmt      { get; set; }
-        public double NewSellTaxAmt       { get; set; }
-        public double NewVATAmtForHMRC    { get; set; }
-        public long   NewSaleEAN          { get; set; }
+        public long?   NewSalesTrxSeq      { get; set; }
+        public int?    NewSaleVATRateDenom { get; set; }
+        public string  NewSaleItemType     { get; set; }
+        public string  CountryOfSale       { get; set; }
+        public double? NewSalePrice        { get; set; }
+        public double? PrevSellTaxAmt      { get; set; }
+        public double? NewSellTaxAmt       { get; set; }
+        public double? NewVATAmtForHMRC    { get; set; }
+        public long?   NewSaleEAN          { get; set; }
 
         public SalesTrxCreateCommand()
-        {}
+        {
+            NewSalesTrxSeq      = null;
+            NewSaleVATRateDenom = null;
+            NewSaleItemType     = CountryOfSale = null;
+            NewSalePrice        = PrevSellTaxAmt = NewSellTaxAmt = NewVATAmtForHMRC = null;
+            NewSaleEAN          = null;
+        }
 
         public PropertyInfo[] GetProperties()
         {
