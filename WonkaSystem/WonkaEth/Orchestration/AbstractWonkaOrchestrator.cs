@@ -170,7 +170,7 @@ namespace WonkaEth.Orchestration
             // var gas = setValueOnRecordFunction.EstimateGasAsync(sSenderAddress, "SomeAttr", "SomeValue").Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
-            foreach (String sTempAttrName in DataValues.Keys)
+            foreach (String sTempAttrName in moRulesEngine.SourceMap.Keys)
             {
                 WonkaBreSource TempSource = moRulesEngine.SourceMap[sTempAttrName];
 
@@ -409,7 +409,7 @@ namespace WonkaEth.Orchestration
                 if (!String.IsNullOrEmpty(sAttrValue))
                 {
                     var receiptSetValueOnRecord =
-                        setValueOnRecordFunction.SendTransactionAsync(sSenderAddr, gas, null, sSenderAddr, sTempAttrName, sAttrValue).Result;
+                        setValueOnRecordFunction.SendTransactionAsync(sSenderAddr, gas, null, sTempAttrName, sAttrValue).Result;
                 }
             }
         }
