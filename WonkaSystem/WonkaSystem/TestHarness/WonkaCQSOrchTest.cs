@@ -44,11 +44,15 @@ namespace WonkaSystem.TestHarness
         private readonly string msWonkaContractAddress = "";
         private readonly string msOrchContractAddress  = "";
 
-        private Dictionary<string, WonkaBreSource> moSourceMap = null;
+        private Dictionary<string, WonkaBreSource> moAttrSourceMap = null;
+        private Dictionary<string, WonkaBreSource> moCustomOpMap   = null;
 
         public WonkaCQSOrchTest(string psSenderAddress, string psPassword, string psWonkaContractAddress, string psOrchContractAddress)
         {
             var TmpAssembly = Assembly.GetExecutingAssembly();
+
+            moAttrSourceMap = new Dictionary<string, WonkaBreSource>();
+            moCustomOpMap   = new Dictionary<string, WonkaBreSource>();
 
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.abi")))
             {
@@ -60,7 +64,7 @@ namespace WonkaSystem.TestHarness
                 msAbiOrchContract = AbiReader.ReadToEnd();
             }
 
-            using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATExample.xml")))
+            using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATCalculationExample.xml")))
             {
                 msRulesContents = RulesReader.ReadToEnd();
             }
@@ -69,7 +73,7 @@ namespace WonkaSystem.TestHarness
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
             msSenderAddress = psSenderAddress;
-            msPassword      = psPassword;
+            msPassword = psPassword;
 
             moMetadataSource = new WonkaMetadataTestSource();
 
@@ -86,32 +90,32 @@ namespace WonkaSystem.TestHarness
             RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka);
 
             moDefaultSource =
-                new WonkaBreSource(CONST_ORCH_CONTRACT_MARKUP_ID, 
-                                   msSenderAddress, 
-                                   msPassword, 
-                                   psOrchContractAddress, 
-                                   msAbiOrchContract, 
-                                   CONST_ORCH_CONTRACT_GET_METHOD, 
-                                   CONST_ORCH_CONTRACT_SET_METHOD, 
+                new WonkaBreSource(CONST_ORCH_CONTRACT_MARKUP_ID,
+                                   msSenderAddress,
+                                   msPassword,
+                                   psOrchContractAddress,
+                                   msAbiOrchContract,
+                                   CONST_ORCH_CONTRACT_GET_METHOD,
+                                   CONST_ORCH_CONTRACT_SET_METHOD,
                                    RetrieveValueMethod);
 
             foreach (WonkaRefAttr TempAttr in RefEnv.AttrCache)
             {
-                moSourceMap[TempAttr.AttrName] = moDefaultSource;
+                moAttrSourceMap[TempAttr.AttrName] = moDefaultSource;
             }
 
             Dictionary<string, WonkaBreSource> CustomOpSourceMap = new Dictionary<string, WonkaBreSource>();
 
             WonkaBreSource CustomOpSource =
-                new WonkaBreSource(CONST_CUSTOM_OP_MARKUP_ID, 
-                                   msSenderAddress, 
-                                   msPassword, 
-                                   psOrchContractAddress, 
-                                   msAbiOrchContract, 
-                                   LookupVATDenominator, 
+                new WonkaBreSource(CONST_CUSTOM_OP_MARKUP_ID,
+                                   msSenderAddress,
+                                   msPassword,
+                                   psOrchContractAddress,
+                                   msAbiOrchContract,
+                                   LookupVATDenominator,
                                    CONST_CUSTOM_OP_CONTRACT_METHOD);
 
-            CustomOpSourceMap[CONST_CUSTOM_OP_MARKUP_ID] = CustomOpSource;
+            moCustomOpMap[CONST_CUSTOM_OP_MARKUP_ID] = CustomOpSource;
         }
 
         public string DeployOrchestrationContract()
@@ -173,33 +177,42 @@ namespace WonkaSystem.TestHarness
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
-            CQS.Contracts.AccountUpdateCommand UpdateCommand = new CQS.Contracts.AccountUpdateCommand();
+            CQS.Contracts.SalesTrxCreateCommand SalesTrxCommand = new CQS.Contracts.SalesTrxCreateCommand();
 
-            /*
-            UpdateCommand.AccountId   = "1234567890";
-            UpdateCommand.AccountName = "JohnSmithFirstCheckingAccount";
-            UpdateCommand.Status      = "OOS";
-            UpdateCommand.UpdateValue = 100.00;
-            UpdateCommand.Currency    = "USD";
-            // UpdateCommand.AccountType = "Checking";
-            UpdateCommand.AccountType = "CompletelyBogusTypeThatWillCauseAnError";
-            */
+            SalesTrxCommand.NewSaleEAN      = 9781234567890;
+            SalesTrxCommand.NewSaleItemType = "Widget";
+            SalesTrxCommand.CountryOfSale   = "UK";
 
-            CQS.Validation.AccountUpdateValidator UpdateValidator =
-                   new CQS.Validation.AccountUpdateValidator(UpdateCommand, new StringBuilder(msRulesContents));
+            WonkaEth.Orchestration.OrchestrationInitData InitData = GenerateInitData();
 
-            UpdateValidator.BlockchainEngine.SenderAddress   = msSenderAddress;
-            UpdateValidator.BlockchainEngine.Password        = msPassword;
-            UpdateValidator.BlockchainEngine.ContractAddress = msOrchContractAddress;
-            UpdateValidator.BlockchainEngine.ContractABI     = msAbiWonka;
+            CQS.Generation.SalesTransactionGenerator TrxGenerator =
+                   new CQS.Generation.SalesTransactionGenerator(SalesTrxCommand, new StringBuilder(msRulesContents), InitData);
 
-            bool bValid = UpdateValidator.Validate(UpdateCommand);
+            bool bValid = TrxGenerator.GenerateSalesTransaction(SalesTrxCommand);
 
             if (!bValid)
                 throw new Exception("Oh heavens to Betsy! Something bad happened!");
+
+            string sNewSellTaxAmt    = Convert.ToString(SalesTrxCommand.NewSellTaxAmt);
+            string sNewVATAmtForHMRC = Convert.ToString(SalesTrxCommand.NewVATAmtForHMRC);
         }
 
         #region Methods Only Used for .NET Execution of the Rules Engine
+
+        public WonkaEth.Orchestration.OrchestrationInitData GenerateInitData()
+        {
+            WonkaEth.Orchestration.OrchestrationInitData InitData = new WonkaEth.Orchestration.OrchestrationInitData();
+
+            InitData.BlockchainEngine = new WonkaBreSource("N", msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka, null, null, null);
+
+            InitData.AttributesMetadataSource = new WonkaMetadataVATSource();
+
+            InitData.DefaultBlockchainDataSource = moDefaultSource;
+            InitData.BlockchainDataSources       = moAttrSourceMap;
+            InitData.BlockchainCustomOpFunctions = moCustomOpMap;
+
+            return InitData;
+        }
 
         public Nethereum.Contracts.Contract GetContract(WonkaBre.RuleTree.WonkaBreSource TargetSource)
         {
@@ -230,5 +243,6 @@ namespace WonkaSystem.TestHarness
         }
 
         #endregion
+
     }
 }
