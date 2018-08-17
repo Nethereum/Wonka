@@ -26,10 +26,17 @@ namespace WonkaSystem.CQS.Generation
 
         public bool GenerateSalesTransaction(SalesTrxCreateCommand poCommand)
         {
+            bool bSimulationMode = true;
+
             // First, let's provide the input to the orchestration (i.e., sending the data to their proper contract destinations)
             base.SerializeRecordToBlockchain(poCommand);
 
-            bool bValid = base.Orchestrate(poCommand);
+            // Next, we simulate the execution on the blockchain in order to save on gas (i.e., no persistence) - if all seems well 
+            // (i.e., all data points retrieved appear valid), we then perform the actual execution of the RuleTree on the blockchain, 
+            // persistence and all
+            bool bValid = base.Orchestrate(poCommand, bSimulationMode);
+            if (bValid)
+                bValid = base.Orchestrate(poCommand);
 
             // Then, we pull back the values from the contract(s) in order to assemble our record after the rules engine has executed 
             // and possibly set data points

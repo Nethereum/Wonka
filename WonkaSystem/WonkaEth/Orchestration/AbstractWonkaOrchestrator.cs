@@ -339,7 +339,7 @@ namespace WonkaEth.Orchestration
             return type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
         }
 
-        public virtual bool Orchestrate(T instance)
+        public virtual bool Orchestrate(T instance, bool pbSimulationMode = false)
         {
             bool bValid = true;
 
@@ -358,12 +358,22 @@ namespace WonkaEth.Orchestration
             var executeWithReportFunction    = contract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC_RPT);
             var executeGetLastReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_GET_LAST_RPT);
 
-            // Next, we execute the rules engine within a transaction, so that the any persistence will actually change the state of the blockchain
-            var receiptAddAttribute =
-                executeWithReportFunction.SendTransactionAsync(moInitData.BlockchainEngine.SenderAddress, gas, null, moInitData.BlockchainEngine.SenderAddress).Result;
+            WonkaRuleTreeReport ruleTreeReport = new WonkaRuleTreeReport();
 
-            // Now, we get a full report on the execution of the rules engine, including the possibility of any failures
-            var ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<WonkaRuleTreeReport>().Result;
+            if (pbSimulationMode)
+            {
+                // Now, we get a full report on the execution of the rules engine, including the possibility of any failures
+                ruleTreeReport = executeWithReportFunction.CallDeserializingToObjectAsync<WonkaRuleTreeReport>(moInitData.BlockchainEngine.SenderAddress, gas, null, moInitData.BlockchainEngine.SenderAddress).Result;
+            }
+            else
+            {
+                // Next, we execute the rules engine within a transaction, so that the any persistence will actually change the state of the blockchain
+                var receiptAddAttribute =
+                    executeWithReportFunction.SendTransactionAsync(moInitData.BlockchainEngine.SenderAddress, gas, null, moInitData.BlockchainEngine.SenderAddress).Result;
+
+                // Now, we get a full report on the execution of the rules engine, including the possibility of any failures
+                ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<WonkaRuleTreeReport>().Result;
+            }
 
             // Finally, we handle any events that have been issued during the execution of the rules engine
             HandleEvents(callRuleTreeEvent, callRuleSetEvent, callRuleEvent, filterCRTAll, filterCRSAll, filterCRAll);
