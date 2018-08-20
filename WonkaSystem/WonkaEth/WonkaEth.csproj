@@ -79,6 +79,8 @@
     <Reference Include="Nethereum.Geth">
       <HintPath>..\packages\Nethereum.Geth.2.4.0\lib\net451\Nethereum.Geth.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,6 +91,7 @@
     <Compile Include="Validation\WonkaValidatorException.cs" />
     <Compile Include="Orchestration\AbstractWonkaOrchestrator.cs" />
     <Compile Include="Orchestration\WonkaOrchestratorException.cs" />
+    <Compile Include="Init\WonkaEthInitialization.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -99,6 +102,7 @@
     <Folder Include="Contracts\" />
     <Folder Include="Misc\" />
     <Folder Include="Orchestration\" />
+    <Folder Include="Init\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaBre\WonkaBre.csproj">
