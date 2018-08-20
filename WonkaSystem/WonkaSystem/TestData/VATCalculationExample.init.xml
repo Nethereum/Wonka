@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<WonkaEthInitialization>
+    <BlockchainEngine>
+        <ContractAddress>1234567890</ContractAddress>
+        <ContractSender>1234567890</ContractSender>
+        <ContractPassword>1234567890</ContractPassword>
+        <ContractGetterMethod>getAttrValueBytes32</ContractGetterMethod>
+    </BlockchainEngine>    
+    <DefaultValueRetrieval>
+        <ContractMarkupId>N</ContractMarkupId>        
+        <ContractAddress>1234567890</ContractAddress>
+        <ContractSender>1234567890</ContractSender>
+        <ContractPassword>1234567890</ContractPassword>
+        <ContractGetterMethod>getAttrValueBytes32</ContractGetterMethod>
+        <ContractSetterMethod>setAttrValueBytes32</ContractSetterMethod>
+    </DefaultValueRetrieval>
+    <CustomOperator>
+        <ContractMarkupId>N</ContractMarkupId>
+        <ContractAddress>1234567890</ContractAddress>
+        <ContractSender>1234567890</ContractSender>
+        <ContractPassword>1234567890</ContractPassword>
+        <CustomOpMarkupId>INVOKE_VAT_LOOKUP</CustomOpMarkupId>
+        <CustomOpContractMethod>lookupVATDenominator</CustomOpContractMethod>
+    </CustomOperator>    
+</WonkaEthInitialization>
