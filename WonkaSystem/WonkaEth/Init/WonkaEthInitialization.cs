@@ -5,8 +5,13 @@ namespace WonkaEth.Init
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public class WonkaEthSource
     {
+        private string msContractABIEmbeddedResource;
+        private string msContractABIFileResource;
+
         public WonkaEthSource()
-        {}
+        {
+            msContractABIEmbeddedResource = msContractABIFileResource = "";
+        }
 
         public string ContractMarkupId { get; set; }
 
@@ -16,6 +21,8 @@ namespace WonkaEth.Init
 
         public string ContractPassword { get; set; }
 
+        public string TargetAttrName { get; set; }
+
         public string ContractGetterMethod { get; set; }
 
         public string ContractSetterMethod { get; set; }
@@ -23,6 +30,47 @@ namespace WonkaEth.Init
         public string CustomOpMarkupId { get; set; }
 
         public string CustomOpContractMethod { get; set; }
+
+        public string ContractABIEmbeddedResource
+        { 
+            get { return msContractABIEmbeddedResource;  } 
+
+            set 
+            {
+                msContractABIEmbeddedResource = value;
+
+                /*
+                 * NOTE: Not working yet
+                 * 
+                if (!String.IsNullOrEmpty(msContractABIEmbeddedResource))
+                {
+                    var TmpAssembly = System.Reflection.Assembly.GetCallingAssembly();
+
+                    using (var AbiReader = new System.IO.StreamReader(TmpAssembly.GetManifestResourceStream(msContractABIEmbeddedResource)))
+                    {
+                        ContractABI = AbiReader.ReadToEnd();
+                    }
+                }
+                */
+            }
+        }
+
+        public string ContractABIFileResource
+        {
+            get { return msContractABIFileResource; }
+
+            set
+            {
+                msContractABIFileResource = value;
+
+                if (!String.IsNullOrEmpty(msContractABIFileResource))
+                {
+                    ContractABI = System.IO.File.ReadAllText(msContractABIFileResource);
+                }
+            }
+        }
+
+        public string ContractABI { get; set; }
     }
 
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
@@ -36,6 +84,59 @@ namespace WonkaEth.Init
 
             AttributeSourceList = new WonkaEthSource[0];
             CustomOperatorList  = new WonkaEthSource[0];
+        }
+
+        public void RetrieveEmbeddedResources(System.Reflection.Assembly poTargetAssembly)
+        {
+            if (this.BlockchainEngine != null)
+            {
+                if (String.IsNullOrEmpty(BlockchainEngine.ContractABI) && !String.IsNullOrEmpty(BlockchainEngine.ContractABIEmbeddedResource))
+                {
+                    using (var AbiReader = new System.IO.StreamReader(poTargetAssembly.GetManifestResourceStream(BlockchainEngine.ContractABIEmbeddedResource)))
+                    {
+                        BlockchainEngine.ContractABI = AbiReader.ReadToEnd();
+                    }
+                }
+            }
+
+            if (this.DefaultValueRetrieval != null)
+            {
+                if (String.IsNullOrEmpty(DefaultValueRetrieval.ContractABI) && !String.IsNullOrEmpty(DefaultValueRetrieval.ContractABIEmbeddedResource))
+                {
+                    using (var AbiReader = new System.IO.StreamReader(poTargetAssembly.GetManifestResourceStream(DefaultValueRetrieval.ContractABIEmbeddedResource)))
+                    {
+                        DefaultValueRetrieval.ContractABI = AbiReader.ReadToEnd();
+                    }
+                }
+            }
+
+            if (this.AttributeSourceList != null)
+            {
+                foreach (WonkaEthSource TmpEthSource in AttributeSourceList)
+                {
+                    if (String.IsNullOrEmpty(TmpEthSource.ContractABI) && !String.IsNullOrEmpty(TmpEthSource.ContractABIEmbeddedResource))
+                    {
+                        using (var AbiReader = new System.IO.StreamReader(poTargetAssembly.GetManifestResourceStream(TmpEthSource.ContractABIEmbeddedResource)))
+                        {
+                            TmpEthSource.ContractABI = AbiReader.ReadToEnd();
+                        }
+                    }
+                }
+            }
+
+            if (CustomOperatorList != null)
+            {
+                foreach (WonkaEthSource TmpEthSource in CustomOperatorList)
+                {
+                    if (String.IsNullOrEmpty(TmpEthSource.ContractABI) && !String.IsNullOrEmpty(TmpEthSource.ContractABIEmbeddedResource))
+                    {
+                        using (var AbiReader = new System.IO.StreamReader(poTargetAssembly.GetManifestResourceStream(TmpEthSource.ContractABIEmbeddedResource)))
+                        {
+                            TmpEthSource.ContractABI = AbiReader.ReadToEnd();
+                        }
+                    }
+                }
+            }
         }
 
         public WonkaEthSource BlockchainEngine { get; set; }

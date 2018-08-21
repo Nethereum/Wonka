@@ -5,6 +5,7 @@
         <ContractSender>1234567890</ContractSender>
         <ContractPassword>1234567890</ContractPassword>
         <ContractGetterMethod>getAttrValueBytes32</ContractGetterMethod>
+        <ContractABIEmbeddedResource><![CDATA[WonkaSystem.TestData.WonkaEngine.abi]]></ContractABIEmbeddedResource>
     </BlockchainEngine>    
     <DefaultValueRetrieval>
         <ContractMarkupId>N</ContractMarkupId>        
@@ -13,12 +14,14 @@
         <ContractPassword>1234567890</ContractPassword>
         <ContractGetterMethod>getAttrValueBytes32</ContractGetterMethod>
         <ContractSetterMethod>setAttrValueBytes32</ContractSetterMethod>
+        <ContractABIEmbeddedResource><![CDATA[WonkaSystem.TestData.OrchTest.abi]]></ContractABIEmbeddedResource>
     </DefaultValueRetrieval>
     <CustomOperator>
         <ContractMarkupId>N</ContractMarkupId>
         <ContractAddress>1234567890</ContractAddress>
         <ContractSender>1234567890</ContractSender>
         <ContractPassword>1234567890</ContractPassword>
+        <ContractABIEmbeddedResource><![CDATA[WonkaSystem.TestData.OrchTest.abi]]></ContractABIEmbeddedResource>        
         <CustomOpMarkupId>INVOKE_VAT_LOOKUP</CustomOpMarkupId>
         <CustomOpContractMethod>lookupVATDenominator</CustomOpContractMethod>
     </CustomOperator>    
