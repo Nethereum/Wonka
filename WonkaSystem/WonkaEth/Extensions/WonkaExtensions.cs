@@ -621,7 +621,7 @@ namespace WonkaEth.Extensions
                 foreach (Init.WonkaEthSource TmpSource in poEthInitData.CustomOperatorList)
                 {
                     WonkaBreSource TmpBreSource =
-                        new WonkaBreSource(TmpSource.ContractMarkupId,
+                        new WonkaBreSource(TmpSource.CustomOpMarkupId,
                                            TmpSource.ContractSender,
                                            TmpSource.ContractPassword,
                                            TmpSource.ContractAddress,
