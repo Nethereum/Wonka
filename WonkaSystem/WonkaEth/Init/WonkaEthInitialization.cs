@@ -5,12 +5,18 @@ namespace WonkaEth.Init
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public class WonkaEthSource
     {
+        private string msBusinessRulesEmbeddedResource;
+        private string msBusinessRulesFileResource;
+
         private string msContractABIEmbeddedResource;
         private string msContractABIFileResource;
 
         public WonkaEthSource()
         {
-            msContractABIEmbeddedResource = msContractABIFileResource = "";
+            ContractABI = BusinessRules = null;
+
+            msBusinessRulesEmbeddedResource = msBusinessRulesFileResource = "";
+            msContractABIEmbeddedResource   = msContractABIFileResource   = "";
         }
 
         public string ContractMarkupId { get; set; }
@@ -71,6 +77,30 @@ namespace WonkaEth.Init
         }
 
         public string ContractABI { get; set; }
+
+        public string BusinessRulesEmbeddedResource
+        {
+            get { return msBusinessRulesEmbeddedResource; }
+
+            set { msBusinessRulesEmbeddedResource = value; }
+        }
+
+        public string BusinessRulesFileResource
+        {
+            get { return msBusinessRulesFileResource; }
+
+            set
+            {
+                msBusinessRulesFileResource = value;
+
+                if (!String.IsNullOrEmpty(msBusinessRulesFileResource))
+                {
+                    BusinessRules = System.IO.File.ReadAllText(msBusinessRulesFileResource);
+                }
+            }
+        }
+
+        public string BusinessRules { get; set; }
     }
 
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
@@ -95,6 +125,14 @@ namespace WonkaEth.Init
                     using (var AbiReader = new System.IO.StreamReader(poTargetAssembly.GetManifestResourceStream(BlockchainEngine.ContractABIEmbeddedResource)))
                     {
                         BlockchainEngine.ContractABI = AbiReader.ReadToEnd();
+                    }
+                }
+
+                if (String.IsNullOrEmpty(BlockchainEngine.BusinessRules) && !String.IsNullOrEmpty(BlockchainEngine.BusinessRulesEmbeddedResource))
+                {
+                    using (var RulesReader = new System.IO.StreamReader(poTargetAssembly.GetManifestResourceStream(BlockchainEngine.BusinessRulesEmbeddedResource)))
+                    {
+                        BlockchainEngine.BusinessRules = RulesReader.ReadToEnd();
                     }
                 }
             }

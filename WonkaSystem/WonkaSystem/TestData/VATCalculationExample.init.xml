@@ -1,26 +1,27 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <WonkaEthInitialization>
     <BlockchainEngine>
-        <ContractAddress>1234567890</ContractAddress>
-        <ContractSender>1234567890</ContractSender>
-        <ContractPassword>1234567890</ContractPassword>
+        <ContractAddress>0x1a419308cff06ebd1bcab764056ada4a2bd741f5</ContractAddress>
+        <ContractSender>0xbdd58baa594a06d7f920b4e0e3ce5853a9a508e1</ContractSender>
+        <ContractPassword>170fe50b31f1a9e287544ece91b46f9dbf2b66bf0018feb3fea446b4e31fe398</ContractPassword>
         <ContractGetterMethod>getAttrValueBytes32</ContractGetterMethod>
         <ContractABIEmbeddedResource><![CDATA[WonkaSystem.TestData.WonkaEngine.abi]]></ContractABIEmbeddedResource>
+        <BusinessRulesEmbeddedResource><![CDATA[WonkaSystem.TestData.VATCalculationExample.xml]]></BusinessRulesEmbeddedResource>                
     </BlockchainEngine>    
     <DefaultValueRetrieval>
         <ContractMarkupId>N</ContractMarkupId>        
-        <ContractAddress>1234567890</ContractAddress>
-        <ContractSender>1234567890</ContractSender>
-        <ContractPassword>1234567890</ContractPassword>
+        <ContractAddress>0xebdc76ba5d78cdad24ca20afc695a38600822659</ContractAddress>
+        <ContractSender>0xbdd58baa594a06d7f920b4e0e3ce5853a9a508e1</ContractSender>
+        <ContractPassword>170fe50b31f1a9e287544ece91b46f9dbf2b66bf0018feb3fea446b4e31fe398</ContractPassword>
         <ContractGetterMethod>getAttrValueBytes32</ContractGetterMethod>
         <ContractSetterMethod>setAttrValueBytes32</ContractSetterMethod>
         <ContractABIEmbeddedResource><![CDATA[WonkaSystem.TestData.OrchTest.abi]]></ContractABIEmbeddedResource>
     </DefaultValueRetrieval>
     <CustomOperator>
         <ContractMarkupId>N</ContractMarkupId>
-        <ContractAddress>1234567890</ContractAddress>
-        <ContractSender>1234567890</ContractSender>
-        <ContractPassword>1234567890</ContractPassword>
+        <ContractAddress>0xebdc76ba5d78cdad24ca20afc695a38600822659</ContractAddress>
+        <ContractSender>0xbdd58baa594a06d7f920b4e0e3ce5853a9a508e1</ContractSender>
+        <ContractPassword>170fe50b31f1a9e287544ece91b46f9dbf2b66bf0018feb3fea446b4e31fe398</ContractPassword>
         <ContractABIEmbeddedResource><![CDATA[WonkaSystem.TestData.OrchTest.abi]]></ContractABIEmbeddedResource>        
         <CustomOpMarkupId>INVOKE_VAT_LOOKUP</CustomOpMarkupId>
         <CustomOpContractMethod>lookupVATDenominator</CustomOpContractMethod>
