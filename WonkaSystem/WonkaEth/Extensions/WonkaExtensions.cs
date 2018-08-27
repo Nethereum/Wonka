@@ -561,5 +561,82 @@ namespace WonkaEth.Extensions
 
             return true;
         }
+
+        /// <summary>
+        /// 
+        /// This method will use transform the parameter 'poEthInitData' into an instance of OrchestrationInitData.
+        /// 
+        /// NOTE: This method does not set the metadata needed to enable validation within the .NET side.
+        /// 
+        /// <param name="poEthInitData">The initialization info that will be repackaged/param>
+        /// <returns>The transformation of 'poEthInitData' into an instance of OrchestrationInitData</returns>
+        /// </summary>
+        public static WonkaEth.Orchestration.OrchestrationInitData TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, IMetadataRetrievable piMetadataSource = null)
+        {
+            WonkaEth.Orchestration.OrchestrationInitData OrchInitData = new Orchestration.OrchestrationInitData();
+
+            OrchInitData.AttributesMetadataSource = piMetadataSource;
+
+            OrchInitData.BlockchainEngine =
+                new WonkaBreSource(poEthInitData.BlockchainEngine.ContractMarkupId,
+                                   poEthInitData.BlockchainEngine.ContractSender,
+                                   poEthInitData.BlockchainEngine.ContractPassword,
+                                   poEthInitData.BlockchainEngine.ContractAddress,
+                                   poEthInitData.BlockchainEngine.ContractABI,
+                                   "", "", null);
+
+            OrchInitData.DefaultBlockchainDataSource =
+                new WonkaBreSource(poEthInitData.DefaultValueRetrieval.ContractMarkupId,
+                                   poEthInitData.DefaultValueRetrieval.ContractSender,
+                                   poEthInitData.DefaultValueRetrieval.ContractPassword,
+                                   poEthInitData.DefaultValueRetrieval.ContractAddress,
+                                   poEthInitData.DefaultValueRetrieval.ContractABI,
+                                   poEthInitData.DefaultValueRetrieval.ContractGetterMethod,
+                                   poEthInitData.DefaultValueRetrieval.ContractSetterMethod,
+                                   null);
+
+            if ((poEthInitData.AttributeSourceList != null) && (poEthInitData.AttributeSourceList.Length > 0))
+            {
+                foreach (Init.WonkaEthSource TmpSource in poEthInitData.AttributeSourceList)
+                {
+                    WonkaBreSource TmpBreSource =
+                        new WonkaBreSource(TmpSource.ContractMarkupId,
+                                           TmpSource.ContractSender,
+                                           TmpSource.ContractPassword,
+                                           TmpSource.ContractAddress,
+                                           TmpSource.ContractABI,
+                                           TmpSource.ContractGetterMethod,
+                                           TmpSource.ContractSetterMethod,
+                                           null);
+
+                    if (OrchInitData.BlockchainDataSources == null)
+                        OrchInitData.BlockchainDataSources = new Dictionary<string, WonkaBreSource>();
+
+                    OrchInitData.BlockchainDataSources[TmpSource.TargetAttrName] = TmpBreSource;              
+                }
+            }
+
+            if ((poEthInitData.CustomOperatorList != null) && (poEthInitData.CustomOperatorList.Length > 0))
+            {
+                foreach (Init.WonkaEthSource TmpSource in poEthInitData.CustomOperatorList)
+                {
+                    WonkaBreSource TmpBreSource =
+                        new WonkaBreSource(TmpSource.CustomOpMarkupId,
+                                           TmpSource.ContractSender,
+                                           TmpSource.ContractPassword,
+                                           TmpSource.ContractAddress,
+                                           TmpSource.ContractABI,
+                                           null,
+                                           TmpSource.CustomOpContractMethod);
+
+                    if (OrchInitData.BlockchainCustomOpFunctions == null)
+                        OrchInitData.BlockchainCustomOpFunctions = new Dictionary<string, WonkaBreSource>();
+
+                    OrchInitData.BlockchainCustomOpFunctions[TmpSource.CustomOpMarkupId] = TmpBreSource;
+                }
+            }
+
+            return OrchInitData;
+        }
     }
 }
