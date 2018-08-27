@@ -28,9 +28,9 @@ namespace WonkaSystem
         {
             try
             {
-                var sSenderAddress   = "0x143be901d26e70b721c1bf21619d6639463f51aa";
-                var sPassword        = "fa1f12037f1859e68b85962a379be3601436c0a8ad92cc8ed7e95d854c0c277e";
-                var sContractAddress = "0x63bd21baa147317a11817dc80137eb948913fe53";
+                var sSenderAddress   = "0x5095101f2dd4b4c4df1bfbaeb1391e8db4d10554";
+                var sPassword        = "e685eb6a1f71a07746ec6e65b0ae9864db14881759d8cd981100b689b7401a0f";
+                var sContractAddress = "0xeaed9c1082998971e56ac31512b08e3457644666";
 
                 // SimpleTest();
 
@@ -46,7 +46,7 @@ namespace WonkaSystem
                 // string sOrchTestContractAddress = "0x2843bb92fbdfcad057c6eea8ac37a098ae3f4077";
                 // SimpleCustomOpsTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
 
-                string sOrchTestContractAddress = "0x2b0557f5a329a791c5280b608b3c7d0e772b7b3a";
+                string sOrchTestContractAddress = "0x3edf86c3ee590f9693393b8289c533e6cb0d6efa";
                 CQSOrchestrationDemoTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
             }
             catch (WonkaEth.Validation.WonkaValidatorException ex)
@@ -116,7 +116,9 @@ namespace WonkaSystem
 
         static void CQSOrchestrationDemoTest(string psSenderAddress, string psPassword, string psContractAddress, string psOrchestrationAddress)
         {
-            WonkaCQSOrchTest CQSTest = new WonkaCQSOrchTest(psSenderAddress, psPassword, psContractAddress, psOrchestrationAddress);
+            // WonkaCQSOrchTest CQSTest = new WonkaCQSOrchTest(psSenderAddress, psPassword, psContractAddress, psOrchestrationAddress);
+
+            WonkaCQSOrchTest CQSTest = new WonkaCQSOrchTest();
             CQSTest.Execute();
         }
     }

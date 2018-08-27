@@ -47,6 +47,80 @@ namespace WonkaSystem.TestHarness
         private Dictionary<string, WonkaBreSource> moAttrSourceMap = null;
         private Dictionary<string, WonkaBreSource> moCustomOpMap   = null;
 
+        private WonkaEth.Orchestration.OrchestrationInitData moOrchInitData = null;
+
+        public WonkaCQSOrchTest()
+        {
+            moAttrSourceMap = new Dictionary<string, WonkaBreSource>();
+            moCustomOpMap   = new Dictionary<string, WonkaBreSource>();
+
+            var TmpAssembly = Assembly.GetExecutingAssembly();
+
+            WonkaRefEnvironment RefEnv =
+                WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
+
+            using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATCalculationExample.xml")))
+            {
+                msRulesContents = RulesReader.ReadToEnd();
+            }
+
+            using (var XmlReader = new System.IO.StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATCalculationExample.init.xml")))
+            {
+                string sInitXml = XmlReader.ReadToEnd();
+
+                System.Xml.Serialization.XmlSerializer WonkaEthSerializer =
+                    new System.Xml.Serialization.XmlSerializer(typeof(WonkaEth.Init.WonkaEthInitialization),
+                                                               new System.Xml.Serialization.XmlRootAttribute("WonkaEthInitialization"));
+
+                WonkaEth.Init.WonkaEthInitialization WonkaInit =
+                    WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitXml)) as WonkaEth.Init.WonkaEthInitialization;
+
+                WonkaInit.RetrieveEmbeddedResources(TmpAssembly);
+
+                moOrchInitData = WonkaInit.TransformIntoOrchestrationInit(moMetadataSource);
+
+                System.Console.WriteLine("Number of custom operators: (" + WonkaInit.CustomOperatorList.Length + ").");
+            }
+
+            #region Set Class Member Variables
+            msSenderAddress = moOrchInitData.BlockchainEngine.SenderAddress;
+            msPassword      = moOrchInitData.BlockchainEngine.Password;
+
+            if (moOrchInitData.BlockchainEngine.ContractAddress == null)
+                msWonkaContractAddress = DeployWonkaContract();
+            else
+                msWonkaContractAddress = moOrchInitData.BlockchainEngine.ContractAddress;
+
+            if (moOrchInitData.DefaultBlockchainDataSource.ContractAddress == null)
+                msOrchContractAddress = DeployOrchestrationContract();
+            else
+                msOrchContractAddress = moOrchInitData.DefaultBlockchainDataSource.ContractAddress;
+
+            msAbiWonka        = moOrchInitData.BlockchainEngine.ContractABI;
+            msAbiOrchContract = moOrchInitData.DefaultBlockchainDataSource.ContractABI;
+
+            moDefaultSource =
+                new WonkaBreSource(moOrchInitData.DefaultBlockchainDataSource.SourceId,
+                                   moOrchInitData.DefaultBlockchainDataSource.SenderAddress,
+                                   moOrchInitData.DefaultBlockchainDataSource.Password,
+                                   moOrchInitData.DefaultBlockchainDataSource.ContractAddress,
+                                   moOrchInitData.DefaultBlockchainDataSource.ContractABI,
+                                   moOrchInitData.DefaultBlockchainDataSource.MethodName,
+                                   moOrchInitData.DefaultBlockchainDataSource.SetterMethodName,
+                                   RetrieveValueMethod);
+
+            foreach (WonkaRefAttr TempAttr in RefEnv.AttrCache)
+            {
+                moAttrSourceMap[TempAttr.AttrName] = moDefaultSource;
+            }
+
+            moCustomOpMap = moOrchInitData.BlockchainCustomOpFunctions;
+            #endregion
+
+            RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka);
+        }
+
+
         public WonkaCQSOrchTest(string psSenderAddress, string psPassword, string psWonkaContractAddress, string psOrchContractAddress)
         {
             var TmpAssembly = Assembly.GetExecutingAssembly();
@@ -201,15 +275,22 @@ namespace WonkaSystem.TestHarness
 
         public WonkaEth.Orchestration.OrchestrationInitData GenerateInitData()
         {
-            WonkaEth.Orchestration.OrchestrationInitData InitData = new WonkaEth.Orchestration.OrchestrationInitData();
+            WonkaEth.Orchestration.OrchestrationInitData InitData = null;
 
-            InitData.BlockchainEngine = new WonkaBreSource("N", msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka, null, null, null);
+            if (moOrchInitData != null)
+                InitData = moOrchInitData;
+            else
+            {
+                InitData = new WonkaEth.Orchestration.OrchestrationInitData();
 
-            InitData.AttributesMetadataSource = new WonkaMetadataVATSource();
+                InitData.BlockchainEngine = new WonkaBreSource("N", msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka, null, null, null);
 
-            InitData.DefaultBlockchainDataSource = moDefaultSource;
-            InitData.BlockchainDataSources       = moAttrSourceMap;
-            InitData.BlockchainCustomOpFunctions = moCustomOpMap;
+                InitData.AttributesMetadataSource = new WonkaMetadataVATSource();
+
+                InitData.DefaultBlockchainDataSource = moDefaultSource;
+                InitData.BlockchainDataSources       = moAttrSourceMap;
+                InitData.BlockchainCustomOpFunctions = moCustomOpMap;
+            }
 
             return InitData;
         }
