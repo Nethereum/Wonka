@@ -76,31 +76,27 @@ contract WonkaRegistry {
             isValue: true
         });
 
+        ruleTreesEnum.push(rsId);
+
         if (ruleTreeGrpId != "") {
+
             ruleTrees[rsId].ruleTreeGroveIds.push(ruleTreeGrpId);
 
-            if (ruleGroves[ruleTreeGrpId][rsId] == 0) {
-
-                if (grpIdx > 0) 
-                    ruleGroves[ruleTreeGrpId][rsId] = grpIdx;
-                else
-                    ruleGroves[ruleTreeGrpId][rsId] = 999999;                    
-            }
+            if (grpIdx < ruleTreesEnum.length) 
+                ruleGroves[ruleTreeGrpId][rsId] = grpIdx;
         }
-
-        ruleTreesEnum.push(rsId);
     }
 
     /// @dev This method will return an index from the registry
     /// @author Aaron Kendall
     /// @notice 
-    function getRuleTreeIndex(bytes32 rsId) public view returns (bytes32, string, address, address, uint, bytes32[], uint){
+    function getRuleTreeIndex(bytes32 rsId) public view returns (bytes32, string, address, address, uint, uint, bytes32[]){
 
         // require(msg.sender == rulesMaster);
 
         require(ruleTrees[rsId].isValue == true);
 
-        return (ruleTrees[rsId].ruleTreeId, ruleTrees[rsId].description, ruleTrees[rsId].hostContractAddress, ruleTrees[rsId].owner, ruleTrees[rsId].maxGasCost, ruleTrees[rsId].usedAttributes, ruleTrees[rsId].creationEpochTime);   
+        return (ruleTrees[rsId].ruleTreeId, ruleTrees[rsId].description, ruleTrees[rsId].hostContractAddress, ruleTrees[rsId].owner, ruleTrees[rsId].maxGasCost, ruleTrees[rsId].creationEpochTime, ruleTrees[rsId].usedAttributes);   
     }
 
     /// @dev This method will return all rule trees that belong to a specific group, in the order that they should be applied to a record
@@ -110,28 +106,46 @@ contract WonkaRegistry {
 
         // require(msg.sender == rulesMaster);
 
-        bytes32[] memory groupMembers;
+        require(ruleTreesEnum.length > 0);
 
-        uint maxIdx = ruleTreesEnum.length;
+        uint orderIdx = 0;
+
+        bytes32[] memory groupMembers = new bytes32[](ruleTreesEnum.length);
 
         for (uint i = 0; i < ruleTreesEnum.length; ++i) {
 
             bytes32 tmpRsId = ruleTreesEnum[i];
+ 
+            orderIdx = ruleGroves[rsGroupId][tmpRsId];
 
-            if (ruleGroves[rsGroupId][tmpRsId] != 0) {
-
-                uint orderIdx = ruleGroves[rsGroupId][tmpRsId];
-
-                if (orderIdx > 0)
-                    groupMembers[orderIdx] = tmpRsId;
-                else
-                    groupMembers[maxIdx] = tmpRsId;
-            }
+            groupMembers[orderIdx] = tmpRsId;
                 
         }
 
         return groupMembers;
     }
+
+    /// @dev This method will return the ordered position of the RuleTree 'rsId' within the group 'rsGroupId'
+    /// @author Aaron Kendall
+    /// @notice 
+    function getGroupOrderPosition(bytes32 rsGroupId, bytes32 rsId) public view returns (uint) {
+
+        // require(msg.sender == rulesMaster);
+
+        require(ruleTreesEnum.length > 0);
+
+        uint orderIdx = 999999;
+
+        if (rsGroupId != "") {
+
+            if (rsId != "") {
+
+                orderIdx = ruleGroves[rsGroupId][rsId];
+            }
+        }
+
+        return orderIdx;
+    }    
 
     /// @dev This method will reorder the members of a rule grove
     /// @author Aaron Kendall
@@ -147,11 +161,6 @@ contract WonkaRegistry {
         require(rsIdList.length == orderList.length);
 
         uint idx = 0;
-
-        // NOTE: Ensure that each ruletree mentioned is already a member of the group
-        for (idx = 0; idx < rsIdList.length; ++idx) {
-            require(ruleGroves[rsGroupId][rsIdList[idx]] > 0);
-        }
 
         for (idx = 0; idx < rsIdList.length; ++idx) {
             ruleGroves[rsGroupId][rsIdList[idx]] = orderList[idx];
