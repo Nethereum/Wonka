@@ -1,5 +1,6 @@
 var WonkaEngine      = artifacts.require("./WonkaEngine.sol");
 var OrchTestContract = artifacts.require("./OrchTestContract.sol");
+var WonkaRegistry  = artifacts.require("./WonkaRegistry.sol");
 
 // create an instance of web3 using the HTTP provider.
 // NOTE: in mist web3 is already available, so check first if it's available before instantiating
@@ -23,6 +24,8 @@ var CUSTOM_OP_RULE    = 10;
 
 contract('WonkaEngine', function(accounts) {
 contract('OrchTestContract', function(accounts) {
+contract('WonkaRegistry', function(accounts3) {
+
  
   /*
   beforeEach(function () {
@@ -140,7 +143,88 @@ contract('OrchTestContract', function(accounts) {
     }).then(function(treeExists) {
       console.log("Current ruletree for owner(" + accounts[0] + ") exists?  [" + treeExists + "]");      
     });
-  });  
+  });
+  it("adding the ruletree to the registry", function() {
+    
+    return WonkaEngine.deployed().then(function(instance) {
+      return OrchTestContract.deployed().then(function(tInstance) {
+        return WonkaRegistry.deployed().then(function(rInstance) {
+
+          var assocArray = [tInstance.address];
+          var attrArray  = ['BankAccountID','BankAccountName','AccountStatus','AccountCurrValue','AccountType','AccountCurrency'];
+          var opArray    = ['MyCustomOp'];
+          var groupIndex = 0; // Group Order starts with has index zero
+
+          var currTimeInMilliseconds = (new Date).getTime();
+
+          console.log("Adding the 'JohnSmithRuleTree' ruletree to the registry!");      
+
+          rInstance.addRuleTreeIndex(accounts[0], web3.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), web3.fromAscii('MyGroup'), groupIndex, instance.address, 100000, 200000, assocArray, attrArray, opArray, currTimeInMilliseconds);
+
+          console.log("Now retrieving info about the 'JohnSmithRuleTree' ruletree from the registry!");
+
+          return rInstance.getRuleTreeIndex.call(web3.fromAscii('JohnSmithRuleTree')).then(function(results) {
+  
+            var id         = web3.toAscii(results[0].toString());
+            var desc       = new String(results[1].toString()).valueOf();
+            var hostAddr   = results[2].toString();
+            var owner      = results[3].toString();
+            var maxCost    = results[4].toString();
+            var createTime = results[5].toString();
+            var attrList   = results[6].toString();
+
+            var attributes    = "";
+            var createTimeNum = parseInt(createTime, 10);
+            var maxCostNum    = parseInt(maxCost, 10);
+
+            var tmpDate = new Date(createTimeNum);
+
+            console.log("RuleTree(" + id + ") was created at time(" + tmpDate.toString() + ")");
+            // console.log("Its description is (" + desc + ")");
+            // console.log("Host engine address is(" + hostAddr + ")");
+            // console.log("And the owner is (" + owner + ")");
+            console.log("Max cost is (" + maxCostNum + ")");
+
+            if (attrList.length > 0) {
+
+              var attrListArray = attrList.split(",");
+
+              for (var i = 0; i < attrListArray.length; ++i) {
+                  
+                  if (attributes != "")
+                      attributes += ",";
+
+                  attributes += web3.toAscii(attrListArray[i]);
+              }
+
+              console.log("Attributes required by the ruletree are (" + attributes + ")");
+            }
+
+            console.log("Getting all member IDs of the group 'MyGroup'");
+
+            return rInstance.getGroupMembers.call(web3.fromAscii('MyGroup'));
+
+          }).then(function(list) {
+    
+            var membersIds = "";
+
+            var groupIdListArray = list.toString().split(",");
+
+            for (var i = 0; i < groupIdListArray.length; ++i) {
+                
+                if (membersIds != "")
+                    membersIds += ",";
+
+                membersIds += web3.toAscii(groupIdListArray[i]);
+            }
+
+            console.log("Members of Grove 'MyGroup' include : (" + membersIds + ")");
+              
+          });
+        });
+      });
+    });
+  });       
   it("add Values into current record", function() {
     return WonkaEngine.deployed().then(function(instance) {
 
@@ -280,7 +364,8 @@ contract('OrchTestContract', function(accounts) {
         console.log("Running the engine now with the new Custom Operator rule");
 
         // First, invoke the OpAdd rule, where AccountCurrValue = AccountCurrValue + AccountPrevValue + 1 (i.e., 4001 = 2500 + 1500 + 1)
-        // And then, we invoke the Custom Operator rule, where we set the AccountCurrValue = (((AccountCurrValue - 500) + 1000) / 100) [i.e., 45 = (((4001 - 500) + 1000) / 100)]
+        // And then, we invoke the Custom Operator rule, where we set the AccountCurrValue = (((AccountCurrValue - 500) + 1000) / 100)
+        // The final result should be: 45 = (((4001 - 500) + 1000) / 100)]
         wInstance.execute(accounts[0]);
 
         return wInstance.getLastTransactionSuccess.call();
@@ -313,5 +398,6 @@ contract('OrchTestContract', function(accounts) {
     });
   });
 
+})  // end of the scope for WonkaRegistry
 })  // end of the scope for OrchTestContract
 }); // end of the scope for WonkaEngine
