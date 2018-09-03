@@ -92,6 +92,7 @@
     <Compile Include="Orchestration\AbstractWonkaOrchestrator.cs" />
     <Compile Include="Orchestration\WonkaOrchestratorException.cs" />
     <Compile Include="Init\WonkaEthInitialization.cs" />
+    <Compile Include="Contracts\WonkaRuleTreeRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
