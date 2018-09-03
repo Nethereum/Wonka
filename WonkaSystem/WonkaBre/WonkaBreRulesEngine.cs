@@ -55,6 +55,7 @@ namespace WonkaBre
                 throw new Exception("ERROR!  Provided rules file(" + psRulesFilepath + ") does not exist on the filesystem.");
 
             UsingOrchestrationMode = false;
+            AddToRegistry          = true;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -69,6 +70,7 @@ namespace WonkaBre
                 throw new Exception("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = false;
+            AddToRegistry          = true;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -83,6 +85,7 @@ namespace WonkaBre
                 throw new Exception("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = true;
+            AddToRegistry          = true;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -103,6 +106,7 @@ namespace WonkaBre
                 throw new Exception("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = true;
+            AddToRegistry          = true;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -255,6 +259,8 @@ namespace WonkaBre
         private string TempDirectory { get; set; }
 
         private RetrieveOldRecordDelegate RetrieveCurrRecord;
+
+        public readonly bool AddToRegistry;
 
         public readonly bool UsingOrchestrationMode;
 
