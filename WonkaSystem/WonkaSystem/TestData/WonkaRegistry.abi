@@ -1,0 +1,150 @@
+﻿[
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
+        },
+        {
+          "name": "rsId",
+          "type": "bytes32"
+        },
+        {
+          "name": "desc",
+          "type": "string"
+        },
+        {
+          "name": "ruleTreeGrpId",
+          "type": "bytes32"
+        },
+        {
+          "name": "grpIdx",
+          "type": "uint256"
+        },
+        {
+          "name": "host",
+          "type": "address"
+        },
+        {
+          "name": "minCost",
+          "type": "uint256"
+        },
+        {
+          "name": "maxCost",
+          "type": "uint256"
+        },
+        {
+          "name": "associates",
+          "type": "address[]"
+        },
+        {
+          "name": "attributes",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "ops",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "createTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "addRuleTreeIndex",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "rsId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getRuleTreeIndex",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        },
+        {
+          "name": "",
+          "type": "string"
+        },
+        {
+          "name": "",
+          "type": "address"
+        },
+        {
+          "name": "",
+          "type": "address"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "rsGroupId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getGroupMembers",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "rsGroupId",
+          "type": "bytes32"
+        },
+        {
+          "name": "rsIdList",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "orderList",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "resetGroupOrder",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+ ]
