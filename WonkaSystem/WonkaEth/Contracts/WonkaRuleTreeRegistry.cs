@@ -59,17 +59,22 @@ namespace WonkaEth.Contracts
 
         Dictionary<string, WonkaRegistryItem> moRegisteredRuleTrees;
 
-        private WonkaRuleTreeRegistry()
+        private WonkaRuleTreeRegistry(string psSenderAddress, string psPassword, string psContractAddress, string psAbi)
         {
             moRegisteredRuleTrees = new Dictionary<string, WonkaRegistryItem>();
+
+            RegistrySender          = psSenderAddress;
+            RegistryPassword        = psPassword;
+            RegistryContractAddress = psContractAddress;
+            RegistryAbi             = psAbi;
         }
 
-        static public WonkaRuleTreeRegistry CreateInstance()
+        static public WonkaRuleTreeRegistry CreateInstance(string psSenderAddress, string psPassword, string psContractAddress, string psAbi)
         {
             lock (mLock)
             {
                 if (mInstance == null)
-                    mInstance = new WonkaRuleTreeRegistry();
+                    mInstance = new WonkaRuleTreeRegistry(psSenderAddress, psPassword, psContractAddress, psAbi);
 
                 return mInstance;
             }
@@ -117,7 +122,7 @@ namespace WonkaEth.Contracts
                     moRegisteredRuleTrees.Where(x => x.Value.RuleTreeGroveIds.ContainsKey(psRuleGroveId)).OrderBy(x => x.Value.RuleTreeGroveIds[psRuleGroveId]);
 
                 foreach (var KeyValPair in OrderedApplicableRuleTrees)
-                    GroveMembers.Add(KeyValPair.Value);                    
+                    GroveMembers.Add(KeyValPair.Value);
             }
 
             return GroveMembers;
@@ -132,6 +137,18 @@ namespace WonkaEth.Contracts
 
             return FoundItem;
         }
+
+        #endregion
+
+        #region Properties
+
+        public readonly string RegistrySender;
+
+        public readonly string RegistryPassword;
+
+        public readonly string RegistryContractAddress;
+
+        public readonly string RegistryAbi;
 
         #endregion
     }
