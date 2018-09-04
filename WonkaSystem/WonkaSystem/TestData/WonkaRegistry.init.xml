@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<WonkaRegistryInitialization>
+    <WonkaRegistry>
+        <ContractAddress>0xdd8b125497693f7572122c86a3ad8f067dbf0734</ContractAddress>
+        <ContractSender>0x72a9cc3b9524ff1e26487090044adab2269acd94</ContractSender>
+        <ContractPassword>e8f1e32052b425318aec28a472871f10827fb6663349ba1b57a248b5bc1e8700</ContractPassword>
+    </WonkaRegistry>    
+</WonkaRegistryInitialization>
