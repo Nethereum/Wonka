@@ -145,6 +145,14 @@ contract WonkaRegistry {
         }
 
         return orderIdx;
+    }
+
+    /// @dev This method will indicate whether or not the RuleTree has been added to the registry
+    /// @author Aaron Kendall
+    /// @notice 
+    function isRuleTreeRegistered(bytes32 rsId) public view returns (bool) {
+
+        return (ruleTrees[rsId].isValue == true);
     }    
 
     /// @dev This method will reorder the members of a rule grove
