@@ -90,7 +90,7 @@ contract WonkaRegistry {
     /// @dev This method will return an index from the registry
     /// @author Aaron Kendall
     /// @notice 
-    function getRuleTreeIndex(bytes32 rsId) public view returns (bytes32, string, address, address, uint, uint, bytes32[]){
+    function getRuleTreeIndex(bytes32 rsId) public view returns (bytes32 rtid, string rtdesc, address hostaddr, address owner, uint maxGasCost, uint createTime, bytes32[] attributes){
 
         // require(msg.sender == rulesMaster);
 

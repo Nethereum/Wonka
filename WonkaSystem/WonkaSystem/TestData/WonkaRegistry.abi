@@ -74,31 +74,31 @@
       "name": "getRuleTreeIndex",
       "outputs": [
         {
-          "name": "",
+          "name": "rtid",
           "type": "bytes32"
         },
         {
-          "name": "",
+          "name": "rtdesc",
           "type": "string"
         },
         {
-          "name": "",
+          "name": "hostaddr",
           "type": "address"
         },
         {
-          "name": "",
+          "name": "owner",
           "type": "address"
         },
         {
-          "name": "",
+          "name": "maxGasCost",
           "type": "uint256"
         },
         {
-          "name": "",
+          "name": "createTime",
           "type": "uint256"
         },
         {
-          "name": "",
+          "name": "attributes",
           "type": "bytes32[]"
         }
       ],
