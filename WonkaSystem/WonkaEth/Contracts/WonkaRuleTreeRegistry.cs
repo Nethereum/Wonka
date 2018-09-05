@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
+using WonkaEth.Extensions;
+
 namespace WonkaEth.Contracts
 {
     /// <summary>
@@ -26,6 +28,8 @@ namespace WonkaEth.Contracts
             AssociateContractAddresses = new HashSet<string>();
             RequiredAttributes         = new HashSet<string>();
             UsedCustomOps              = new HashSet<string>();
+
+            creationTime = 0;
         }
 
         public string RuleTreeId { get; set; }
@@ -48,7 +52,7 @@ namespace WonkaEth.Contracts
 
         public HashSet<string> UsedCustomOps { get; set; }
 
-        public DateTime creationTime;
+        public long creationTime;
     }
 
     public class WonkaRuleTreeRegistry
@@ -96,7 +100,11 @@ namespace WonkaEth.Contracts
         public void AddRegistryItem(WonkaRegistryItem poNewRuleTree)
         {
             if ((poNewRuleTree != null) && !String.IsNullOrEmpty(poNewRuleTree.RuleTreeId))
+            {
                 moRegisteredRuleTrees[poNewRuleTree.RuleTreeId] = poNewRuleTree;
+
+                SerializeRegistryItem(poNewRuleTree.RuleTreeId);
+            }
         }
 
         public void AddRuleGroveMember(string psRuleGroveId, string psRuleTreeName, int pnInGroupOrderNum = 0)
@@ -136,6 +144,18 @@ namespace WonkaEth.Contracts
                 FoundItem = moRegisteredRuleTrees[psRuleTreeName];
 
             return FoundItem;
+        }
+
+        public void SerializeRegistryItem(string psRuleTreeName)
+        {
+            WonkaRegistryItem FoundItem = null;
+
+            if (!String.IsNullOrEmpty(psRuleTreeName) && moRegisteredRuleTrees.ContainsKey(psRuleTreeName))
+            {
+                FoundItem = moRegisteredRuleTrees[psRuleTreeName];
+
+                FoundItem.Serialize();
+            }
         }
 
         #endregion
