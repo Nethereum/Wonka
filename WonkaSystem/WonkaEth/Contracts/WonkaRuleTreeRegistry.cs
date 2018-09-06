@@ -52,7 +52,7 @@ namespace WonkaEth.Contracts
 
         public HashSet<string> UsedCustomOps { get; set; }
 
-        public long creationTime;
+        public uint creationTime;
     }
 
     public class WonkaRuleTreeRegistry
