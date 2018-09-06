@@ -155,11 +155,12 @@ contract('WonkaRegistry', function(accounts3) {
           var opArray    = ['MyCustomOp'];
           var groupIndex = 0; // Group Order starts with has index zero
 
-          var currTimeInMilliseconds = (new Date).getTime();
+          // var currTimeInMilliseconds = (new Date).getTime();
+          var currTimeInSeconds = (new Date).getTime() / 1000;
 
           console.log("Adding the 'JohnSmithRuleTree' ruletree to the registry!");      
 
-          rInstance.addRuleTreeIndex(accounts[0], web3.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), web3.fromAscii('MyGroup'), groupIndex, instance.address, 100000, 200000, assocArray, attrArray, opArray, currTimeInMilliseconds);
+          rInstance.addRuleTreeIndex(accounts[0], web3.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), web3.fromAscii('MyGroup'), groupIndex, instance.address, 100000, 200000, assocArray, attrArray, opArray, currTimeInSeconds);
 
           console.log("Now retrieving info about the 'JohnSmithRuleTree' ruletree from the registry!");
 
@@ -177,7 +178,10 @@ contract('WonkaRegistry', function(accounts3) {
             var createTimeNum = parseInt(createTime, 10);
             var maxCostNum    = parseInt(maxCost, 10);
 
-            var tmpDate = new Date(createTimeNum);
+            var tmpDate = new Date(0); // The 0 there is the key, which sets the date to the epoch
+            tmpDate.setUTCSeconds(createTime);
+
+            //var tmpDate = new Date(createTimeNum);
 
             console.log("RuleTree(" + id + ") was created at time(" + tmpDate.toString() + ")");
             // console.log("Its description is (" + desc + ")");
@@ -224,7 +228,7 @@ contract('WonkaRegistry', function(accounts3) {
         });
       });
     });
-  });       
+  });  
   it("add Values into current record", function() {
     return WonkaEngine.deployed().then(function(instance) {
 
