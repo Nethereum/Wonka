@@ -153,8 +153,8 @@ contract('WonkaRegistry', function(accounts3) {
           var assocArray = [tInstance.address];
           var attrArray  = ['BankAccountID','BankAccountName','AccountStatus','AccountCurrValue','AccountType','AccountCurrency'];
           var opArray    = ['MyCustomOp'];
-          var groupIndex = 0; // Group Order starts with has index zero
-
+          var groupIndex = 1; // Group Order starts with index one
+          
           // var currTimeInMilliseconds = (new Date).getTime();
           var currTimeInSeconds = (new Date).getTime() / 1000;
 
