@@ -9,10 +9,8 @@ namespace WonkaEth.Contracts
 {
     /// <summary>
     /// 
-    /// This singleton, when initialized, will allow the user to register all RuleTrees
-    /// and the Groves to which they belong.  In this way, the user can then allow other
-    /// users to discover and reuse an added RuleTree, and in some cases, they might even
-    /// discover and reuse a collection of them (i.e., a Grove).
+    /// This class will represent information a single RuleTree and can be added to
+    /// the registry as a reference for interested parties.
     /// 
     /// </summary>
     public class WonkaRegistryItem
@@ -55,6 +53,14 @@ namespace WonkaEth.Contracts
         public uint creationTime;
     }
 
+    /// <summary>
+    /// 
+    /// This singleton, when initialized, will allow the user to register all RuleTrees
+    /// and the Groves to which they belong.  In this way, the user can then allow other
+    /// users to discover and reuse an added RuleTree, and in some cases, they might even
+    /// discover and reuse a collection of them (i.e., a Grove).
+    /// 
+    /// </summary>
     public class WonkaRuleTreeRegistry
     {
         private static object mLock = new object();
