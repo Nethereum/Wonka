@@ -169,10 +169,10 @@ contract WonkaRegistry {
         return (ruleTrees[rsId].ruleTreeId, ruleTrees[rsId].description, ruleTrees[rsId].hostContractAddress, ruleTrees[rsId].owner, ruleTrees[rsId].maxGasCost, ruleTrees[rsId].creationEpochTime, ruleTrees[rsId].usedAttributes);   
     }
 
-    /// @dev This method will return all rule trees that belong to a specific group, in the order that they should be applied to a record
+    /// @dev This method will return all rule trees that belong to a specific grove, in the order that they should be applied to a record
     /// @author Aaron Kendall
     /// @notice 
-    function getGroupMembers(bytes32 groveId) public view returns (bytes32[]) {
+    function getGroveMembers(bytes32 groveId) public view returns (bytes32[]) {
 
         // require(msg.sender == rulesMaster);
 
@@ -199,7 +199,7 @@ contract WonkaRegistry {
     /// @dev This method will return the ordered position of the RuleTree 'rsId' within the group 'rsGroupId'
     /// @author Aaron Kendall
     /// @notice 
-    function getGroupOrderPosition(bytes32 groveId, bytes32 rsId) public view returns (uint) {
+    function getGroveOrderPosition(bytes32 groveId, bytes32 rsId) public view returns (uint) {
 
         // require(msg.sender == rulesMaster);
 
@@ -228,7 +228,7 @@ contract WonkaRegistry {
     /// @dev This method will reorder the members of a rule grove
     /// @author Aaron Kendall
     /// @notice 
-    function resetGroupOrder(bytes32 groveId, bytes32[] rsIdList, uint[] orderList) public {
+    function resetGroveOrder(bytes32 groveId, bytes32[] rsIdList, uint[] orderList) public {
 
         // require(msg.sender == rulesMaster);
 

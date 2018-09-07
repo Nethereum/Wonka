@@ -154,7 +154,7 @@ contract('WonkaRegistry', function(accounts3) {
           var attrArray  = ['BankAccountID','BankAccountName','AccountStatus','AccountCurrValue','AccountType','AccountCurrency'];
           var opArray    = ['MyCustomOp'];
           var groupIndex = 1; // Group Order starts with index one
-          
+
           // var currTimeInMilliseconds = (new Date).getTime();
           var currTimeInSeconds = (new Date).getTime() / 1000;
 
@@ -206,7 +206,7 @@ contract('WonkaRegistry', function(accounts3) {
 
             console.log("Getting all member IDs of the group 'MyGroup'");
 
-            return rInstance.getGroupMembers.call(web3.fromAscii('MyGroup'));
+            return rInstance.getGroveMembers.call(web3.fromAscii('MyGroup'));
 
           }).then(function(list) {
     
