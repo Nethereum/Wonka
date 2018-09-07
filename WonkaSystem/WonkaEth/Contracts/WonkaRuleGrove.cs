@@ -23,19 +23,19 @@ namespace WonkaEth.Contracts
 
         #region Properties
 
-        string GroveId { get; set; }
+        public string GroveId { get; set; }
 
-        string GroveDescription { get; set; }
+        public string GroveDescription { get; set; }
 
-        List<WonkaRegistryItem> OrderedRuleTrees { get; set; }
+        public List<WonkaRegistryItem> OrderedRuleTrees { get; set; }
 
         public string OwnerId { get; set; }
 
-        public int TotalMinGasCost
+        public uint TotalMinGasCost
         {
             get
             {
-                int nMinCost = 0;
+                uint nMinCost = 0;
 
                 OrderedRuleTrees.ForEach(x => nMinCost += x.MinGasCost);
 
@@ -43,11 +43,11 @@ namespace WonkaEth.Contracts
             }
         }
 
-        public int MaxGasCost
+        public uint MaxGasCost
         {
             get
             {
-                int nMaxCost = 0;
+                uint nMaxCost = 0;
 
                 OrderedRuleTrees.ForEach(x => nMaxCost += x.MaxGasCost);
 
