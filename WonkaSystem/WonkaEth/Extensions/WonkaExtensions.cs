@@ -112,20 +112,9 @@ namespace WonkaEth.Extensions
         /// </summary>
         public static void CompareRuleTrees(this WonkaBreRulesEngine poEngine, string psSenderAddress)
         {
-            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
-
-            var sPassword     = WonkaRegistry.RegistryPassword;
-            var sABI          = WonkaRegistry.RegistryAbi;
-            var sContractAddr = WonkaRegistry.RegistryContractAddress;
-
-            var account    = new Account(sPassword);
-            var web3       = new Nethereum.Web3.Web3(account);
-            var contract   = web3.Eth.GetContract(sABI, sContractAddr);
             var ruleTreeID = poEngine.DetermineRuleTreeID();
 
-            var getRuleTreeIndexFunction = contract.GetFunction("getRuleTreeIndex"); 
-
-            var RuleTreeInfo = getRuleTreeIndexFunction.CallDeserializingToObjectAsync<RuleTreeRegistryIndex>(ruleTreeID).Result;
+            var RuleTreeInfo = GetRuleTreeIndex(ruleTreeID);
 
             if (RuleTreeInfo.RuleTreeOwner != psSenderAddress)
                 throw new Exception("ERROR!  You are attempting to save a RuleTree with an ID that's already been registered by a different owner.");
@@ -147,6 +136,30 @@ namespace WonkaEth.Extensions
                 sRuleTreeId = sRuleTreeId.Substring(0, CONST_MAX_RULE_TREE_ID_LEN);
 
             return sRuleTreeId;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will return the metadata about a RuleTree that is registered within the blockchain.
+        /// 
+        /// <param name="psRuleTreeId">The ID of the RuleTree of interest</param>
+        /// <returns>Provides the metadata (about the RuleTree) held within the registry</returns>
+        /// </summary>
+        public static RuleTreeRegistryIndex GetRuleTreeIndex(string psRuleTreeId)
+        {
+            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
+
+            var sPassword     = WonkaRegistry.RegistryPassword;
+            var sABI          = WonkaRegistry.RegistryAbi;
+            var sContractAddr = WonkaRegistry.RegistryContractAddress;
+
+            var account    = new Account(sPassword);
+            var web3       = new Nethereum.Web3.Web3(account);
+            var contract   = web3.Eth.GetContract(sABI, sContractAddr);
+
+            var getRuleTreeIndexFunction = contract.GetFunction("getRuleTreeIndex"); 
+
+            return getRuleTreeIndexFunction.CallDeserializingToObjectAsync<RuleTreeRegistryIndex>(psRuleTreeId).Result;
         }
 
         /// <summary>
