@@ -17,6 +17,27 @@ namespace WonkaEth.Contracts
     {
         public WonkaRegistryItem()
         {
+            Init();
+        }
+
+        public WonkaRegistryItem(WonkaEth.Extensions.RuleTreeRegistryIndex poIndex)
+        {
+            Init();
+
+            RuleTreeId  = poIndex.RuleTreeId;
+            Description = poIndex.RuleTreeDesc;
+
+            HostContractAddress = poIndex.RuleTreeHostEngineAddr;
+
+            OwnerId      = poIndex.RuleTreeOwner;
+            MaxGasCost   = poIndex.MaxGasCost;
+            creationTime = poIndex.CreationEpochTime;
+
+            RequiredAttributes.UnionWith(poIndex.RequiredAttributes);
+        }
+
+        public void Init()
+        {
             RuleTreeId = Description = HostContractAddress = OwnerId = "";
 
             MinGasCost = MaxGasCost = 0;
@@ -27,8 +48,11 @@ namespace WonkaEth.Contracts
             RequiredAttributes         = new HashSet<string>();
             UsedCustomOps              = new HashSet<string>();
 
-            creationTime = 0;
+            creationTime = 0;            
         }
+
+
+        #region Properties
 
         public string RuleTreeId { get; set; }
 
@@ -40,9 +64,9 @@ namespace WonkaEth.Contracts
 
         public string OwnerId { get; set; }
 
-        public int MinGasCost { get; set; }
+        public uint MinGasCost { get; set; }
 
-        public int MaxGasCost { get; set; }
+        public uint MaxGasCost { get; set; }
 
         public HashSet<string> AssociateContractAddresses { get; set; }
 
@@ -51,6 +75,8 @@ namespace WonkaEth.Contracts
         public HashSet<string> UsedCustomOps { get; set; }
 
         public uint creationTime;
+
+        #endregion
     }
 
     /// <summary>
