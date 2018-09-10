@@ -104,7 +104,7 @@ namespace WonkaEth.Orchestration
         public readonly OrchestrationInitData moInitData;
         public readonly WonkaBreRulesEngine   moRulesEngine;
 
-        public AbstractWonkaOrchestrator(T poCommand, StringBuilder psRules, OrchestrationInitData poOrchInitData)
+        public AbstractWonkaOrchestrator(T poCommand, StringBuilder psRules, OrchestrationInitData poOrchInitData, string psGroveId = "", uint pnGroveIndex = 0)
         {
             msRulesContents = psRules;
 
@@ -116,6 +116,12 @@ namespace WonkaEth.Orchestration
                                                     poOrchInitData.BlockchainDataSources, 
                                                     poOrchInitData.BlockchainCustomOpFunctions, 
                                                     poOrchInitData.AttributesMetadataSource);
+
+            if (!String.IsNullOrEmpty(psGroveId) && (pnGroveIndex > 0))
+            {
+                moRulesEngine.GroveId    = psGroveId;
+                moRulesEngine.GroveIndex = pnGroveIndex;
+            }
 
             if (poOrchInitData.DefaultBlockchainDataSource != null)
                 moRulesEngine.DefaultSource = poOrchInitData.DefaultBlockchainDataSource.SourceId;
