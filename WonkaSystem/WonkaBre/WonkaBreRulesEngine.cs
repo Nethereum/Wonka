@@ -260,10 +260,6 @@ namespace WonkaBre
 
         private string TempDirectory { get; set; }
 
-        private string GroveId { get; set; }
-
-        private uint GroveIndex { get; set; }
-
         private RetrieveOldRecordDelegate RetrieveCurrRecord;
 
         public readonly bool AddToRegistry;
@@ -271,6 +267,10 @@ namespace WonkaBre
         public readonly bool UsingOrchestrationMode;
 
         public readonly WonkaRefEnvironment RefEnvHandle;
+
+        public string GroveId { get; set; }
+
+        public uint GroveIndex { get; set; }
 
         public WonkaBreRuleSet RuleTreeRoot { get; set; }
 
