@@ -157,6 +157,16 @@ contract WonkaRegistry {
         ruleGroves[groveId].memberPositions[treeId] = (ruleGroves[groveId].ruleTreeMembers.length + 1);
     }
 
+    /// @dev This method will return info about the specified grove
+    /// @author Aaron Kendall
+    /// @notice 
+    function getRuleGrove(bytes32 groveId) public view returns (bytes32 id, string desc, bytes32[] members, address owner, uint createTime){
+
+        require(ruleGroves[groveId].isValue == true);
+
+        return (ruleGroves[groveId].ruleGroveId, ruleGroves[groveId].description, ruleGroves[groveId].ruleTreeMembers, ruleGroves[groveId].owner, ruleGroves[groveId].creationEpochTime);
+    }    
+
     /// @dev This method will return an index from the registry
     /// @author Aaron Kendall
     /// @notice 
