@@ -477,6 +477,9 @@ namespace WonkaEth.Extensions
             newRegistryItem.MaxGasCost          = CONST_MAX_GAS_COST_DEFAULT;
             newRegistryItem.RequiredAttributes  = RequiredAttributes;
 
+            if (!String.IsNullOrEmpty(poEngine.GroveId) && (poEngine.GroveIndex > 0))
+                newRegistryItem.RuleTreeGroveIds[poEngine.GroveId] = (int) poEngine.GroveIndex;
+
             newRegistryItem.AssociateContractAddresses = ContractAssociates;
             newRegistryItem.UsedCustomOps              = CustomOpsList;
 
