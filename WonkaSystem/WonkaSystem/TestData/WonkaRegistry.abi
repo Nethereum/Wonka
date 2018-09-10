@@ -9,6 +9,32 @@
       "constant": false,
       "inputs": [
         {
+          "name": "groveId",
+          "type": "bytes32"
+        },
+        {
+          "name": "desc",
+          "type": "string"
+        },
+        {
+          "name": "groveOwner",
+          "type": "address"
+        },
+        {
+          "name": "createTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "addRuleGrove",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
           "name": "ruler",
           "type": "address"
         },
@@ -64,6 +90,59 @@
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "groveId",
+          "type": "bytes32"
+        },
+        {
+          "name": "treeId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addRuleTreeToGrove",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "groveId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getRuleGrove",
+      "outputs": [
+        {
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "name": "desc",
+          "type": "string"
+        },
+        {
+          "name": "members",
+          "type": "bytes32[]"
+        },
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "createTime",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [
         {
@@ -110,11 +189,11 @@
       "constant": true,
       "inputs": [
         {
-          "name": "rsGroupId",
+          "name": "groveId",
           "type": "bytes32"
         }
       ],
-      "name": "getGroupMembers",
+      "name": "getGroveMembers",
       "outputs": [
         {
           "name": "",
@@ -129,7 +208,7 @@
       "constant": true,
       "inputs": [
         {
-          "name": "rsGroupId",
+          "name": "groveId",
           "type": "bytes32"
         },
         {
@@ -137,7 +216,7 @@
           "type": "bytes32"
         }
       ],
-      "name": "getGroupOrderPosition",
+      "name": "getGroveOrderPosition",
       "outputs": [
         {
           "name": "",
@@ -171,7 +250,7 @@
       "constant": false,
       "inputs": [
         {
-          "name": "rsGroupId",
+          "name": "groveId",
           "type": "bytes32"
         },
         {
@@ -183,10 +262,10 @@
           "type": "uint256[]"
         }
       ],
-      "name": "resetGroupOrder",
+      "name": "resetGroveOrder",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
     }
- ]
+]
