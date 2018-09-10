@@ -179,6 +179,8 @@ namespace WonkaBre
 
             this.RetrieveCurrRecord = null;
 
+            GroveId       = "";
+            GroveIndex    = 0;
             SourceMap     = new Dictionary<string, WonkaBreSource>();
             CustomOpMap   = new Dictionary<string, WonkaBreSource>();
             DefaultSource = "";
@@ -257,6 +259,10 @@ namespace WonkaBre
         #region Properties
 
         private string TempDirectory { get; set; }
+
+        private string GroveId { get; set; }
+
+        private uint GroveIndex { get; set; }
 
         private RetrieveOldRecordDelegate RetrieveCurrRecord;
 
