@@ -88,6 +88,15 @@ namespace WonkaEth.Orchestration
         public Dictionary<string, WonkaBreSource> BlockchainCustomOpFunctions;    
     }
 
+    /// <summary>
+    /// 
+    /// This abstract Facade will know how to utilize an instance of ICommand data (especially by serializing/deserializing 
+    /// to the blockchain) and then invoke the blockchain execution of a target RuleTree on the data. 
+    /// 
+    /// NOTE: If the RuleTree (i.e., parameter 'psRules') does not yet exist on the blockchain, this Facade will serialize
+    /// the RuleTree to the blockchain during its construction. 
+    /// 
+    /// </summary>
     public abstract class AbstractWonkaOrchestrator<T> where T : ICommand
     {
         public const string CONST_EVENT_CALL_RULE_TREE        = "CallRuleTree";
