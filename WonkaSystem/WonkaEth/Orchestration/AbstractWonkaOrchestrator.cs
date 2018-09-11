@@ -97,7 +97,7 @@ namespace WonkaEth.Orchestration
     /// the RuleTree to the blockchain during its construction. 
     /// 
     /// </summary>
-    public abstract class AbstractWonkaOrchestrator<T> : ISerialize<T> where T : ICommand
+    public abstract class AbstractWonkaOrchestrator<T> : ISerialize where T : ICommand
     {
         public const string CONST_EVENT_CALL_RULE_TREE        = "CallRuleTree";
         public const string CONST_EVENT_CALL_RULE_SET         = "CallRuleSet";
@@ -138,7 +138,7 @@ namespace WonkaEth.Orchestration
             SerializeRulesEngineToBlockchain();
         }
 
-        public static void AssignPropertiesViaReflection(T poCommand, Hashtable poDataValues)
+        public static void AssignPropertiesViaReflection(ICommand poCommand, Hashtable poDataValues)
         {
             PropertyInfo[] Props = poCommand.GetProperties();
 
@@ -168,7 +168,7 @@ namespace WonkaEth.Orchestration
             }
         }
 
-        public virtual void DeserializeRecordFromBlockchain(T poCommand)
+        public virtual void DeserializeRecordFromBlockchain(ICommand poCommand)
         {
             Hashtable DataValues = new Hashtable();
 
@@ -220,7 +220,7 @@ namespace WonkaEth.Orchestration
             return new WonkaProduct();
         }
 
-        public static void GetPropertiesViaReflection(T poCommand, Hashtable poDataValues)
+        public static void GetPropertiesViaReflection(ICommand poCommand, Hashtable poDataValues)
         {
             PropertyInfo[] Props = poCommand.GetProperties();
 
@@ -401,7 +401,7 @@ namespace WonkaEth.Orchestration
             return bValid;
         }
 
-        public virtual void SerializeRecordToBlockchain(T poCommand)
+        public virtual void SerializeRecordToBlockchain(ICommand poCommand)
         {
             Hashtable DataValues = new Hashtable();
 

@@ -5,13 +5,12 @@ using WonkaBre.RuleTree;
 
 namespace WonkaEth.Contracts
 {
-    public interface ISerialize<T> where T : ICommand
+    public interface ISerialize
     {
-        void DeserializeRecordFromBlockchain(T poCommand);
+        void DeserializeRecordFromBlockchain(ICommand poCommand);
 
         Nethereum.Contracts.Contract GetContract(WonkaBreSource poBlockchainSource);
 
-        void SerializeRecordToBlockchain(T poCommand);
+        void SerializeRecordToBlockchain(ICommand poCommand);
     }
 }
-
