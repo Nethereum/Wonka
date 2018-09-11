@@ -14,12 +14,39 @@ namespace WonkaEth.Contracts
     {
         public WonkaRuleGrove(string psGroveId)
         {
+            Init(psGroveId);
+        }
+
+        public WonkaRuleGrove(WonkaEth.Extensions.RuleGroveRegistryData poGroveData)
+        {
+            Init();
+
+            Ingest(poGroveData);
+        }
+
+        #region Methods
+
+        public void Init(string psGroveId = "")
+        {
             GroveId = psGroveId;
 
             GroveDescription = OwnerId = "";
 
             OrderedRuleTrees = new List<WonkaRegistryItem>();
         }
+
+        public void Ingest(WonkaEth.Extensions.RuleGroveRegistryData poGroveData)
+        {
+            GroveId = poGroveData.RuleGroveId;
+            
+            GroveDescription = poGroveData.RuleGroveDescription;
+
+            OwnerId = poGroveData.RuleGroveOwner;
+
+            CreationEpochTime = poGroveData.CreationEpochTime;
+        }
+
+        #endregion
 
         #region Properties
 
