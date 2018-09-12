@@ -97,7 +97,7 @@ namespace WonkaEth.Orchestration
     /// the RuleTree to the blockchain during its construction. 
     /// 
     /// </summary>
-    public abstract class AbstractWonkaOrchestrator<T> : ISerialize where T : ICommand
+    public abstract class AbstractWonkaOrchestrator<T> : IOrchestrate where T : ICommand
     {
         public const string CONST_EVENT_CALL_RULE_TREE        = "CallRuleTree";
         public const string CONST_EVENT_CALL_RULE_SET         = "CallRuleSet";
@@ -355,6 +355,15 @@ namespace WonkaEth.Orchestration
         }
 
         public virtual bool Orchestrate(T instance, bool pbSimulationMode = false)
+        {
+            bool bValid = true;
+
+            bValid = Orchestrate((ICommand) instance, pbSimulationMode);
+
+            return bValid;
+        }
+
+        public virtual bool Orchestrate(ICommand instance, bool pbSimulationMode)
         {
             bool bValid = true;
 
