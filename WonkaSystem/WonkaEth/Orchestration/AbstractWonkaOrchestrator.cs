@@ -23,58 +23,12 @@ using WonkaPrd;
 
 using WonkaEth.Contracts;
 using WonkaEth.Extensions;
+using WonkaEth.Orchestration.BlockchainEvents;
+using WonkaEth.Orchestration.BlockchainOutput;
 using WonkaEth.Orchestration.Init;
 
 namespace WonkaEth.Orchestration
 {
-    public class CallRuleTreeEvent
-    {
-        [Parameter("address", "ruler", 1, true)]
-        public string TreeOwner { get; set; }
-    }
-
-    public class CallRuleSetEvent
-    {
-        [Parameter("address", "ruler", 1, true)]
-        public string TreeOwner { get; set; }
-
-        [Parameter("bytes32", "tmpRuleSetId", 2, true)]
-        public string RuleSetId { get; set; }
-    }
-
-    public class CallRuleEvent
-    {
-        [Parameter("address", "ruler", 1, true)]
-        public string TreeOwner { get; set; }
-
-        [Parameter("bytes32", "ruleSetId", 2, true)]
-        public string RuleSetId { get; set; }
-
-        [Parameter("bytes32", "ruleId", 3, true)]
-        public string RuleId { get; set; }
-
-        [Parameter("uint", "ruleType", 4, false)]
-        public uint RuleType { get; set; }
-    }
-
-    [FunctionOutput]
-    public class WonkaRuleTreeReport
-    {
-        [Parameter("uint", "fails", 1)]
-        public uint NumberOfRuleFailures { get; set; }
-
-        [Parameter("bytes32[]", "rsets", 2)]
-        public List<string> RuleSetIds { get; set; }
-
-        [Parameter("bytes32[]", "rules", 3)]
-        public List<string> RuleIds { get; set; }
-
-        /*
-        [Parameter("bytes32[]", "values", 4)]
-        public List<string> RecordValues { get; set; }
-        */
-    }
-
     /// <summary>
     /// 
     /// This abstract Facade will know how to utilize an instance of ICommand data (especially by serializing/deserializing 

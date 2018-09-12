@@ -98,6 +98,10 @@
     <Compile Include="Contracts\ISerialize.cs" />
     <Compile Include="Contracts\IOrchestrate.cs" />
     <Compile Include="Orchestration\Init\OrchestrationInitData.cs" />
+    <Compile Include="Orchestration\BlockchainEvents\CallRuleEvent.cs" />
+    <Compile Include="Orchestration\BlockchainEvents\CallRuleSetEvent.cs" />
+    <Compile Include="Orchestration\BlockchainEvents\CallRuleTreeEvent.cs" />
+    <Compile Include="Orchestration\BlockchainOutput\WonkaRuleTreeReport.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
