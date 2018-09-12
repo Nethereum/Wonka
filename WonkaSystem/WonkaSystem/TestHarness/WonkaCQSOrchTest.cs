@@ -47,7 +47,7 @@ namespace WonkaSystem.TestHarness
         private Dictionary<string, WonkaBreSource> moAttrSourceMap = null;
         private Dictionary<string, WonkaBreSource> moCustomOpMap   = null;
 
-        private WonkaEth.Orchestration.OrchestrationInitData moOrchInitData = null;
+        private WonkaEth.Orchestration.Init.OrchestrationInitData moOrchInitData = null;
 
         public WonkaCQSOrchTest()
         {
@@ -253,11 +253,13 @@ namespace WonkaSystem.TestHarness
 
             CQS.Contracts.SalesTrxCreateCommand SalesTrxCommand = new CQS.Contracts.SalesTrxCreateCommand();
 
-            SalesTrxCommand.NewSaleEAN      = 9781234567890;
+            SalesTrxCommand.NewSaleEAN = 9781234567890;
             SalesTrxCommand.NewSaleItemType = "Widget";
-            SalesTrxCommand.CountryOfSale   = "UK";
+            SalesTrxCommand.CountryOfSale = "UK";
 
-            WonkaEth.Orchestration.OrchestrationInitData InitData = GenerateInitData();
+            WonkaEth.Orchestration.Init.OrchestrationInitData InitData = GenerateInitData();
+
+            #region Invoking the RuleTree for the first time as a single entity
 
             CQS.Generation.SalesTransactionGenerator TrxGenerator =
                    new CQS.Generation.SalesTransactionGenerator(SalesTrxCommand, new StringBuilder(msRulesContents), InitData);
@@ -269,19 +271,36 @@ namespace WonkaSystem.TestHarness
 
             string sNewSellTaxAmt    = Convert.ToString(SalesTrxCommand.NewSellTaxAmt);
             string sNewVATAmtForHMRC = Convert.ToString(SalesTrxCommand.NewVATAmtForHMRC);
+
+            #endregion
+
+            #region Invoking the RuleTree as a registered entity and as a member of a Grove
+
+            WonkaEth.Contracts.WonkaRuleGrove NewSaleGrove = new WonkaEth.Contracts.WonkaRuleGrove("NewSaleGroup");
+            NewSaleGrove.PopulateFromRegistry();
+
+            Dictionary<string, WonkaEth.Contracts.IOrchestrate> GroveMembers = new Dictionary<string, WonkaEth.Contracts.IOrchestrate>();
+            GroveMembers[NewSaleGrove.OrderedRuleTrees[0].RuleTreeId] = TrxGenerator;
+
+            NewSaleGrove.Orchestrate(SalesTrxCommand, GroveMembers);
+
+            sNewSellTaxAmt    = Convert.ToString(SalesTrxCommand.NewSellTaxAmt);
+            sNewVATAmtForHMRC = Convert.ToString(SalesTrxCommand.NewVATAmtForHMRC);
+
+            #endregion
         }
 
         #region Methods Only Used for .NET Execution of the Rules Engine
 
-        public WonkaEth.Orchestration.OrchestrationInitData GenerateInitData()
+        public WonkaEth.Orchestration.Init.OrchestrationInitData GenerateInitData()
         {
-            WonkaEth.Orchestration.OrchestrationInitData InitData = null;
+            WonkaEth.Orchestration.Init.OrchestrationInitData InitData = null;
 
             if (moOrchInitData != null)
                 InitData = moOrchInitData;
             else
             {
-                InitData = new WonkaEth.Orchestration.OrchestrationInitData();
+                InitData = new WonkaEth.Orchestration.Init.OrchestrationInitData();
 
                 InitData.BlockchainEngine = new WonkaBreSource("N", msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka, null, null, null);
 
