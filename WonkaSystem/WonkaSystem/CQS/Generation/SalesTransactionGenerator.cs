@@ -47,5 +47,13 @@ namespace WonkaSystem.CQS.Generation
 
             return bValid;
         }
+
+        public override bool ValidateCommand(SalesTrxCreateCommand poCommand)
+        {
+            // NOTE: Put additional validation logic here
+
+            return true;
+        }
+
     }
 }

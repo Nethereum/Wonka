@@ -476,5 +476,7 @@ namespace WonkaEth.Orchestration
             poTargetProduct.GetProductGroup(poTargetAttr.GroupId)[0][poTargetAttr.AttrId] = psTargetValue;
         }
 
+        public abstract bool ValidateCommand(T poCommand);
+
     }
 }
