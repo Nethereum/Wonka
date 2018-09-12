@@ -58,11 +58,21 @@ namespace WonkaEth.Extensions
         /// 
         /// <param name="poGrove">The Grove that we are interested in</param>
         /// <param name="poCommand">The command (and data) that is to be processed by invoking the Grove</param>
+        /// <param name="poOrchestrators">The collection that knows how to serialize/deserialize/orchestrate in reference to the data of 'poCommand'</param>
         /// <returns>None</returns>
         /// </summary>
-        public static void Orchestrate(this WonkaRuleGrove poGrove, ICommand poCommand)
+        public static void Orchestrate(this WonkaRuleGrove poGrove, ICommand poCommand, Dictionary<string, IOrchestrate> poOrchestrators)
         {
-            // NOTE: TBD
+            foreach (WonkaRegistryItem TmpRuleTree in poGrove.OrderedRuleTrees)
+            {
+                IOrchestrate TmpOrchestrator = poOrchestrators[TmpRuleTree.RuleTreeId];
+
+                TmpOrchestrator.SerializeRecordToBlockchain(poCommand);
+
+                bool bValid = TmpOrchestrator.Orchestrate(poCommand, false);
+
+                TmpOrchestrator.DeserializeRecordFromBlockchain(poCommand);
+            }
         }
 
         /// <summary>
