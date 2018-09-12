@@ -23,7 +23,7 @@ using WonkaPrd;
 
 using WonkaEth.Contracts;
 using WonkaEth.Extensions;
-using WonkaEth.Misc;
+using WonkaEth.Orchestration.Init;
 
 namespace WonkaEth.Orchestration
 {
@@ -73,19 +73,6 @@ namespace WonkaEth.Orchestration
         [Parameter("bytes32[]", "values", 4)]
         public List<string> RecordValues { get; set; }
         */
-    }
-
-    public class OrchestrationInitData
-    {
-        public IMetadataRetrievable AttributesMetadataSource;
-
-        public WonkaBreSource BlockchainEngine;
-
-        public WonkaBreSource DefaultBlockchainDataSource;
-
-        public Dictionary<string, WonkaBreSource> BlockchainDataSources;
-
-        public Dictionary<string, WonkaBreSource> BlockchainCustomOpFunctions;    
     }
 
     /// <summary>

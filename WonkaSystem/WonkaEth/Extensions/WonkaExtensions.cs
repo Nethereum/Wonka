@@ -824,9 +824,9 @@ namespace WonkaEth.Extensions
         /// <param name="poEthInitData">The initialization info that will be repackaged</param>
         /// <returns>The transformation of 'poEthInitData' into an instance of OrchestrationInitData</returns>
         /// </summary>
-        public static WonkaEth.Orchestration.OrchestrationInitData TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, IMetadataRetrievable piMetadataSource = null)
+        public static WonkaEth.Orchestration.Init.OrchestrationInitData TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, IMetadataRetrievable piMetadataSource = null)
         {
-            WonkaEth.Orchestration.OrchestrationInitData OrchInitData = new Orchestration.OrchestrationInitData();
+            WonkaEth.Orchestration.Init.OrchestrationInitData OrchInitData = new Orchestration.Init.OrchestrationInitData();
 
             OrchInitData.AttributesMetadataSource = piMetadataSource;
 

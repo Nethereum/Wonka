@@ -2,18 +2,15 @@
 using System.IO;
 using System.Text;
 
-using WonkaBre;
 using WonkaEth.Orchestration;
-using WonkaBre.Reporting;
-using WonkaPrd;
-using WonkaRef;
+using WonkaEth.Orchestration.Init;
 
 using WonkaSystem.CQS.Contracts;
 
 namespace WonkaSystem.CQS.Generation
 {
     /**
-     ** NOTE: Assumption at this point is that the contract has already been deployed to the blockchain
+     ** NOTE: Assumption at this point is that the RulesEngine contract has already been deployed to the blockchain
      **/
     public class SalesTransactionGenerator : AbstractWonkaOrchestrator<SalesTrxCreateCommand>
     {
