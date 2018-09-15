@@ -29,7 +29,7 @@ namespace WonkaEth.Orchestration
     /// NOTE: The intended goal is to make this class the base class for AbstractWonkaOrchestrator.
     /// 
     /// </summary>
-    public abstract class WonkaOrchestratorProxy<T> : IOrchestrate where T : ICommand
+    public class WonkaOrchestratorProxy<T> : IOrchestrate where T : ICommand
     {
         public const string CONST_EVENT_CALL_RULE_TREE = "CallRuleTree";
         public const string CONST_EVENT_CALL_RULE_SET  = "CallRuleSet";
@@ -339,8 +339,6 @@ namespace WonkaEth.Orchestration
 
             poTargetProduct.GetProductGroup(poTargetAttr.GroupId)[0][poTargetAttr.AttrId] = psTargetValue;
         }
-
-        public abstract bool ValidateCommand(T poCommand);
 
     }
 }
