@@ -29,7 +29,7 @@ namespace WonkaEth.Orchestration
     /// NOTE: The intended goal is to make this class the base class for AbstractWonkaOrchestrator.
     /// 
     /// </summary>
-    public abstract class AbstractWonkaOrchestratorProxy<T> : IOrchestrate where T : ICommand
+    public abstract class WonkaOrchestratorProxy<T> : IOrchestrate where T : ICommand
     {
         public const string CONST_EVENT_CALL_RULE_TREE = "CallRuleTree";
         public const string CONST_EVENT_CALL_RULE_SET  = "CallRuleSet";
@@ -42,7 +42,7 @@ namespace WonkaEth.Orchestration
 
         public readonly OrchestrationInitData moInitData;
 
-        public AbstractWonkaOrchestratorProxy(T poCommand, OrchestrationInitData poOrchInitData, string psGroveId = "", uint pnGroveIndex = 0)
+        public WonkaOrchestratorProxy(T poCommand, OrchestrationInitData poOrchInitData, string psGroveId = "", uint pnGroveIndex = 0)
         {
             Init(poCommand, poOrchInitData);
 
