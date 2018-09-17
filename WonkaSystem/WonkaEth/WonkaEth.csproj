@@ -103,6 +103,7 @@
     <Compile Include="Orchestration\BlockchainEvents\CallRuleTreeEvent.cs" />
     <Compile Include="Orchestration\BlockchainOutput\WonkaRuleTreeReport.cs" />
     <Compile Include="Orchestration\WonkaOrchestratorProxy.cs" />
+    <Compile Include="Init\WonkaEthRegistryInitialization.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
