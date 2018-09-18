@@ -47,7 +47,8 @@ namespace WonkaSystem.TestHarness
         private Dictionary<string, WonkaBreSource> moAttrSourceMap = null;
         private Dictionary<string, WonkaBreSource> moCustomOpMap   = null;
 
-        private WonkaEth.Orchestration.Init.OrchestrationInitData moOrchInitData = null;
+        private WonkaEth.Orchestration.Init.OrchestrationInitData moOrchInitData      = null; 
+        private WonkaEth.Init.WonkaEthRegistryInitialization      moWonkaRegistryInit = null;
 
         public WonkaCQSOrchTest()
         {
@@ -80,6 +81,20 @@ namespace WonkaSystem.TestHarness
                 moOrchInitData = WonkaInit.TransformIntoOrchestrationInit(moMetadataSource);
 
                 System.Console.WriteLine("Number of custom operators: (" + WonkaInit.CustomOperatorList.Length + ").");
+            }
+
+            using (var XmlReader = new System.IO.StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaRegistry.init.xml")))
+            {
+                string sInitRegistryXml = XmlReader.ReadToEnd();
+
+                System.Xml.Serialization.XmlSerializer WonkaEthSerializer =
+                    new System.Xml.Serialization.XmlSerializer(typeof(WonkaEth.Init.WonkaEthRegistryInitialization),
+                                                               new System.Xml.Serialization.XmlRootAttribute("WonkaEthRegistryInitialization"));
+
+                moWonkaRegistryInit =
+                    WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitRegistryXml)) as WonkaEth.Init.WonkaEthRegistryInitialization;
+
+                moWonkaRegistryInit.RetrieveEmbeddedResources(TmpAssembly);
             }
 
             #region Set Class Member Variables
@@ -116,6 +131,13 @@ namespace WonkaSystem.TestHarness
 
             moCustomOpMap = moOrchInitData.BlockchainCustomOpFunctions;
             #endregion
+
+            WonkaEth.Contracts.WonkaRuleTreeRegistry WonkaRegistry =
+                WonkaEth.Contracts.WonkaRuleTreeRegistry.CreateInstance(moWonkaRegistryInit.BlockchainRegistry.ContractSender, 
+                                                                        moWonkaRegistryInit.BlockchainRegistry.ContractPassword,
+                                                                        moWonkaRegistryInit.BlockchainRegistry.ContractAddress, 
+                                                                        moWonkaRegistryInit.BlockchainRegistry.ContractABI);
+
 
             RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka);
         }
@@ -246,16 +268,15 @@ namespace WonkaSystem.TestHarness
             return sContractAddress;
         }
 
-        // NOTE: This function will need to be altered
         public void Execute()
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
             CQS.Contracts.SalesTrxCreateCommand SalesTrxCommand = new CQS.Contracts.SalesTrxCreateCommand();
 
-            SalesTrxCommand.NewSaleEAN = 9781234567890;
+            SalesTrxCommand.NewSaleEAN      = 9781234567890;
             SalesTrxCommand.NewSaleItemType = "Widget";
-            SalesTrxCommand.CountryOfSale = "UK";
+            SalesTrxCommand.CountryOfSale   = "UK";
 
             WonkaEth.Orchestration.Init.OrchestrationInitData InitData = GenerateInitData();
 
@@ -278,6 +299,16 @@ namespace WonkaSystem.TestHarness
 
             WonkaEth.Contracts.WonkaRuleGrove NewSaleGrove = new WonkaEth.Contracts.WonkaRuleGrove("NewSaleGroup");
             NewSaleGrove.PopulateFromRegistry();
+
+            WonkaEth.Orchestration.WonkaOrchestratorProxy<CQS.Contracts.SalesTrxCreateCommand> TrxGeneratorProxy = 
+                new WonkaEth.Orchestration.WonkaOrchestratorProxy<CQS.Contracts.SalesTrxCreateCommand>(SalesTrxCommand, InitData);
+
+            SalesTrxCommand.NewSellTaxAmt    = 0;
+            SalesTrxCommand.NewVATAmtForHMRC = 0;
+
+            TrxGeneratorProxy.SerializeRecordToBlockchain(SalesTrxCommand);
+
+            TrxGeneratorProxy.DeserializeRecordFromBlockchain(SalesTrxCommand);
 
             Dictionary<string, WonkaEth.Contracts.IOrchestrate> GroveMembers = new Dictionary<string, WonkaEth.Contracts.IOrchestrate>();
             GroveMembers[NewSaleGrove.OrderedRuleTrees[0].RuleTreeId] = TrxGenerator;
