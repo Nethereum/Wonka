@@ -55,6 +55,7 @@ namespace WonkaBre
                 throw new Exception("ERROR!  Provided rules file(" + psRulesFilepath + ") does not exist on the filesystem.");
 
             UsingOrchestrationMode = false;
+            AddToRegistry          = true;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -69,6 +70,7 @@ namespace WonkaBre
                 throw new Exception("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = false;
+            AddToRegistry          = true;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -83,6 +85,7 @@ namespace WonkaBre
                 throw new Exception("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = true;
+            AddToRegistry          = true;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -103,6 +106,7 @@ namespace WonkaBre
                 throw new Exception("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = true;
+            AddToRegistry          = true;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -175,6 +179,8 @@ namespace WonkaBre
 
             this.RetrieveCurrRecord = null;
 
+            GroveId       = "";
+            GroveIndex    = 0;
             SourceMap     = new Dictionary<string, WonkaBreSource>();
             CustomOpMap   = new Dictionary<string, WonkaBreSource>();
             DefaultSource = "";
@@ -256,9 +262,15 @@ namespace WonkaBre
 
         private RetrieveOldRecordDelegate RetrieveCurrRecord;
 
+        public readonly bool AddToRegistry;
+
         public readonly bool UsingOrchestrationMode;
 
         public readonly WonkaRefEnvironment RefEnvHandle;
+
+        public string GroveId { get; set; }
+
+        public uint GroveIndex { get; set; }
 
         public WonkaBreRuleSet RuleTreeRoot { get; set; }
 

@@ -2,23 +2,20 @@
 using System.IO;
 using System.Text;
 
-using WonkaBre;
 using WonkaEth.Orchestration;
-using WonkaBre.Reporting;
-using WonkaPrd;
-using WonkaRef;
+using WonkaEth.Orchestration.Init;
 
 using WonkaSystem.CQS.Contracts;
 
 namespace WonkaSystem.CQS.Generation
 {
     /**
-     ** NOTE: Assumption at this point is that the contract has already been deployed to the blockchain
+     ** NOTE: Assumption at this point is that the RulesEngine contract has already been deployed to the blockchain
      **/
     public class SalesTransactionGenerator : AbstractWonkaOrchestrator<SalesTrxCreateCommand>
     {
         public SalesTransactionGenerator(SalesTrxCreateCommand command, StringBuilder psRulesContents, OrchestrationInitData poInitData) :
-            base(command, psRulesContents, poInitData)
+            base(command, psRulesContents, poInitData, "NewSaleGroup", 1)
         {
             // NOTE: Not necessary here
             // base.SerializeRulesEngineToBlockchain();
@@ -47,5 +44,13 @@ namespace WonkaSystem.CQS.Generation
 
             return bValid;
         }
+
+        public override bool ValidateCommand(SalesTrxCreateCommand poCommand)
+        {
+            // NOTE: Put additional validation logic here
+
+            return true;
+        }
+
     }
 }

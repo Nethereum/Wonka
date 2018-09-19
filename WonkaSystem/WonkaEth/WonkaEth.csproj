@@ -92,6 +92,18 @@
     <Compile Include="Orchestration\AbstractWonkaOrchestrator.cs" />
     <Compile Include="Orchestration\WonkaOrchestratorException.cs" />
     <Compile Include="Init\WonkaEthInitialization.cs" />
+    <Compile Include="Contracts\WonkaRuleTreeRegistry.cs" />
+    <Compile Include="Contracts\WonkaRuleGrove.cs" />
+    <Compile Include="Extensions\WonkaGroveExtensions.cs" />
+    <Compile Include="Contracts\ISerialize.cs" />
+    <Compile Include="Contracts\IOrchestrate.cs" />
+    <Compile Include="Orchestration\Init\OrchestrationInitData.cs" />
+    <Compile Include="Orchestration\BlockchainEvents\CallRuleEvent.cs" />
+    <Compile Include="Orchestration\BlockchainEvents\CallRuleSetEvent.cs" />
+    <Compile Include="Orchestration\BlockchainEvents\CallRuleTreeEvent.cs" />
+    <Compile Include="Orchestration\BlockchainOutput\WonkaRuleTreeReport.cs" />
+    <Compile Include="Orchestration\WonkaOrchestratorProxy.cs" />
+    <Compile Include="Init\WonkaEthRegistryInitialization.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -103,6 +115,9 @@
     <Folder Include="Misc\" />
     <Folder Include="Orchestration\" />
     <Folder Include="Init\" />
+    <Folder Include="Orchestration\BlockchainEvents\" />
+    <Folder Include="Orchestration\BlockchainOutput\" />
+    <Folder Include="Orchestration\Init\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaBre\WonkaBre.csproj">

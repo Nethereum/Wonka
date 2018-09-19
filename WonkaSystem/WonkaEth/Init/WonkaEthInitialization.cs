@@ -2,6 +2,11 @@
 
 namespace WonkaEth.Init
 {
+    /// <summary>
+    /// 
+    /// This class represents the information needed to connect to a contract on the Ethereum blockchain.
+    /// 
+    /// </summary>
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public class WonkaEthSource
     {
@@ -16,7 +21,8 @@ namespace WonkaEth.Init
             ContractABI = BusinessRules = null;
 
             msBusinessRulesEmbeddedResource = msBusinessRulesFileResource = "";
-            msContractABIEmbeddedResource   = msContractABIFileResource   = "";
+
+            msContractABIEmbeddedResource = msContractABIFileResource = "";
         }
 
         public string ContractMarkupId { get; set; }
@@ -103,6 +109,12 @@ namespace WonkaEth.Init
         public string BusinessRules { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// This class represents initialization information needed to connect with and properly invoke 
+    /// the Wonka rules engine.
+    /// 
+    /// </summary>
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
     [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable=false)]
     public class WonkaEthInitialization
@@ -187,4 +199,5 @@ namespace WonkaEth.Init
         [System.Xml.Serialization.XmlElementAttribute("CustomOperator")]
         public WonkaEthSource[] CustomOperatorList { get; set; }
     }
+
 }

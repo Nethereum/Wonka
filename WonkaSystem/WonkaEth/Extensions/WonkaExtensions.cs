@@ -14,6 +14,7 @@ using Nethereum.RPC.Eth.DTOs;
 
 using WonkaBre;
 using WonkaBre.RuleTree;
+using WonkaEth.Contracts;
 using WonkaRef;
 
 namespace WonkaEth.Extensions
@@ -22,6 +23,43 @@ namespace WonkaEth.Extensions
     {
         [Parameter("address", "ruler", 1, true)]
         public string TreeOwner { get; set; }
+    }
+
+    [FunctionOutput]
+    public class RuleTreeRegistryIndex
+    {
+        [Parameter("bytes32", "rtid", 1)]
+        public string RuleTreeId { get; set; }
+
+        [Parameter("string", "rtdesc", 2)]
+        public string RuleTreeDesc { get; set; }
+
+        [Parameter("address", "hostaddr", 3)]
+        public string RuleTreeHostEngineAddr { get; set; }
+
+        [Parameter("address", "owner", 4)]
+        public string RuleTreeOwner { get; set; }
+
+        [Parameter("uint", "maxGasCost", 5)]
+        public uint MaxGasCost { get; set; }
+
+        [Parameter("uint", "createTime", 6)]
+        public uint CreationEpochTime { get; set; }
+
+        [Parameter("bytes32[]", "attributes", 7)]
+        public List<string> RequiredAttributes { get; set; }
+
+        public DateTime CreationTime 
+        {
+            get 
+            {
+                DateTime ct = new DateTime(1970, 1, 1);
+
+                ct = ct.AddSeconds(CreationEpochTime);
+
+                return ct;
+            }
+        }
     }
 
     /// <summary>
@@ -40,8 +78,10 @@ namespace WonkaEth.Extensions
 
         private const int CONST_CONTRACT_ATTR_NUM_ON_START = 3;
         private const int CONST_CONTRACT_BYTE32_MAX        = 32;
-
         private const int CONST_CUSTOM_OP_ARG_COUNT        = 4;
+        private const int CONST_MIN_GAS_COST_DEFAULT       = 100000;
+        private const int CONST_MAX_GAS_COST_DEFAULT       = 2000000;
+        private const int CONST_MAX_RULE_TREE_ID_LEN       = 16;
 
         private static WonkaRefEnvironment moWonkaRevEnv = WonkaRefEnvironment.GetInstance();
 
@@ -63,14 +103,101 @@ namespace WonkaEth.Extensions
 
         /// <summary>
         /// 
+        /// This method will use Nethereum to call upon the Registry and compare data about the RuleTree that is 
+        /// held by 'poEngine'.
+        /// 
+        /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender (i.e., owner) account</param>
+        /// <returns>None</returns>
+        /// </summary>
+        public static void CompareRuleTrees(this WonkaBreRulesEngine poEngine, string psSenderAddress)
+        {
+            var ruleTreeID = poEngine.DetermineRuleTreeID();
+
+            var RuleTreeInfo = GetRuleTreeIndex(ruleTreeID);
+
+            if (RuleTreeInfo.RuleTreeOwner != psSenderAddress)
+                throw new Exception("ERROR!  You are attempting to save a RuleTree with an ID that's already been registered by a different owner.");
+
+            string sCreateDateTime = RuleTreeInfo.CreationTime.ToString();
+        }
+
+        /// <summary>
+        /// 
+        /// This method will determine the RuleTree ID of the RuleTree held by the instance of the engine.
+        /// 
+        /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
+        /// <returns>Provides the ID of the RuleTree contained by the engine</returns>
+        /// </summary>
+        private static string DetermineRuleTreeID(this WonkaBreRulesEngine poEngine)
+        {
+            string sRuleTreeId = poEngine.RuleTreeRoot.Description.Replace(" ", "");
+            if (sRuleTreeId.Length > CONST_MAX_RULE_TREE_ID_LEN)
+                sRuleTreeId = sRuleTreeId.Substring(0, CONST_MAX_RULE_TREE_ID_LEN);
+
+            return sRuleTreeId;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will return the metadata about a RuleTree that is registered within the blockchain.
+        /// 
+        /// <param name="psRuleTreeId">The ID of the RuleTree of interest</param>
+        /// <returns>Provides the metadata (about the RuleTree) held within the registry</returns>
+        /// </summary>
+        public static RuleTreeRegistryIndex GetRuleTreeIndex(string psRuleTreeId)
+        {
+            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
+
+            var sPassword     = WonkaRegistry.RegistryPassword;
+            var sABI          = WonkaRegistry.RegistryAbi;
+            var sContractAddr = WonkaRegistry.RegistryContractAddress;
+
+            var account    = new Account(sPassword);
+            var web3       = new Nethereum.Web3.Web3(account);
+            var contract   = web3.Eth.GetContract(sABI, sContractAddr);
+
+            var getRuleTreeIndexFunction = contract.GetFunction("getRuleTreeIndex"); 
+
+            return getRuleTreeIndexFunction.CallDeserializingToObjectAsync<RuleTreeRegistryIndex>(psRuleTreeId).Result;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to call upon the Registry and detect whether or not the RuleTree
+        /// has already been added to it.
+        /// 
+        /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
+        /// <returns>Indicates whether or not the RuleTree has already been registered on the blockchain</returns>
+        /// </summary>
+        public static bool IsRuleTreeRegistered(this WonkaBreRulesEngine poEngine)
+        {
+            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
+
+            var sPassword     = WonkaRegistry.RegistryPassword;
+            var sABI          = WonkaRegistry.RegistryAbi;
+            var sContractAddr = WonkaRegistry.RegistryContractAddress;
+
+            var account    = new Account(sPassword);
+            var web3       = new Nethereum.Web3.Web3(account);
+            var contract   = web3.Eth.GetContract(sABI, sContractAddr);
+            var ruleTreeID = poEngine.DetermineRuleTreeID();
+
+            var isRegisteredFunction = contract.GetFunction("isRuleTreeRegistered");
+
+            return isRegisteredFunction.CallAsync<bool>(poEngine.DetermineRuleTreeID()).Result;
+        }
+
+        /// <summary>
+        /// 
         /// This method will use Nethereum to call upon an instance of the Ethgine contract and 
         /// to create a RuleTree that will be owned by the Sender.
         /// 
-        /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree/param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account/param>
-        /// <param name="psPassword">The password for the sender/param>
-        /// <param name="psContractAddress">The address of the instance of the Ethgine contract/param>
-        /// <param name="psAbi">The ABI interface for the Ethgine contract/param>
+        /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender (i.e., owner) account</param>
+        /// <param name="psPassword">The password for the sender</param>
+        /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
+        /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
         /// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
         /// </summary>
         public static bool Serialize(this WonkaBreRulesEngine poEngine, string psSenderAddress, string psPassword, string psContractAddress, string psAbi)
@@ -89,6 +216,11 @@ namespace WonkaEth.Extensions
 
             var contract = web3.Eth.GetContract(psAbi, contractAddress);
 
+            if (poEngine.AddToRegistry && !poEngine.IsRuleTreeRegistered())
+                poEngine.SerializeRegistryInfo(psSenderAddress, psContractAddress);
+            else
+                poEngine.CompareRuleTrees(psSenderAddress);
+
             treeRoot.SerializeTreeRoot(sSenderAddress, contract);
 
             if (poEngine.UsingOrchestrationMode)
@@ -102,11 +234,11 @@ namespace WonkaEth.Extensions
         /// This method will use Nethereum to call upon an instance of the Ethgine contract and 
         /// to establish the Attributes (i.e., data points) that our intended RuleTree will examine.
         /// 
-        /// <param name="poInstance">The instance of an Environment which contains the Attributes that we will want to share with the Ethgine contract/param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account/param>
+        /// <param name="poInstance">The instance of an Environment which contains the Attributes that we will want to share with the Ethgine contract</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
         /// <param name="psPassword">The password for the sender/param>
-        /// <param name="psContractAddress">The address of the instance of the Ethgine contract/param>
-        /// <param name="psAbi">The ABI interface for the Ethgine contract/param>
+        /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
+        /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
         /// <returns>Indicates whether or not the Attributes were submitted to the blockchain</returns>
         /// </summary>
         public static bool Serialize(this WonkaRefEnvironment poInstance, string psSenderAddress, string psPassword, string psContractAddress, string psAbi)
@@ -153,14 +285,85 @@ namespace WonkaEth.Extensions
             return true;
         }
 
+        ///
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to register a RuleTree in the blockchain's registry.
+        /// 
+        /// <returns>Indicates whether or not the registry info was submitted to the blockchain</returns>
+        /// </summary>
+        public static bool Serialize(this WonkaRegistryItem poRegistryItem)
+        {
+            HashSet<string> SourcesAdded   = new HashSet<string>();
+            HashSet<string> CustomOpsAdded = new HashSet<string>();
+
+            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
+
+            var sPassword     = WonkaRegistry.RegistryPassword;
+            var sABI          = WonkaRegistry.RegistryAbi;
+            var sContractAddr = WonkaRegistry.RegistryContractAddress;
+
+            string sGroveId  = "";
+            int    nGroveIdx = 0;
+
+            foreach (string TmpGroveId in poRegistryItem.RuleTreeGroveIds.Keys)
+            {
+                sGroveId  = TmpGroveId;
+                nGroveIdx = poRegistryItem.RuleTreeGroveIds[sGroveId];
+
+                break;
+            }
+
+            var account  = new Account(sPassword);
+            var web3     = new Nethereum.Web3.Web3(account);
+            var contract = web3.Eth.GetContract(sABI, sContractAddr);
+
+            uint nSecondsSinceEpoch = 0;
+
+            // function addRuleTreeIndex(address ruler, bytes32 rsId, string desc, bytes32 ruleTreeGrpId, uint grpIdx, address host, uint minCost, uint maxCost, address[] associates, bytes32[] attributes, bytes32[] ops, uint createTime) public {
+            var addRegistryItemFunction = contract.GetFunction("addRuleTreeIndex");
+
+            // NOTE: Causes "out of gas" exception to be thrown?
+            // var gas = addRegistryItemFunction.EstimateGasAsync(etc,etc,etc).Result;
+            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+            if (poRegistryItem.creationTime > 0)
+                nSecondsSinceEpoch = poRegistryItem.creationTime;
+            else
+            {
+                TimeSpan span = DateTime.UtcNow - new DateTime(1970, 1, 1);
+
+                nSecondsSinceEpoch = Convert.ToUInt32(span.TotalSeconds);
+            }
+
+            var result =
+                addRegistryItemFunction.SendTransactionAsync(WonkaRegistry.RegistrySender, 
+                                                             gas, 
+                                                             null, 
+                                                             WonkaRegistry.RegistrySender,
+                                                             poRegistryItem.RuleTreeId,
+                                                             poRegistryItem.Description,
+                                                             sGroveId,
+                                                             nGroveIdx,
+                                                             poRegistryItem.HostContractAddress,
+                                                             poRegistryItem.MinGasCost,
+                                                             poRegistryItem.MaxGasCost,
+                                                             poRegistryItem.AssociateContractAddresses,
+                                                             poRegistryItem.RequiredAttributes,
+                                                             poRegistryItem.UsedCustomOps,
+                                                             nSecondsSinceEpoch).Result;
+            
+            return true;
+        }
+
         /// <summary>
         /// 
         /// This method will use Nethereum to call upon an instance of the Ethgine contract and 
         /// to set the Orchestration mode information.
         /// 
-        /// <param name="poEngine">The instance of an engine which contains the Orchestration info/param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account/param>
-        /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree/param>
+        /// <param name="poEngine">The instance of an engine which contains the Orchestration info</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
+        /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree</param>
         /// <returns>Indicates whether or not the Orchestration info was submitted to the blockchain</returns>
         /// </summary>
         private static bool SerializeOrchestrationInfo(this WonkaBreRulesEngine poEngine, string psSenderAddress, Nethereum.Contracts.Contract poContract)
@@ -237,12 +440,62 @@ namespace WonkaEth.Extensions
 
         /// <summary>
         /// 
+        /// This method will use Nethereum to call upon an instance of the Registry contract and 
+        /// to submit info about the RuleTree contained within the instance of the engine.
+        /// 
+        /// <param name="poEngine">The instance of an engine/RuleTree whose info we wish to write to the Registry on the blockchain</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
+        /// <param name="psPassword">The password for the sender</param>
+        /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
+        /// <returns>Indicates whether or not the Attributes were submitted to the blockchain</returns>
+        /// </summary>
+        private static bool SerializeRegistryInfo(this WonkaBreRulesEngine poEngine, string psSenderAddress, string psContractAddress)
+        {
+            string sRuleTreeId = poEngine.DetermineRuleTreeID();
+
+            HashSet<string> RequiredAttributes = new HashSet<string>();
+            HashSet<string> ContractAssociates = new HashSet<string>();
+            HashSet<string> CustomOpsList      = new HashSet<string>();
+
+            poEngine.RefEnvHandle.AttrCache.ForEach(x => RequiredAttributes.Add(x.AttrName));
+
+            foreach (string sTmpAttrName in poEngine.SourceMap.Keys)
+                ContractAssociates.Add(poEngine.SourceMap[sTmpAttrName].ContractAddress);
+
+            foreach (string sTmpCustomOp in poEngine.CustomOpMap.Keys)
+                CustomOpsList.Add(sTmpCustomOp);
+
+            WonkaRegistryItem newRegistryItem = new WonkaRegistryItem();
+
+            newRegistryItem.RuleTreeId  = sRuleTreeId;
+            newRegistryItem.Description = poEngine.RuleTreeRoot.Description;
+
+            newRegistryItem.HostContractAddress = psContractAddress;
+            newRegistryItem.OwnerId             = psSenderAddress;
+            newRegistryItem.RuleTreeGroveIds    = new Dictionary<string, int>();
+            newRegistryItem.MinGasCost          = CONST_MIN_GAS_COST_DEFAULT;
+            newRegistryItem.MaxGasCost          = CONST_MAX_GAS_COST_DEFAULT;
+            newRegistryItem.RequiredAttributes  = RequiredAttributes;
+
+            if (!String.IsNullOrEmpty(poEngine.GroveId) && (poEngine.GroveIndex > 0))
+                newRegistryItem.RuleTreeGroveIds[poEngine.GroveId] = (int) poEngine.GroveIndex;
+
+            newRegistryItem.AssociateContractAddresses = ContractAssociates;
+            newRegistryItem.UsedCustomOps              = CustomOpsList;
+
+            newRegistryItem.Serialize();
+
+            return true;
+        }
+
+        /// <summary>
+        /// 
         /// This method will use Nethereum to call upon an instance of the Ethgine contract and 
         /// to add the root node for a RuleTree (as well as the rest of the RuleTree).
         /// 
-        /// <param name="poRuleSet">The root node of the RuleTree that we are creating in the Ethgine contract/param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree/param>
-        /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree/param>
+        /// <param name="poRuleSet">The root node of the RuleTree that we are creating in the Ethgine contract</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree</param>
+        /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree</param>
         /// <returns>Indicates whether or not all of the RuleTree's nodes were submitted to the blockchain</returns>
         /// </summary>
         private static bool SerializeTreeRoot(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, string psSenderAddress, Nethereum.Contracts.Contract poContract)
@@ -294,10 +547,10 @@ namespace WonkaEth.Extensions
         /// This method will use Nethereum to call upon an instance of the Ethgine contract and 
         /// to add another node for a RuleTree.
         /// 
-        /// <param name="poRuleSet">The current node of the RuleTree that we are creating in the Ethgine contract/param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree/param>
-        /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree/param>
-        /// <param name="psRSParentName">The parent node of the current node that we are adding to the RuleTree/param>
+        /// <param name="poRuleSet">The current node of the RuleTree that we are creating in the Ethgine contract</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree</param>
+        /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree</param>
+        /// <param name="psRSParentName">The parent node of the current node that we are adding to the RuleTree</param>
         /// <returns>Indicates whether or not the current node was submitted to the blockchain</returns>
         /// </summary>
         private static bool SerializeRuleSet(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, string psSenderAddress, Nethereum.Contracts.Contract poContract, string psRSParentName)
@@ -358,12 +611,12 @@ namespace WonkaEth.Extensions
         /// <summary>
         /// 
         /// This method will use Nethereum to call upon an instance of the Ethgine contract and 
-        /// to add all of the rules that belong to a RuelSet node of the RuleTree.
+        /// to add all of the rules that belong to a RuleSet node of the RuleTree.
         /// 
-        /// <param name="poRuleSet">The current node of the RuleTree whose rules we are creating in the Ethgine contract/param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree/param>
-        /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree/param>
-        /// <param name="psRuleSetId">The name of the current node in the blockchain whose rules we are adding to the RuleTree/param>
+        /// <param name="poRuleSet">The current node of the RuleTree whose rules we are creating in the Ethgine contract</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree</param>
+        /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree</param>
+        /// <param name="psRuleSetId">The name of the current node in the blockchain whose rules we are adding to the RuleTree</param>
         /// <returns>Indicates whether or not the rules of the current node were submitted to the blockchain</returns>
         /// </summary>
         private static bool SerializeRules(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, string psSenderAddress, Nethereum.Contracts.Contract poContract, string psRuleSetId)
@@ -568,12 +821,12 @@ namespace WonkaEth.Extensions
         /// 
         /// NOTE: This method does not set the metadata needed to enable validation within the .NET side.
         /// 
-        /// <param name="poEthInitData">The initialization info that will be repackaged/param>
+        /// <param name="poEthInitData">The initialization info that will be repackaged</param>
         /// <returns>The transformation of 'poEthInitData' into an instance of OrchestrationInitData</returns>
         /// </summary>
-        public static WonkaEth.Orchestration.OrchestrationInitData TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, IMetadataRetrievable piMetadataSource = null)
+        public static WonkaEth.Orchestration.Init.OrchestrationInitData TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, IMetadataRetrievable piMetadataSource = null)
         {
-            WonkaEth.Orchestration.OrchestrationInitData OrchInitData = new Orchestration.OrchestrationInitData();
+            WonkaEth.Orchestration.Init.OrchestrationInitData OrchInitData = new Orchestration.Init.OrchestrationInitData();
 
             OrchInitData.AttributesMetadataSource = piMetadataSource;
 
@@ -639,4 +892,5 @@ namespace WonkaEth.Extensions
             return OrchInitData;
         }
     }
+
 }

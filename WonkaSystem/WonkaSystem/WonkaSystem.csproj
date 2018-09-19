@@ -158,7 +158,10 @@
     <EmbeddedResource Include="TestData\OrchTest.abi" />
     <EmbeddedResource Include="TestData\OrchTest.bin" /> 
     <EmbeddedResource Include="TestData\VATCalculationExample.xml" />
-    <EmbeddedResource Include="TestData\VATCalculationExample.init.xml" />    
+    <EmbeddedResource Include="TestData\VATCalculationExample.init.xml" />
+    <EmbeddedResource Include="TestData\WonkaRegistry.abi" />
+    <EmbeddedResource Include="TestData\WonkaRegistry.bin" />
+    <EmbeddedResource Include="TestData\WonkaRegistry.init.xml" />            
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\xunit.core.2.3.1\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core.2.3.1\build\xunit.core.targets')" />
