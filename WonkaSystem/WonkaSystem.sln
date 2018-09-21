@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WonkaBre", "WonkaBre\WonkaB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WonkaEth", "WonkaEth\WonkaEth.csproj", "{A45CE3D8-9F1B-4401-8561-A5A7F79BB57C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WonkaIpfs", "WonkaIpfs\WonkaIpfs.csproj", "{CDE8B010-2F96-4801-8DEE-BB110FC709A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{A45CE3D8-9F1B-4401-8561-A5A7F79BB57C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A45CE3D8-9F1B-4401-8561-A5A7F79BB57C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A45CE3D8-9F1B-4401-8561-A5A7F79BB57C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDE8B010-2F96-4801-8DEE-BB110FC709A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDE8B010-2F96-4801-8DEE-BB110FC709A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDE8B010-2F96-4801-8DEE-BB110FC709A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDE8B010-2F96-4801-8DEE-BB110FC709A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
