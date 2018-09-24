@@ -132,6 +132,10 @@
       <Project>{3C3F0446-5FBF-4AED-B4C0-A6D96C905445}</Project>
       <Name>WonkaPrd</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WonkaIpfs\WonkaIpfs.csproj">
+      <Project>{CDE8B010-2F96-4801-8DEE-BB110FC709A9}</Project>
+      <Name>WonkaIpfs</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
