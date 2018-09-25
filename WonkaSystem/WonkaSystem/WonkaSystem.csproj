@@ -143,6 +143,10 @@
       <Project>{A45CE3D8-9F1B-4401-8561-A5A7F79BB57C}</Project>
       <Name>WonkaEth</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WonkaIpfs\WonkaIpfs.csproj">
+      <Project>{CDE8B010-2F96-4801-8DEE-BB110FC709A9}</Project>
+      <Name>WonkaIpfs</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CQS\" />

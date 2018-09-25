@@ -12,17 +12,19 @@ namespace WonkaEth.Init
     {
         private string msBusinessRulesEmbeddedResource;
         private string msBusinessRulesFileResource;
+        private string msBusinessRulesIpfsResource;
 
         private string msContractABIEmbeddedResource;
         private string msContractABIFileResource;
+        private string msContractABIIpfsResource;
 
         public WonkaEthSource()
         {
             ContractABI = BusinessRules = null;
 
-            msBusinessRulesEmbeddedResource = msBusinessRulesFileResource = "";
+            msBusinessRulesEmbeddedResource = msBusinessRulesFileResource = msBusinessRulesIpfsResource = "";
 
-            msContractABIEmbeddedResource = msContractABIFileResource = "";
+            msContractABIEmbeddedResource = msContractABIFileResource = msContractABIIpfsResource = "";
         }
 
         public string ContractMarkupId { get; set; }
@@ -82,6 +84,21 @@ namespace WonkaEth.Init
             }
         }
 
+        public string ContractABIIpfsResource
+        {
+            get { return msContractABIIpfsResource; }
+
+            set
+            {
+                msContractABIIpfsResource = value;
+
+                if (!String.IsNullOrEmpty(msContractABIIpfsResource) && String.IsNullOrEmpty(ContractABI))
+                {
+                    ContractABI = WonkaIpfs.WonkaIpfsEnvironment.GetInstance().GetFile(msContractABIIpfsResource);
+                }
+            }
+        }
+
         public string ContractABI { get; set; }
 
         public string BusinessRulesEmbeddedResource
@@ -102,6 +119,21 @@ namespace WonkaEth.Init
                 if (!String.IsNullOrEmpty(msBusinessRulesFileResource))
                 {
                     BusinessRules = System.IO.File.ReadAllText(msBusinessRulesFileResource);
+                }
+            }
+        }
+
+        public string BusinessRulesIpfsResource
+        {
+            get { return msBusinessRulesIpfsResource; }
+
+            set
+            {
+                msBusinessRulesIpfsResource = value;
+
+                if (!String.IsNullOrEmpty(msBusinessRulesIpfsResource) && String.IsNullOrEmpty(BusinessRules))
+                {
+                    BusinessRules = WonkaIpfs.WonkaIpfsEnvironment.GetInstance().GetFile(msBusinessRulesIpfsResource);
                 }
             }
         }
