@@ -20,7 +20,17 @@ A business rules engine (for both the .NET platform and the <a target="_blank" h
 3. Populate the required values (sender,password,contract addresses) in the right locations (Program.cs, *.init.xml, etc.).
 4. Run any test harness mentioned within the Program.cs module.
 
-# Notes
+# Main Libraries
+
+Project Source | Nuget_Package |  Description |
+------------- |--------------------------|-----------|
+[WonkaBre](https://github.com/Nethereum/Wonka/tree/master/WonkaSystem/WonkaBre)    | | This library contains the .NET implementation of the Wonka rules engine.  By using these classes, you can parse the XML markup, populate a RuleTree, and then invoke the RuleTree against a provided data record. |
+[WonkaEth](https://github.com/Nethereum/Wonka/tree/master/WonkaSystem/WonkaEth) |  | This library contains the functions that know how to serialize a RuleTree (and other related info, like metadata defined using WonkaRef) to an instance of the Ethereum blockchain.  It also contains functions that know how to invoke an instance of the RuleTree on the blockchain and collect its results. |
+[WonkaIpfs](https://github.com/Nethereum/Wonka/tree/master/WonkaSystem/WonkaIpfs)    | | This library contains some basic functionality regarding access to IPFS, for pulling back files that could be used for configuration (XML rules markup, Ethereum contract ABI, etc.).|
+[WonkaPrd](https://github.com/Nethereum/Wonka/tree/master/WonkaSystem/WonkaPrd)| | This library contains the data structures that are used to define and hold a record defined by metadata.  This library is mainly used when invoking the .NET implementation of the rules engine.|
+[WonkaRef](https://github.com/Nethereum/Wonka/tree/master/WonkaSystem/WonkaRef)| | This library contains the data structures used to define our metadata and the data domain using MDD (i.e., metadata-driven design).  This library is heavily used by the others in order to address data points. |
+
+# Important Notes
 When running the Ethereum node that will be your deployment target for the Solidity contract(s), please make sure to run it with the maximum gas set to 8388608.  For example, if you are using 'ganache-cli', you would run the following command:
 
 $ ganache-cli --gasLimit 8388609
