@@ -18,6 +18,22 @@ using WonkaSystem.TestHarness;
 
 namespace WonkaSystem.TestHarness
 {
+    /// <summary>
+    /// 
+    /// This test will create an instance of the .NET implementation of the rules engine and initialize a 
+    /// RuleTree with the rules mentioned in the file 'SimpleAccountCheck.xml'.  It will then populate a 
+    /// record with test data and then apply the RuleTree against the record, for the purpose of validating
+    /// the record's contents.  Unlike WonkaSimpleTest, this test will pull the existing record from a contract
+    /// on the Ethereum blockchain.
+    ///
+    /// The rules of the XML markup can reference values from different records, like "O.Price" for the existing
+    /// record's price and "N.Price" for the new record's price.
+    ///
+    /// NOTE: This test does execute the Ethereum implementation of the rules engine.  However, it will use classes
+    ///       from the CQS namespace, which encapsulates all of the Wonka functionality (serialization to the blockchain,
+    ///       execution of the engine, etc.).
+    ///
+    /// </summary>
     public class WonkaCQSTest
     {
         private readonly string msRulesContents;
@@ -33,29 +49,31 @@ namespace WonkaSystem.TestHarness
         {
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
+            // Read the ABI of the Ethereum contract for the Wonka rules engine and holds our data record
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.abi")))
             {
                 msAbiWonka = AbiReader.ReadToEnd();
             }
 
+            // Read the XML markup that lists the business rules (i.e., the RuleTree)
             using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.SimpleAccountCheck.xml")))
             {
                 msRulesContents = RulesReader.ReadToEnd();
             }
 
+            // Using the metadata source, we create an instance of a defined data domain
             WonkaRefEnvironment RefEnv =
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
             msSenderAddress = psSenderAddress;
             msPassword      = psPassword;
 
-            moMetadataSource = new WonkaMetadataTestSource();
-
             if (psContractAddress == null)
                 msContractAddress = DeployContract();
             else
                 msContractAddress = psContractAddress;
 
+            // Finally we serialize the data domain to the blockchain
             RefEnv.Serialize(msSenderAddress, msPassword, msContractAddress, msAbiWonka);
         }
 
@@ -93,6 +111,8 @@ namespace WonkaSystem.TestHarness
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
+            // Now we assemble a predefined data record that will be the target of examination by the rules engine 
+            // and to which we will apply the RuleTree
             CQS.Contracts.AccountUpdateCommand UpdateCommand = new CQS.Contracts.AccountUpdateCommand();
             UpdateCommand.AccountId   = "1234567890";
             UpdateCommand.AccountName = "JohnSmithFirstCheckingAccount";
@@ -102,6 +122,8 @@ namespace WonkaSystem.TestHarness
             // UpdateCommand.AccountType = "Checking";
             UpdateCommand.AccountType = "CompletelyBogusTypeThatWillCauseAnError";
 
+            // The engine's proxy for the blockchain is instantiated here, which will be responsible for serializing
+            // and executing the RuleTree within the engine
             CQS.Validation.AccountUpdateValidator UpdateValidator =
                    new CQS.Validation.AccountUpdateValidator(UpdateCommand, new StringBuilder(msRulesContents));
 
@@ -110,6 +132,7 @@ namespace WonkaSystem.TestHarness
             UpdateValidator.BlockchainEngine.ContractAddress = msContractAddress;
             UpdateValidator.BlockchainEngine.ContractABI     = msAbiWonka;
 
+            // Now execute the rules engine on the blockchain
             bool bValid = UpdateValidator.Validate(UpdateCommand);
 
             if (!bValid)
