@@ -21,13 +21,28 @@ using WonkaRef;
 
 namespace WonkaSystem.TestHarness
 {
+    /// <summary>
+    /// 
+    /// This test will create an instance of the .NET implementation of the rules engine and initialize a 
+    /// RuleTree with the rules mentioned in the file 'SimpleAccountCheck.xml'.  It will then populate a 
+    /// record with test data and then apply the RuleTree against the record, for the purpose of validating
+    /// the record's contents.  Unlike WonkaSimpleTest, this test will pull the existing record from a contract
+    /// on the Ethereum blockchain.
+    ///
+    /// The rules of the XML markup can reference values from different records, like "O.Price" for the existing
+    /// record's price and "N.Price" for the new record's price.
+    ///
+    /// NOTE: This test does not execute the Ethereum implementation of the rules engine.  It only tests the
+    ///       .NET implementation of the engine.
+    ///
+    /// </summary>
     public class WonkaSimpleNethereumTest
     {
         private readonly string msRulesContents;
         private readonly string msAbiWonka;
         private readonly string msByteCodeWonka;
 
-		private IMetadataRetrievable moMetadataSource = null;
+	private IMetadataRetrievable moMetadataSource = null;
 
         private string msSenderAddress   = "";
         private string msPassword        = "";
@@ -41,25 +56,31 @@ namespace WonkaSystem.TestHarness
             msPassword        = psPassword;
             msContractAddress = psContractAddress; 
 
+            // Create an instance of the class that will provide us with PmdRefAttributes (i.e., the data domain)
+	    // that define our data records		
             moMetadataSource = new WonkaMetadataTestSource();
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
+	    // Read the ABI of the Ethereum contract which holds our old (i.e., existing) data record
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.abi")))
             {
                 msAbiWonka = AbiReader.ReadToEnd();
             }
 
+            // Read the bytecodes of the Ethereum contract which holds our old (i.e., existing) data record
             using (var ByteCodeReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.bin")))
             {
                 msByteCodeWonka = ByteCodeReader.ReadToEnd();
             }
 
+	    // Read the XML markup that lists the business rules
             using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.SimpleAccountCheck.xml")))
             {
                 msRulesContents = RulesReader.ReadToEnd();
             }
 
+            // Using the metadata source, we create an instance of a defined data domain		
             WonkaRefEnvironment WonkaRefEnv =
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
@@ -70,6 +91,8 @@ namespace WonkaSystem.TestHarness
             WonkaRefAttr        AccountTypeAttr     = WonkaRefEnv.GetAttributeByAttrName("AccountType");
             WonkaRefAttr        AccountCurrencyAttr = WonkaRefEnv.GetAttributeByAttrName("AccountCurrency");
 
+	    // We create a target list of the Attributes of the old (i.e., existing) record that currently exists on the blockchain
+	    // and which we want to pull back during the engine's execution
             moTargetAttrList = new List<WonkaRefAttr>();
 
             moTargetAttrList =
@@ -78,26 +101,40 @@ namespace WonkaSystem.TestHarness
 
         public void Execute()
         {
+	    // Using the metadata source, we create an instance of a defined data domain
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
+	    // To test whether the data domain has been created, we plan on retrieving the value
+            // of the "AccountStatus" Attribute
             WonkaRefAttr AccountStsAttr = RefEnv.GetAttributeByAttrName("AccountStatus");
 
-            // Cue the rules engine
+            // Creating an instance of the rules engine using our rules and the metadata
             WonkaBreRulesEngine RulesEngine =
                 new WonkaBreRulesEngine(new StringBuilder(msRulesContents), moMetadataSource);
 
+	    // Gets a predefined data record that will be our analog for new data coming into the system
             WonkaProduct NewProduct = GetNewProduct();
 
+	    // Check that the data has been populated correctly on the "new" record - also, we will use
+	    // it later for comparison purposes
             string sStatusValueBefore = GetAttributeValue(NewProduct, AccountStsAttr);
 
+	    // Since the rules can reference values from different records (like O.Price for the existing
+	    // record's price and N.Price for the new record's price), we need to provide the delegate
+	    // that can pull the existing (i.e., old) record from the blockchain using a key
             RulesEngine.GetCurrentProductDelegate = GetOldProduct;
 
+            // Validate the new record using our rules engine and its initialized RuleTree		
             WonkaBre.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
+            // Now retrieve the AccountStatus value and see if the rules have altered it (which should
+            // not be the case)
             string sStatusValueAfter = GetAttributeValue(NewProduct, AccountStsAttr);
 
+	    // We will evaluate whether or not any failures of the rules were detected during the engine's execution
             if (Report.OverallRuleTreeResult == ERR_CD.CD_SUCCESS)
             {
+                // If successful, we will write the record back into the contract on the blockchain
                 Serialize(NewProduct);
             }
             else if (Report.GetRuleSetFailureCount() > 0)                
@@ -116,17 +153,17 @@ namespace WonkaSystem.TestHarness
 
             Dictionary<WonkaRefAttr, string> EthereumRecord = GetOldRecordViaEthereum(moTargetAttrList, poProductKeys);
 
-			foreach (WonkaRefAttr TempAttr in EthereumRecord.Keys)
-			{
-				SetAttribute(OldProduct, TempAttr, EthereumRecord[TempAttr]);
-			}
+	    foreach (WonkaRefAttr TempAttr in EthereumRecord.Keys)
+	    {
+                SetAttribute(OldProduct, TempAttr, EthereumRecord[TempAttr]);
+	    }
 
-			return OldProduct;            
+	    return OldProduct;
         }
 
         public Dictionary<WonkaRefAttr, string> GetOldRecordViaEthereum(List<WonkaRefAttr> poTargetAttrList, Dictionary<string, string> poProductKeys)
         {
-			Dictionary<WonkaRefAttr, string> EthereumRecord = new Dictionary<WonkaRefAttr, string>();
+	    Dictionary<WonkaRefAttr, string> EthereumRecord = new Dictionary<WonkaRefAttr, string>();
 
             string sSenderAddress = msSenderAddress;
 
@@ -136,20 +173,20 @@ namespace WonkaSystem.TestHarness
 
             var contractAddress = msContractAddress;
              
-			var contract = web3.Eth.GetContract(msAbiWonka, contractAddress);
+	    var contract = web3.Eth.GetContract(msAbiWonka, contractAddress);
 
             var getAttrNumFunction     = contract.GetFunction("getNumberOfAttributes");
-			var getRecordValueFunction = contract.GetFunction("getValueOnRecord");
+            var getRecordValueFunction = contract.GetFunction("getValueOnRecord");
 
-			var attrNum = getAttrNumFunction.CallAsync<uint>().Result;
+	    var attrNum = getAttrNumFunction.CallAsync<uint>().Result;
 
-			foreach (WonkaRefAttr TempAttr in poTargetAttrList)
-			{
-				var result = getRecordValueFunction.CallAsync<string>(sSenderAddress, TempAttr.AttrName).Result;
+            foreach (WonkaRefAttr TempAttr in poTargetAttrList)
+	    {
+		var result = getRecordValueFunction.CallAsync<string>(sSenderAddress, TempAttr.AttrName).Result;
                 EthereumRecord[TempAttr] = result;
-			}
+	    }
 
-			return EthereumRecord;
+	    return EthereumRecord;
         }
 
         public WonkaProduct GetNewProduct()
