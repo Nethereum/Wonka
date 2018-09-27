@@ -28,6 +28,11 @@ using WonkaEth.Extensions;
 
 namespace WonkaSystem.TestHarness
 {
+    /// <summary>
+    /// 
+    /// This class represents the aggregated output of the rules engine on the blockchain.
+    ///
+    /// </summary>
     [FunctionOutput]
     public class RuleTreeReport
     {
@@ -46,6 +51,22 @@ namespace WonkaSystem.TestHarness
         */
     }
 
+    /// <summary>
+    /// 
+    /// This test will create an instance of the .NET implementation of the rules engine and initialize a 
+    /// RuleTree with the rules mentioned in the file 'SimpleAccountCheck.xml'.  It will then populate a 
+    /// record with test data, serialize the data to the Ethereum blockchain, and then also serialize the 
+    /// RuleTree to the blockchain.  Finally, it will execute the rules engine on the Ethereum blockchain 
+    /// and examine the report that is returned.
+    ///
+    /// NOTE: Even though the rules of the XML markup can reference values from different records (like "O.Price" 
+    /// for the existing record's price and "N.Price" for the new record's price), the engine on the blockchain
+    /// was not provided any additional direction in this example.  So, by default, it assumes all Attribute
+    /// references are for the existing record.
+    ///
+    /// NOTE: This test does execute the Ethereum implementation of the rules engine.
+    ///
+    /// </summary>
     public class WonkaNoviceNethereumTest
     {
         private const int CONST_CONTRACT_ATTR_NUM_ON_START = 3;
@@ -72,25 +93,31 @@ namespace WonkaSystem.TestHarness
             msSenderAddress   = psSenderAddress;
             msPassword        = psPassword;
 
+            // Create an instance of the class that will provide us with PmdRefAttributes (i.e., the data domain)
+	        // that define our data records
             moMetadataSource = new WonkaMetadataTestSource();
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
+            // Read the ABI of the Ethereum contract for the Wonka rules engine and holds our data record
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.abi")))
             {
                 msAbiWonka = AbiReader.ReadToEnd();
             }
 
+            // Read the bytecodes of the Ethereum contract for the Wonka rules engine and holds our data record
             using (var ByteCodeReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.bin")))
             {
                 msByteCodeWonka = ByteCodeReader.ReadToEnd();
             }
 
+            // Read the XML markup that lists the business rules
             using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.SimpleAccountCheck.xml")))
             {
                 msRulesContents = RulesReader.ReadToEnd();
             }
 
+            // Using the metadata source, we create an instance of a defined data domain
             WonkaRefEnvironment WonkaRefEnv =
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
@@ -101,6 +128,8 @@ namespace WonkaSystem.TestHarness
             WonkaRefAttr        AccountTypeAttr     = WonkaRefEnv.GetAttributeByAttrName("AccountType");
             WonkaRefAttr        AccountCurrencyAttr = WonkaRefEnv.GetAttributeByAttrName("AccountCurrency");
 
+            // We create a target list of the Attributes of the old (i.e., existing) record that currently exists on the blockchain
+	        // and which we want to pull back during the engine's execution
             moTargetAttrList = new List<WonkaRefAttr>();
 
             moTargetAttrList =
@@ -110,11 +139,13 @@ namespace WonkaSystem.TestHarness
                 msContractAddress = DeployContract();
             else
                 msContractAddress = psContractAddress;
-
+            
             if (bSerializeMetadataAndEngine)
             {
+                // Now we serialize the data domain to the blockchain
                 SerializeMetadataToBlockchain();
 
+                // And serialize the rules engine to the blockchain
                 SerializeRulesEngineToBlockchain();
             }
         }
@@ -151,32 +182,44 @@ namespace WonkaSystem.TestHarness
 
         public bool Execute()
         {
+            // Using the metadata source, we create an instance of a defined data domain
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
+            // To test whether the data domain has been created, we plan on retrieving the value
+            // of the "AccountStatus" Attribute
             WonkaRefAttr AccountStsAttr = RefEnv.GetAttributeByAttrName("AccountStatus");
 
+            // This collection represents the product key(s) for the record being sought - for now,
+            // we do not need to specify one
             Dictionary<string, string> PrdKeys = new Dictionary<string, string>();
 
+            // Gets a predefined data record that will be our analog for new data coming into the system
             WonkaProduct NewProduct = GetNewProduct();
 
+            // Check that the data has been populated correctly on the "new" record - also, we will use
+	        // it later for comparison purposes
             string sStatusValueBefore = GetAttributeValue(NewProduct, AccountStsAttr);
 
-            // Write the product to the contract, so that we can validate the product 
-            // using the ruletree that has already been written to the blockchain
+            // Write the product to the contract, which will then be used by the rules engine on the 
+            // blockchain during the engine's execution
             SerializeProduct(NewProduct);
 
-            bool bProductIsValid = ExecuteRulesEngineOnTheBlockchain();
-
             /**
-             ** Now we pull back the product from the blockchain
+             ** Now execute the rules engine on the blockchain.
              **
              ** NOTE: We are only issuing a call() now when we execute the rules engine,
              **       since we are only looking to validate here.  However, there is a chance 
              **       that sendTransaction() might be used in the future because we wish for 
              **       the rules engine to alter the record.  In that case, we might want to 
-             **       pull back the record afterwards in order to examine the record here.
+             **       pull back the record afterwards with a subsequent function call, in order 
+             **       to examine the record here.
              **/
+            bool bProductIsValid = ExecuteRulesEngineOnTheBlockchain();
+            
+            // Now we pull back the product from the blockchain
             WonkaProduct ProductOnBlockchain = GetBlockchainRecord(PrdKeys);
+            
+            // Now retrieve the AccountStatus value and see if the rules have altered it
             string sStatusValueAfter = GetAttributeValue(NewProduct, AccountStsAttr);
 
             return bProductIsValid;
@@ -398,7 +441,7 @@ namespace WonkaSystem.TestHarness
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
-            // Cue the rules engine
+            // Creating an instance of the rules engine using our rules and the metadata
             moRulesEngine =
                 new WonkaBreRulesEngine(new StringBuilder(msRulesContents), moMetadataSource);
 
