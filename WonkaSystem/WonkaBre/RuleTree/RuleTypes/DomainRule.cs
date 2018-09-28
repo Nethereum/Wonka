@@ -76,12 +76,18 @@ namespace WonkaBre.RuleTree.RuleTypes
             if (pbIsLiteral)
             {
                 /*
-                 * NOTE: This is a bit of a hack...but since we must use commas to separate the domain values, we will require
-                 *       that any rule value with an embedded comma must use "&#44;", and that value will be replaced with an 
-                 *       actual comma here.  My apologies.
+                 * NOTE: This is a bit of a hack...but since we must use commas and parantheses to separate the domain values, 
+                 *       we will require that any rule value with certain embeddeded delimiters use HTML chars instead, so that 
+                 *       the value will be replaced with the correct equivalent here.  My apologies.
                  */
                 if (!String.IsNullOrEmpty(psDomainVal) && psDomainVal.Contains("&#44;"))
                     psDomainVal = psDomainVal.Replace("&#44;", ",");
+
+                if (!String.IsNullOrEmpty(psDomainVal) && psDomainVal.Contains("&#40;"))
+                    psDomainVal = psDomainVal.Replace("&#40;", "(");
+
+                if (!String.IsNullOrEmpty(psDomainVal) && psDomainVal.Contains("&#41;"))
+                    psDomainVal = psDomainVal.Replace("&#41;", ")");
 
                 DomainCache.Add(psDomainVal);
             }
