@@ -25,6 +25,26 @@ using WonkaEth.Validation;
 
 namespace WonkaSystem.TestHarness
 {
+    /// <summary>
+    /// 
+    /// This test will create an instance of the .NET implementation of the rules engine and initialize a 
+    /// RuleTree with the rules mentioned in the file 'SimpleAccountCheck.xml'.  It will then populate a 
+    /// record with test data, serialize the data to the Ethereum blockchain, and then also serialize the 
+    /// RuleTree to the blockchain.  It will also execute the rules engine on the Ethereum blockchain 
+    /// and examine the report that is returned.
+    /// 
+    /// Finally (and most importantly), this test will showcase the Orchestration functionality, which allows the user 
+    /// to declare each Attribute as originating from a different contract.  (In this case, they all point to the same
+    /// contract).  In this way, during the application of a RuleTree, the rules engine (i.e., WonkaEngine contract) 
+    /// on the blockchain can interact with other contracts in order to obtain (and set) Attribute values.
+    ///
+    /// NOTE: This test does execute the Ethereum implementation of the rules engine.
+    ///
+    /// NOTE: In order to use the Orchestration functionality, the current design has requirements that certain functions
+    ///       (and their respective signatures) must be placed on the contracts, much like implementing the functions of 
+    ///       an interface in C#.
+    ///
+    /// </summary>
     public class WonkaSimpleOrchestrationTest
     {
         private const int CONST_CONTRACT_ATTR_NUM_ON_START = 3;
@@ -57,31 +77,37 @@ namespace WonkaSystem.TestHarness
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
+            // Read the ABI of the Ethereum contract for the Wonka rules engine
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.abi")))
             {
                 msAbiWonka = AbiReader.ReadToEnd();
             }
 
+            // Read the bytecodes of the Ethereum contract for the Wonka rules engine
             using (var ByteCodeReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.bin")))
             {
                 msByteCodeWonka = ByteCodeReader.ReadToEnd();
             }
 
+            // Read the ABI of the Ethereum contract that will demonstrate our Orchestration functionality by getting/setting Attribute values
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.OrchTest.abi")))
             {
                 msAbiOrchTest = AbiReader.ReadToEnd();
             }
 
+            // Read the ABI of the Ethereum contract that will hold our data record
             using (var ByteCodeReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.OrchTest.bin")))
             {
                 msByteCodeOrchTest = ByteCodeReader.ReadToEnd();
             }
 
+            // Read the XML markup that lists the business rules
             using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.SimpleAccountCheck.xml")))
             {
                 msRulesContents = RulesReader.ReadToEnd();
             }
 
+            // Using the metadata source, we create an instance of a defined data domain
             WonkaRefEnvironment WonkaRefEnv =
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
@@ -93,11 +119,14 @@ namespace WonkaSystem.TestHarness
             WonkaRefAttr        AccountCurrencyAttr = WonkaRefEnv.GetAttributeByAttrName("AccountCurrency");
             WonkaRefAttr        RvwFlagAttr         = WonkaRefEnv.GetAttributeByAttrName("AuditReviewFlag");
 
+            // We create a target list of the Attributes of the old (i.e., existing) record that currently exists on the blockchain
+            // and which we want to pull back during the engine's execution
             moTargetAttrList = new List<WonkaRefAttr>();
 
             moTargetAttrList =
                 new List<WonkaRefAttr>() { AccountIDAttr, AccountNameAttr, AccountStsAttr, AccountCurrValAttr, AccountTypeAttr, AccountCurrencyAttr, RvwFlagAttr };
 
+            // Serialize the data domain to the blockchain
             if (pbSerializeMetadataToBlockchain)
             {
                 SerializeMetadataToBlockchain();
@@ -118,8 +147,12 @@ namespace WonkaSystem.TestHarness
             string sOrchGetterMethod   = "";
             string sOrchSetterMethod   = "";
 
+            // If a 'psOrchestrationTestAddress' value has been provided, it indicates that the user wishes
+            // to use Orchestration
             if (!String.IsNullOrEmpty(psOrchestrationTestAddress))
             {
+                // Here we set the values for Orchestration (like the target contract) and the implemented 
+                // methods that have the expected function signatures for getting/setting Attribute values
                 sContractAddress  = psOrchestrationTestAddress;
                 sContractAbi      = msAbiOrchTest;
                 sOrchGetterMethod = "getAttrValueBytes32";
@@ -133,6 +166,8 @@ namespace WonkaSystem.TestHarness
                 sOrchSetterMethod = "";
             }
 
+            // Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
+            // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
             foreach (WonkaRefAttr TempAttr in moTargetAttrList)
             {                
                 WonkaBreSource TempSource =
@@ -141,7 +176,7 @@ namespace WonkaSystem.TestHarness
                 SourceMap[TempAttr.AttrName] = TempSource;
             }
 
-            // Cue the rules engine
+            // Creating an instance of the rules engine using our rules and the metadata
             WonkaBreRulesEngine RulesEngine = null;
 
             if (psOrchestrationTestAddress == null)
@@ -152,12 +187,15 @@ namespace WonkaSystem.TestHarness
                 RulesEngine.DefaultSource = sDefaultSource;
             }
 
-            // The contract dictates that a rules engine is serialized to the blockchain before interacting with it
+            // The contract dictates that the RuleTree (and its other info, like the Source mapping) is serialized 
+            // to the blockchain before interacting with it
             SerializeRulesEngineToBlockchain(RulesEngine);
 
             WonkaRefAttr AccountStsAttr = RefEnv.GetAttributeByAttrName("AccountStatus");
             WonkaRefAttr RvwFlagAttr    = RefEnv.GetAttributeByAttrName("AuditReviewFlag");
 
+            // Gets a predefined data record that will be our analog for new data coming into the system
+            // We are only using this record to test the .NET implementation
             WonkaProduct NewProduct = GetNewProduct();
 
             string sStatusValueBefore = GetAttributeValue(NewProduct, AccountStsAttr);
@@ -165,9 +203,7 @@ namespace WonkaSystem.TestHarness
 
             // SerializeProductToBlockchain(NewProduct);
 
-            /**
-             ** Test the .NET side
-             */
+            // Validate that the .NET implementation and the rules markup are both working properly
             WonkaBre.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
             string sStatusValueAfter = GetAttributeValue(NewProduct, AccountStsAttr);
@@ -175,6 +211,7 @@ namespace WonkaSystem.TestHarness
 
             if (Report.OverallRuleTreeResult == ERR_CD.CD_SUCCESS)
             {
+                // NOTE: This should only be used for further testing
                 // Serialize(NewProduct);
             }
             else if (Report.GetRuleSetFailureCount() > 0)
@@ -186,13 +223,26 @@ namespace WonkaSystem.TestHarness
                 System.Console.WriteLine(".NET Engine says \"What in the world is happening?\"");
             }
 
+            // If a 'psOrchestrationTestAddress' value has been provided, it indicates that the user wishes
+            // to use Orchestration
             if (!String.IsNullOrEmpty(psOrchestrationTestAddress))
             {
+                /**
+                 ** Now execute the rules engine on the blockchain.
+                 **
+                 ** NOTE: Based on the value of the argument 'pbValidateWithinTransaction', we will act accordingly - 
+                 **       If set to 'true', we issue a call() when we execute the rules engine, since we are only
+                 **       looking to validate here.  However, if the value if 'false', we issue a sendTransaction() 
+                 **       so that we can attempts to set values (i.e., change the blockchain) will take effect.
+                 **       In that case, we might want to pull back the record afterwards with a subsequent function
+                 **       call, in order to examine the record here.
+                 **       
+                 **/
                 var BlockchainReport = ExecuteWithReport(RulesEngine, pbValidateWithinTransaction, SourceMap[RvwFlagAttr.AttrName]);
 
                 if (BlockchainReport.NumberOfRuleFailures == 0)
                 {
-                    // Serialize(NewProduct);
+                    // Indication of a success
                 }
                 else if (BlockchainReport.NumberOfRuleFailures > 0)
                 {
