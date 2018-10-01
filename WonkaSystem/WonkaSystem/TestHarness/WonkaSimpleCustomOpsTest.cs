@@ -26,6 +26,28 @@ using WonkaEth.Validation;
 
 namespace WonkaSystem.TestHarness
 {
+    /// <summary>
+    /// 
+    /// This test will create an instance of the .NET implementation of the rules engine and initialize a 
+    /// RuleTree with the rules mentioned in the file 'VATCalculationExample.xml'.  It will then populate a 
+    /// record with test data, serialize the data to the Ethereum blockchain, and then also serialize the 
+    /// RuleTree to the blockchain.  It will also execute the rules engine on the Ethereum blockchain 
+    /// and examine the report that is returned.
+    /// 
+    /// Finally (and most importantly), this test will showcase the Custom Operator (i.e., CU) functionality, which allows the user 
+    /// to declare a 'operator' within the rules markup.  The functionality for this operator comes from either a .NET function
+    /// or a Solidity function, depending on where the RuleTree is being executed.  In this way, during the application 
+    /// of a RuleTree, the rules engine (i.e., WonkaEngine contract) on the blockchain can interact with other contracts 
+    /// in order to do something more complex than simple arithmetic or string operations. In the rules markup of the test below,
+    /// the CU used is "INVOKE_VAT_LOOKUP", which is a contract method that accepts multiple arguments and then returns a String.
+    ///
+    /// NOTE: This test does execute the Ethereum implementation of the rules engine.  It also uses the Orchestration functionality.
+    ///
+    /// NOTE: In order to use the Custom Operator functionality, the current design has requirements that certain functions
+    ///       (and their respective signatures) must be placed on the contracts, much like implementing the functions of 
+    ///       an interface in C#.
+    ///
+    /// </summary>
     public class WonkaSimpleCustomOpsTest
     {
         private const int CONST_CONTRACT_ATTR_NUM_ON_START = 3;
@@ -54,35 +76,43 @@ namespace WonkaSystem.TestHarness
             msPassword        = psPassword;
             msContractAddress = psContractAddress; 
 
+            // Create an instance of the class that will provide us with PmdRefAttributes (i.e., the data domain)
+            // that define our data record            
             moMetadataSource = new WonkaMetadataVATSource();
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
+            // Read the ABI of the Ethereum contract for the Wonka rules engine
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.abi")))
             {
                 msAbiWonka = AbiReader.ReadToEnd();
             }
-
+            
+            // Read the bytecodes of the Ethereum contract for the Wonka rules engine
             using (var ByteCodeReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.bin")))
             {
                 msByteCodeWonka = ByteCodeReader.ReadToEnd();
             }
 
+            // Read the ABI of the Ethereum contract that will demonstrate both our Custom Operator functionality and our Orchestration functionality
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.OrchTest.abi")))
             {
                 msAbiOrchTest = AbiReader.ReadToEnd();
             }
 
+            // Read the bytecodes of the Ethereum contract that will hold our data record and provide Custom Operator functionality
             using (var ByteCodeReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.OrchTest.bin")))
             {
                 msByteCodeOrchTest = ByteCodeReader.ReadToEnd();
             }
 
+            // Read the XML markup that lists the business rules
             using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATCalculationExample.xml")))
             {
                 msRulesContents = RulesReader.ReadToEnd();
             }
 
+            // Using the metadata source, we create an instance of a defined data domain
             WonkaRefEnvironment WonkaRefEnv =
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
@@ -96,6 +126,8 @@ namespace WonkaSystem.TestHarness
             WonkaRefAttr NewVATAmountForHMRCAttr = WonkaRefEnv.GetAttributeByAttrName("NewVATAmountForHMRC");
             WonkaRefAttr NewSaleEANAttr          = WonkaRefEnv.GetAttributeByAttrName("NewSaleEAN");
 
+            // We create a target list of the Attributes of the old (i.e., existing) record that currently exists on the blockchain
+            // and which we want to pull back during the engine's execution
             moTargetAttrList = new List<WonkaRefAttr>();
 
             moTargetAttrList =
@@ -122,9 +154,14 @@ namespace WonkaSystem.TestHarness
             string sContractAbi        = "";
             string sOrchGetterMethod   = "";
             string sOrchSetterMethod   = "";
+            
+            // These values indicate the Custom Operator "INVOKE_VAT_LOOKUP" which has been used in the markup - 
+            // its implementation can be found in the method "lookupVATDenominator"
             string sCustomOpId         = "INVOKE_VAT_LOOKUP";
             string sCustomOpMethod     = "lookupVATDenominator";
 
+            // If a 'psOrchestrationTestAddress' value has been provided, it indicates that the user wishes
+            // to use Orchestration
             if (!String.IsNullOrEmpty(psOrchestrationTestAddress))
             {
                 sContractAddress  = psOrchestrationTestAddress;
@@ -143,6 +180,8 @@ namespace WonkaSystem.TestHarness
             WonkaBreSource DefaultSource =
                 new WonkaBreSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchGetterMethod, sOrchSetterMethod, RetrieveValueMethod);
 
+            // Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
+            // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
             foreach (WonkaRefAttr TempAttr in moTargetAttrList)
             {                
                 SourceMap[TempAttr.AttrName] = DefaultSource;
@@ -150,28 +189,28 @@ namespace WonkaSystem.TestHarness
 
             Dictionary<string, WonkaBreSource> CustomOpSourceMap = new Dictionary<string, WonkaBreSource>();
 
+            // Here a mapping is created, where each Custom Operator points to a specific contract and its "implementation" method
+            // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
             WonkaBreSource CustomOpSource =
                 new WonkaBreSource(sCustomOpId, msSenderAddress, msPassword, sContractAddress, sContractAbi, LookupVATDenominator, sCustomOpMethod);
 
             CustomOpSourceMap[sCustomOpId] = CustomOpSource;
 
-            // Cue the rules engine
+            // Creating an instance of the rules engine using our rules and the metadata
             WonkaBreRulesEngine RulesEngine = new WonkaBreRulesEngine(new StringBuilder(msRulesContents), SourceMap, CustomOpSourceMap, moMetadataSource);
 
             RulesEngine.DefaultSource = sDefaultSourceId;
 
-            // The contract dictates that a rules engine is serialized to the blockchain before interacting with it
+            // The contract dictates that the RuleTree (and its other info, like the Orchestration and CU metadata) 
+            // is serialized to the blockchain before interacting with it
             SerializeRulesEngineToBlockchain(RulesEngine);
 
             WonkaRefAttr NewSellTaxAmountAttr    = RefEnv.GetAttributeByAttrName("NewSellTaxAmount");
             WonkaRefAttr NewVATAmountForHMRCAttr = RefEnv.GetAttributeByAttrName("NewVATAmountForHMRC");
 
+            // Gets a predefined data record that will be our analog for new data coming into the system
+            // We are only using this record to test the .NET implementation
             WonkaProduct NewProduct = GetNewProduct();
-
-            /*
-            string sStatusValueBefore = GetAttributeValue(NewProduct, AccountStsAttr);
-            string sFlagValueBefore   = GetAttributeValue(NewProduct, RvwFlagAttr);
-             */
 
             string sSellAmtBefore = GetAttributeValue(NewProduct, NewSellTaxAmountAttr);
             string sVATAmtBefore  = GetAttributeValue(NewProduct, NewVATAmountForHMRCAttr);
@@ -186,6 +225,7 @@ namespace WonkaSystem.TestHarness
 
             if (Report.OverallRuleTreeResult == ERR_CD.CD_SUCCESS)
             {
+                // NOTE: This should only be used for further testing
                 // Serialize(NewProduct);
             }
             else if (Report.GetRuleSetFailureCount() > 0)                
@@ -197,13 +237,28 @@ namespace WonkaSystem.TestHarness
                 System.Console.WriteLine(".NET Engine says \"What in the world is happening?\""); 
             }
 
+            // If a 'psOrchestrationTestAddress' value has been provided, it indicates that the user wishes
+            // to use Orchestration
             if (!String.IsNullOrEmpty(psOrchestrationTestAddress))
             {
+                /**
+                 ** Now execute the rules engine on the blockchain, using both Orchestration to call accessors 
+                 ** on other contract(s) and Custom Operators to invoke the "INVOKE_VAT_LOOKUP" operator 
+                 ** (i.e., the "lookupVATDenominator()" method) implemented on a contract.
+                 **
+                 ** NOTE: Based on the value of the argument 'pbValidateWithinTransaction', we will act accordingly - 
+                 **       If set to 'true', we issue a call() when we execute the rules engine, since we are only
+                 **       looking to validate here.  However, if the value if 'false', we issue a sendTransaction() 
+                 **       so that we can attempts to set values (i.e., change the blockchain) will take effect.
+                 **       In that case, we might want to pull back the record afterwards with a subsequent function
+                 **       call, in order to examine the record here.
+                 **       
+                 **/
                 var BlockchainReport = ExecuteWithReport(RulesEngine, pbValidateWithinTransaction, SourceMap[NewSellTaxAmountAttr.AttrName], psOrchestrationTestAddress);
 
                 if (BlockchainReport.NumberOfRuleFailures == 0)
                 {
-                    // Serialize(NewProduct);
+                    // Indication of a success
                 }
                 else if (BlockchainReport.NumberOfRuleFailures > 0)
                 {
