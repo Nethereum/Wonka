@@ -97,7 +97,7 @@ namespace WonkaSystem.TestHarness
                 msAbiOrchTest = AbiReader.ReadToEnd();
             }
 
-            // Read the ABI of the Ethereum contract that will hold our data record
+            // Read the bytecodes of the Ethereum contract that will hold our data record
             using (var ByteCodeReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.OrchTest.bin")))
             {
                 msByteCodeOrchTest = ByteCodeReader.ReadToEnd();
