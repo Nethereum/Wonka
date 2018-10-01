@@ -73,6 +73,8 @@ namespace WonkaSystem.TestHarness
             msPassword        = psPassword;
             msContractAddress = psContractAddress; 
 
+            // Create an instance of the class that will provide us with PmdRefAttributes (i.e., the data domain)
+            // that define our data record            
             moMetadataSource = new WonkaMetadataTestSource();
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
