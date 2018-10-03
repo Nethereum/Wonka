@@ -19,6 +19,33 @@ using WonkaSystem.TestHarness;
 
 namespace WonkaSystem.TestHarness
 {
+    /// <summary>
+    /// 
+    /// This test will create an instance of the .NET implementation of the rules engine and initialize a 
+    /// RuleTree with the rules mentioned in the file 'VATCalculationExample.xml'.  It will then populate a 
+    /// record with test data and then apply the RuleTree against the record, for the purpose of validating
+    /// the record's contents.  It will then populate a record with test data, serialize the data to the 
+    /// Ethereum blockchain, and then also serialize the RuleTree to the blockchain.  It will also execute
+    /// the rules engine on the Ethereum blockchain and examine the report that is returned.
+    ///
+    /// This test will showcase the Orchestration and Custom Operator (i.e., CU) functionality.
+    /// In this way, during the application of a RuleTree, the rules engine (i.e., WonkaEngine contract) on the blockchain
+    /// can interact with other contracts in order to do more complex operations.  In the rules markup of the test below,
+    /// the CU used is "INVOKE_VAT_LOOKUP", which is a contract method that accepts multiple arguments and then returns a String.
+    ///
+    /// Finally, this test will showcase the Registry and Grove functionality, which is reusability of the RuleTrees.    
+    /// With the Registry, a user can discover a RuleTree that belongs to someone else on the blockchain and use it 
+    /// for themselves.  With the Grove functionality, we can order RuleTrees into a collection and have them applied
+    /// to data in a specified order.
+    ///
+    /// NOTE: Like the other tests, the Rules Engine and the Registry must be deployed by Solidity scripts before
+    ///       running this test.
+    ///
+    /// NOTE: This test does execute the Ethereum implementation of the rules engine.  However, it will use classes
+    ///       from the CQS namespace, which encapsulates all of the Wonka functionality (serialization to the blockchain,
+    ///       execution of the engine, etc.).    
+    ///
+    /// </summary>
     public class WonkaCQSOrchTest
     {
         #region Constants
@@ -57,18 +84,23 @@ namespace WonkaSystem.TestHarness
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
+            // Using the metadata source, we create an instance of a defined data domain
             WonkaRefEnvironment RefEnv =
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
+            // Read the XML markup that lists the business rules (i.e., the RuleTree)
             using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATCalculationExample.xml")))
             {
                 msRulesContents = RulesReader.ReadToEnd();
             }
 
+            // Read the configuration file that contains all the initialization details regarding the rules engine 
+            // (like addresses of contracts, senders, passwords, etc.)
             using (var XmlReader = new System.IO.StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATCalculationExample.init.xml")))
             {
                 string sInitXml = XmlReader.ReadToEnd();
 
+                // We deserialize/parse the contents of the config file
                 System.Xml.Serialization.XmlSerializer WonkaEthSerializer =
                     new System.Xml.Serialization.XmlSerializer(typeof(WonkaEth.Init.WonkaEthInitialization),
                                                                new System.Xml.Serialization.XmlRootAttribute("WonkaEthInitialization"));
@@ -76,17 +108,22 @@ namespace WonkaSystem.TestHarness
                 WonkaEth.Init.WonkaEthInitialization WonkaInit =
                     WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitXml)) as WonkaEth.Init.WonkaEthInitialization;
 
+                // Here, any embeddeded resources mentioned in the config file (instead of simple file URLs) are accessed here
                 WonkaInit.RetrieveEmbeddedResources(TmpAssembly);
 
+                // The initialization data is transformed into a structure used by the WonkaEth namespace
                 moOrchInitData = WonkaInit.TransformIntoOrchestrationInit(moMetadataSource);
 
                 System.Console.WriteLine("Number of custom operators: (" + WonkaInit.CustomOperatorList.Length + ").");
             }
 
+            // Read the configuration file that contains all the initialization details regarding the rules registry
+            // (like Ruletree info, Grove info, etc.)
             using (var XmlReader = new System.IO.StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaRegistry.init.xml")))
             {
                 string sInitRegistryXml = XmlReader.ReadToEnd();
 
+                // We deserialize/parse the contents of the config file
                 System.Xml.Serialization.XmlSerializer WonkaEthSerializer =
                     new System.Xml.Serialization.XmlSerializer(typeof(WonkaEth.Init.WonkaEthRegistryInitialization),
                                                                new System.Xml.Serialization.XmlRootAttribute("WonkaEthRegistryInitialization"));
@@ -94,9 +131,12 @@ namespace WonkaSystem.TestHarness
                 moWonkaRegistryInit =
                     WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitRegistryXml)) as WonkaEth.Init.WonkaEthRegistryInitialization;
 
+                // Here, any embeddeded resources mentioned in the config file (instead of simple file URLs) are accessed here                
                 moWonkaRegistryInit.RetrieveEmbeddedResources(TmpAssembly);
             }
 
+            // Here, we save all data from the config files to member properties
+            // This region and the usage of member properties isn't necessary, but it's useful for debugging
             #region Set Class Member Variables
             msSenderAddress = moOrchInitData.BlockchainEngine.SenderAddress;
             msPassword      = moOrchInitData.BlockchainEngine.Password;
@@ -132,12 +172,14 @@ namespace WonkaSystem.TestHarness
             moCustomOpMap = moOrchInitData.BlockchainCustomOpFunctions;
             #endregion
 
+            // We initialize the proxy that will be used to communicate with the Registry on the blockchain
             WonkaEth.Contracts.WonkaRuleTreeRegistry WonkaRegistry =
                 WonkaEth.Contracts.WonkaRuleTreeRegistry.CreateInstance(moWonkaRegistryInit.BlockchainRegistry.ContractSender, 
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractPassword,
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractAddress, 
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractABI);
 
+            // Here, the data domain is serialized to the blockchain for use by the RuleTree(s)
             RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka);
         }
 
