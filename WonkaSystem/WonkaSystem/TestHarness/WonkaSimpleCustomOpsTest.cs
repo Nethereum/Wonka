@@ -41,7 +41,7 @@ namespace WonkaSystem.TestHarness
     /// in order to do something more complex than simple arithmetic or string operations. In the rules markup of the test below,
     /// the CU used is "INVOKE_VAT_LOOKUP", which is a contract method that accepts multiple arguments and then returns a String.
     ///
-    /// NOTE: Like the other tests, the Rules Engine must be deployed by a Solidity script before running this test.
+    /// NOTE: Like some other tests, the Rules Engine must be deployed by a Solidity script before running this test.
     ///
     /// NOTE: This test does execute the Ethereum implementation of the rules engine.  It also uses the Orchestration functionality.
     ///
