@@ -29,6 +29,8 @@ namespace WonkaSystem.TestHarness
     /// The rules of the XML markup can reference values from different records, like "O.Price" for the existing
     /// record's price and "N.Price" for the new record's price.
     ///
+    /// NOTE: Like the other tests, the Rules Engine must be deployed by a Solidity script before running this test.
+    ///
     /// NOTE: This test does execute the Ethereum implementation of the rules engine.  However, it will use classes
     ///       from the CQS namespace, which encapsulates all of the Wonka functionality (serialization to the blockchain,
     ///       execution of the engine, etc.).
