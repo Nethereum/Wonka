@@ -66,6 +66,8 @@ namespace WonkaSystem.TestHarness
     ///
     /// NOTE: This test does execute the Ethereum implementation of the rules engine.
     ///
+    /// NOTE: Like the other tests, the Rules Engine must be deployed by a Solidity script before running this test.	
+    ///
     /// </summary>
     public class WonkaNoviceNethereumTest
     {
