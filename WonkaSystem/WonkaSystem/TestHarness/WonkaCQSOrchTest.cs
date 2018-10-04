@@ -77,6 +77,8 @@ namespace WonkaSystem.TestHarness
         private WonkaEth.Orchestration.Init.OrchestrationInitData moOrchInitData      = null; 
         private WonkaEth.Init.WonkaEthRegistryInitialization      moWonkaRegistryInit = null;
 
+        // This constructor will be called in the case that we wish to initialize the framework
+        // with configuration files locally (embedded resources, local filesystem, etc.)
         public WonkaCQSOrchTest()
         {
             moAttrSourceMap = new Dictionary<string, WonkaBreSource>();
@@ -183,7 +185,8 @@ namespace WonkaSystem.TestHarness
             RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka);
         }
 
-
+        // This constructor will be called in the case that we wish to initialize the framework
+        // with provided parameters
         public WonkaCQSOrchTest(string psSenderAddress, string psPassword, string psWonkaContractAddress, string psOrchContractAddress)
         {
             var TmpAssembly = Assembly.GetExecutingAssembly();
@@ -191,21 +194,25 @@ namespace WonkaSystem.TestHarness
             moAttrSourceMap = new Dictionary<string, WonkaBreSource>();
             moCustomOpMap   = new Dictionary<string, WonkaBreSource>();
 
+            // Read the ABI of the Ethereum contract for the Wonka rules engine
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.abi")))
             {
                 msAbiWonka = AbiReader.ReadToEnd();
             }
 
+            // Read the ABI of the Ethereum contract that will demonstrate both our Custom Operator functionality and our Orchestration functionality
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.OrchTest.abi")))
             {
                 msAbiOrchContract = AbiReader.ReadToEnd();
             }
 
+            // Read the XML markup that lists the business rules
             using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.VATCalculationExample.xml")))
             {
                 msRulesContents = RulesReader.ReadToEnd();
             }
 
+            // Using the metadata source, we create an instance of a defined data domain
             WonkaRefEnvironment RefEnv =
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
@@ -224,6 +231,7 @@ namespace WonkaSystem.TestHarness
             else
                 msOrchContractAddress = psOrchContractAddress;
 
+            // Serialize the data domain to the blockchain
             RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka);
 
             moDefaultSource =
@@ -236,6 +244,8 @@ namespace WonkaSystem.TestHarness
                                    CONST_ORCH_CONTRACT_SET_METHOD,
                                    RetrieveValueMethod);
 
+            // Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
+            // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type            
             foreach (WonkaRefAttr TempAttr in RefEnv.AttrCache)
             {
                 moAttrSourceMap[TempAttr.AttrName] = moDefaultSource;
@@ -243,6 +253,8 @@ namespace WonkaSystem.TestHarness
 
             Dictionary<string, WonkaBreSource> CustomOpSourceMap = new Dictionary<string, WonkaBreSource>();
 
+            // Here a mapping is created, where each Custom Operator points to a specific contract and its "implementation" method
+            // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type            
             WonkaBreSource CustomOpSource =
                 new WonkaBreSource(CONST_CUSTOM_OP_MARKUP_ID,
                                    msSenderAddress,
@@ -255,6 +267,8 @@ namespace WonkaSystem.TestHarness
             moCustomOpMap[CONST_CUSTOM_OP_MARKUP_ID] = CustomOpSource;
         }
 
+        // This constructor will be called in the case that we wish to initialize the framework
+        // with configuration files that will be accessed through IPFS
         public WonkaCQSOrchTest(StringBuilder psPeerKeyId, string psRulesMarkupFile, string psRulesInitFile, string psRegistryInitFile)
         {
             moAttrSourceMap = new Dictionary<string, WonkaBreSource>();
@@ -265,8 +279,11 @@ namespace WonkaSystem.TestHarness
             WonkaRefEnvironment            RefEnv  = WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
             WonkaIpfs.WonkaIpfsEnvironment IpfsEnv = WonkaIpfs.WonkaIpfsEnvironment.CreateInstance();
 
+            // Read the XML markup that lists the business rules
             msRulesContents = IpfsEnv.GetFile(psPeerKeyId.ToString(), psRulesMarkupFile);
 
+            // Read the configuration file that contains all the initialization details regarding the rules engine 
+            // (like addresses of contracts, senders, passwords, etc.)
             string sInitXml = IpfsEnv.GetFile(psPeerKeyId.ToString(), psRulesInitFile);
             if (!String.IsNullOrEmpty(sInitXml))
             {
@@ -284,6 +301,8 @@ namespace WonkaSystem.TestHarness
                 System.Console.WriteLine("Number of custom operators: (" + WonkaInit.CustomOperatorList.Length + ").");
             }
 
+            // Read the configuration file that contains all the initialization details regarding the rules registry
+            // (like Ruletree info, Grove info, etc.)            
             string sInitRegistryXml = IpfsEnv.GetFile(psPeerKeyId.ToString(), psRegistryInitFile);
             if (!String.IsNullOrEmpty(sInitRegistryXml))
             {
@@ -324,12 +343,17 @@ namespace WonkaSystem.TestHarness
                                    moOrchInitData.DefaultBlockchainDataSource.SetterMethodName,
                                    RetrieveValueMethod);
 
+            // Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
+            // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
             foreach (WonkaRefAttr TempAttr in RefEnv.AttrCache)
             {
                 moAttrSourceMap[TempAttr.AttrName] = moDefaultSource;
             }
 
+            // Here a mapping is created, where each Custom Operator points to a specific contract and its "implementation" method
+            // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type    
             moCustomOpMap = moOrchInitData.BlockchainCustomOpFunctions;
+            
             #endregion
 
             WonkaEth.Contracts.WonkaRuleTreeRegistry WonkaRegistry =
