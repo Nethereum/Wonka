@@ -24,9 +24,10 @@ namespace WonkaSystem.TestHarness
     /// This test will create an instance of the .NET implementation of the rules engine and initialize a 
     /// RuleTree with the rules mentioned in the file 'VATCalculationExample.xml'.  It will then populate a 
     /// record with test data and then apply the RuleTree against the record, for the purpose of validating
-    /// the record's contents.  It will then populate a record with test data, serialize the data to the 
-    /// Ethereum blockchain, and then also serialize the RuleTree to the blockchain.  It will also execute
-    /// the rules engine on the Ethereum blockchain and examine the report that is returned.
+    /// a logical record's contents and then calculating the VAT of a commercial sale.  It will then populate
+    /// a record with test data, serialize the data to the Ethereum blockchain, and then also serialize the 
+    /// RuleTree to the blockchain.  It will also execute the rules engine on the Ethereum blockchain and 
+    /// examine the report that is returned.
     ///
     /// This test will showcase the Orchestration and Custom Operator (i.e., CU) functionality.
     /// In this way, during the application of a RuleTree, the rules engine (i.e., WonkaEngine contract) on the blockchain
@@ -120,7 +121,9 @@ namespace WonkaSystem.TestHarness
             }
 
             // Read the configuration file that contains all the initialization details regarding the rules registry
-            // (like Ruletree info, Grove info, etc.)
+            // (like Ruletree info, Grove info, etc.) - this information will allow us to add our RuleTree to the 
+            // Registry so that it can be discovered by users and so it can be added to a Grove (where it can be executed
+            // as a member of a collection)
             using (var XmlReader = new System.IO.StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaRegistry.init.xml")))
             {
                 string sInitRegistryXml = XmlReader.ReadToEnd();
@@ -217,7 +220,7 @@ namespace WonkaSystem.TestHarness
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
             msSenderAddress = psSenderAddress;
-            msPassword = psPassword;
+            msPassword      = psPassword;
 
             moMetadataSource = new WonkaMetadataTestSource();
 
@@ -425,6 +428,11 @@ namespace WonkaSystem.TestHarness
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
+            // Now we assemble the data record for processing - in our VAT Calculation example, parts of the 
+            // logical record can exist within contract(s) within the blockchain (which has been specified 
+            // via Orchestration metadata), like a logistics or supply contract - these properties below 
+            // (NewSaleEAN, NewSaleItemType, CountryOfSale) would be supplied by a client, like an 
+            // eCommerce site, and be persisted to the blockchain so we may apply the RuleTree to the logical record
             CQS.Contracts.SalesTrxCreateCommand SalesTrxCommand = new CQS.Contracts.SalesTrxCreateCommand();
 
             SalesTrxCommand.NewSaleEAN      = 9781234567890;
@@ -435,14 +443,20 @@ namespace WonkaSystem.TestHarness
 
             #region Invoking the RuleTree for the first time as a single entity
 
+            // The engine's proxy for the blockchain is instantiated here, which will be responsible for serializing
+            // and executing the RuleTree within the engine
             CQS.Generation.SalesTransactionGenerator TrxGenerator =
                    new CQS.Generation.SalesTransactionGenerator(SalesTrxCommand, new StringBuilder(msRulesContents), InitData);
 
+            // Here, we invoke the Rules engine on the blockchain, which will calculate the VAT for a sale and then
+            // retrieve all values of this logical record (including the VAT) and assemble them within 'SalesTrxCommand'
             bool bValid = TrxGenerator.GenerateSalesTransaction(SalesTrxCommand);
 
             if (!bValid)
                 throw new Exception("Oh heavens to Betsy! Something bad happened!");
 
+            // Since the purpose of this example was to showcase the calculated VAT, we examine them here 
+            // (while interactively debugging in Visual Studio)
             string sNewSellTaxAmt    = Convert.ToString(SalesTrxCommand.NewSellTaxAmt);
             string sNewVATAmtForHMRC = Convert.ToString(SalesTrxCommand.NewVATAmtForHMRC);
 
@@ -450,24 +464,34 @@ namespace WonkaSystem.TestHarness
 
             #region Invoking the RuleTree as a registered entity and as a member of a Grove
 
+            // Here, we attempt to call the same RuleTree as above, but we are going to invoke the execution of
+            // its Grove "NewSaleGroup" - since it is the sole member of the Grove, it will still be the only RuleTree
+            // applied to the record - in this scenario, we pretend that we know nothing about the RuleTree or the Grove, 
+            // effectively treating it as a black box and only looking to retrieve the VAT
             WonkaEth.Contracts.WonkaRuleGrove NewSaleGrove = new WonkaEth.Contracts.WonkaRuleGrove("NewSaleGroup");
             NewSaleGrove.PopulateFromRegistry();
 
+            // The engine's lightweight proxy for the blockchain is instantiated here
             WonkaEth.Orchestration.WonkaOrchestratorProxy<CQS.Contracts.SalesTrxCreateCommand> TrxGeneratorProxy = 
                 new WonkaEth.Orchestration.WonkaOrchestratorProxy<CQS.Contracts.SalesTrxCreateCommand>(SalesTrxCommand, InitData);
 
+            // We reset the values here and in the blockchain (by serializing)
             SalesTrxCommand.NewSellTaxAmt    = 0;
             SalesTrxCommand.NewVATAmtForHMRC = 0;
 
             TrxGeneratorProxy.SerializeRecordToBlockchain(SalesTrxCommand);
 
-            TrxGeneratorProxy.DeserializeRecordFromBlockchain(SalesTrxCommand);
+            // NOTE: Only useful when debugging
+            // TrxGeneratorProxy.DeserializeRecordFromBlockchain(SalesTrxCommand);
 
             Dictionary<string, WonkaEth.Contracts.IOrchestrate> GroveMembers = new Dictionary<string, WonkaEth.Contracts.IOrchestrate>();
             GroveMembers[NewSaleGrove.OrderedRuleTrees[0].RuleTreeId] = TrxGenerator;
 
+            // With their provided proxies for each RuleTree, we can now execute the Grove (or, in this case, our sole RuleTree)
             NewSaleGrove.Orchestrate(SalesTrxCommand, GroveMembers);
 
+            // Again, since the purpose of this example was to showcase the calculated VAT, we examine them here 
+            // (while interactively debugging in Visual Studio)            
             sNewSellTaxAmt    = Convert.ToString(SalesTrxCommand.NewSellTaxAmt);
             sNewVATAmtForHMRC = Convert.ToString(SalesTrxCommand.NewVATAmtForHMRC);
 
