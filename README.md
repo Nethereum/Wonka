@@ -30,6 +30,15 @@ Project Source | Nuget_Package |  Description |
 [WonkaPrd](https://github.com/Nethereum/Wonka/tree/master/WonkaSystem/WonkaPrd)| | This library contains the data structures that are used to define and hold a record defined by metadata.  This library is mainly used when invoking the .NET implementation of the rules engine.|
 [WonkaRef](https://github.com/Nethereum/Wonka/tree/master/WonkaSystem/WonkaRef)| | This library contains the data structures used to define our metadata and the data domain using MDD (i.e., metadata-driven design).  This library is heavily used by the others in order to address data points. |
 
+## Code samples
+
+|  Source |  Description |
+| ------------- |------------|
+[Simple Test](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaSimpleTest.cs)| Simple test of the .NET implementation of the rules engine |
+[Simple Nethereum Test](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaSimpleNethereumTest.cs)| Simple test of the .NET implementation of the rules engine, along with using Nethereum to retrieve values from a contract |
+[Novice Nethereum Test](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceNethereumTest.cs)| Test of both the .NET implementation of the rules engine and the Ethereum (i.e., smart contract) version |
+
+
 # Important Notes
 When running the Ethereum node that will be your deployment target for the Solidity contract(s), please make sure to run it with the maximum gas set to 8388608.  For example, if you are using 'ganache-cli', you would run the following command:
 
