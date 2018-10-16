@@ -42,6 +42,11 @@ Project Source | Nuget_Package |  Description |
 [Custom Operators](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaSimpleCustomOpsTest.cs)| This is mainly a test of the Ethereum (i.e., Solidity) implementation of the rules engine.  It showcases an example where the engine can invoke functionality for a business rule that exists on other predeployed contracts within the blockchain. |
 [CQS #2](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaCQSTest.cs)| This test is a demonstration of how to package all existing Wonka functionality into a CQS design.  Also, it provides examples for the Registry functionality (i.e., a way to discover and reuse existing RuleTrees) and the Grove functionality (i.e., a way to put RuleTrees into collections).|
 
+## Video Guides
+Below is a short introduction to the Wonka engine, showcasing an everyday example of how to use it:
+
+[![short introduction](http://img.youtube.com/vi/L7kStyGM7F4/0.jpg)](https://www.youtube.com/watch?v=L7kStyGM7F4&vq=hd1080 "short introduction")
+
 # Important Notes
 When running the Ethereum node that will be your deployment target for the Solidity contract(s), please make sure to run it with the maximum gas set to 8388608.  For example, if you are using 'ganache-cli', you would run the following command:
 
