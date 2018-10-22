@@ -43,11 +43,11 @@ Project Source | Nuget_Package |  Description |
 [CQS #2](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaCQSTest.cs)| This test is a demonstration of how to package all existing Wonka functionality into a CQS design.  Also, it provides examples for the Registry functionality (i.e., a way to discover and reuse existing RuleTrees) and the Grove functionality (i.e., a way to put RuleTrees into collections).|
 
 ## Video Guides
-Here is a brief description of a rules engine, as well as a quick explanation of the Wonka engine's design:
+Video #1 - Here is a brief description of a rules engine, as well as a quick explanation of the Wonka engine's design:
 
 [![rules engine overview](http://img.youtube.com/vi/6DPiasEe2P4/0.jpg)](https://www.youtube.com/watch?v=6DPiasEe2P4&vq=hd1080 "rules engine overview")
 
-Below is a short introduction to the Wonka engine, showcasing an everyday example of how to use it:
+Video #2 - Below is a short introduction to the Wonka engine, showcasing an everyday example of how to use it:
 
 [![first example](http://img.youtube.com/vi/L7kStyGM7F4/0.jpg)](https://www.youtube.com/watch?v=L7kStyGM7F4&vq=hd1080 "first example")
 
