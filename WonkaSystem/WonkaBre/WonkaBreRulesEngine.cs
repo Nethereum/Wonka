@@ -100,13 +100,14 @@ namespace WonkaBre
         public WonkaBreRulesEngine(StringBuilder                      psRules, 
                                    Dictionary<string, WonkaBreSource> poSourceMap, 
                                    Dictionary<string, WonkaBreSource> poCustomOpBlockchainSources,
-                                   IMetadataRetrievable               piMetadataSource = null)
+                                   IMetadataRetrievable               piMetadataSource = null, 
+                                   bool                               pbAddToRegistry = true)
         {
             if ((psRules == null) || (psRules.Length <= 0))
                 throw new Exception("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = true;
-            AddToRegistry          = true;
+            AddToRegistry          = pbAddToRegistry;
 
             RefEnvHandle = Init(piMetadataSource);
 

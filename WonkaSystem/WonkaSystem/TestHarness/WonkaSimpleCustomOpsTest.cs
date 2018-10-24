@@ -199,7 +199,8 @@ namespace WonkaSystem.TestHarness
             CustomOpSourceMap[sCustomOpId] = CustomOpSource;
 
             // Creating an instance of the rules engine using our rules and the metadata
-            WonkaBreRulesEngine RulesEngine = new WonkaBreRulesEngine(new StringBuilder(msRulesContents), SourceMap, CustomOpSourceMap, moMetadataSource);
+            WonkaBreRulesEngine RulesEngine = 
+                new WonkaBreRulesEngine(new StringBuilder(msRulesContents), SourceMap, CustomOpSourceMap, moMetadataSource, false);
 
             RulesEngine.DefaultSource = sDefaultSourceId;
 
