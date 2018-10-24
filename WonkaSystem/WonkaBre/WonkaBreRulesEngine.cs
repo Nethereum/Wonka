@@ -46,7 +46,7 @@ namespace WonkaBre
         #endregion
 
         #region Constructors
-        public WonkaBreRulesEngine(string psRulesFilepath, IMetadataRetrievable piMetadataSource = null)
+        public WonkaBreRulesEngine(string psRulesFilepath, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
         {
             if (String.IsNullOrEmpty(psRulesFilepath))
                 throw new Exception("ERROR!  Provided rules file is null or empty!");
@@ -55,7 +55,7 @@ namespace WonkaBre
                 throw new Exception("ERROR!  Provided rules file(" + psRulesFilepath + ") does not exist on the filesystem.");
 
             UsingOrchestrationMode = false;
-            AddToRegistry          = true;
+            AddToRegistry          = pbAddToRegistry;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -64,13 +64,13 @@ namespace WonkaBre
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
         }
 
-        public WonkaBreRulesEngine(StringBuilder psRules, IMetadataRetrievable piMetadataSource = null)
+        public WonkaBreRulesEngine(StringBuilder psRules, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
         {
             if ((psRules == null) || (psRules.Length <= 0))
                 throw new Exception("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = false;
-            AddToRegistry          = true;
+            AddToRegistry          = pbAddToRegistry;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -79,13 +79,16 @@ namespace WonkaBre
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
         }
 
-        public WonkaBreRulesEngine(StringBuilder psRules, Dictionary<string, WonkaBreSource> poSourceMap, IMetadataRetrievable piMetadataSource = null)
+        public WonkaBreRulesEngine(StringBuilder                      psRules, 
+                                   Dictionary<string, WonkaBreSource> poSourceMap, 
+                                   IMetadataRetrievable               piMetadataSource = null,
+                                   bool                               pbAddToRegistry = false)
         {
             if ((psRules == null) || (psRules.Length <= 0))
                 throw new Exception("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = true;
-            AddToRegistry          = true;
+            AddToRegistry          = pbAddToRegistry;
 
             RefEnvHandle = Init(piMetadataSource);
 
@@ -100,7 +103,7 @@ namespace WonkaBre
         public WonkaBreRulesEngine(StringBuilder                      psRules, 
                                    Dictionary<string, WonkaBreSource> poSourceMap, 
                                    Dictionary<string, WonkaBreSource> poCustomOpBlockchainSources,
-                                   IMetadataRetrievable               piMetadataSource = null, 
+                                   IMetadataRetrievable               piMetadataSource = null,
                                    bool                               pbAddToRegistry = true)
         {
             if ((psRules == null) || (psRules.Length <= 0))
