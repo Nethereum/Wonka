@@ -216,8 +216,11 @@ namespace WonkaEth.Extensions
 
             var contract = web3.Eth.GetContract(psAbi, contractAddress);
 
-            if (poEngine.AddToRegistry && !poEngine.IsRuleTreeRegistered())
-                poEngine.SerializeRegistryInfo(psSenderAddress, psContractAddress);
+            if (poEngine.AddToRegistry)
+            {
+                if (!poEngine.IsRuleTreeRegistered())
+                    poEngine.SerializeRegistryInfo(psSenderAddress, psContractAddress);
+            }
             else
                 poEngine.CompareRuleTrees(psSenderAddress);
 
