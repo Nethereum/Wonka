@@ -51,6 +51,10 @@ Video #2 - Below is a short introduction to the Wonka engine, showcasing an ever
 
 [![first example](http://img.youtube.com/vi/L7kStyGM7F4/0.jpg)](https://www.youtube.com/watch?v=L7kStyGM7F4&vq=hd1080 "first example")
 
+Video #3 - Shown beneath is a quick demonstration of how the Wonka engine uses Nethereum to serialize a RuleTree and then interact with it:
+
+[![first drilldown](http://img.youtube.com/vi/9XZyNtPrKOc/0.jpg)](https://www.youtube.com/watch?v=9XZyNtPrKOc&vq=hd1080 "first drilldown")
+
 # Important Notes
 When running the Ethereum node that will be your deployment target for the Solidity contract(s), please make sure to run it with the maximum gas set to 8388608.  For example, if you are using 'ganache-cli', you would run the following command:
 
