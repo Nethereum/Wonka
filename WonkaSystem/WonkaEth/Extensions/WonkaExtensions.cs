@@ -220,9 +220,9 @@ namespace WonkaEth.Extensions
             {
                 if (!poEngine.IsRuleTreeRegistered())
                     poEngine.SerializeRegistryInfo(psSenderAddress, psContractAddress);
+                else
+                    poEngine.CompareRuleTrees(psSenderAddress);                
             }
-            else
-                poEngine.CompareRuleTrees(psSenderAddress);
 
             treeRoot.SerializeTreeRoot(sSenderAddress, contract);
 
