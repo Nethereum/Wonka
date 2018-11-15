@@ -59,6 +59,10 @@
     <Compile Include="WonkaRefSource.cs" />
     <Compile Include="WonkaRefSourceField.cs" />
     <Compile Include="WonkaRefStandard.cs" />
+    <Compile Include="Extensions\WonkaRefExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Extensions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
