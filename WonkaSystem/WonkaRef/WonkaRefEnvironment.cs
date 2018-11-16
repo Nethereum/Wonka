@@ -17,6 +17,10 @@ namespace WonkaRef
         private static object              mLock     = new object();
         private static WonkaRefEnvironment mInstance = null;
 
+        // NOTE: This constructor is necessary for serialization/deserialization purposes
+        private WonkaRefEnvironment()
+        { }
+
         private WonkaRefEnvironment(bool bAllMetadata, IMetadataRetrievable pMetadataRetrievable)
         {
             DebugLevel = 1;
