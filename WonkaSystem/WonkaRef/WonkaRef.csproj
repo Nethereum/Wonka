@@ -60,6 +60,7 @@
     <Compile Include="WonkaRefSourceField.cs" />
     <Compile Include="WonkaRefStandard.cs" />
     <Compile Include="Extensions\WonkaRefExtensions.cs" />
+    <Compile Include="Extensions\WonkaRefException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
