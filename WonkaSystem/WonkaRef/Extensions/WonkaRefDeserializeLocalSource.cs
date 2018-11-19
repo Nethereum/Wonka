@@ -10,6 +10,12 @@ using WonkaRef;
 
 namespace WonkaRef.Extensions
 {
+    /// <summary>
+    /// 
+    /// This class will help instantiate the Ref environment (singleton) by parsing the serialized instance
+    /// from a previous session.
+    /// 
+    /// </summary>
     public class WonkaRefDeserializeLocalSource : IMetadataRetrievable
     {
         private string            msMetadataFileContents = null;
@@ -134,7 +140,19 @@ namespace WonkaRef.Extensions
 
         public List<WonkaRefStandard> GetStandardCache()
         {
-            return new List<WonkaRefStandard>();
+            List<WonkaRefStandard> StandardCache      = new List<WonkaRefStandard>();
+            XmlSerializer          StandardSerializer = new XmlSerializer(typeof(WonkaRefStandard));
+
+            XmlNodeList StdNodeList = moXmlDoc.GetElementsByTagName("WonkaRefStandard");
+            foreach (XmlNode StandardNode in StdNodeList)
+            {
+                WonkaRefStandard TempStandard = 
+                    (WonkaRefStandard) StandardSerializer.Deserialize(new StringReader(StandardNode.OuterXml));
+
+                StandardCache.Add(TempStandard);
+            }
+
+            return StandardCache;
         }
 
         #endregion
@@ -143,7 +161,19 @@ namespace WonkaRef.Extensions
 
         public List<WonkaRefAttrCollection> GetAttrCollectionCache()
         {
-            return new List<WonkaRefAttrCollection>();
+            List<WonkaRefAttrCollection> AttrCollCache      = new List<WonkaRefAttrCollection>();
+            XmlSerializer                AttrCollSerializer = new XmlSerializer(typeof(WonkaRefAttrCollection));
+
+            XmlNodeList AttrCollNodeList = moXmlDoc.GetElementsByTagName("AttrCollection");
+            foreach (XmlNode AttrCollNode in AttrCollNodeList)
+            {
+                WonkaRefAttrCollection TempAttrColl = 
+                    (WonkaRefAttrCollection) AttrCollSerializer.Deserialize(new StringReader(AttrCollNode.OuterXml));
+
+                AttrCollCache.Add(TempAttrColl);
+            }
+
+            return AttrCollCache;
         }
 
         #endregion
