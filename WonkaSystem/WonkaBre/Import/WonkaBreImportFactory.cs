@@ -77,6 +77,14 @@ namespace WonkaBre.Import
             }
         }
 
+        public IMetadataRetrievable ImportSource(string psDatabaseTable, System.Data.Entity.DbContext poDbContext)
+        {
+            var adapter       = (System.Data.Entity.Infrastructure.IObjectContextAdapter) poDbContext;
+            var objectContext = adapter.ObjectContext;
+
+            return ImportSource(psDatabaseTable, objectContext);
+        }
+
         public IMetadataRetrievable ImportSource(string psDatabaseTable, ObjectContext poDbContext)
         {
             WonkaBreImportSource NewImportSource = new WonkaBreImportSource();
