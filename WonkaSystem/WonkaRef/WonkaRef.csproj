@@ -62,6 +62,7 @@
     <Compile Include="Extensions\WonkaRefExtensions.cs" />
     <Compile Include="Extensions\WonkaRefException.cs" />
     <Compile Include="Extensions\WonkaRefDummySource.cs" />
+    <Compile Include="Extensions\WonkaRefDeserializeLocalSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
