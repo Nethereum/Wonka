@@ -89,6 +89,8 @@ namespace WonkaBre.Import
         {
             WonkaBreImportSource NewImportSource = new WonkaBreImportSource();
 
+            HashSet<string> KeyColNames = new HashSet<string>();
+
             if (!String.IsNullOrEmpty(psDatabaseTable) && (poDbContext != null))
             {
                 if (moCachedImports.ContainsKey(psDatabaseTable))
@@ -99,14 +101,19 @@ namespace WonkaBre.Import
                     from p in (meta as EntityType).Properties.Where(p => p.DeclaringType.Name == psDatabaseTable)
                     select new
                     {
-                        colName = p.Name,
-                        colType = p.TypeUsage.EdmType,
-                        maxLength = p.MaxLength
+                        colName   = p.Name,
+                        colType   = p.TypeUsage.EdmType,
+                        maxLength = p.MaxLength,
+                        precision = p.Precision,
+                        scale     = p.Scale,
+                        defValue  = p.DefaultValue,
+                        props     = p.MetadataProperties
                     };
 
                 foreach (var TmpCol in columns)
                 {
                     string sTmpColName = TmpCol.colName;
+                    var    Props       = TmpCol.props;
 
                     /*
                     var propertyInfo = entity.Entity.GetType().GetProperty(propertyName);
@@ -116,11 +123,23 @@ namespace WonkaBre.Import
 
                     WonkaRefAttr TmpWonkaAttr = new WonkaRefAttr();
 
-                    TmpWonkaAttr.AttrId = GenerateNewAttrId();
+                    TmpWonkaAttr.AttrId   = GenerateNewAttrId();
                     TmpWonkaAttr.AttrName = sTmpColName;
+                    TmpWonkaAttr.ColName  = sTmpColName;
+                    TmpWonkaAttr.TabName  = psDatabaseTable;
 
+                    TmpWonkaAttr.DefaultValue = Convert.ToString(TmpCol.defValue);
+
+                    TmpWonkaAttr.IsDate    = IsTypeDate(TmpCol.colType);
                     TmpWonkaAttr.IsNumeric = IsTypeNumeric(TmpCol.colType);
                     TmpWonkaAttr.IsDecimal = IsTypeDecimal(TmpCol.colType);
+
+                    if (TmpWonkaAttr.IsNumeric || TmpWonkaAttr.IsDecimal)
+                    {
+                        TmpWonkaAttr.Precision = (int) ((TmpCol.precision != null) ? TmpCol.precision : 0);
+                        TmpWonkaAttr.Scale     = (int) ((TmpCol.scale != null) ? TmpCol.scale : 0);
+                    }
+
                     TmpWonkaAttr.MaxLength = (TmpCol.maxLength != null) ? (int)TmpCol.maxLength : 0;
 
                     TmpWonkaAttr.FieldId = TmpWonkaAttr.AttrId + 1000;
@@ -146,6 +165,18 @@ namespace WonkaBre.Import
         public void PopulateDefaults()
         {
             // NOTE: Do work here
+        }
+
+        public static bool IsTypeDate(EdmType edmType)
+        {
+            switch (edmType.Name)
+            {
+                case "DateTime":
+                    return true;
+
+                default:
+                    return false;
+            }
         }
 
         public static bool IsTypeDecimal(EdmType edmType)
