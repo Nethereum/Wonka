@@ -96,13 +96,31 @@ namespace WonkaBre.Import
                 if (moCachedImports.ContainsKey(psDatabaseTable))
                     return moCachedImports[psDatabaseTable];
 
+                var tables =
+                    poDbContext.MetadataWorkspace.GetItems(DataSpace.CSpace).Where(m => m.BuiltInTypeKind == BuiltInTypeKind.EntityType);
+
+                foreach (var TmpTable in tables)
+                {
+                    EntityType TmpEntityType = (EntityType) TmpTable;
+
+                    if (TmpEntityType.Name == psDatabaseTable)
+                    {
+                        var KeyCols = TmpEntityType.KeyMembers;
+                        foreach (var KeyCol in KeyCols)
+                            KeyColNames.Add(KeyCol.Name);
+
+                        break;
+                    }
+                }
+
                 var columns =
                     from meta in poDbContext.MetadataWorkspace.GetItems(DataSpace.CSpace).Where(m => m.BuiltInTypeKind == BuiltInTypeKind.EntityType)
                     from p in (meta as EntityType).Properties.Where(p => p.DeclaringType.Name == psDatabaseTable)
                     select new
                     {
-                        colName   = p.Name,
+                        colName   = p.Name,                       
                         colType   = p.TypeUsage.EdmType,
+                        doc       = p.Documentation,
                         maxLength = p.MaxLength,
                         precision = p.Precision,
                         scale     = p.Scale,
@@ -129,6 +147,7 @@ namespace WonkaBre.Import
                     TmpWonkaAttr.TabName  = psDatabaseTable;
 
                     TmpWonkaAttr.DefaultValue = Convert.ToString(TmpCol.defValue);
+                    TmpWonkaAttr.Description  = (TmpCol.doc != null) ? TmpCol.doc.LongDescription : "";
 
                     TmpWonkaAttr.IsDate    = IsTypeDate(TmpCol.colType);
                     TmpWonkaAttr.IsNumeric = IsTypeNumeric(TmpCol.colType);
@@ -142,11 +161,11 @@ namespace WonkaBre.Import
 
                     TmpWonkaAttr.MaxLength = (TmpCol.maxLength != null) ? (int)TmpCol.maxLength : 0;
 
-                    TmpWonkaAttr.FieldId = TmpWonkaAttr.AttrId + 1000;
-                    TmpWonkaAttr.GroupId = CONST_DEFAULT_GROUP_ID;
+                    TmpWonkaAttr.FieldId   = TmpWonkaAttr.AttrId + 1000;
+                    TmpWonkaAttr.GroupId   = CONST_DEFAULT_GROUP_ID;
                     TmpWonkaAttr.IsAudited = true;
 
-                    // TmpWonkaAttr.IsKey = ?
+                    TmpWonkaAttr.IsKey = KeyColNames.Contains(TmpWonkaAttr.AttrName);
 
                     NewImportSource.AddAttribute(TmpWonkaAttr);
                 }
