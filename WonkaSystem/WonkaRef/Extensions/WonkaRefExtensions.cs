@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace WonkaRef.Extensions
 {
@@ -13,12 +17,60 @@ namespace WonkaRef.Extensions
     {
         /// <summary>
         /// 
+        /// This method will deserialize the data domain of the WonkaRevEnvironment from a local file.
+        /// 
+        /// <param name="poDataDomainFile">The file location where the data domain exists to be deserialized</param>
+        /// <returns>The WonkaRefEnvironment instantiated from the data domain file</returns>
+        /// </summary>
+        public static WonkaRefEnvironment DeserializeRefEnvFromLocalFile(this FileInfo poDataDomainFile)
+        {
+            WonkaRefEnvironment RefEnv = null;
+
+            if (poDataDomainFile == null)
+                throw new WonkaRefException("ERROR!  Reference to data domain file is invalid.");
+
+            if (!poDataDomainFile.Exists)
+                throw new WonkaRefException("ERROR!  Data domain file does not exist.");
+
+            RefEnv = WonkaRefEnvironment.CreateInstance(false, new WonkaRefDeserializeLocalSource(poDataDomainFile));
+
+            return RefEnv;
+        }
+
+        /// <summary>
+        /// 
         /// This method will serialize the data domain of the WonkaRevEnvironment to a local file.
         /// 
         /// <param name="poRefEnv">The instance of the WonkaRefEnvironment which we wish to serialize</param>
+        /// <param name="psFileUrl">The file location where the data should be serialized to</param>
         /// <returns>Indicates whether or not the serialization was successful</returns>
         /// </summary>
-        public static bool SerializeToLocalFile(this WonkaRefEnvironment poRefEnv)
+        public static void SerializeToLocalFile(this WonkaRefEnvironment poRefEnv, string psFileUrl)
+        {
+            if (poRefEnv == null)
+                throw new WonkaRefException("ERROR!  An invalid Ref envirionment has been provided.");
+
+            if (string.IsNullOrEmpty(psFileUrl))
+                throw new WonkaRefException("ERROR!  A blank file URL has been provided.");
+
+            FileInfo TargetFile = new FileInfo(psFileUrl);
+            if (!TargetFile.Directory.Exists)
+                throw new WonkaRefException("ERROR!  Target directory does not exist.");
+
+            string sRefEnvBody = SerializeToString(poRefEnv);
+            if (!String.IsNullOrEmpty(sRefEnvBody))
+                File.WriteAllText(psFileUrl, sRefEnvBody);
+        }
+
+        /// <summary>
+        /// 
+        /// This method will serialize the data domain of the WonkaRefEnvironment to IPFS.
+        /// 
+        /// <param name="poRefEnv">The instance of the WonkaRefEnvironment which we wish to serialize</param>
+        /// <param name="psFileName">The file name where the data should be serialized to</param>
+        /// <returns>Indicates whether or not the serialization was successful</returns>
+        /// </summary>
+        public static bool SerializeToIPFS(this WonkaRefEnvironment poRefEnv, string psFileName)
         {
             bool bResult = true;
 
@@ -29,20 +81,27 @@ namespace WonkaRef.Extensions
 
         /// <summary>
         /// 
-        /// This method will serialize the data domain of the WonkaRefEnvironment to IPFS.
+        /// This method will serialize the data domain of the WonkaRefEnvironment into a string.
         /// 
         /// <param name="poRefEnv">The instance of the WonkaRefEnvironment which we wish to serialize</param>
         /// <returns>Indicates whether or not the serialization was successful</returns>
         /// </summary>
-        public static bool SerializeToIPFS(this WonkaRefEnvironment poRefEnv)
+        public static string SerializeToString(this WonkaRefEnvironment poRefEnv)
         {
-            bool bResult = true;
+            XmlSerializerNamespaces DefaultNamespaces = new XmlSerializerNamespaces();
+            DefaultNamespaces.Add("", "");
 
-            // NOTE: Do work here
+            XmlWriterSettings DefaultRootWriterSettings =
+                new XmlWriterSettings() { OmitXmlDeclaration = true, Indent = true, IndentChars = "  " };
 
-            return bResult;
+            XmlSerializer RefEnvSerializer  = new XmlSerializer(typeof(WonkaRefEnvironment));
+            StringBuilder RefEnvBodyBuilder = new StringBuilder();
+            XmlWriter     RefEnvXmlWriter   = XmlWriter.Create(RefEnvBodyBuilder, DefaultRootWriterSettings);
+
+            RefEnvSerializer.Serialize(RefEnvXmlWriter, poRefEnv, DefaultNamespaces);
+
+            return RefEnvBodyBuilder.ToString();
         }
-
     }
 
 }
