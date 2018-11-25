@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Core.Metadata.Edm;
+using System.IO;
 using System.Linq;
+using System.Text;
 
 using WonkaRef;
 
@@ -21,9 +23,65 @@ namespace WonkaBre.Import
 
         public const int CONST_DEFAULT_GROUP_ID = 1;
 
+        public const string CONST_SAMPLE_RULE_FORMAT_MAIN_BODY =
+@"<?xml version=""1.0""?>
+<RuleTree xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">
+
+   <if description=""Sample Rules Body"">
+      <criteria op=""AND"">
+         <eval id=""pop1"">(N.{0}) POPULATED</eval>
+      </criteria>
+
+      <if description=""Checking Input Values"">
+         <criteria op=""AND"">
+            <eval id=""pop2"">(N.{1}) POPULATED</eval>
+         </criteria>
+
+         {2}
+
+      </if>
+
+      {3}
+
+   </if>    
+    
+</RuleTree>";
+
+        public const string CONST_SAMPLE_RULE_FORMAT_SUB_BODY1 =
+@"
+         <validate err=""severe"">
+            <criteria op=""AND"">
+               <eval id=""cmp2"">(N.{0}) GT (0.00)</eval>
+               <eval id=""cmp3"">(N.{1}) GT (0.00)</eval>
+            </criteria>
+
+            <failure_message>ERROR!  Required inputs have not been provided.</failure_message>
+            <success_message/>
+         </validate>
+";
+
+        public const string CONST_SAMPLE_RULE_FORMAT_SUB_BODY2 =
+@"      
+      <if description=""Executing "">
+         <criteria op=""AND"">
+            <eval id=""cmp4"">(N.{0}) == ('DummyVal1')</eval>
+            <eval id=""cmp5"">(N.{1}) IN ('DummyVal2','DummyVal3', 'DummyVal4')</eval>
+         </criteria>
+
+         <validate err=""severe"">
+            <criteria op=""AND"">
+               <eval id=""asn1"">(N.{1}) ASSIGN ('DummyValX')</eval>
+            </criteria>
+
+            <failure_message>ERROR!  Unable to assign the value.</failure_message>
+            <success_message/>
+         </validate>
+      </if>
+";            
+
         #endregion
 
-        private static object mLock = new object();
+        private static object mLock   = new object();
         private static object mIdLock = new object();
 
         private static int mGenAttrId = 1;
@@ -77,6 +135,23 @@ namespace WonkaBre.Import
             }
         }
 
+        static public string CreateRulesSampleFile(IMetadataRetrievable piMetadata, string psRulesOutputFile)
+        {
+            StringBuilder sbRulesBody = new StringBuilder();
+
+            // NOTE: Do work here
+
+            if (!String.IsNullOrEmpty(psRulesOutputFile))
+            {
+                FileInfo OutputFile = new FileInfo(psRulesOutputFile);
+
+                if (OutputFile.Directory.Exists)
+                    File.WriteAllText(psRulesOutputFile, sbRulesBody.ToString());
+            }
+
+            return sbRulesBody.ToString();
+        }
+
         public IMetadataRetrievable ImportSource(string psDatabaseTable, System.Data.Entity.DbContext poDbContext)
         {
             var adapter       = (System.Data.Entity.Infrastructure.IObjectContextAdapter) poDbContext;
@@ -88,8 +163,7 @@ namespace WonkaBre.Import
         public IMetadataRetrievable ImportSource(string psDatabaseTable, ObjectContext poDbContext)
         {
             WonkaBreImportSource NewImportSource = new WonkaBreImportSource();
-
-            HashSet<string> KeyColNames = new HashSet<string>();
+            HashSet<string>      KeyColNames     = new HashSet<string>();
 
             if (!String.IsNullOrEmpty(psDatabaseTable) && (poDbContext != null))
             {
