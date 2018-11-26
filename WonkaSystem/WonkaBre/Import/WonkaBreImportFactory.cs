@@ -139,7 +139,66 @@ namespace WonkaBre.Import
         {
             StringBuilder sbRulesBody = new StringBuilder();
 
-            // NOTE: Do work here
+            if (piMetadata != null)
+            {
+                var AttrCache = piMetadata.GetAttrCache();
+
+                if (AttrCache.Count >= 2)
+                {
+                    string sChildBranch1 = "";
+                    string sChildBranch2 = "";
+
+                    var AttrNumCache = AttrCache.Where(x => x.IsDecimal || x.IsNumeric);
+                    var AttrStrCache = AttrCache.Where(x => !x.IsDecimal && !x.IsNumeric);
+
+                    if (AttrNumCache.Count() >= 2)
+                    {
+                        sChildBranch1 =
+                            String.Format(CONST_SAMPLE_RULE_FORMAT_SUB_BODY1,
+                                          AttrNumCache.ElementAt(0).AttrName,
+                                          AttrNumCache.ElementAt(1).AttrName);
+                    }
+                    else if (AttrNumCache.Count() == 1)
+                    {
+                        sChildBranch1 =
+                            String.Format(CONST_SAMPLE_RULE_FORMAT_SUB_BODY1,
+                                          AttrNumCache.ElementAt(0).AttrName,
+                                          AttrNumCache.ElementAt(0).AttrName);
+                    }
+
+                    if (AttrStrCache.Count() >= 4)
+                    {
+                        sChildBranch2 =
+                            String.Format(CONST_SAMPLE_RULE_FORMAT_SUB_BODY2,
+                                          AttrStrCache.ElementAt(2).AttrName,
+                                          AttrStrCache.ElementAt(3).AttrName);
+                    }
+                    else if (AttrStrCache.Count() == 3)
+                    {
+                        sChildBranch2 =
+                            String.Format(CONST_SAMPLE_RULE_FORMAT_SUB_BODY2,
+                                          AttrStrCache.ElementAt(1).AttrName,
+                                          AttrStrCache.ElementAt(2).AttrName);
+                    }
+                    else
+                    {
+                        sChildBranch2 =
+                            String.Format(CONST_SAMPLE_RULE_FORMAT_SUB_BODY2,
+                                          AttrStrCache.ElementAt(0).AttrName,
+                                          AttrStrCache.ElementAt(1).AttrName);
+                    }
+
+                    string sParentBranch = 
+                        String.Format(CONST_SAMPLE_RULE_FORMAT_MAIN_BODY, 
+                                      AttrCache[0].AttrName, 
+                                      AttrCache[1].AttrName,
+                                      sChildBranch1,
+                                      sChildBranch2);
+
+                    sbRulesBody.Append(sParentBranch);
+
+                }
+            }
 
             if (!String.IsNullOrEmpty(psRulesOutputFile))
             {
