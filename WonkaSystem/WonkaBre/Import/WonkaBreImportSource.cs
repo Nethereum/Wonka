@@ -16,6 +16,16 @@ namespace WonkaBre.Import
             AttrCollection.Add(poNewAttribute);
         }
 
+        public void AddGroup(WonkaRefGroup poNewGroup)
+        {
+            GroupCollection.Add(poNewGroup);
+        }
+
+        public void AddField(WonkaRefField poNewField)
+        {
+            FieldCollection.Add(poNewField);
+        }
+
         #region Required Interface Methods
 
         #region Standard Metadata Cache (Minimum Set)
@@ -99,6 +109,10 @@ namespace WonkaBre.Import
         #region Properties
 
         private List<WonkaRefAttr> AttrCollection;
+
+        private List<WonkaRefGroup> GroupCollection;
+
+        private List<WonkaRefField> FieldCollection;
 
         #endregion
     }

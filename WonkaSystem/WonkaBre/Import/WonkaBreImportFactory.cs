@@ -305,6 +305,28 @@ namespace WonkaBre.Import
 
                 if (NewImportSource.GetAttrCache().Count <= 0)
                     throw new WonkaBreException(0, 0, "ERROR!  Could not import the schema because the Reader's field count was zero.");
+
+                WonkaRefGroup NewImportGroup = new WonkaRefGroup();
+
+                NewImportGroup.GroupId        = CONST_DEFAULT_GROUP_ID;
+                NewImportGroup.GroupName      = psDatabaseTable;
+                NewImportGroup.KeyTabCols     = KeyColNames;
+                NewImportGroup.ProductTabName = psDatabaseTable;
+                NewImportSource.AddGroup(NewImportGroup);
+
+                foreach (WonkaRefAttr TempAttr in NewImportSource.GetAttrCache())
+                {
+                    WonkaRefField NewImportField = new WonkaRefField();
+
+                    NewImportField.FieldId     = TempAttr.FieldId;
+                    NewImportField.FieldName   = TempAttr.AttrName;
+                    NewImportField.Description = TempAttr.Description;
+                    NewImportField.GroupId     = CONST_DEFAULT_GROUP_ID;
+                    NewImportField.DisplayName = TempAttr.AttrName;
+                    NewImportField.AttrIds.Add(TempAttr.AttrId);
+
+                    NewImportSource.AddField(NewImportField);
+                }
             }
             else
                 throw new WonkaBreException(0, 0, "ERROR!  Could not import the schema for the database table.");
