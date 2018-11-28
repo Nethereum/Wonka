@@ -8,7 +8,11 @@ namespace WonkaBre.Import
     {
         public WonkaBreImportSource()
         {
-            AttrCollection = new List<WonkaRefAttr>();
+            AttrCollection   = new List<WonkaRefAttr>();
+            FieldCollection  = new List<WonkaRefField>();
+            GroupCollection  = new List<WonkaRefGroup>();
+            SourceCollection = new List<WonkaRefSource>();
+            SrcFldCollection = new List<WonkaRefSourceField>();
         }
 
         public void AddAttribute(WonkaRefAttr poNewAttribute)
@@ -24,6 +28,16 @@ namespace WonkaBre.Import
         public void AddField(WonkaRefField poNewField)
         {
             FieldCollection.Add(poNewField);
+        }
+
+        public void AddSource(WonkaRefSource poNewSource)
+        {
+            SourceCollection.Add(poNewSource);
+        }
+
+        public void AddSourceField(WonkaRefSourceField poNewSrcField)
+        {
+            SrcFldCollection.Add(poNewSrcField);
         }
 
         #region Required Interface Methods
@@ -46,38 +60,22 @@ namespace WonkaBre.Import
 
         public List<WonkaRefField> GetFieldCache()
         {
-            List<WonkaRefField> FieldCache = new List<WonkaRefField>();
-
-            // NOTE: To be implemented
-
-            return FieldCache;
+            return FieldCollection;
         }
 
         public List<WonkaRefGroup> GetGroupCache()
         {
-            List<WonkaRefGroup> GroupCache = new List<WonkaRefGroup>();
-
-            // NOTE: To be implemented
-
-            return GroupCache;
+            return GroupCollection;
         }
 
         public List<WonkaRefSource> GetSourceCache()
         {
-            List<WonkaRefSource> SourceCache = new List<WonkaRefSource>();
-
-            // NOTE: To be implemented
-
-            return SourceCache;
+            return SourceCollection;
         }
 
         public List<WonkaRefSourceField> GetSourceFieldCache()
         {
-            List<WonkaRefSourceField> SourceFieldCache = new List<WonkaRefSourceField>();
-
-            // NOTE: To be implemented
-
-            return SourceFieldCache;
+            return SrcFldCollection;
         }
 
         public List<WonkaRefStandard> GetStandardCache()
@@ -113,6 +111,10 @@ namespace WonkaBre.Import
         private List<WonkaRefGroup> GroupCollection;
 
         private List<WonkaRefField> FieldCollection;
+
+        private List<WonkaRefSource> SourceCollection;
+
+        private List<WonkaRefSourceField> SrcFldCollection;
 
         #endregion
     }

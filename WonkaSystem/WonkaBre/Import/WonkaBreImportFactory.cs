@@ -22,6 +22,7 @@ namespace WonkaBre.Import
         #region CONSTANTS
 
         public const int CONST_DEFAULT_GROUP_ID = 1;
+        public const int CONST_SEC_LEVEL_READ   = 1;
 
         public const string CONST_SAMPLE_RULE_FORMAT_MAIN_BODY =
 @"<?xml version=""1.0""?>
@@ -266,12 +267,6 @@ namespace WonkaBre.Import
                     string sTmpColName = TmpCol.colName;
                     var    Props       = TmpCol.props;
 
-                    /*
-                    var propertyInfo = entity.Entity.GetType().GetProperty(propertyName);
-                    var propertyType = propertyInfo.PropertyType;                    
-                    string sTmpColName = poReader.GetName(i);
-                    */
-
                     WonkaRefAttr TmpWonkaAttr = new WonkaRefAttr();
 
                     TmpWonkaAttr.AttrId   = GenerateNewAttrId();
@@ -314,6 +309,13 @@ namespace WonkaBre.Import
                 NewImportGroup.ProductTabName = psDatabaseTable;
                 NewImportSource.AddGroup(NewImportGroup);
 
+                WonkaRefSource GuestSource = new WonkaRefSource();
+
+                GuestSource.SourceId   = 1;
+                GuestSource.SourceName = "Guest";
+                GuestSource.Status     = "Active";
+                NewImportSource.AddSource(GuestSource);
+
                 foreach (WonkaRefAttr TempAttr in NewImportSource.GetAttrCache())
                 {
                     WonkaRefField NewImportField = new WonkaRefField();
@@ -324,8 +326,15 @@ namespace WonkaBre.Import
                     NewImportField.GroupId     = CONST_DEFAULT_GROUP_ID;
                     NewImportField.DisplayName = TempAttr.AttrName;
                     NewImportField.AttrIds.Add(TempAttr.AttrId);
-
                     NewImportSource.AddField(NewImportField);
+
+                    WonkaRefSourceField NewImportSrcFld = new WonkaRefSourceField();
+
+                    NewImportSrcFld.SourceFieldId = 10000 + NewImportField.FieldId;
+                    NewImportSrcFld.SourceId      = 1;
+                    NewImportSrcFld.FieldId       = NewImportField.FieldId;
+                    NewImportSrcFld.SecurityLevel = CONST_SEC_LEVEL_READ;
+                    NewImportSource.AddSourceField(NewImportSrcFld);
                 }
             }
             else
