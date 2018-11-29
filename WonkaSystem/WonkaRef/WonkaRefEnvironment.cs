@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 namespace WonkaRef
 {
@@ -16,6 +17,10 @@ namespace WonkaRef
     {
         private static object              mLock     = new object();
         private static WonkaRefEnvironment mInstance = null;
+
+        // NOTE: This constructor is necessary for serialization/deserialization purposes
+        private WonkaRefEnvironment()
+        { }
 
         private WonkaRefEnvironment(bool bAllMetadata, IMetadataRetrievable pMetadataRetrievable)
         {
@@ -292,7 +297,8 @@ namespace WonkaRef
         #region Standard Metadata Cache (Minimum Set)
 
         public List<WonkaRefAttr>             AttrCache { get; }
-        
+
+        [XmlIgnore]
         public List<WonkaRefAttr>             AttrKeys { get; }
 
         private Dictionary<int, WonkaRefAttr> AttrMap { get; }
