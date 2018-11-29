@@ -39,6 +39,25 @@ namespace WonkaRef.Extensions
 
         /// <summary>
         /// 
+        /// This method will deserialize the data domain of the WonkaRevEnvironment from a provided string.
+        /// 
+        /// <param name="poDataDomainPayload">The string payload that needs to be deserialized</param>
+        /// <returns>The WonkaRefEnvironment instantiated from the data domain file</returns>
+        /// </summary>
+        public static WonkaRefEnvironment DeserializeRefEnvFromStringPayload(this string psDataDomainPayload)
+        {
+            WonkaRefEnvironment RefEnv = null;
+
+            if (String.IsNullOrEmpty(psDataDomainPayload))
+                throw new WonkaRefException("ERROR!  Reference to data domain payload is invalid.");
+
+            RefEnv = WonkaRefEnvironment.CreateInstance(false, new WonkaRefDeserializeLocalSource(psDataDomainPayload));
+
+            return RefEnv;
+        }
+
+        /// <summary>
+        /// 
         /// This method will serialize the data domain of the WonkaRevEnvironment to a local file.
         /// 
         /// <param name="poRefEnv">The instance of the WonkaRefEnvironment which we wish to serialize</param>
@@ -67,14 +86,15 @@ namespace WonkaRef.Extensions
         /// This method will serialize the data domain of the WonkaRefEnvironment to IPFS.
         /// 
         /// <param name="poRefEnv">The instance of the WonkaRefEnvironment which we wish to serialize</param>
+        /// <param name="psPeerKey">The IPFS node that belongs to the caller</param>
         /// <param name="psFileName">The file name where the data should be serialized to</param>
         /// <returns>Indicates whether or not the serialization was successful</returns>
         /// </summary>
-        public static bool SerializeToIPFS(this WonkaRefEnvironment poRefEnv, string psFileName)
+        public static bool SerializeToIPFS(this WonkaRefEnvironment poRefEnv, string psPeerKey, string psFileName)
         {
             bool bResult = true;
 
-            // NOTE: Do work here
+            // NOTE: Still undecided as to whether or not this function should be here
 
             return bResult;
         }
@@ -105,4 +125,3 @@ namespace WonkaRef.Extensions
     }
 
 }
-

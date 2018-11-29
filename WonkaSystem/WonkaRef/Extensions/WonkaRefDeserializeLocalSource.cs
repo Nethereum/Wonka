@@ -23,17 +23,19 @@ namespace WonkaRef.Extensions
 
         private XmlDocument       moXmlDoc = null;
 
-        public WonkaRefDeserializeLocalSource(FileInfo poMetadataConfigFile)
+        public WonkaRefDeserializeLocalSource(FileInfo poMetadataConfigFile) : this(File.ReadAllText(poMetadataConfigFile.FullName))
+        { }
+
+        public WonkaRefDeserializeLocalSource(string psMetadataConfigFileText)
         {
-            using (StreamReader MetadataReader = new StreamReader(poMetadataConfigFile.FullName))
+            msMetadataFileContents = psMetadataConfigFileText;
+            moMetadataXmlElement   = XElement.Parse(psMetadataConfigFileText);
+
+            using (StringReader MetadataReader = new StringReader(psMetadataConfigFileText))
             {
-                msMetadataFileContents = File.ReadAllText(poMetadataConfigFile.FullName);
-                moMetadataXmlElement   = XElement.Parse(msMetadataFileContents);
-
                 moXmlDoc = new XmlDocument();
-                moXmlDoc.Load(poMetadataConfigFile.FullName);
+                moXmlDoc.Load(MetadataReader);
             }
-
         }
 
         #region Required Interface Methods
