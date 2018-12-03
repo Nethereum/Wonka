@@ -69,6 +69,7 @@
     <Compile Include="RuleTree\RuleTypes\CustomOperatorRule.cs" />
     <Compile Include="Import\WonkaBreImportSource.cs" />
     <Compile Include="Import\WonkaBreImportFactory.cs" />
+    <Compile Include="Import\IRuleTreeRetrievable.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj">
