@@ -11,7 +11,7 @@ namespace WonkaBre.Import
     /// Wonka rules markup.
     ///     
     /// </summary>
-    public interface iRuleTreeParser
+    public interface IRuleTreeParser
     {
         WonkaBreRuleSet GetRuleTree();
 

@@ -70,7 +70,7 @@
     <Compile Include="Import\WonkaBreImportSource.cs" />
     <Compile Include="Import\WonkaBreImportFactory.cs" />
     <Compile Include="Import\IRuleTreeRetrievable.cs" />
-    <Compile Include="Import\iRuleTreeParser.cs" />
+    <Compile Include="Import\IRuleTreeParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj">
