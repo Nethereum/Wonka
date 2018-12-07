@@ -15,8 +15,8 @@ namespace WonkaBre.Import
     {
         WonkaBreRuleSet GetRuleTree();
 
-        WonkaBreRuleSet GetNextRuleSet();
+        WonkaBreRuleSet GetNextChildRuleSet();
 
-        WonkaBreRule GetNextRule();
+        int GetChildRuleSetCount();
     }
 }
