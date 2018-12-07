@@ -4,6 +4,12 @@ using WonkaBre.RuleTree;
 
 namespace WonkaBre.Import
 {
+    #region Delegates
+
+    public delegate bool ProvideRuleSet(WonkaBreRuleSet poNewRuleSet);
+
+    #endregion
+
     /// <summary>
     /// 
     /// This interface will be required when creating a parsing class that will
@@ -13,10 +19,12 @@ namespace WonkaBre.Import
     /// </summary>
     public interface IRuleTreeParser
     {
-        WonkaBreRuleSet GetRuleTree();
-
-        WonkaBreRuleSet GetNextChildRuleSet();
+        string ConvertIntoWonkaRuleTree(string psThirdPartyRuleTree);
 
         int GetChildRuleSetCount();
+
+        void SetRuleTreeProvideDelegate(ProvideRuleSet poRuleTreeCallback);
+
+        void SetChildRuleSetProvideDelegate(ProvideRuleSet poRuleTreeDirectChildCallback);
     }
 }
