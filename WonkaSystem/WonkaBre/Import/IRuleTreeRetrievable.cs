@@ -19,13 +19,15 @@ namespace WonkaBre.Import
     /// </summary>
     public interface IRuleTreeRetrievable
     {
+        WonkaBreRulesEngine CreateRulesEngine();
+
         BRE_IMPORT_SOURCE GetImportSourceType();
 
         IMetadataRetrievable GetMetadata();
 
-        string GetWonkaRulesXml();
+        IRuleTreeRetrievable GetRulesParser();
 
-        WonkaBreRulesEngine CreateRulesEngine();
+        string GetWonkaRulesXml();
     }
 
 }
