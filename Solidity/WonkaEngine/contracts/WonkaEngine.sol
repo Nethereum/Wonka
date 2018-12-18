@@ -1,4 +1,3 @@
-// pragma solidity ^0.4.24;
 pragma solidity ^0.5.1;
 
 /// @title An Ethereum library that contains the functionality for a rules engine
