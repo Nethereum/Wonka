@@ -7,7 +7,27 @@ pragma solidity ^0.5.1;
 library WonkaSerializer {
 
     string constant CONST_RULE_TREE_ROOT_START = "<?xml version=\"1.0\"?>\n<RuleTree>\n";
+    string constant CONST_RULE_SET_NODE_START  = "<if ";
+
     string constant CONST_RULE_TREE_ROOT_END   = "</RuleTree>";
+    string constant CONST_RULE_SET_NODE_END    = "</if>\n";
+
+    /// @dev This method will create the starting XML markup for a RuleSet node
+    /// @author Aaron Kendall
+    /// @notice 
+    function writeRuleSetNodeStart(string memory desc) public pure returns (string memory nodeStart)  {        
+
+        nodeStart = strConcat(CONST_RULE_SET_NODE_START, "description=\"", desc, "\"");
+        nodeStart = strConcat(nodeStart, ">\n");
+    }
+
+    /// @dev This method will create the ending XML markup for a RuleSet node
+    /// @author Aaron Kendall
+    /// @notice 
+    function writeRuleSetNodeEnd() public pure returns (string memory nodeEnd)  {        
+
+        nodeEnd = CONST_RULE_SET_NODE_END;
+    }
 
     /// @dev This method will create the XML root node for the markup
     /// @author Aaron Kendall
@@ -22,7 +42,7 @@ library WonkaSerializer {
         dummyValString = desc;
 
         rootStart = CONST_RULE_TREE_ROOT_START;
-    }
+    }    
 
     /// @dev This method will finish the XML root node for the markup
     /// @author Aaron Kendall
@@ -36,8 +56,8 @@ library WonkaSerializer {
     *   SUPPORT METHODS   *
     ***********************/
 
- 	/// @dev This method will concatenate the provided strings into one larger string
-	/// @notice 
+    /// @dev This method will concatenate the provided strings into one larger string
+    /// @notice 
     function strConcat(string memory _a, string memory _b, string memory _c, string memory _d, string memory _e) private pure returns (string memory) {
 
         bytes memory _ba = bytes(_a);
@@ -73,14 +93,20 @@ library WonkaSerializer {
         return string(babcde);
     }
 
- 	/// @dev This method will concatenate the provided strings into one larger string
-	/// @notice 
+    /// @dev This method will concatenate the provided strings into one larger string
+    /// @notice 
+    function strConcat(string memory _a, string memory _b, string memory _c, string memory _d) private pure returns (string memory) {
+        return strConcat(_a, _b, _c, _d, "");
+    }
+
+    /// @dev This method will concatenate the provided strings into one larger string
+    /// @notice 
     function strConcat(string memory _a, string memory _b, string memory _c) private pure returns (string memory) {
         return strConcat(_a, _b, _c, "", "");
     }
 
- 	/// @dev This method will concatenate the provided strings into one larger string
-	/// @notice 
+    /// @dev This method will concatenate the provided strings into one larger string
+    /// @notice 
     function strConcat(string memory _a, string memory _b) private pure returns (string memory) {
         return strConcat(_a, _b, "", "", "");
     }
