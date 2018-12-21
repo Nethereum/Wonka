@@ -138,6 +138,31 @@ namespace WonkaEth.Extensions
             return sRuleTreeId;
         }
 
+        ///
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a RuleTree within the blockchain.
+        /// 
+        /// <returns>Returns the XML payload that represents a RuleTree within the blockchain</returns>
+        /// </summary>
+        public static string ExportXmlString(this WonkaRegistryItem poRegistryItem, string psRulesEngineABI)
+        {
+            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
+
+            var sPassword = WonkaRegistry.RegistryPassword;
+            var sABI      = psRulesEngineABI;
+
+            var account  = new Account(sPassword);
+            var web3     = new Nethereum.Web3.Web3(account);
+            var contract = web3.Eth.GetContract(sABI, poRegistryItem.HostContractAddress);
+
+            var getXmlStringFunction = contract.GetFunction("toXmlString");
+
+            var rulesXml = getXmlStringFunction.CallAsync<string>(poRegistryItem.OwnerId).Result;
+            
+            return rulesXml;
+        }
+
         /// <summary>
         /// 
         /// This method will return the metadata about a RuleTree that is registered within the blockchain.
