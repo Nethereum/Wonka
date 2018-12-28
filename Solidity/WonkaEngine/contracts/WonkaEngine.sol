@@ -705,6 +705,44 @@ contract WonkaEngine {
         return lastTransactionSuccess;
     }
 
+    function getRuleProps(address ruler, bytes32 rsId, uint ruleIdx) public view returns (bytes32, uint, bytes32, string memory, bool notOpFlag) {
+
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
+
+        require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
+
+        WonkaRule storage targetRule = ruletrees[ruler].allRuleSets[rsId].evaluativeRules[ruletrees[ruler].allRuleSets[rsId].evalRuleList[ruleIdx]];
+
+        return (targetRule.name, targetRule.ruleType, targetRule.targetAttr.attrName, targetRule.ruleValue, targetRule.notOpFlag);
+    }
+
+    function getRuleSetChildId(address ruler, bytes32 rsId, uint rsChildIdx) public view returns (bytes32)
+    {
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
+
+        require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
+
+        return ruletrees[ruler].allRuleSets[rsId].childRuleSetList[rsChildIdx];
+    }
+
+    function getRuleSetProps(address ruler, bytes32 rsId) public view returns (string memory, bool, bool, uint, uint) {
+
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
+
+        require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
+
+        return (ruletrees[ruler].allRuleSets[rsId].description, ruletrees[ruler].allRuleSets[rsId].severeFailure, ruletrees[ruler].allRuleSets[rsId].andOp, ruletrees[ruler].allRuleSets[rsId].evalRuleList.length, ruletrees[ruler].allRuleSets[rsId].childRuleSetList.length);
+    }
+
+    function getRuleTreeProps(address ruler) public view returns (bytes32, string memory, bytes32) { 
+
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
+
+        require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
+
+        return (ruletrees[ruler].ruleTreeId, ruletrees[ruler].description, ruletrees[ruler].rootRuleSetName);
+    }    
+
     /// @dev This method will return the value for an Attribute that is currently stored within the ruler's record
     /// @author Aaron Kendall
     /// @notice This method should only be used for debugging purposes.
