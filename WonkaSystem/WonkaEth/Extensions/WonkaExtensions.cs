@@ -229,17 +229,18 @@ namespace WonkaEth.Extensions
         ///
         /// <summary>
         /// 
-        /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a RuleTree within the blockchain.
+        /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a RuleSet within the blockchain.
         /// 
-        /// <returns>Returns the XML payload that represents a RuleTree within the blockchain</returns>
+        /// <returns>Returns the XML payload that represents a RuleSet within the blockchain</returns>
         /// </summary>
-        public static string ExportXmlString(Contract poEngineContract, string psOwnerId, string psRuleSetName, uint pnStepLevel)
+        private static string ExportXmlString(Contract poEngineContract, string psOwnerId, string psRuleSetName, uint pnStepLevel)
         {
             StringBuilder sbExportXmlString = new StringBuilder();
             StringBuilder sbTabSpaces       = new StringBuilder();
 
             var getRuleSetPropsFunction   = poEngineContract.GetFunction("getRuleSetProps");
             var getRuleSetChildIdFunction = poEngineContract.GetFunction("getRuleSetChildId");
+            var getRulePropsFunction      = poEngineContract.GetFunction("getRuleProps");
 
             ExportRuleSetProps SetProps = 
                 getRuleSetPropsFunction.CallDeserializingToObjectAsync<ExportRuleSetProps>(psOwnerId, psRuleSetName).Result;
@@ -265,7 +266,10 @@ namespace WonkaEth.Extensions
 
                 for (uint idx = 0; idx < SetProps.EvalRuleCount; idx++)
                 {
-                    // NOTE: Do work here
+                    ExportRuleProps RuleProps =
+                        getRulePropsFunction.CallDeserializingToObjectAsync<ExportRuleProps>(psOwnerId, psRuleSetName, idx).Result;
+
+                    sbExportXmlString.Append(ExportXmlString(poEngineContract, RuleProps));
                 }
             }
 
@@ -289,6 +293,64 @@ namespace WonkaEth.Extensions
             return sbExportXmlString.ToString();
         }
 
+        ///
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a Rule within the blockchain.
+        /// 
+        /// <returns>Returns the XML payload that represents a Rule within the blockchain</returns>
+        /// </summary>
+        public static string ExportXmlString(Contract poEngineContract, ExportRuleProps poRuleProps)
+        {
+            bool   bEvalRule      = true;
+            string sRuleTagFormat = "<eval id=\"{0}\">(N.{1}) {2} ({3})</eval>\n";
+            string sOpName        = "";
+            string sRuleValue     = "";
+            string sDelim         = ",";
+            string sSingleQuote   = "'";
+
+            if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.LESS_THAN_RULE)
+                sOpName = "LT";
+            else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.EQUAL_TO_RULE)
+                sOpName = "EQ";
+            else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.GREATER_THAN_RULE)
+                sOpName = "GT";
+            else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.POPULATED_RULE)
+                sOpName = "POPULATED";
+            else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.IN_DOMAIN_RULE)
+                sOpName = "IN";
+            else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ASSIGN_RULE)
+            {
+                bEvalRule = false;
+                sOpName   = "ASSIGN";
+            }
+
+            if (bEvalRule && poRuleProps.NotOpFlag)
+                sOpName = "NOT " + sOpName;
+
+            if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.IN_DOMAIN_RULE)
+            {
+                if (sRuleValue.Contains(sDelim))
+                {
+                    StringBuilder sbNewValue = new StringBuilder();
+
+                    string[] asValueList = sRuleValue.Split(new char[1] { ',' });
+                    foreach (string sTmpValue in asValueList)
+                    {
+                        if (sbNewValue.Length > 0)
+                            sbNewValue.Append(sDelim);
+
+                        sbNewValue.Append(sSingleQuote).Append(sTmpValue).Append(sSingleQuote);
+                    }
+
+                    sRuleValue = sbNewValue.ToString();
+                }
+                else
+                    sRuleValue = "'" + poRuleProps.RuleValue + "'";
+            }
+
+            return String.Format(sRuleTagFormat, poRuleProps.RuleName, poRuleProps.AttrName, sOpName, sRuleValue);
+        }
 
         /// <summary>
         /// 
