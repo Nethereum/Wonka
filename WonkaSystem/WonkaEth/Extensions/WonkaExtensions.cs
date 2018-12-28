@@ -319,10 +319,20 @@ namespace WonkaEth.Extensions
                 sOpName = "POPULATED";
             else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.IN_DOMAIN_RULE)
                 sOpName = "IN";
-            else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ASSIGN_RULE)
+            else
             {
                 bEvalRule = false;
-                sOpName   = "ASSIGN";
+
+                if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ASSIGN_RULE)
+                    sOpName = "ASSIGN";
+                else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ARITH_OP_SUM)
+                    sOpName = "ASSIGN_SUM";
+                else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ARITH_OP_DIFF)
+                    sOpName = "ASSIGN_DIFF";
+                else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ARITH_OP_PROD)
+                    sOpName = "ASSIGN_PROD";
+                else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ARITH_OP_QUOT)
+                    sOpName = "ASSIGN_QUOT";
             }
 
             if (bEvalRule && poRuleProps.NotOpFlag)
