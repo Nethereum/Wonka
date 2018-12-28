@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.ABI.Model;
@@ -23,6 +24,59 @@ namespace WonkaEth.Extensions
     {
         [Parameter("address", "ruler", 1, true)]
         public string TreeOwner { get; set; }
+    }
+
+    [FunctionOutput]
+    public class ExportRuleTreeProps
+    {
+        // bytes32, string memory, bytes32
+
+        [Parameter("bytes32", "rtid", 1)]
+        public string RuleTreeId { get; set; }
+
+        [Parameter("string", "rtdesc", 2)]
+        public string RuleTreeDesc { get; set; }
+
+        [Parameter("bytes32", "rootruleset", 3)]
+        public string RootRuleSetName { get; set; }
+    }
+
+    [FunctionOutput]
+    public class ExportRuleSetProps
+    {
+        [Parameter("string", "rsdesc", 1)]
+        public string RuleSetDesc { get; set; }
+
+        [Parameter("bool", "severefail", 2)]
+        public bool SevereFailureFlag { get; set; }
+
+        [Parameter("bool", "andop", 3)]
+        public bool AndOperatorFlag { get; set; }
+
+        [Parameter("uint", "evalrulenum", 4)]
+        public uint EvalRuleCount { get; set; }
+
+        [Parameter("uint", "childrulesetnum", 5)]
+        public uint ChildRuleSetCount { get; set; }
+    }
+
+    [FunctionOutput]
+    public class ExportRuleProps
+    {
+        [Parameter("bytes32", "rulename", 1)]
+        public string RuleName { get; set; }
+
+        [Parameter("uint", "ruletype", 2)]
+        public uint RuleType { get; set; }
+
+        [Parameter("bytes32", "attrname", 3)]
+        public string AttrName { get; set; }
+
+        [Parameter("string", "ruleval", 5)]
+        public string RuleValue { get; set; }
+
+        [Parameter("bool", "notopflag", 5)]
+        public bool NotOpFlag { get; set; }
     }
 
     [FunctionOutput]
@@ -156,12 +210,85 @@ namespace WonkaEth.Extensions
             var web3     = new Nethereum.Web3.Web3(account);
             var contract = web3.Eth.GetContract(sABI, poRegistryItem.HostContractAddress);
 
-            var getXmlStringFunction = contract.GetFunction("toXmlString");
+            StringBuilder sbExportXmlString = new StringBuilder("<?xml version=\"1.0\"?>\n<RuleTree>\n");
 
-            var rulesXml = getXmlStringFunction.CallAsync<string>(poRegistryItem.OwnerId).Result;
+            // var getXmlStringFunction = contract.GetFunction("toXmlString");
+            // var rulesXml = getXmlStringFunction.CallAsync<string>(poRegistryItem.OwnerId).Result;
+
+            var getRuleTreePropsFunction = contract.GetFunction("getRuleTreeProps");
+
+            ExportRuleTreeProps TreeProps = getRuleTreePropsFunction.CallDeserializingToObjectAsync<ExportRuleTreeProps>(poRegistryItem.OwnerId).Result;
+
+            sbExportXmlString.Append(ExportXmlString(contract, poRegistryItem.OwnerId, TreeProps.RootRuleSetName, 1));
+
+            sbExportXmlString.Append("</RuleTree>\n");
             
-            return rulesXml;
+            return sbExportXmlString.ToString();
         }
+
+        ///
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a RuleTree within the blockchain.
+        /// 
+        /// <returns>Returns the XML payload that represents a RuleTree within the blockchain</returns>
+        /// </summary>
+        public static string ExportXmlString(Contract poEngineContract, string psOwnerId, string psRuleSetName, uint pnStepLevel)
+        {
+            StringBuilder sbExportXmlString = new StringBuilder();
+            StringBuilder sbTabSpaces       = new StringBuilder();
+
+            var getRuleSetPropsFunction   = poEngineContract.GetFunction("getRuleSetProps");
+            var getRuleSetChildIdFunction = poEngineContract.GetFunction("getRuleSetChildId");
+
+            ExportRuleSetProps SetProps = 
+                getRuleSetPropsFunction.CallDeserializingToObjectAsync<ExportRuleSetProps>(psOwnerId, psRuleSetName).Result;
+
+            for (uint x = 0; x < pnStepLevel; x++)
+                sbTabSpaces.Append("  ");
+
+            if (SetProps.ChildRuleSetCount > 0) 
+                sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<if description=\"" + SetProps.RuleSetDesc + "\" >\n");
+            else 
+            {
+                string sMode = SetProps.SevereFailureFlag ? "severe" : "warning";
+                sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<validate err=\"" + sMode+ "\" >\n");
+            }
+
+            sbExportXmlString.Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString());
+            sbExportXmlString.Append("<criteria op =\"" + (SetProps.AndOperatorFlag ? "AND":"OR") + "\" >\n");
+
+            if (SetProps.EvalRuleCount > 0)
+            {
+                StringBuilder sbRulesBody = new StringBuilder();
+                sbRulesBody.Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString());
+
+                for (uint idx = 0; idx < SetProps.EvalRuleCount; idx++)
+                {
+                    // NOTE: Do work here
+                }
+            }
+
+            sbExportXmlString.Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString());
+            sbExportXmlString.Append("</criteria>\n");
+
+            // Now invoke the rulesets
+            for (uint childIdx = 0; childIdx < SetProps.ChildRuleSetCount; childIdx++)
+            {
+                string nChildRuleSetId =
+                    getRuleSetChildIdFunction.CallAsync<string>(psOwnerId, psRuleSetName, childIdx).Result;
+
+                sbExportXmlString.Append(ExportXmlString(poEngineContract, psOwnerId, nChildRuleSetId, pnStepLevel + 1));
+            }
+
+            if (SetProps.ChildRuleSetCount > 0)
+                sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</if\n");
+            else
+                sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</validate>\n");
+
+            return sbExportXmlString.ToString();
+        }
+
 
         /// <summary>
         /// 
