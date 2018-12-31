@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 using Nethereum.ABI.FunctionEncoding.Attributes;
@@ -30,7 +31,7 @@ namespace WonkaEth.Extensions
     public class ExportRuleTreeProps
     {
         // bytes32, string memory, bytes32
-
+        
         [Parameter("bytes32", "rtid", 1)]
         public string RuleTreeId { get; set; }
 
@@ -56,7 +57,10 @@ namespace WonkaEth.Extensions
         [Parameter("uint", "evalrulenum", 4)]
         public uint EvalRuleCount { get; set; }
 
-        [Parameter("uint", "childrulesetnum", 5)]
+        [Parameter("uint", "assertrulenum", 5)]
+        public uint AssertiveRuleCount { get; set; }
+
+        [Parameter("uint", "childrulesetnum", 6)]
         public uint ChildRuleSetCount { get; set; }
     }
 
@@ -72,7 +76,7 @@ namespace WonkaEth.Extensions
         [Parameter("bytes32", "attrname", 3)]
         public string AttrName { get; set; }
 
-        [Parameter("string", "ruleval", 5)]
+        [Parameter("string", "ruleval", 4)]
         public string RuleValue { get; set; }
 
         [Parameter("bool", "notopflag", 5)]
@@ -219,7 +223,7 @@ namespace WonkaEth.Extensions
 
             ExportRuleTreeProps TreeProps = getRuleTreePropsFunction.CallDeserializingToObjectAsync<ExportRuleTreeProps>(poRegistryItem.OwnerId).Result;
 
-            sbExportXmlString.Append(ExportXmlString(contract, poRegistryItem.OwnerId, TreeProps.RootRuleSetName, 1));
+            sbExportXmlString.Append(ExportXmlString(contract, poRegistryItem.OwnerId, TreeProps.RootRuleSetName, 0));
 
             sbExportXmlString.Append("</RuleTree>\n");
             
@@ -237,6 +241,8 @@ namespace WonkaEth.Extensions
         {
             StringBuilder sbExportXmlString = new StringBuilder();
             StringBuilder sbTabSpaces       = new StringBuilder();
+            StringBuilder sbCritSpaces      = new StringBuilder();
+            StringBuilder sbRuleSpaces      = new StringBuilder();
 
             var getRuleSetPropsFunction   = poEngineContract.GetFunction("getRuleSetProps");
             var getRuleSetChildIdFunction = poEngineContract.GetFunction("getRuleSetChildId");
@@ -246,35 +252,55 @@ namespace WonkaEth.Extensions
                 getRuleSetPropsFunction.CallDeserializingToObjectAsync<ExportRuleSetProps>(psOwnerId, psRuleSetName).Result;
 
             for (uint x = 0; x < pnStepLevel; x++)
-                sbTabSpaces.Append("  ");
+                sbTabSpaces.Append("    ");
 
-            if (SetProps.ChildRuleSetCount > 0) 
-                sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<if description=\"" + SetProps.RuleSetDesc + "\" >\n");
-            else 
+            sbCritSpaces.Append(sbTabSpaces.ToString()).Append("    ");
+            sbRuleSpaces.Append(sbCritSpaces.ToString()).Append("    ");
+
+            if (!psRuleSetName.StartsWith("Root", StringComparison.CurrentCultureIgnoreCase))
             {
-                string sMode = SetProps.SevereFailureFlag ? "severe" : "warning";
-                sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<validate err=\"" + sMode+ "\" >\n");
-            }
-
-            sbExportXmlString.Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString());
-            sbExportXmlString.Append("<criteria op =\"" + (SetProps.AndOperatorFlag ? "AND":"OR") + "\" >\n");
-
-            if (SetProps.EvalRuleCount > 0)
-            {
-                StringBuilder sbRulesBody = new StringBuilder();
-                sbRulesBody.Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString());
-
-                for (uint idx = 0; idx < SetProps.EvalRuleCount; idx++)
+                if (SetProps.ChildRuleSetCount > 0)
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<if description=\"" + SetProps.RuleSetDesc + "\" >\n");
+                else
                 {
-                    ExportRuleProps RuleProps =
-                        getRulePropsFunction.CallDeserializingToObjectAsync<ExportRuleProps>(psOwnerId, psRuleSetName, idx).Result;
-
-                    sbExportXmlString.Append(ExportXmlString(poEngineContract, RuleProps));
+                    string sMode = SetProps.SevereFailureFlag ? "severe" : "warning";
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<validate err=\"" + sMode + "\" >\n");
                 }
-            }
 
-            sbExportXmlString.Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString());
-            sbExportXmlString.Append("</criteria>\n");
+                sbExportXmlString.Append(sbCritSpaces.ToString());
+                sbExportXmlString.Append("<criteria op =\"" + (SetProps.AndOperatorFlag ? "AND" : "OR") + "\" >\n");
+
+                if (SetProps.EvalRuleCount > 0)
+                {
+                    StringBuilder sbRulesBody = new StringBuilder();
+                    sbRulesBody.Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString());
+
+                    for (uint idx = 0; idx < SetProps.EvalRuleCount; idx++)
+                    {
+                        ExportRuleProps RuleProps =
+                            getRulePropsFunction.CallDeserializingToObjectAsync<ExportRuleProps>(psOwnerId, psRuleSetName, true, idx).Result;
+
+                        sbExportXmlString.Append(ExportXmlString(poEngineContract, RuleProps, sbRuleSpaces));
+                    }
+                }
+
+                if (SetProps.AssertiveRuleCount > 0)
+                {
+                    StringBuilder sbRulesBody = new StringBuilder();
+                    sbRulesBody.Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString());
+
+                    for (uint idx = 0; idx < SetProps.AssertiveRuleCount; idx++)
+                    {
+                        ExportRuleProps RuleProps =
+                            getRulePropsFunction.CallDeserializingToObjectAsync<ExportRuleProps>(psOwnerId, psRuleSetName, false, idx).Result;
+
+                        sbExportXmlString.Append(ExportXmlString(poEngineContract, RuleProps, sbRuleSpaces));
+                    }
+                }
+
+                sbExportXmlString.Append(sbCritSpaces.ToString());
+                sbExportXmlString.Append("</criteria>\n");
+            }
 
             // Now invoke the rulesets
             for (uint childIdx = 0; childIdx < SetProps.ChildRuleSetCount; childIdx++)
@@ -282,11 +308,11 @@ namespace WonkaEth.Extensions
                 string nChildRuleSetId =
                     getRuleSetChildIdFunction.CallAsync<string>(psOwnerId, psRuleSetName, childIdx).Result;
 
-                sbExportXmlString.Append(ExportXmlString(poEngineContract, psOwnerId, nChildRuleSetId, pnStepLevel + 1));
+                sbExportXmlString.Append(ExportXmlString(poEngineContract, psOwnerId, nChildRuleSetId, pnStepLevel + 2));
             }
 
             if (SetProps.ChildRuleSetCount > 0)
-                sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</if\n");
+                sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</if>\n");
             else
                 sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</validate>\n");
 
@@ -300,12 +326,12 @@ namespace WonkaEth.Extensions
         /// 
         /// <returns>Returns the XML payload that represents a Rule within the blockchain</returns>
         /// </summary>
-        public static string ExportXmlString(Contract poEngineContract, ExportRuleProps poRuleProps)
+        public static string ExportXmlString(Contract poEngineContract, ExportRuleProps poRuleProps, StringBuilder poSpaces)
         {
             bool   bEvalRule      = true;
-            string sRuleTagFormat = "<eval id=\"{0}\">(N.{1}) {2} ({3})</eval>\n";
+            string sRuleTagFormat = "{0}<eval id=\"{1}\">(N.{2}) {3} {4}</eval>\n";
             string sOpName        = "";
-            string sRuleValue     = "";
+            string sRuleValue     = poRuleProps.RuleValue;
             string sDelim         = ",";
             string sSingleQuote   = "'";
 
@@ -333,6 +359,12 @@ namespace WonkaEth.Extensions
                     sOpName = "ASSIGN_PROD";
                 else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ARITH_OP_QUOT)
                     sOpName = "ASSIGN_QUOT";
+                // NOTE: This rule type section has not been implemented correctly yet
+                else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.CUSTOM_OP_RULE)
+                {
+                    sOpName = poRuleProps.RuleValue;
+                    sRuleValue = "?";
+                }
             }
 
             if (bEvalRule && poRuleProps.NotOpFlag)
@@ -359,7 +391,10 @@ namespace WonkaEth.Extensions
                     sRuleValue = "'" + poRuleProps.RuleValue + "'";
             }
 
-            return String.Format(sRuleTagFormat, poRuleProps.RuleName, poRuleProps.AttrName, sOpName, sRuleValue);
+            if (!String.IsNullOrEmpty(sRuleValue))
+                sRuleValue = "(" + sRuleValue + ")";
+
+            return String.Format(sRuleTagFormat, poSpaces.ToString(), poRuleProps.RuleName, poRuleProps.AttrName, sOpName, sRuleValue);
         }
 
         /// <summary>
@@ -445,7 +480,7 @@ namespace WonkaEth.Extensions
                 if (!poEngine.IsRuleTreeRegistered())
                     poEngine.SerializeRegistryInfo(psSenderAddress, psContractAddress);
                 else
-                    poEngine.CompareRuleTrees(psSenderAddress);                
+                    poEngine.CompareRuleTrees(psSenderAddress);
             }
 
             treeRoot.SerializeTreeRoot(sSenderAddress, contract);
@@ -699,10 +734,10 @@ namespace WonkaEth.Extensions
 
             newRegistryItem.HostContractAddress = psContractAddress;
             newRegistryItem.OwnerId             = psSenderAddress;
-            newRegistryItem.RuleTreeGroveIds    = new Dictionary<string, int>();
             newRegistryItem.MinGasCost          = CONST_MIN_GAS_COST_DEFAULT;
             newRegistryItem.MaxGasCost          = CONST_MAX_GAS_COST_DEFAULT;
             newRegistryItem.RequiredAttributes  = RequiredAttributes;
+            newRegistryItem.RuleTreeGroveIds    = new Dictionary<string, int>();
 
             if (!String.IsNullOrEmpty(poEngine.GroveId) && (poEngine.GroveIndex > 0))
                 newRegistryItem.RuleTreeGroveIds[poEngine.GroveId] = (int) poEngine.GroveIndex;
@@ -1053,7 +1088,7 @@ namespace WonkaEth.Extensions
         /// </summary>
         public static WonkaEth.Orchestration.Init.OrchestrationInitData TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, IMetadataRetrievable piMetadataSource = null)
         {
-            WonkaEth.Orchestration.Init.OrchestrationInitData OrchInitData = new Orchestration.Init.OrchestrationInitData();
+            WonkaEth.Orchestration.Init.OrchestrationInitData OrchInitData = new WonkaEth.Orchestration.Init.OrchestrationInitData();
 
             OrchInitData.AttributesMetadataSource = piMetadataSource;
 
