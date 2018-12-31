@@ -496,6 +496,12 @@ namespace WonkaSystem.TestHarness
             sNewVATAmtForHMRC = Convert.ToString(SalesTrxCommand.NewVATAmtForHMRC);
 
             #endregion
+
+            // Now test exporting the RuleTree from the blockchain
+            var RegistryItem = NewSaleGrove.OrderedRuleTrees[0];
+            var ExportedXml  = RegistryItem.ExportXmlString(this.msAbiWonka);
+
+            System.Console.WriteLine("DEBUG: The payload is: \n(\n" + ExportedXml + "\n)\n");
         }
 
         #region Methods Only Used for .NET Execution of the Rules Engine
