@@ -705,22 +705,28 @@ contract WonkaEngine {
         return lastTransactionSuccess;
     }
 
-    function getRuleProps(address ruler, bytes32 rsId, bool evalRuleFlag, uint ruleIdx) public view returns (bytes32, uint, bytes32, string memory, bool notOpFlag) {
+    /// @dev This method will return the data that composes a particular Rule
+    /// @author Aaron Kendall
+    function getRuleProps(address ruler, bytes32 rsId, bool evalRuleFlag, uint ruleIdx) public view returns (bytes32, uint, bytes32, string memory, bool, bytes32[] memory) {
 
         require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
         WonkaRule storage targetRule = (evalRuleFlag) ? ruletrees[ruler].allRuleSets[rsId].evaluativeRules[ruletrees[ruler].allRuleSets[rsId].evalRuleList[ruleIdx]] : ruletrees[ruler].allRuleSets[rsId].assertiveRules[ruletrees[ruler].allRuleSets[rsId].assertiveRuleList[ruleIdx]];
-
-        return (targetRule.name, targetRule.ruleType, targetRule.targetAttr.attrName, targetRule.ruleValue, targetRule.notOpFlag);
+        
+        return (targetRule.name, targetRule.ruleType, targetRule.targetAttr.attrName, targetRule.ruleValue, targetRule.notOpFlag, targetRule.customOpArgs);
     }
 
+    /// @dev This method will return the ID of a RuleSet that is the child of a parent RuleSet
+    /// @author Aaron Kendall
     function getRuleSetChildId(address ruler, bytes32 rsId, uint rsChildIdx) public view returns (bytes32) {
-        
+
         require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
         return ruletrees[ruler].allRuleSets[rsId].childRuleSetList[rsChildIdx];
     }
 
+    /// @dev This method will return the data that composes a particular RuleSet
+    /// @author Aaron Kendall
     function getRuleSetProps(address ruler, bytes32 rsId) public view returns (string memory, bool, bool, uint, uint, uint) {
 
         require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
@@ -728,6 +734,8 @@ contract WonkaEngine {
         return (ruletrees[ruler].allRuleSets[rsId].description, ruletrees[ruler].allRuleSets[rsId].severeFailure, ruletrees[ruler].allRuleSets[rsId].andOp, ruletrees[ruler].allRuleSets[rsId].evalRuleList.length, ruletrees[ruler].allRuleSets[rsId].assertiveRuleList.length, ruletrees[ruler].allRuleSets[rsId].childRuleSetList.length);
     }
 
+    /// @dev This method will return the data that composes a particular RuleTree
+    /// @author Aaron Kendall
     function getRuleTreeProps(address ruler) public view returns (bytes32, string memory, bytes32) { 
 
         require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
