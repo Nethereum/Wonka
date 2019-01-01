@@ -81,6 +81,9 @@ namespace WonkaEth.Extensions
 
         [Parameter("bool", "notopflag", 5)]
         public bool NotOpFlag { get; set; }
+
+        [Parameter("bytes32[]", "custopargs", 6)]
+        public List<string> CustomOpArgs { get; set; }
     }
 
     [FunctionOutput]
@@ -308,13 +311,16 @@ namespace WonkaEth.Extensions
                 string nChildRuleSetId =
                     getRuleSetChildIdFunction.CallAsync<string>(psOwnerId, psRuleSetName, childIdx).Result;
 
-                sbExportXmlString.Append(ExportXmlString(poEngineContract, psOwnerId, nChildRuleSetId, pnStepLevel + 2));
+                sbExportXmlString.Append(ExportXmlString(poEngineContract, psOwnerId, nChildRuleSetId, pnStepLevel + 1));
             }
 
-            if (SetProps.ChildRuleSetCount > 0)
-                sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</if>\n");
-            else
-                sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</validate>\n");
+            if (!psRuleSetName.StartsWith("Root", StringComparison.CurrentCultureIgnoreCase))
+            {
+                if (SetProps.ChildRuleSetCount > 0)
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</if>\n");
+                else
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</validate>\n");
+            }
 
             return sbExportXmlString.ToString();
         }
@@ -359,11 +365,13 @@ namespace WonkaEth.Extensions
                     sOpName = "ASSIGN_PROD";
                 else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ARITH_OP_QUOT)
                     sOpName = "ASSIGN_QUOT";
-                // NOTE: This rule type section has not been implemented correctly yet
                 else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.CUSTOM_OP_RULE)
                 {
-                    sOpName = poRuleProps.RuleValue;
-                    sRuleValue = "?";
+                    List<string> CustomOpArgs = new List<string>(poRuleProps.CustomOpArgs);
+                    CustomOpArgs.RemoveAll(x => x == "dummyValue");
+
+                    sOpName    = poRuleProps.RuleValue;
+                    sRuleValue = string.Join(sDelim, CustomOpArgs);
                 }
             }
 
