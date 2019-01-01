@@ -590,8 +590,12 @@
           "type": "string"
         },
         {
-          "name": "notOpFlag",
+          "name": "",
           "type": "bool"
+        },
+        {
+          "name": "",
+          "type": "bytes32[]"
         }
       ],
       "payable": false,
