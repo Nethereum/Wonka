@@ -15,6 +15,7 @@ using Nethereum.Geth.RPC.Miner;
 using Nethereum.RPC.Eth.DTOs;
 
 using WonkaBre;
+using WonkaBre.Readers;
 using WonkaBre.RuleTree;
 using WonkaEth.Contracts;
 using WonkaRef;
@@ -266,7 +267,9 @@ namespace WonkaEth.Extensions
                     sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<if description=\"" + SetProps.RuleSetDesc + "\" >\n");
                 else
                 {
-                    string sMode = SetProps.SevereFailureFlag ? "severe" : "warning";
+                    string sMode = 
+                        SetProps.SevereFailureFlag ? WonkaBreXmlReader.CONST_RS_VALID_ERR_SEVERE : WonkaBreXmlReader.CONST_RS_VALID_ERR_WARNING;
+                    
                     sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<validate err=\"" + sMode + "\" >\n");
                 }
 
@@ -335,37 +338,39 @@ namespace WonkaEth.Extensions
         public static string ExportXmlString(Contract poEngineContract, ExportRuleProps poRuleProps, StringBuilder poSpaces)
         {
             bool   bEvalRule      = true;
-            string sRuleTagFormat = "{0}<eval id=\"{1}\">(N.{2}) {3} {4}</eval>\n";
             string sOpName        = "";
             string sRuleValue     = poRuleProps.RuleValue;
-            string sDelim         = ",";
+            string sDelim         = WonkaBreXmlReader.CONST_RULE_TOKEN_VAL_DELIM;
             string sSingleQuote   = "'";
 
+            string sRuleTagFormat = 
+                "{0}<" + WonkaBreXmlReader.CONST_RULE_TAG + " " + WonkaBreXmlReader.CONST_RULE_ID_ATTR + "=\"{1}\">(N.{2}) {3} {4}</eval>\n";
+
             if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.LESS_THAN_RULE)
-                sOpName = "LT";
+                sOpName = WonkaBreXmlReader.CONST_AL_LT;
             else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.EQUAL_TO_RULE)
-                sOpName = "EQ";
+                sOpName = WonkaBreXmlReader.CONST_AL_EQ;
             else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.GREATER_THAN_RULE)
-                sOpName = "GT";
+                sOpName = WonkaBreXmlReader.CONST_AL_GT;
             else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.POPULATED_RULE)
-                sOpName = "POPULATED";
+                sOpName = WonkaBreXmlReader.CONST_BASIC_OP_POP;
             else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.IN_DOMAIN_RULE)
-                sOpName = "IN";
+                sOpName = WonkaBreXmlReader.CONST_BASIC_OP_IN;
             else
             {
                 bEvalRule = false;
 
-                if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ASSIGN_RULE)
-                    sOpName = "ASSIGN";
-                else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ARITH_OP_SUM)
-                    sOpName = "ASSIGN_SUM";
-                else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ARITH_OP_DIFF)
-                    sOpName = "ASSIGN_DIFF";
-                else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ARITH_OP_PROD)
-                    sOpName = "ASSIGN_PROD";
-                else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.ARITH_OP_QUOT)
-                    sOpName = "ASSIGN_QUOT";
-                else if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.CUSTOM_OP_RULE)
+                if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ASSIGN_RULE)
+                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN;
+                else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_SUM)
+                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_SUM;
+                else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_DIFF)
+                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_DIFF;
+                else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_PROD)
+                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_PROD;
+                else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_QUOT)
+                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_QUOT;
+                else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.CUSTOM_OP_RULE)
                 {
                     List<string> CustomOpArgs = new List<string>(poRuleProps.CustomOpArgs);
                     CustomOpArgs.RemoveAll(x => x == "dummyValue");
@@ -378,7 +383,7 @@ namespace WonkaEth.Extensions
             if (bEvalRule && poRuleProps.NotOpFlag)
                 sOpName = "NOT " + sOpName;
 
-            if (poRuleProps.RuleType == (uint)CONTRACT_RULE_TYPES.IN_DOMAIN_RULE)
+            if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.IN_DOMAIN_RULE)
             {
                 if (sRuleValue.Contains(sDelim))
                 {
