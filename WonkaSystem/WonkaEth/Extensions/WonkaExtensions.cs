@@ -205,6 +205,9 @@ namespace WonkaEth.Extensions
         /// 
         /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a RuleTree within the blockchain.
         /// 
+        /// NOTE: Currently, we use a StringBuilder class to build the XML Document.  In the future, we should transition to
+        /// using a XmlDocument and a XmlWriter.
+        /// 
         /// <returns>Returns the XML payload that represents a RuleTree within the blockchain</returns>
         /// </summary>
         public static string ExportXmlString(this WonkaRegistryItem poRegistryItem, string psRulesEngineABI)
@@ -219,9 +222,6 @@ namespace WonkaEth.Extensions
             var contract = web3.Eth.GetContract(sABI, poRegistryItem.HostContractAddress);
 
             StringBuilder sbExportXmlString = new StringBuilder("<?xml version=\"1.0\"?>\n<RuleTree>\n");
-
-            // var getXmlStringFunction = contract.GetFunction("toXmlString");
-            // var rulesXml = getXmlStringFunction.CallAsync<string>(poRegistryItem.OwnerId).Result;
 
             var getRuleTreePropsFunction = contract.GetFunction("getRuleTreeProps");
 
@@ -239,10 +239,20 @@ namespace WonkaEth.Extensions
         /// 
         /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a RuleSet within the blockchain.
         /// 
+        /// NOTE: Currently, we use a StringBuilder class to build the XML Document.  In the future, we should transition to
+        /// using a XmlDocument and a XmlWriter.
+        /// 
         /// <returns>Returns the XML payload that represents a RuleSet within the blockchain</returns>
         /// </summary>
         private static string ExportXmlString(Contract poEngineContract, string psOwnerId, string psRuleSetName, uint pnStepLevel)
         {
+            var RSNodeTag   = WonkaBreXmlReader.CONST_RS_FLOW_TAG;
+            var RSNodeDesc  = WonkaBreXmlReader.CONST_RS_FLOW_DESC_ATTR;
+            var RSLeafTag   = WonkaBreXmlReader.CONST_RS_VALID_TAG;
+            var RSLeafMode  = WonkaBreXmlReader.CONST_RS_VALID_ERR_ATTR;
+            var RuleCollTag = WonkaBreXmlReader.CONST_RULES_TAG;
+            var LogicOp     = WonkaBreXmlReader.CONST_RULES_OP_ATTR;
+
             StringBuilder sbExportXmlString = new StringBuilder();
             StringBuilder sbTabSpaces       = new StringBuilder();
             StringBuilder sbCritSpaces      = new StringBuilder();
@@ -264,17 +274,17 @@ namespace WonkaEth.Extensions
             if (!psRuleSetName.StartsWith("Root", StringComparison.CurrentCultureIgnoreCase))
             {
                 if (SetProps.ChildRuleSetCount > 0)
-                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<if description=\"" + SetProps.RuleSetDesc + "\" >\n");
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<" + RSNodeTag + " " + RSNodeDesc + "=\"" + SetProps.RuleSetDesc + "\" >\n");
                 else
                 {
                     string sMode = 
                         SetProps.SevereFailureFlag ? WonkaBreXmlReader.CONST_RS_VALID_ERR_SEVERE : WonkaBreXmlReader.CONST_RS_VALID_ERR_WARNING;
                     
-                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<validate err=\"" + sMode + "\" >\n");
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<" + RSLeafTag + " " + RSLeafMode + "=\"" + sMode + "\" >\n");
                 }
 
                 sbExportXmlString.Append(sbCritSpaces.ToString());
-                sbExportXmlString.Append("<criteria op =\"" + (SetProps.AndOperatorFlag ? "AND" : "OR") + "\" >\n");
+                sbExportXmlString.Append("<" + RuleCollTag + " " + LogicOp + "=\"" + (SetProps.AndOperatorFlag ? "AND" : "OR") + "\" >\n");
 
                 if (SetProps.EvalRuleCount > 0)
                 {
@@ -305,7 +315,7 @@ namespace WonkaEth.Extensions
                 }
 
                 sbExportXmlString.Append(sbCritSpaces.ToString());
-                sbExportXmlString.Append("</criteria>\n");
+                sbExportXmlString.Append("</" + RuleCollTag + ">\n");
             }
 
             // Now invoke the rulesets
@@ -320,9 +330,9 @@ namespace WonkaEth.Extensions
             if (!psRuleSetName.StartsWith("Root", StringComparison.CurrentCultureIgnoreCase))
             {
                 if (SetProps.ChildRuleSetCount > 0)
-                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</if>\n");
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</" + RSNodeTag + ">\n");
                 else
-                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</validate>\n");
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</" + RSLeafTag + ">\n");
             }
 
             return sbExportXmlString.ToString();
@@ -332,6 +342,9 @@ namespace WonkaEth.Extensions
         /// <summary>
         /// 
         /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a Rule within the blockchain.
+        /// 
+        /// NOTE: Currently, we use a StringBuilder class to build the XML Document.  In the future, we should transition to
+        /// using a XmlDocument and a XmlWriter.
         /// 
         /// <returns>Returns the XML payload that represents a Rule within the blockchain</returns>
         /// </summary>
