@@ -210,12 +210,12 @@ namespace WonkaEth.Extensions
         /// 
         /// <returns>Returns the XML payload that represents a RuleTree within the blockchain</returns>
         /// </summary>
-        public static string ExportXmlString(this WonkaRegistryItem poRegistryItem, string psRulesEngineABI)
+        public static string ExportXmlString(this WonkaRegistryItem poRegistryItem)
         {
             var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
 
             var sPassword = WonkaRegistry.RegistryPassword;
-            var sABI      = psRulesEngineABI;
+            var sABI      = poRegistryItem.HostContractABI;
 
             var account  = new Account(sPassword);
             var web3     = new Nethereum.Web3.Web3(account);

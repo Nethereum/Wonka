@@ -20,14 +20,16 @@ namespace WonkaEth.Contracts
             Init();
         }
 
-        public WonkaRegistryItem(WonkaEth.Extensions.RuleTreeRegistryIndex poIndex)
+        public WonkaRegistryItem(WonkaEth.Extensions.RuleTreeRegistryIndex poIndex, string psHostContractABI)
         {
             Init();
+
 
             RuleTreeId  = poIndex.RuleTreeId;
             Description = poIndex.RuleTreeDesc;
 
             HostContractAddress = poIndex.RuleTreeHostEngineAddr;
+            HostContractABI     = psHostContractABI;
 
             OwnerId      = poIndex.RuleTreeOwner;
             MaxGasCost   = poIndex.MaxGasCost;
@@ -38,7 +40,7 @@ namespace WonkaEth.Contracts
 
         public void Init()
         {
-            RuleTreeId = Description = HostContractAddress = OwnerId = "";
+            RuleTreeId = Description = HostContractAddress = OwnerId = HostContractABI = "";
 
             MinGasCost = MaxGasCost = 0;
 
@@ -61,6 +63,8 @@ namespace WonkaEth.Contracts
         public Dictionary<string, int> RuleTreeGroveIds { get; set; }
 
         public string HostContractAddress { get; set; }
+
+        public string HostContractABI { get; set; }
 
         public string OwnerId { get; set; }
 

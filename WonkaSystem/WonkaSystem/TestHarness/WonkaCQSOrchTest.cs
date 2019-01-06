@@ -469,7 +469,7 @@ namespace WonkaSystem.TestHarness
             // applied to the record - in this scenario, we pretend that we know nothing about the RuleTree or the Grove, 
             // effectively treating it as a black box and only looking to retrieve the VAT
             WonkaEth.Contracts.WonkaRuleGrove NewSaleGrove = new WonkaEth.Contracts.WonkaRuleGrove("NewSaleGroup");
-            NewSaleGrove.PopulateFromRegistry();
+            NewSaleGrove.PopulateFromRegistry(this.msAbiWonka);
 
             // The engine's lightweight proxy for the blockchain is instantiated here
             WonkaEth.Orchestration.WonkaOrchestratorProxy<CQS.Contracts.SalesTrxCreateCommand> TrxGeneratorProxy = 
@@ -499,7 +499,7 @@ namespace WonkaSystem.TestHarness
 
             // Now test exporting the RuleTree from the blockchain
             var RegistryItem = NewSaleGrove.OrderedRuleTrees[0];
-            var ExportedXml  = RegistryItem.ExportXmlString(this.msAbiWonka);
+            var ExportedXml  = RegistryItem.ExportXmlString();
 
             System.Console.WriteLine("DEBUG: The payload is: \n(\n" + ExportedXml + "\n)\n");
         }
