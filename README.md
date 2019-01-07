@@ -13,6 +13,7 @@ A business rules engine (for both the .NET platform and the <a target="_blank" h
 * Orchestration 'set' functionality in the Ethereum engine, where the engine can be directed to set values on other contracts within the blockchain.
 * Custom Operator functionality in the Ethereum engine, where the engine can execute an user-defined rule by calling a function on another contract within the blockchain.
 * Registry and Grove functionality, helping users to discover/reuse existing RuleTree instances and group them into collections.
+* Export functionality, so that a RuleTree existing on the blockchain side can be extracted and then serialized into a legible form (like XML).
 
 # Quick Setup
 
@@ -40,7 +41,7 @@ Project Source | Nuget_Package |  Description |
 [CQS #1](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaCQSTest.cs)| This test is a demonstration of how to package the previous example into a CQS design. |
 [Orchestration](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaSimpleOrchestrationTest.cs)| This is mainly a test of the Ethereum (i.e., Solidity) implementation of the rules engine.  It showcases an example where the engine can get and set values on other predeployed contracts within the blockchain. |
 [Custom Operators](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaSimpleCustomOpsTest.cs)| This is mainly a test of the Ethereum (i.e., Solidity) implementation of the rules engine.  It showcases an example where the engine can invoke functionality for a business rule that exists on other predeployed contracts within the blockchain. |
-[CQS #2](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaCQSTest.cs)| This test is a demonstration of how to package all existing Wonka functionality into a CQS design.  Also, it provides examples for the Registry functionality (i.e., a way to discover and reuse existing RuleTrees) and the Grove functionality (i.e., a way to put RuleTrees into collections).|
+[CQS #2](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaCQSTest.cs)| This test is a demonstration of how to package all existing Wonka functionality into a CQS design.  Also, it provides examples for the Registry functionality (i.e., a way to discover and reuse existing RuleTrees) and the Grove functionality (i.e., a way to put RuleTrees into collections).  Lastly, it demonstrates how to export a registered RuleTree on the blockchain, back into its original XML markup.|
 
 ## Video Guides
 Video #1 - Here is a brief description of a rules engine, as well as a quick explanation of the Wonka engine's design:
