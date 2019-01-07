@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.1;
 
 contract OrchTestContract {
      
@@ -127,7 +127,7 @@ contract OrchTestContract {
 
     /// @dev This method will convert a bytes32 type to a String
     /// @notice 
-    function bytes32ToString(bytes32 x) public pure returns (string) {
+    function bytes32ToString(bytes32 x) public pure returns (string memory) {
 
         bytes memory bytesString = new bytes(32);
         uint charCount = 0;
@@ -140,23 +140,27 @@ contract OrchTestContract {
         }
 
         bytes memory bytesStringTrimmed = new bytes(charCount);
-        for (j = 0; j < charCount; j++) {
-            bytesStringTrimmed[j] = bytesString[j];
+        for (uint k = 0; k < charCount; k++) {
+            bytesStringTrimmed[k] = bytesString[k];
         }
 
         return string(bytesStringTrimmed);
     }     
 
     /// @dev This method will convert a 'uint' type to a 'bytes32' type     
-    function parseInt(string _a, uint _b) internal pure returns (uint) {
+    function parseInt(string memory _a, uint _b) internal pure returns (uint) {
 
         bytes memory bresult = bytes(_a);
+        
         uint bint = _b;
         uint mint = 0;
         bool decimals = false;
 
         for (uint i = 0; i < bresult.length; i++) {
-            if ((bresult[i] >= 48) && (bresult[i] <= 57)) {
+            
+            uint8 tmpNum = uint8(bresult[i]);
+            
+            if ((tmpNum >= 48) && (tmpNum <= 57)) {
                 if (decimals) {
                     if (bint == 0) 
                         break;
@@ -164,8 +168,9 @@ contract OrchTestContract {
                         bint--;
                 }
                 mint *= 10;
-                mint += uint(bresult[i]) - 48;
-            } else if (bresult[i] == 46) 
+                mint += tmpNum - 48;
+                
+            } else if (tmpNum == 46) 
                 decimals = true;
         }
 

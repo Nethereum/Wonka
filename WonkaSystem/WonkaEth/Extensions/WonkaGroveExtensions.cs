@@ -81,21 +81,22 @@ namespace WonkaEth.Extensions
         /// a particular Grove.
         /// 
         /// <param name="poGrove">The Grove that we are interested in</param>
+        /// <param name="psDefaultWonkaABI">The default ABI for the Wonka contract (since we might have different versions in the future)</param>
         /// <returns>None</returns>
         /// </summary>
-        public static void PopulateFromRegistry(this WonkaRuleGrove poGrove)
+        public static void PopulateFromRegistry(this WonkaRuleGrove poGrove, string psDefaultWonkaABI)
         {
             var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
 
             if (String.IsNullOrEmpty(poGrove.GroveId))
                 throw new Exception("ERROR!  No Grove ID provided.");
 
-            var sPassword = WonkaRegistry.RegistryPassword;
-            var sABI = WonkaRegistry.RegistryAbi;
+            var sPassword     = WonkaRegistry.RegistryPassword;
+            var sABI          = WonkaRegistry.RegistryAbi;
             var sContractAddr = WonkaRegistry.RegistryContractAddress;
 
-            var account = new Account(sPassword);
-            var web3 = new Nethereum.Web3.Web3(account);
+            var account  = new Account(sPassword);
+            var web3     = new Nethereum.Web3.Web3(account);
             var contract = web3.Eth.GetContract(sABI, sContractAddr);
 
             var getGroveInfoFunction = contract.GetFunction("getRuleGrove");
@@ -105,7 +106,7 @@ namespace WonkaEth.Extensions
             poGrove.Ingest(groveRegistryInfo);
 
             foreach (string sTmpGroveId in groveRegistryInfo.RuleTreeMembers)
-                poGrove.OrderedRuleTrees.Add(new WonkaRegistryItem(WonkaExtensions.GetRuleTreeIndex(sTmpGroveId)));
+                poGrove.OrderedRuleTrees.Add(new WonkaRegistryItem(WonkaExtensions.GetRuleTreeIndex(sTmpGroveId), psDefaultWonkaABI));
 
             string sCreateDateTime = poGrove.CreationTime.ToString();
         }

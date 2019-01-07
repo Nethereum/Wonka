@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.1;
 
 /// @title An Ethereum library that contains information about all the instances of the Wonka rules engines in a blockchain
 /// @author Aaron Kendall
@@ -78,11 +78,11 @@ contract WonkaRegistry {
     /// @dev This method will add a new grove to the registry
     /// @author Aaron Kendall
     /// @notice 
-    function addRuleGrove(bytes32 groveId, string desc, address groveOwner, uint createTime) public {
+    function addRuleGrove(bytes32 groveId, string memory desc, address groveOwner, uint createTime) public {
 
-        require(groveId != "");
+        require(groveId != "", "Blank GroveID has been provided.");
 
-        require(ruleGroves[groveId].isValue != true);
+        require(ruleGroves[groveId].isValue != true, "Grove with ID does not exist.");
 
         ruleGroves[groveId] = WonkaRuleGrove({
             ruleGroveId: groveId,
@@ -99,13 +99,13 @@ contract WonkaRegistry {
     /// @dev This method will add a new tree index to the registry
     /// @author Aaron Kendall
     /// @notice 
-    function addRuleTreeIndex(address ruler, bytes32 rsId, string desc, bytes32 ruleTreeGrpId, uint grpIdx, address host, uint minCost, uint maxCost, address[] associates, bytes32[] attributes, bytes32[] ops, uint createTime) public {
+    function addRuleTreeIndex(address ruler, bytes32 rsId, string memory desc, bytes32 ruleTreeGrpId, uint grpIdx, address host, uint minCost, uint maxCost, address[] memory associates, bytes32[] memory attributes, bytes32[] memory ops, uint createTime) public {
 
         // require(msg.sender == rulesMaster);
 
-        require(rsId != "");
+        require(rsId != "", "Blank ID for RuleSet has been provided");
 
-        require(ruleTrees[rsId].isValue != true);
+        require(ruleTrees[rsId].isValue != true, "RuleTree for ID does not exist.");
 
         ruleTrees[rsId] = WonkaRuleTreeIndex({
             ruleTreeId: rsId,
@@ -146,11 +146,11 @@ contract WonkaRegistry {
 
         // require(msg.sender == rulesMaster);
 
-        require(ruleTrees[treeId].isValue == true);
+        require(ruleTrees[treeId].isValue == true, "RuleTree for ID does not exist.");
 
-        require(ruleGroves[groveId].isValue != true);
+        require(ruleGroves[groveId].isValue != true, "Grove for ID does not exist.");
 
-        require(ruleGroves[groveId].memberPositions[treeId] == 0);
+        require(ruleGroves[groveId].memberPositions[treeId] == 0, "RuleTree already exists within Grove.");
 
         ruleGroves[groveId].ruleTreeMembers.push(treeId);
 
@@ -160,9 +160,9 @@ contract WonkaRegistry {
     /// @dev This method will return info about the specified grove
     /// @author Aaron Kendall
     /// @notice 
-    function getRuleGrove(bytes32 groveId) public view returns (bytes32 id, string desc, bytes32[] members, address owner, uint createTime){
+    function getRuleGrove(bytes32 groveId) public view returns (bytes32 id, string memory desc, bytes32[] memory members, address owner, uint createTime){
 
-        require(ruleGroves[groveId].isValue == true);
+        require(ruleGroves[groveId].isValue == true, "Grove with ID does not exist.");
 
         return (ruleGroves[groveId].ruleGroveId, ruleGroves[groveId].description, ruleGroves[groveId].ruleTreeMembers, ruleGroves[groveId].owner, ruleGroves[groveId].creationEpochTime);
     }    
@@ -170,11 +170,11 @@ contract WonkaRegistry {
     /// @dev This method will return an index from the registry
     /// @author Aaron Kendall
     /// @notice 
-    function getRuleTreeIndex(bytes32 rsId) public view returns (bytes32 rtid, string rtdesc, address hostaddr, address owner, uint maxGasCost, uint createTime, bytes32[] attributes){
+    function getRuleTreeIndex(bytes32 rsId) public view returns (bytes32 rtid, string memory rtdesc, address hostaddr, address owner, uint maxGasCost, uint createTime, bytes32[] memory attributes){
 
         // require(msg.sender == rulesMaster);
 
-        require(ruleTrees[rsId].isValue == true);
+        require(ruleTrees[rsId].isValue == true, "RuleTree with ID does not exist.");
 
         return (ruleTrees[rsId].ruleTreeId, ruleTrees[rsId].description, ruleTrees[rsId].hostContractAddress, ruleTrees[rsId].owner, ruleTrees[rsId].maxGasCost, ruleTrees[rsId].creationEpochTime, ruleTrees[rsId].usedAttributes);   
     }
@@ -182,11 +182,11 @@ contract WonkaRegistry {
     /// @dev This method will return all rule trees that belong to a specific grove, in the order that they should be applied to a record
     /// @author Aaron Kendall
     /// @notice 
-    function getGroveMembers(bytes32 groveId) public view returns (bytes32[]) {
+    function getGroveMembers(bytes32 groveId) public view returns (bytes32[] memory) {
 
         // require(msg.sender == rulesMaster);
 
-        require(ruleGroves[groveId].isValue == true);
+        require(ruleGroves[groveId].isValue == true, "Grove with ID does not exist.");
 
         uint orderIdx = 0;
 
@@ -213,7 +213,7 @@ contract WonkaRegistry {
 
         // require(msg.sender == rulesMaster);
 
-        require(ruleGroves[groveId].isValue != true);
+        require(ruleGroves[groveId].isValue != true, "Grove with ID does not exist.");
 
         uint orderIdx = 999999;
 
@@ -238,17 +238,17 @@ contract WonkaRegistry {
     /// @dev This method will reorder the members of a rule grove
     /// @author Aaron Kendall
     /// @notice 
-    function resetGroveOrder(bytes32 groveId, bytes32[] rsIdList, uint[] orderList) public {
+    function resetGroveOrder(bytes32 groveId, bytes32[] memory rsIdList, uint[] memory orderList) public {
 
         // require(msg.sender == rulesMaster);
 
-        require(rsIdList.length > 0);
+        require(rsIdList.length > 0, "Provided RuleTree list is empty.");
 
-        require(orderList.length > 0);
+        require(orderList.length > 0, "Provided index list is empty.");
 
-        require(rsIdList.length == orderList.length);
+        require(rsIdList.length == orderList.length, "RuleTree list and index list are different lengths.");
 
-        require(ruleGroves[groveId].ruleTreeMembers.length == rsIdList.length);
+        require(ruleGroves[groveId].ruleTreeMembers.length == rsIdList.length, "Grove member list and RuleTree list are different lengths.");
 
         uint idx = 0;
 

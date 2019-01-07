@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.1;
 
 /// @title An Ethereum library that contains the functionality for a rules engine
 /// @author Aaron Kendall
@@ -6,9 +6,9 @@ pragma solidity ^0.4.24;
 /// @dev Even though you can create rule trees by calling this contract directly, it is generally recommended that you create them using the Nethereum library
 contract WonkaEngine {
 
-	/// @title Holds metadata which represents an Attribute (i.e., a unique point of data in a user's record)
-	/// @author Aaron Kendall
-	/// @notice Not all struct members are currently used
+    /// @title Holds metadata which represents an Attribute (i.e., a unique point of data in a user's record)
+    /// @author Aaron Kendall
+    /// @notice Not all struct members are currently used
     struct WonkaAttr {
  
         uint attrId;
@@ -52,10 +52,10 @@ contract WonkaEngine {
         bool isValue;
     }
 
-	/// @title Defines a rule (i.e., a logical unit for testing the validity of an Attribute value in a record)
-	/// @author Aaron Kendall
-	/// @notice 1.) Only one Attribute can be targeted now, but in the future, rules could be able to target multiple Attributes + 2.) A Rule can only be owned by one RuleSet
-	/// @dev 
+    /// @title Defines a rule (i.e., a logical unit for testing the validity of an Attribute value in a record)
+    /// @author Aaron Kendall
+    /// @notice 1.) Only one Attribute can be targeted now, but in the future, rules could be able to target multiple Attributes + 2.) A Rule can only be owned by one RuleSet
+    /// @dev 
     struct WonkaRule {
 
         uint ruleId;
@@ -81,10 +81,10 @@ contract WonkaEngine {
         bool isPassiveFlag;
     }
 
-	/// @title Contains a list of all rules that have failed during a validation (and the rulesets to which they belong)
-	/// @author Aaron Kendall
-	/// @notice 
-	/// @dev The arrays will be set to the total number of rules in a RuleTree, but 'ruleFailCount' will indicate how many of them are actually populated
+    /// @title Contains a list of all rules that have failed during a validation (and the rulesets to which they belong)
+    /// @author Aaron Kendall
+    /// @notice 
+    /// @dev The arrays will be set to the total number of rules in a RuleTree, but 'ruleFailCount' will indicate how many of them are actually populated
     struct WonkaRuleReport {
 
         uint ruleFailCount;
@@ -94,10 +94,10 @@ contract WonkaEngine {
         bytes32[] ruleIds;
     }
 
- 	/// @title Defines a ruleset (i.e., a logical grouping of rules)
-	/// @author Aaron Kendall
-	/// @notice A RuleSet can only be owned by one RuleTree
-	/// @dev The collective evaluation of its rules will make a determination (such as how to navigate the RuleTree or whether or not the provided record is valid)  
+    /// @title Defines a ruleset (i.e., a logical grouping of rules)
+    /// @author Aaron Kendall
+    /// @notice A RuleSet can only be owned by one RuleTree
+    /// @dev The collective evaluation of its rules will make a determination (such as how to navigate the RuleTree or whether or not the provided record is valid)  
     struct WonkaRuleSet {
 
         bytes32     ruleSetId;
@@ -121,10 +121,10 @@ contract WonkaEngine {
         bool        isValue;
     }
 
- 	/// @title Defines a ruletree (i.e., a logical, hierarchical grouping of rulesets)
-	/// @author Aaron Kendall
-	/// @notice Currently, only one ruletree can be defined for any given address/account
-	/// @dev The collective evaluation of its rulesets will determine whether or not the provided record is valid  
+    /// @title Defines a ruletree (i.e., a logical, hierarchical grouping of rulesets)
+    /// @author Aaron Kendall
+    /// @notice Currently, only one ruletree can be defined for any given address/account
+    /// @dev The collective evaluation of its rulesets will determine whether or not the provided record is valid  
     struct WonkaRuleTree {
 
         bytes32     ruleTreeId;
@@ -140,31 +140,31 @@ contract WonkaEngine {
         bool isValue;
     }
 
- 	/// @dev Defines an event that will report when a ruletree has been added to the contract instance. Useful for debugging.
-	/// @author Aaron Kendall
-	/// @notice 
+    /// @dev Defines an event that will report when a ruletree has been added to the contract instance. Useful for debugging.
+    /// @author Aaron Kendall
+    /// @notice 
     event CallAddRuleTree(
         address indexed ruler
     );
 
- 	/// @dev Defines an event that will report when a ruletree has been invoked to validate a provided record.  seful for debugging (especially for the execution flow of a ruletree).
-	/// @author Aaron Kendall
-	/// @notice 
+    /// @dev Defines an event that will report when a ruletree has been invoked to validate a provided record.  seful for debugging (especially for the execution flow of a ruletree).
+    /// @author Aaron Kendall
+    /// @notice 
     event CallRuleTree(
         address indexed ruler
     );
 
- 	/// @dev Defines an event that will report when a ruleset has been invoked when validating a provided record.  Useful for debugging (especially for the execution flow of a ruletree).
-	/// @author Aaron Kendall
-	/// @notice 
+    /// @dev Defines an event that will report when a ruleset has been invoked when validating a provided record.  Useful for debugging (especially for the execution flow of a ruletree).
+    /// @author Aaron Kendall
+    /// @notice 
     event CallRuleSet(
         address indexed ruler,
         bytes32 indexed tmpRuleSetId
     );
 
- 	/// @dev Defines an event that will report when a ruleset has been invoked when validating a provided record.  Useful for debugging (especially for the execution flow of a ruletree).
-	/// @author Aaron Kendall
-	/// @notice 
+    /// @dev Defines an event that will report when a ruleset has been invoked when validating a provided record.  Useful for debugging (especially for the execution flow of a ruletree).
+    /// @author Aaron Kendall
+    /// @notice 
     event CallRule(
         address indexed ruler,
         bytes32 indexed ruleSetId,
@@ -216,17 +216,16 @@ contract WonkaEngine {
     bytes splitTempStr; // temporarily holds the string part until a space is received
     string[] splitArray;
 
- 	/// @dev Constructor for the rules engine
-	/// @author Aaron Kendall
-	/// @notice Currently, the engine will create three dummy Attributes within the cache by default, but they will be removed later
+    /// @dev Constructor for the rules engine
+    /// @author Aaron Kendall
+    /// @notice Currently, the engine will create three dummy Attributes within the cache by default, but they will be removed later
     constructor() public {
 
         orchestrationMode = false;
         lastTransactionSuccess = false;
-        lastSenderAddressProvided = 0;
+        // lastSenderAddressProvided = 0x123;
 
         rulesMaster = msg.sender;
-
         ruleCounter = lastRuleId = 1;
 
         attributes.push(WonkaAttr({
@@ -277,12 +276,12 @@ contract WonkaEngine {
         attrCounter = 4;
     }
 
- 	/// @dev This method will add a new Attribute to the cache.  By adding Attributes, we expand the set of possible values that can be held by a record.
-	/// @author Aaron Kendall
-	/// @notice 
-    function addAttribute(bytes32 pAttrName, uint pMaxLen, uint pMaxNumVal, string pDefVal, bool pIsStr, bool pIsNum) public {
+    /// @dev This method will add a new Attribute to the cache.  By adding Attributes, we expand the set of possible values that can be held by a record.
+    /// @author Aaron Kendall
+    /// @notice 
+    function addAttribute(bytes32 pAttrName, uint pMaxLen, uint pMaxNumVal, string memory pDefVal, bool pIsStr, bool pIsNum) public {
 
-        require(msg.sender == rulesMaster);
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add Attributes.");
 
         bool maxLenTrun = (pMaxLen > 0);
 
@@ -302,14 +301,14 @@ contract WonkaEngine {
         attrMap[attributes[attributes.length-1].attrName] = attributes[attributes.length-1];
     }
 
- 	/// @dev This method will add a new Attribute to the cache.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
-	/// @author Aaron Kendall
-	/// @notice Currently, only one ruletree can be defined for any given address/account
-    function addRuleTree(address ruler, bytes32 rsName, string desc, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public {
+    /// @dev This method will add a new Attribute to the cache.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
+    /// @author Aaron Kendall
+    /// @notice Currently, only one ruletree can be defined for any given address/account
+    function addRuleTree(address ruler, bytes32 rsName, string memory desc, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public {
 
-        require(msg.sender == rulesMaster);
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add RuleTrees.");
 
-        require(ruletrees[ruler].isValue != true);
+        require(ruletrees[ruler].isValue != true, "A RuleTree with this ID already exists.");
 
         emit CallAddRuleTree(ruler);
 
@@ -330,7 +329,7 @@ contract WonkaEngine {
     /// @notice 
     function addCustomOp(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName) public {
 
-        require(msg.sender == rulesMaster);
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add Custom Operators.");
 
         opMap[srcName] = 
             WonkaSource({
@@ -343,20 +342,20 @@ contract WonkaEngine {
         });
     }
 
- 	/// @dev This method will add a new RuleSet to the cache and to the indicated RuleTree.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
-	/// @author Aaron Kendall
-	/// @notice Currently, a RuleSet can only belong to one RuleTree and be a child of one parent RuleSet, though there are plans to have a RuleSet capable of being shared among parents
-    function addRuleSet(address ruler, bytes32 ruleSetName, string desc, bytes32 parentRSName, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public {
+    /// @dev This method will add a new RuleSet to the cache and to the indicated RuleTree.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
+    /// @author Aaron Kendall
+    /// @notice Currently, a RuleSet can only belong to one RuleTree and be a child of one parent RuleSet, though there are plans to have a RuleSet capable of being shared among parents
+    function addRuleSet(address ruler, bytes32 ruleSetName, string memory desc, bytes32 parentRSName, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public {
 
-        require((msg.sender == rulesMaster) || (msg.sender == ruler));
+        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to add a RuleSet to the specified RuleTree.");
 
-        require(ruletrees[ruler].isValue == true);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
         if (parentRSName != "") {
-            require(ruletrees[ruler].allRuleSets[parentRSName].isValue == true);
+            require(ruletrees[ruler].allRuleSets[parentRSName].isValue == true, "The specified parent RuleSet does not exist.");
         }
 
-        require(ruletrees[ruler].allRuleSets[ruleSetName].isValue == false);
+        require(ruletrees[ruler].allRuleSets[ruleSetName].isValue == false, "The specified RuleSet with the provided ID already exists.");
 
         ruletrees[ruler].allRuleSetList.push(ruleSetName);
 
@@ -384,17 +383,17 @@ contract WonkaEngine {
     /// @dev This method will add a new Rule to the indicated RuleSet
     /// @author Aaron Kendall
     /// @notice Currently, a Rule can only belong to one RuleSet
-    function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string rVal, bool notFlag, bool passiveFlag) public {
+    function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string memory rVal, bool notFlag, bool passiveFlag) public {
 
-        require((msg.sender == rulesMaster) || (msg.sender == ruler));
+        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to add a Rule to the specified RuleSet.");
 
-        require(ruletrees[ruler].isValue == true);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
-        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true);
+        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, "The specified RuleSet does not exist.");
 
-        require(attrMap[attrName].isValue);
+        require(attrMap[attrName].isValue, "The specified Attribute of the Rule does not exist.");
 
-        require(rType < uint(RuleTypes.MAX_TYPE));
+        require(rType < uint(RuleTypes.MAX_TYPE), "The specified type of the Rule does not exist.");
 
         uint currRuleId = lastRuleId = ruleCounter;
 
@@ -450,13 +449,13 @@ contract WonkaEngine {
     /// @notice Currently, a Rule can only belong to one RuleSet
     function addRuleCustomOpArgs(address ruler, bytes32 ruleSetId, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public {
 
-        require((msg.sender == rulesMaster) || (msg.sender == ruler));
+        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to set arguments in a Custom Op rule added recently.");
 
-        require(ruletrees[ruler].isValue == true);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
-        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true);
+        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, "The specified RuleSet does not exist.");
 
-        require(ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].ruleType == uint(RuleTypes.CustomOp));
+        require(ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].ruleType == uint(RuleTypes.CustomOp), "The last rule added to this RuleTree was not a Custom Op rule.");
 
         ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[0] = arg1;
         ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[1] = arg2;
@@ -469,7 +468,7 @@ contract WonkaEngine {
     /// @notice 
     function addSource(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName, bytes32 setMethName) public {
 
-        require(msg.sender == rulesMaster);
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add a Source.");
 
         sourceMap[srcName] = 
             WonkaSource({
@@ -482,20 +481,20 @@ contract WonkaEngine {
         });
     }
 
- 	/// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
-	/// @author Aaron Kendall
-	/// @notice This method will only return a boolean
+    /// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
+    /// @author Aaron Kendall
+    /// @notice This method will only return a boolean
     function execute(address ruler) public returns (bool executeSuccess) {
 
         executeSuccess = true;
 
-        require((msg.sender == rulesMaster) || (msg.sender == ruler));
+        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to execute a RuleTree.");
 
-        require(ruletrees[ruler].isValue == true);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
-        require(ruletrees[ruler].allRuleSetList.length > 0);
+        require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
 
-        require(ruletrees[ruler].rootRuleSetName != "");
+        require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
 
         emit CallRuleTree(ruler);
 
@@ -512,18 +511,18 @@ contract WonkaEngine {
         executeSuccess = lastTransactionSuccess = (report.ruleFailCount == 0);
     }
 
- 	/// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
-	/// @author Aaron Kendall
-	/// @notice This method will return a disassembled RuleReport that can be reassembled, especially by using the Nethereum library
-    function executeWithReport(address ruler) public returns (uint fails, bytes32[] rsets, bytes32[] rules) {
+    /// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
+    /// @author Aaron Kendall
+    /// @notice This method will return a disassembled RuleReport that can be reassembled, especially by using the Nethereum library
+    function executeWithReport(address ruler) public returns (uint fails, bytes32[] memory rsets, bytes32[] memory rules) {
 
-        require((msg.sender == rulesMaster) || (msg.sender == ruler));
+        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to execute a RuleTree.");
 
-        require(ruletrees[ruler].isValue == true);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
-        require(ruletrees[ruler].allRuleSetList.length > 0);
+        require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
 
-        require(ruletrees[ruler].rootRuleSetName != "");
+        require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
 
         emit CallRuleTree(ruler);
 
@@ -542,9 +541,9 @@ contract WonkaEngine {
         return (report.ruleFailCount, report.ruleSetIds, report.ruleIds);       
     }
 
- 	/// @dev This method will invoke one RuleSet within a RuleTree when validating a stored record
-	/// @author Aaron Kendall
-	/// @notice This method will return a boolean that assists with traversing the RuleTree
+    /// @dev This method will invoke one RuleSet within a RuleTree when validating a stored record
+    /// @author Aaron Kendall
+    /// @notice This method will return a boolean that assists with traversing the RuleTree
     function executeWithReport(address ruler, WonkaRuleSet storage targetRuleSet, WonkaRuleReport memory ruleReport) private returns (bool executeSuccess) {
        
         executeSuccess = true;
@@ -594,9 +593,9 @@ contract WonkaEngine {
             executeSuccess = true;
     }
 
- 	/// @dev This method will invoke one Rule within a RuleSet when validating a stored record
-	/// @author Aaron Kendall
-	/// @notice This method will return a boolean that assists with traversing the RuleTree
+    /// @dev This method will invoke one Rule within a RuleSet when validating a stored record
+    /// @author Aaron Kendall
+    /// @notice This method will return a boolean that assists with traversing the RuleTree
     function executeWithReport(address ruler, WonkaRule storage targetRule, WonkaRuleReport memory ruleReport) private returns (bool ruleResult) {
 
         ruleResult = true;
@@ -692,9 +691,9 @@ contract WonkaEngine {
 
     /// @dev This method will return the report generated by the engine's last execution
     /// @author Aaron Kendall
-    function getLastRuleReport() public view returns (uint fails, bytes32[] rsets, bytes32[] rules) {
+    function getLastRuleReport() public view returns (uint fails, bytes32[] memory rsets, bytes32[] memory rules) {
 
-        require(lastSenderAddressProvided > 0);
+        // require(lastSenderAddressProvided > 0);
 
         return (lastRuleReport.ruleFailCount, lastRuleReport.ruleSetIds, lastRuleReport.ruleIds);
     }
@@ -706,14 +705,52 @@ contract WonkaEngine {
         return lastTransactionSuccess;
     }
 
+    /// @dev This method will return the data that composes a particular Rule
+    /// @author Aaron Kendall
+    function getRuleProps(address ruler, bytes32 rsId, bool evalRuleFlag, uint ruleIdx) public view returns (bytes32, uint, bytes32, string memory, bool, bytes32[] memory) {
+
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
+
+        WonkaRule storage targetRule = (evalRuleFlag) ? ruletrees[ruler].allRuleSets[rsId].evaluativeRules[ruletrees[ruler].allRuleSets[rsId].evalRuleList[ruleIdx]] : ruletrees[ruler].allRuleSets[rsId].assertiveRules[ruletrees[ruler].allRuleSets[rsId].assertiveRuleList[ruleIdx]];
+        
+        return (targetRule.name, targetRule.ruleType, targetRule.targetAttr.attrName, targetRule.ruleValue, targetRule.notOpFlag, targetRule.customOpArgs);
+    }
+
+    /// @dev This method will return the ID of a RuleSet that is the child of a parent RuleSet
+    /// @author Aaron Kendall
+    function getRuleSetChildId(address ruler, bytes32 rsId, uint rsChildIdx) public view returns (bytes32) {
+
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
+
+        return ruletrees[ruler].allRuleSets[rsId].childRuleSetList[rsChildIdx];
+    }
+
+    /// @dev This method will return the data that composes a particular RuleSet
+    /// @author Aaron Kendall
+    function getRuleSetProps(address ruler, bytes32 rsId) public view returns (string memory, bool, bool, uint, uint, uint) {
+
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
+
+        return (ruletrees[ruler].allRuleSets[rsId].description, ruletrees[ruler].allRuleSets[rsId].severeFailure, ruletrees[ruler].allRuleSets[rsId].andOp, ruletrees[ruler].allRuleSets[rsId].evalRuleList.length, ruletrees[ruler].allRuleSets[rsId].assertiveRuleList.length, ruletrees[ruler].allRuleSets[rsId].childRuleSetList.length);
+    }
+
+    /// @dev This method will return the data that composes a particular RuleTree
+    /// @author Aaron Kendall
+    function getRuleTreeProps(address ruler) public view returns (bytes32, string memory, bytes32) { 
+
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
+
+        return (ruletrees[ruler].ruleTreeId, ruletrees[ruler].description, ruletrees[ruler].rootRuleSetName);
+    }
+
     /// @dev This method will return the value for an Attribute that is currently stored within the ruler's record
     /// @author Aaron Kendall
     /// @notice This method should only be used for debugging purposes.
-    function getValueOnRecord(address ruler, bytes32 key) public returns(string) { 
+    function getValueOnRecord(address ruler, bytes32 key) public returns(string memory) { 
 
-        require(ruletrees[ruler].isValue);
+        require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
 
-        require (attrMap[key].isValue == true);
+        require (attrMap[key].isValue == true, "The specified Attribute does not exist.");
 
         if (!orchestrationMode) {
             return (currentRecords[ruler])[key];
@@ -731,9 +768,9 @@ contract WonkaEngine {
         }
     }
 
- 	/// @dev This method will return the current number of Attributes in the cache
-	/// @author Aaron Kendall
-	/// @notice This method should only be used for debugging purposes.
+    /// @dev This method will return the current number of Attributes in the cache
+    /// @author Aaron Kendall
+    /// @notice This method should only be used for debugging purposes.
     function getNumberOfAttributes() public view returns(uint) {
 
         return attributes.length;
@@ -753,7 +790,7 @@ contract WonkaEngine {
     /// @author Aaron Kendall
     function setOrchestrationMode(bool orchMode, bytes32 defSource) public { 
 
-        require(msg.sender == rulesMaster);
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission to set the Orchestration flag.");
 
         orchestrationMode = orchMode;
 
@@ -763,11 +800,11 @@ contract WonkaEngine {
     /// @dev This method will set an Attribute value on the record associated with the provided address/account
     /// @author Aaron Kendall
     /// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
-    function setValueOnRecord(address ruler, bytes32 key, string value) public returns(string) { 
+    function setValueOnRecord(address ruler, bytes32 key, string memory value) public returns(string memory) { 
 
-        require(ruletrees[ruler].isValue);
+        require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
 
-        require(attrMap[key].isValue == true);
+        require(attrMap[key].isValue == true, "The specified Attribute does not exist.");
         
         if (!orchestrationMode) {
             (currentRecords[ruler])[key] = value;
@@ -790,9 +827,9 @@ contract WonkaEngine {
      *   SUPPORT METHODS   *
      ***********************/
 
- 	/// @dev This method will convert a bytes32 type to a String
-	/// @notice 
-    function bytes32ToString(bytes32 x) public pure returns (string) {
+    /// @dev This method will convert a bytes32 type to a String
+    /// @notice 
+    function bytes32ToString(bytes32 x) public pure returns (string memory) {
 
         bytes memory bytesString = new bytes(32);
         uint charCount = 0;
@@ -805,8 +842,8 @@ contract WonkaEngine {
         }
 
         bytes memory bytesStringTrimmed = new bytes(charCount);
-        for (j = 0; j < charCount; j++) {
-            bytesStringTrimmed[j] = bytesString[j];
+        for (uint k = 0; k < charCount; k++) {
+            bytesStringTrimmed[k] = bytesString[k];
         }
 
         return string(bytesStringTrimmed);
@@ -849,7 +886,7 @@ contract WonkaEngine {
 
     /// @author Aaron Kendall
     /// @dev This method will assist by returning the correct value, either a literal static value or one obtained through retrieval
-    function determineDomainValue(address ruler, uint domainIdx, WonkaRule storage targetRule) private returns (string retValue) {
+    function determineDomainValue(address ruler, uint domainIdx, WonkaRule storage targetRule) private returns (string memory retValue) {
 
         bytes32 keyName = targetRule.customOpArgs[domainIdx];
 
@@ -861,7 +898,7 @@ contract WonkaEngine {
 
     /// @author Aaron Kendall
     /// @dev This method will supply the functionality for a Custom Operator rule, calling a method on another contract (like perform a calculation) via assembly
-    function invokeCustomOperator(address targetContract, address sender, bytes32 methodName, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public returns (string strAnswer) {
+    function invokeCustomOperator(address targetContract, address sender, bytes32 methodName, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public returns (string memory strAnswer) {
 
         lastSenderAddressProvided = sender;
 
@@ -909,7 +946,7 @@ contract WonkaEngine {
     /// @dev This method allows the rules engine to call another contract's method via assembly, retrieving a value for evaluation
     /// @author Aaron Kendall
     /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
-    function invokeValueRetrieval(address targetContract, address sender, bytes32 methodName, bytes32 attrName) public returns (string strAnswer) {
+    function invokeValueRetrieval(address targetContract, address sender, bytes32 methodName, bytes32 attrName) public returns (string memory strAnswer) {
 
         lastSenderAddressProvided = sender;
 
@@ -952,7 +989,7 @@ contract WonkaEngine {
     /// @dev This method allows the rules engine to call another contract's method via assembly, for the purpose of assigning a value
     /// @author Aaron Kendall
     /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
-    function invokeValueSetter(address targetContract, address sender, bytes32 methodName, bytes32 attrName, bytes32 value) public returns (string strAnswer) {
+    function invokeValueSetter(address targetContract, address sender, bytes32 methodName, bytes32 attrName, bytes32 value) public returns (string memory strAnswer) {
 
         lastSenderAddressProvided = sender;
 
@@ -1000,15 +1037,19 @@ contract WonkaEngine {
     /// @param _a The string to convert into an unsigned integer
     /// @param _b The number of decimal places that we wish to include in the unsigned integer, with 0 meaning none
     /// @return The unsigned integer converted from the string
-    function parseInt(string _a, uint _b) internal pure returns (uint) {
+    function parseInt(string memory _a, uint _b) internal pure returns (uint) {
 
         bytes memory bresult = bytes(_a);
+        
         uint bint = _b;
         uint mint = 0;
         bool decimals = false;
 
         for (uint i = 0; i < bresult.length; i++) {
-            if ((bresult[i] >= 48) && (bresult[i] <= 57)) {
+            
+            uint8 tmpNum = uint8(bresult[i]);
+            
+            if ((tmpNum >= 48) && (tmpNum <= 57)) {
                 if (decimals) {
                     if (bint == 0) 
                         break;
@@ -1016,8 +1057,9 @@ contract WonkaEngine {
                         bint--;
                 }
                 mint *= 10;
-                mint += uint(bresult[i]) - 48;
-            } else if (bresult[i] == 46) 
+                mint += tmpNum - 48;
+                
+            } else if (tmpNum == 46) 
                 decimals = true;
         }
 
@@ -1026,7 +1068,7 @@ contract WonkaEngine {
 
     /// @dev This method will parse a delimited string and insert them into the Domain map of a Rule
     /// @notice 
-    function splitStrIntoMap(string str, string delimiter, WonkaRule storage targetRule, bool isOpRule) private {  
+    function splitStrIntoMap(string memory str, string memory delimiter, WonkaRule storage targetRule, bool isOpRule) private {  
 
         bytes memory b = bytes(str); //cast the string to bytes to iterate
         bytes memory delm = bytes(delimiter); 
@@ -1061,9 +1103,9 @@ contract WonkaEngine {
         }
     }
 
- 	/// @dev This method will concatenate the provided strings into one larger string
-	/// @notice 
-    function strConcat(string _a, string _b, string _c, string _d, string _e) private pure returns (string) {
+    /// @dev This method will concatenate the provided strings into one larger string
+    /// @notice 
+    function strConcat(string memory _a, string memory _b, string memory _c, string memory _d, string memory _e) private pure returns (string memory) {
 
         bytes memory _ba = bytes(_a);
         bytes memory _bb = bytes(_b);
@@ -1072,40 +1114,41 @@ contract WonkaEngine {
         bytes memory _be = bytes(_e);
         string memory abcde = new string(_ba.length + _bb.length + _bc.length + _bd.length + _be.length);
         bytes memory babcde = bytes(abcde);
+        
         uint k = 0;
         
-        for (uint i = 0; i < _ba.length; i++) {
-            babcde[k++] = _ba[i];
+        for (uint a = 0; a < _ba.length; a++) {
+            babcde[k++] = _ba[a];
         }
 
-        for (i = 0; i < _bb.length; i++) {
-            babcde[k++] = _bb[i];
+        for (uint b = 0; b < _bb.length; b++) {
+            babcde[k++] = _bb[b];
         }
 
-        for (i = 0; i < _bc.length; i++) {
-            babcde[k++] = _bc[i];
+        for (uint c = 0; c < _bc.length; c++) {
+            babcde[k++] = _bc[c];
         } 
 
-        for (i = 0; i < _bd.length; i++) {
-            babcde[k++] = _bd[i];
+        for (uint d = 0; d < _bd.length; d++) {
+            babcde[k++] = _bd[d];
         }
 
-        for (i = 0; i < _be.length; i++) { 
-            babcde[k++] = _be[i];
+        for (uint e = 0; e < _be.length; e++) { 
+            babcde[k++] = _be[e];
         }
 
         return string(babcde);
     }
 
- 	/// @dev This method will concatenate the provided strings into one larger string
-	/// @notice 
-    function strConcat(string _a, string _b, string _c) private pure returns (string) {
+    /// @dev This method will concatenate the provided strings into one larger string
+    /// @notice 
+    function strConcat(string memory _a, string memory _b, string memory _c) private pure returns (string memory) {
         return strConcat(_a, _b, _c, "", "");
     }
 
- 	/// @dev This method will concatenate the provided strings into one larger string
-	/// @notice 
-    function strConcat(string _a, string _b) private pure returns (string) {
+    /// @dev This method will concatenate the provided strings into one larger string
+    /// @notice 
+    function strConcat(string memory _a, string memory _b) private pure returns (string memory) {
         return strConcat(_a, _b, "", "", "");
     }
 

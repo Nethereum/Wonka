@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.ABI.Model;
@@ -13,6 +15,7 @@ using Nethereum.Geth.RPC.Miner;
 using Nethereum.RPC.Eth.DTOs;
 
 using WonkaBre;
+using WonkaBre.Readers;
 using WonkaBre.RuleTree;
 using WonkaEth.Contracts;
 using WonkaRef;
@@ -23,6 +26,65 @@ namespace WonkaEth.Extensions
     {
         [Parameter("address", "ruler", 1, true)]
         public string TreeOwner { get; set; }
+    }
+
+    [FunctionOutput]
+    public class ExportRuleTreeProps
+    {
+        // bytes32, string memory, bytes32
+        
+        [Parameter("bytes32", "rtid", 1)]
+        public string RuleTreeId { get; set; }
+
+        [Parameter("string", "rtdesc", 2)]
+        public string RuleTreeDesc { get; set; }
+
+        [Parameter("bytes32", "rootruleset", 3)]
+        public string RootRuleSetName { get; set; }
+    }
+
+    [FunctionOutput]
+    public class ExportRuleSetProps
+    {
+        [Parameter("string", "rsdesc", 1)]
+        public string RuleSetDesc { get; set; }
+
+        [Parameter("bool", "severefail", 2)]
+        public bool SevereFailureFlag { get; set; }
+
+        [Parameter("bool", "andop", 3)]
+        public bool AndOperatorFlag { get; set; }
+
+        [Parameter("uint", "evalrulenum", 4)]
+        public uint EvalRuleCount { get; set; }
+
+        [Parameter("uint", "assertrulenum", 5)]
+        public uint AssertiveRuleCount { get; set; }
+
+        [Parameter("uint", "childrulesetnum", 6)]
+        public uint ChildRuleSetCount { get; set; }
+    }
+
+    [FunctionOutput]
+    public class ExportRuleProps
+    {
+        [Parameter("bytes32", "rulename", 1)]
+        public string RuleName { get; set; }
+
+        [Parameter("uint", "ruletype", 2)]
+        public uint RuleType { get; set; }
+
+        [Parameter("bytes32", "attrname", 3)]
+        public string AttrName { get; set; }
+
+        [Parameter("string", "ruleval", 4)]
+        public string RuleValue { get; set; }
+
+        [Parameter("bool", "notopflag", 5)]
+        public bool NotOpFlag { get; set; }
+
+        [Parameter("bytes32[]", "custopargs", 6)]
+        public List<string> CustomOpArgs { get; set; }
     }
 
     [FunctionOutput]
@@ -138,6 +200,229 @@ namespace WonkaEth.Extensions
             return sRuleTreeId;
         }
 
+        ///
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a RuleTree within the blockchain.
+        /// 
+        /// NOTE: Currently, we use a StringBuilder class to build the XML Document.  In the future, we should transition to
+        /// using a XmlDocument and a XmlWriter.
+        /// 
+        /// <returns>Returns the XML payload that represents a RuleTree within the blockchain</returns>
+        /// </summary>
+        public static string ExportXmlString(this WonkaRegistryItem poRegistryItem)
+        {
+            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
+
+            var sPassword = WonkaRegistry.RegistryPassword;
+            var sABI      = poRegistryItem.HostContractABI;
+
+            var account  = new Account(sPassword);
+            var web3     = new Nethereum.Web3.Web3(account);
+            var contract = web3.Eth.GetContract(sABI, poRegistryItem.HostContractAddress);
+
+            StringBuilder sbExportXmlString = new StringBuilder("<?xml version=\"1.0\"?>\n<RuleTree>\n");
+
+            var getRuleTreePropsFunction = contract.GetFunction("getRuleTreeProps");
+
+            ExportRuleTreeProps TreeProps = getRuleTreePropsFunction.CallDeserializingToObjectAsync<ExportRuleTreeProps>(poRegistryItem.OwnerId).Result;
+
+            sbExportXmlString.Append(ExportXmlString(contract, poRegistryItem.OwnerId, TreeProps.RootRuleSetName, 0));
+
+            sbExportXmlString.Append("</RuleTree>\n");
+            
+            return sbExportXmlString.ToString();
+        }
+
+        ///
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a RuleSet within the blockchain.
+        /// 
+        /// NOTE: Currently, we use a StringBuilder class to build the XML Document.  In the future, we should transition to
+        /// using a XmlDocument and a XmlWriter.
+        /// 
+        /// <returns>Returns the XML payload that represents a RuleSet within the blockchain</returns>
+        /// </summary>
+        private static string ExportXmlString(Contract poEngineContract, string psOwnerId, string psRuleSetName, uint pnStepLevel)
+        {
+            var RSNodeTag   = WonkaBreXmlReader.CONST_RS_FLOW_TAG;
+            var RSNodeDesc  = WonkaBreXmlReader.CONST_RS_FLOW_DESC_ATTR;
+            var RSLeafTag   = WonkaBreXmlReader.CONST_RS_VALID_TAG;
+            var RSLeafMode  = WonkaBreXmlReader.CONST_RS_VALID_ERR_ATTR;
+            var RuleCollTag = WonkaBreXmlReader.CONST_RULES_TAG;
+            var LogicOp     = WonkaBreXmlReader.CONST_RULES_OP_ATTR;
+
+            StringBuilder sbExportXmlString = new StringBuilder();
+            StringBuilder sbTabSpaces       = new StringBuilder();
+            StringBuilder sbCritSpaces      = new StringBuilder();
+            StringBuilder sbRuleSpaces      = new StringBuilder();
+
+            var getRuleSetPropsFunction   = poEngineContract.GetFunction("getRuleSetProps");
+            var getRuleSetChildIdFunction = poEngineContract.GetFunction("getRuleSetChildId");
+            var getRulePropsFunction      = poEngineContract.GetFunction("getRuleProps");
+
+            ExportRuleSetProps SetProps = 
+                getRuleSetPropsFunction.CallDeserializingToObjectAsync<ExportRuleSetProps>(psOwnerId, psRuleSetName).Result;
+
+            for (uint x = 0; x < pnStepLevel; x++)
+                sbTabSpaces.Append("    ");
+
+            sbCritSpaces.Append(sbTabSpaces.ToString()).Append("    ");
+            sbRuleSpaces.Append(sbCritSpaces.ToString()).Append("    ");
+
+            if (!psRuleSetName.StartsWith("Root", StringComparison.CurrentCultureIgnoreCase))
+            {
+                if (SetProps.ChildRuleSetCount > 0)
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<" + RSNodeTag + " " + RSNodeDesc + "=\"" + SetProps.RuleSetDesc + "\" >\n");
+                else
+                {
+                    string sMode = 
+                        SetProps.SevereFailureFlag ? WonkaBreXmlReader.CONST_RS_VALID_ERR_SEVERE : WonkaBreXmlReader.CONST_RS_VALID_ERR_WARNING;
+                    
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<" + RSLeafTag + " " + RSLeafMode + "=\"" + sMode + "\" >\n");
+                }
+
+                sbExportXmlString.Append(sbCritSpaces.ToString());
+                sbExportXmlString.Append("<" + RuleCollTag + " " + LogicOp + "=\"" + (SetProps.AndOperatorFlag ? "AND" : "OR") + "\" >\n");
+
+                if (SetProps.EvalRuleCount > 0)
+                {
+                    StringBuilder sbRulesBody = new StringBuilder();
+                    sbRulesBody.Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString());
+
+                    for (uint idx = 0; idx < SetProps.EvalRuleCount; idx++)
+                    {
+                        ExportRuleProps RuleProps =
+                            getRulePropsFunction.CallDeserializingToObjectAsync<ExportRuleProps>(psOwnerId, psRuleSetName, true, idx).Result;
+
+                        sbExportXmlString.Append(ExportXmlString(poEngineContract, RuleProps, sbRuleSpaces));
+                    }
+                }
+
+                if (SetProps.AssertiveRuleCount > 0)
+                {
+                    StringBuilder sbRulesBody = new StringBuilder();
+                    sbRulesBody.Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString()).Append(sbTabSpaces.ToString());
+
+                    for (uint idx = 0; idx < SetProps.AssertiveRuleCount; idx++)
+                    {
+                        ExportRuleProps RuleProps =
+                            getRulePropsFunction.CallDeserializingToObjectAsync<ExportRuleProps>(psOwnerId, psRuleSetName, false, idx).Result;
+
+                        sbExportXmlString.Append(ExportXmlString(poEngineContract, RuleProps, sbRuleSpaces));
+                    }
+                }
+
+                sbExportXmlString.Append(sbCritSpaces.ToString());
+                sbExportXmlString.Append("</" + RuleCollTag + ">\n");
+            }
+
+            // Now invoke the rulesets
+            for (uint childIdx = 0; childIdx < SetProps.ChildRuleSetCount; childIdx++)
+            {
+                string nChildRuleSetId =
+                    getRuleSetChildIdFunction.CallAsync<string>(psOwnerId, psRuleSetName, childIdx).Result;
+
+                sbExportXmlString.Append(ExportXmlString(poEngineContract, psOwnerId, nChildRuleSetId, pnStepLevel + 1));
+            }
+
+            if (!psRuleSetName.StartsWith("Root", StringComparison.CurrentCultureIgnoreCase))
+            {
+                if (SetProps.ChildRuleSetCount > 0)
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</" + RSNodeTag + ">\n");
+                else
+                    sbExportXmlString.Append(sbTabSpaces.ToString()).Append("</" + RSLeafTag + ">\n");
+            }
+
+            return sbExportXmlString.ToString();
+        }
+
+        ///
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to obtain the XML (i.e., Wonka rules markup) of a Rule within the blockchain.
+        /// 
+        /// NOTE: Currently, we use a StringBuilder class to build the XML Document.  In the future, we should transition to
+        /// using a XmlDocument and a XmlWriter.
+        /// 
+        /// <returns>Returns the XML payload that represents a Rule within the blockchain</returns>
+        /// </summary>
+        public static string ExportXmlString(Contract poEngineContract, ExportRuleProps poRuleProps, StringBuilder poSpaces)
+        {
+            bool   bEvalRule      = true;
+            string sOpName        = "";
+            string sRuleValue     = poRuleProps.RuleValue;
+            string sDelim         = WonkaBreXmlReader.CONST_RULE_TOKEN_VAL_DELIM;
+            string sSingleQuote   = "'";
+
+            string sRuleTagFormat = 
+                "{0}<" + WonkaBreXmlReader.CONST_RULE_TAG + " " + WonkaBreXmlReader.CONST_RULE_ID_ATTR + "=\"{1}\">(N.{2}) {3} {4}</eval>\n";
+
+            if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.LESS_THAN_RULE)
+                sOpName = WonkaBreXmlReader.CONST_AL_LT;
+            else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.EQUAL_TO_RULE)
+                sOpName = WonkaBreXmlReader.CONST_AL_EQ;
+            else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.GREATER_THAN_RULE)
+                sOpName = WonkaBreXmlReader.CONST_AL_GT;
+            else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.POPULATED_RULE)
+                sOpName = WonkaBreXmlReader.CONST_BASIC_OP_POP;
+            else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.IN_DOMAIN_RULE)
+                sOpName = WonkaBreXmlReader.CONST_BASIC_OP_IN;
+            else
+            {
+                bEvalRule = false;
+
+                if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ASSIGN_RULE)
+                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN;
+                else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_SUM)
+                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_SUM;
+                else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_DIFF)
+                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_DIFF;
+                else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_PROD)
+                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_PROD;
+                else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_QUOT)
+                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_QUOT;
+                else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.CUSTOM_OP_RULE)
+                {
+                    List<string> CustomOpArgs = new List<string>(poRuleProps.CustomOpArgs);
+                    CustomOpArgs.RemoveAll(x => x == "dummyValue");
+
+                    sOpName    = poRuleProps.RuleValue;
+                    sRuleValue = string.Join(sDelim, CustomOpArgs);
+                }
+            }
+
+            if (bEvalRule && poRuleProps.NotOpFlag)
+                sOpName = "NOT " + sOpName;
+
+            if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.IN_DOMAIN_RULE)
+            {
+                if (sRuleValue.Contains(sDelim))
+                {
+                    StringBuilder sbNewValue = new StringBuilder();
+
+                    string[] asValueList = sRuleValue.Split(new char[1] { ',' });
+                    foreach (string sTmpValue in asValueList)
+                    {
+                        if (sbNewValue.Length > 0)
+                            sbNewValue.Append(sDelim);
+
+                        sbNewValue.Append(sSingleQuote).Append(sTmpValue).Append(sSingleQuote);
+                    }
+
+                    sRuleValue = sbNewValue.ToString();
+                }
+                else
+                    sRuleValue = "'" + poRuleProps.RuleValue + "'";
+            }
+
+            if (!String.IsNullOrEmpty(sRuleValue))
+                sRuleValue = "(" + sRuleValue + ")";
+
+            return String.Format(sRuleTagFormat, poSpaces.ToString(), poRuleProps.RuleName, poRuleProps.AttrName, sOpName, sRuleValue);
+        }
+
         /// <summary>
         /// 
         /// This method will return the metadata about a RuleTree that is registered within the blockchain.
@@ -221,7 +506,7 @@ namespace WonkaEth.Extensions
                 if (!poEngine.IsRuleTreeRegistered())
                     poEngine.SerializeRegistryInfo(psSenderAddress, psContractAddress);
                 else
-                    poEngine.CompareRuleTrees(psSenderAddress);                
+                    poEngine.CompareRuleTrees(psSenderAddress);
             }
 
             treeRoot.SerializeTreeRoot(sSenderAddress, contract);
@@ -475,10 +760,10 @@ namespace WonkaEth.Extensions
 
             newRegistryItem.HostContractAddress = psContractAddress;
             newRegistryItem.OwnerId             = psSenderAddress;
-            newRegistryItem.RuleTreeGroveIds    = new Dictionary<string, int>();
             newRegistryItem.MinGasCost          = CONST_MIN_GAS_COST_DEFAULT;
             newRegistryItem.MaxGasCost          = CONST_MAX_GAS_COST_DEFAULT;
             newRegistryItem.RequiredAttributes  = RequiredAttributes;
+            newRegistryItem.RuleTreeGroveIds    = new Dictionary<string, int>();
 
             if (!String.IsNullOrEmpty(poEngine.GroveId) && (poEngine.GroveIndex > 0))
                 newRegistryItem.RuleTreeGroveIds[poEngine.GroveId] = (int) poEngine.GroveIndex;
@@ -829,7 +1114,7 @@ namespace WonkaEth.Extensions
         /// </summary>
         public static WonkaEth.Orchestration.Init.OrchestrationInitData TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, IMetadataRetrievable piMetadataSource = null)
         {
-            WonkaEth.Orchestration.Init.OrchestrationInitData OrchInitData = new Orchestration.Init.OrchestrationInitData();
+            WonkaEth.Orchestration.Init.OrchestrationInitData OrchInitData = new WonkaEth.Orchestration.Init.OrchestrationInitData();
 
             OrchInitData.AttributesMetadataSource = piMetadataSource;
 
