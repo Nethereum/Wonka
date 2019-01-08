@@ -47,6 +47,8 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Permissions\WonkaBreMultiSigLock.cs" />
+    <Compile Include="Permissions\WonkaBrePermissionsGroup.cs" />
     <Compile Include="WonkaBreEnumerations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WonkaBreException.cs" />
@@ -82,14 +84,7 @@
       <Name>WonkaRef</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="RuleTree\" />
-    <Folder Include="RuleTree\RuleTypes\" />
-    <Folder Include="Readers\" />
-    <Folder Include="Reporting\" />
-    <Folder Include="Samples\" />
-    <Folder Include="Import\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Samples\SimpleAccountCheck.xml" />
     <None Include="App.config" />
