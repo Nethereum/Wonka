@@ -47,7 +47,8 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Permissions\WonkaBreMultiSigLock.cs" />
+    <Compile Include="Permissions\ITransactionState.cs" />
+    <Compile Include="Permissions\WonkaBreTransactionState.cs" />
     <Compile Include="Permissions\WonkaBrePermissionsGroup.cs" />
     <Compile Include="WonkaBreEnumerations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
