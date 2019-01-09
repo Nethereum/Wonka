@@ -18,6 +18,11 @@ namespace WonkaBre
     /// This class is the main console that should be used by users of this library.  All functionality
     /// should be utilized through an instance of this class.
     /// 
+    /// This console (and the rest of the classes in the library) encapsulate a business rules engine, 
+    /// that will know how to read and then invoke a set or rules (i.e., a RuleTree).  For the most part,
+    /// a RuleTree provides the ability to validate a set of data, but it can also be used to invoke 
+    /// user-defined actions (call a custom function, etc.) within a certain context.
+    /// 
     /// </summary>
     public class WonkaBreRulesEngine
     {
