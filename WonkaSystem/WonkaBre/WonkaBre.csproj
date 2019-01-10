@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Permissions\ITransactionState.cs" />
+    <Compile Include="Permissions\WonkaBrePermissionsException.cs" />
     <Compile Include="Permissions\WonkaBreTransactionState.cs" />
     <Compile Include="Permissions\WonkaBrePermissionsGroup.cs" />
     <Compile Include="WonkaBreEnumerations.cs" />
