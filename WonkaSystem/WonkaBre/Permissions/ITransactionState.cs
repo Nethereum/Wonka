@@ -14,6 +14,8 @@ namespace WonkaBre.Permissions
 
         uint GetCurrentScore();
 
+        uint GetMinScoreRequirement();
+
         HashSet<string> GetOwnersConfirmed();
 
         HashSet<string> GetOwnersUnconfirmed();

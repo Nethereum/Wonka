@@ -69,6 +69,11 @@ namespace WonkaBre.Permissions
             return nCurrentScore;
         }
 
+        public uint GetMinScoreRequirement()
+        {
+            return MinReqScoreForApproval;
+        }
+
         public HashSet<string> GetOwnersConfirmed()
         {
             HashSet<string> Confirmed = new HashSet<string>();
