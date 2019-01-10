@@ -8,8 +8,6 @@ namespace WonkaBre.Permissions
 {
     public interface ITransactionState
     {
-        void AddOwner(string psNewOwner, int pnWeight);
-
         void AddConfirmation(string psOwner);
 
         void ClearPendingTransaction();
@@ -26,6 +24,8 @@ namespace WonkaBre.Permissions
 
         bool RevokeConfirmation(string psOwner);
 
-        void SetMinRequirement(int pnMinReq);
+        void SetMinScoreRequirement(uint pnMinReq);
+
+        void SetOwner(string psNewOwner, uint pnWeight);
     }
 }
