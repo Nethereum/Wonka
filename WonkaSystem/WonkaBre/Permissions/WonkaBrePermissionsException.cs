@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace WonkaBre.Permissions
 {
@@ -12,6 +13,39 @@ namespace WonkaBre.Permissions
     {
         public WonkaBrePermissionsException(string psErrorMessage) : base(psErrorMessage)
         {
+            CurrentScoreForApproval = MinReqScoreForApproval = 0;
+
+            OwnersConfirmed   = new HashSet<string>();
+            OwnersUnconfirmed = new HashSet<string>();
         }
+
+        public WonkaBrePermissionsException(string psErrorMessage, ITransactionState poTransactionState) : base(psErrorMessage)
+        {
+            CurrentScoreForApproval = MinReqScoreForApproval = 0;
+
+            OwnersConfirmed   = new HashSet<string>();
+            OwnersUnconfirmed = new HashSet<string>();
+
+            if (poTransactionState != null)
+            {
+                CurrentScoreForApproval = poTransactionState.GetCurrentScore();
+                MinReqScoreForApproval  = poTransactionState.GetMinScoreRequirement();
+
+                OwnersConfirmed   = poTransactionState.GetOwnersConfirmed();
+                OwnersUnconfirmed = poTransactionState.GetOwnersUnconfirmed();
+            }
+        }
+
+        #region Properties
+
+        public readonly uint CurrentScoreForApproval;
+
+        public readonly uint MinReqScoreForApproval;
+
+        public readonly HashSet<string> OwnersConfirmed;
+
+        public readonly HashSet<string> OwnersUnconfirmed;
+
+        #endregion
     }
 }
