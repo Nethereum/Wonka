@@ -12,6 +12,12 @@ namespace WonkaBre.Permissions
 
         void ClearPendingTransaction();
 
+        uint GetCurrentScore();
+
+        HashSet<string> GetOwnersConfirmed();
+
+        HashSet<string> GetOwnersUnconfirmed();
+
         bool HasConfirmed(string psOwner);
 
         bool IsOwner(string psOwner);

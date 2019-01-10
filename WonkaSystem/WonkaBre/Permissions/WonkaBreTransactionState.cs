@@ -56,6 +56,37 @@ namespace WonkaBre.Permissions
             // NOTE: In the case that we introduce othe state variables, they should be reset here
         }
 
+        public uint GetCurrentScore()
+        {
+            uint nCurrentScore = 0;
+
+            foreach (string sTmpOwner in OwnerConfirmations.Keys)
+            {
+                if (OwnerConfirmations[sTmpOwner])
+                    nCurrentScore += OwnerWeights[sTmpOwner];
+            }
+
+            return nCurrentScore;
+        }
+
+        public HashSet<string> GetOwnersConfirmed()
+        {
+            HashSet<string> Confirmed = new HashSet<string>();
+
+            OwnerConfirmations.Where(x => HasConfirmed(x.Key)).ToList().ForEach(x => Confirmed.Add(x.Key));
+
+            return Confirmed;
+        }
+
+        public HashSet<string> GetOwnersUnconfirmed()
+        {
+            HashSet<string> Confirmed = new HashSet<string>();
+
+            OwnerConfirmations.Where(x => !HasConfirmed(x.Key)).ToList().ForEach(x => Confirmed.Add(x.Key));
+
+            return Confirmed;
+        }
+
         public bool HasConfirmed(string psOwner)
         {
             if (!IsOwner(psOwner))
@@ -74,15 +105,7 @@ namespace WonkaBre.Permissions
 
         public bool IsTransactionConfirmed()
         {
-            uint nCurrentScore = 0;
-
-            foreach (string sTmpOwner in OwnerConfirmations.Keys)
-            {
-                if (OwnerConfirmations[sTmpOwner])
-                    nCurrentScore += OwnerWeights[sTmpOwner];
-            }
-
-            return (nCurrentScore >= MinReqScoreForApproval);
+            return (GetCurrentScore() >= MinReqScoreForApproval);
         }
 
         public void RemoveOwner(string psOwner)
