@@ -8,11 +8,11 @@ namespace WonkaBre.Permissions
 {
     /// <summary>
     /// 
-    /// This class will contain all state data in relation to the pending transaction of a RuleTree,
-    /// which will be invoked within the rules engine.
+    /// This class is a provided implementation of the ITransactionstate interface.  It can contain all state data 
+    /// in relation to the pending transaction of a RuleTree, which will be invoked within the rules engine.
     /// 
     /// </summary>
-    public class WonkaBreTransactionState
+    public class WonkaBreTransactionState : ITransactionState
     {
         #region CONSTANTS
 
@@ -20,80 +20,113 @@ namespace WonkaBre.Permissions
 
         #endregion
 
-        public WonkaBreTransactionState(IEnumerable<string> poOwners, int pnMinReqScoreForApproval = 0)
+        public WonkaBreTransactionState(IEnumerable<string> poOwners, uint pnMinReqScoreForApproval = 0)
         {
             PendingTransactionConfirmed = false;
 
-            OwnerScores = new Dictionary<string, int>();
+            OwnerWeights = new Dictionary<string, uint>();
 
             foreach (string sTmpOwner in poOwners)
             {
-                OwnerScores[sTmpOwner] = 1;
+                OwnerWeights[sTmpOwner] = 1;
 
                 OwnerConfirmations[sTmpOwner] = false;
             }                
 
-            if (OwnerScores.Keys.Count == 0)
-                throw new Exception("ERROR!  No owners were provided.");
+            if (OwnerWeights.Keys.Count == 0)
+                throw new WonkaBrePermissionsException("ERROR!  No owners were provided.");
 
-            MinReqScoreForApproval = (pnMinReqScoreForApproval > 0) ? pnMinReqScoreForApproval : OwnerScores.Count / 2;
+            MinReqScoreForApproval = (pnMinReqScoreForApproval > 0) ? pnMinReqScoreForApproval : (uint) OwnerWeights.Count / 2;
         }
 
         #region Methods
 
         public void AddConfirmation(string psOwner)
         {
-            // NOTE: To be implemented
+            if (!IsOwner(psOwner))
+                throw new WonkaBrePermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
+
+            OwnerConfirmations[psOwner] = true;
         }
 
         public void ClearPendingTransaction()
         {
-            // NOTE: To be implemented
+            RevokeAllConfirmations();
+
+            // NOTE: In the case that we introduce othe state variables, they should be reset here
         }
 
         public bool HasConfirmed(string psOwner)
         {
-            // NOTE: To be implemented
-            return true;
+            if (!IsOwner(psOwner))
+                throw new WonkaBrePermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
+
+            return OwnerConfirmations[psOwner];
         }
 
         public bool IsOwner(string psOwner)
         {
-            // NOTE: To be implemented
-            return true;
+            if (String.IsNullOrEmpty(psOwner))
+                throw new WonkaBrePermissionsException("ERROR!  Provided owner cannot be null or blank.");
+
+            return (OwnerWeights.ContainsKey(psOwner));
         }
 
         public bool IsTransactionConfirmed()
         {
-            // NOTE: To be implemented
-            return true;
+            uint nCurrentScore = 0;
+
+            foreach (string sTmpOwner in OwnerConfirmations.Keys)
+            {
+                if (OwnerConfirmations[sTmpOwner])
+                    nCurrentScore += OwnerWeights[sTmpOwner];
+            }
+
+            return (nCurrentScore >= MinReqScoreForApproval);
         }
 
-        public void RemoveOwner(string psNewOwner)
+        public void RemoveOwner(string psOwner)
         {
-            // NOTE: To be implemented
+            if (!IsOwner(psOwner))
+                throw new WonkaBrePermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
+
+            OwnerWeights.Remove(psOwner);
+            OwnerConfirmations.Remove(psOwner);
         }
 
         public bool RevokeAllConfirmations()
         {
-            // NOTE: To be implemented
+            foreach (string sTmpOwner in OwnerConfirmations.Keys)
+                RevokeConfirmation(sTmpOwner);
+
             return true;
         }
 
         public bool RevokeConfirmation(string psOwner)
         {
-            // NOTE: To be implemented
+            if (!IsOwner(psOwner))
+                throw new WonkaBrePermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
+
+            OwnerConfirmations[psOwner] = false;
+
             return true;
         }
 
-        public void SetMinRequirement(int pnMinReq)
+        public void SetMinScoreRequirement(uint pnMinReq)
         {
-            // NOTE: To be implemented
+            if (pnMinReq == 0)
+                throw new WonkaBrePermissionsException("Minimum requirement has to be greater than 0.");
+
+            MinReqScoreForApproval = pnMinReq;
         }
 
-        public void SetOwner(string psNewOwner, int pnWeight = 1)
+        public void SetOwner(string psOwner, uint pnWeight = 1)
         {
-            // NOTE: To be implemented
+            if (String.IsNullOrEmpty(psOwner))
+                throw new WonkaBrePermissionsException("ERROR!  Provided owner cannot be null or blank.");
+
+            OwnerConfirmations[psOwner] = false;
+            OwnerWeights[psOwner]       = pnWeight;
         }
 
         #endregion
@@ -102,11 +135,11 @@ namespace WonkaBre.Permissions
 
         private bool PendingTransactionConfirmed { get; set; }
 
-        private int MinReqScoreForApproval { get; set; }
+        private uint MinReqScoreForApproval { get; set; }
 
         private Dictionary<string, bool> OwnerConfirmations { get; set; }
 
-        private Dictionary<string, int> OwnerScores { get; set; }
+        private Dictionary<string, uint> OwnerWeights { get; set; }
 
         #endregion
     }
