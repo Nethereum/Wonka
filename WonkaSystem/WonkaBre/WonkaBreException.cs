@@ -10,6 +10,13 @@ namespace WonkaBre
     /// </summary>
     class WonkaBreException : Exception
     {
+        public WonkaBreException(string psErrorMessage)
+        {
+            RuleSetId = RuleId = 0;
+
+            Msg = psErrorMessage;
+        }
+
         public WonkaBreException(int pnRuleSetId, int pnRuleId, string psErrorMessage)
         {
             RuleSetId = pnRuleSetId;
