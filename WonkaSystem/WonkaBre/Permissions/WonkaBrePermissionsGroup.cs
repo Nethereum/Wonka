@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace WonkaBre.Permissions
 {
+    /// <summary>
+    /// 
+    /// NOTE: Yet to be implemented
+    /// 
+    /// </summary>
     public class WonkaBrePermissionsGroup
     {
     }
