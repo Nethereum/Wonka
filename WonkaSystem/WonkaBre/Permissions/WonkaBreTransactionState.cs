@@ -29,7 +29,10 @@ namespace WonkaBre.Permissions
                 OwnerWeights[sTmpOwner] = 1;
 
                 OwnerConfirmations[sTmpOwner] = false;
-            }                
+            }
+
+            if (OwnerWeights.Keys.Count >= CONST_MAX_OWNERS)
+                throw new WonkaBrePermissionsException("ERROR!  Too many owners were provided.  Maximum limit is [" + CONST_MAX_OWNERS + "].");
 
             if (OwnerWeights.Keys.Count == 0)
                 throw new WonkaBrePermissionsException("ERROR!  No owners were provided.");
@@ -148,6 +151,9 @@ namespace WonkaBre.Permissions
 
         public void SetOwner(string psOwner, uint pnWeight = 1)
         {
+            if (OwnerConfirmations.Count >= CONST_MAX_OWNERS)
+                throw new WonkaBrePermissionsException("ERROR!  Max count of owners [" + CONST_MAX_OWNERS + "] has already been reached.");
+
             if (String.IsNullOrEmpty(psOwner))
                 throw new WonkaBrePermissionsException("ERROR!  Provided owner cannot be null or blank.");
 
