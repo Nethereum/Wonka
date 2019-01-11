@@ -22,8 +22,6 @@ namespace WonkaBre.Permissions
 
         public WonkaBreTransactionState(IEnumerable<string> poOwners, uint pnMinReqScoreForApproval = 0)
         {
-            PendingTransactionConfirmed = false;
-
             OwnerWeights = new Dictionary<string, uint>();
 
             foreach (string sTmpOwner in poOwners)
@@ -160,8 +158,6 @@ namespace WonkaBre.Permissions
         #endregion
 
         #region Properties
-
-        private bool PendingTransactionConfirmed { get; set; }
 
         private uint MinReqScoreForApproval { get; set; }
 
