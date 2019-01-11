@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using WonkaBre.Permissions;
 using WonkaBre.Readers;
 using WonkaBre.Reporting;
 using WonkaBre.RuleTree;
@@ -54,10 +55,10 @@ namespace WonkaBre
         public WonkaBreRulesEngine(string psRulesFilepath, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
         {
             if (String.IsNullOrEmpty(psRulesFilepath))
-                throw new Exception("ERROR!  Provided rules file is null or empty!");
+                throw new WonkaBreException("ERROR!  Provided rules file is null or empty!");
 
             if (!File.Exists(psRulesFilepath))
-                throw new Exception("ERROR!  Provided rules file(" + psRulesFilepath + ") does not exist on the filesystem.");
+                throw new WonkaBreException("ERROR!  Provided rules file(" + psRulesFilepath + ") does not exist on the filesystem.");
 
             UsingOrchestrationMode = false;
             AddToRegistry          = pbAddToRegistry;
@@ -72,7 +73,7 @@ namespace WonkaBre
         public WonkaBreRulesEngine(StringBuilder psRules, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
         {
             if ((psRules == null) || (psRules.Length <= 0))
-                throw new Exception("ERROR!  Provided rules are null or empty!");
+                throw new WonkaBreException("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = false;
             AddToRegistry          = pbAddToRegistry;
@@ -90,7 +91,7 @@ namespace WonkaBre
                                    bool                               pbAddToRegistry = false)
         {
             if ((psRules == null) || (psRules.Length <= 0))
-                throw new Exception("ERROR!  Provided rules are null or empty!");
+                throw new WonkaBreException("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = true;
             AddToRegistry          = pbAddToRegistry;
@@ -112,7 +113,7 @@ namespace WonkaBre
                                    bool                               pbAddToRegistry = true)
         {
             if ((psRules == null) || (psRules.Length <= 0))
-                throw new Exception("ERROR!  Provided rules are null or empty!");
+                throw new WonkaBreException("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = true;
             AddToRegistry          = pbAddToRegistry;
@@ -183,10 +184,9 @@ namespace WonkaBre
             }
 
             this.CurrentProductOnDB = null;
-
-            this.TempDirectory = "C:\tmp";
-
+            this.TempDirectory      = "C:\tmp";
             this.RetrieveCurrRecord = null;
+            this.TransactionState   = null;
 
             GroveId       = "";
             GroveIndex    = 0;
@@ -213,12 +213,12 @@ namespace WonkaBre
             foreach (WonkaRefAttr TempAttrKey in WonkaRefEnv.AttrKeys)
             {
                 if (poTargetProduct.GetProductGroup(TempAttrKey.GroupId).GetRowCount() <= 0)
-                    throw new Exception("ERROR!  Provided incoming product has empty group for needed key (" + TempAttrKey.AttrName + ").");
+                    throw new WonkaBreException("ERROR!  Provided incoming product has empty group for needed key (" + TempAttrKey.AttrName + ").");
 
                 string sTempKeyValue = poTargetProduct.GetProductGroup(TempAttrKey.GroupId)[0][TempAttrKey.AttrId];
 
                 if (String.IsNullOrEmpty(sTempKeyValue))
-                    throw new Exception("ERROR!  Provided incoming product has no value for needed key(" + TempAttrKey.AttrName + ").");
+                    throw new WonkaBreException("ERROR!  Provided incoming product has no value for needed key(" + TempAttrKey.AttrName + ").");
 
                 ProductKeys[TempAttrKey.AttrName] = sTempKeyValue;
             }
@@ -242,23 +242,35 @@ namespace WonkaBre
             Dictionary<string, string> ProductKeys = GetProductKeys(poIncomingProduct);
 
             if (poIncomingProduct == null)
-                throw new Exception("ERROR!  Provided incoming product is null!");
+                throw new WonkaBreException("ERROR!  Provided incoming product is null!");
+
+            if ((TransactionState != null) && !TransactionState.IsTransactionConfirmed())
+                throw new WonkaBrePermissionsException("ERROR!  Pending transaction has not yet been confirmed!", TransactionState);
 
             WonkaBreRuleTreeReport RuleTreeReport = new WonkaBreRuleTreeReport();
 
-            if (GetCurrentProductDelegate != null)
-                CurrentProductOnDB = GetCurrentProductDelegate.Invoke(ProductKeys);
-            else
-                CurrentProductOnDB = new WonkaProduct();
+            try
+            {
 
-            WonkaBreRuleMediator.MediateRuleTreeExecution(RuleTreeRoot, poIncomingProduct, CurrentProductOnDB, RuleTreeReport);
+                if (GetCurrentProductDelegate != null)
+                    CurrentProductOnDB = GetCurrentProductDelegate.Invoke(ProductKeys);
+                else
+                    CurrentProductOnDB = new WonkaProduct();
 
-            /*
-             * NOTE: Do we need anything like this method
-             * 
-            if (PostApplicationDelegate != null)
-                PostApplicationDelegate.Invoke(poIncomingProduct, CurrentProductOnDB);
-            */
+                WonkaBreRuleMediator.MediateRuleTreeExecution(RuleTreeRoot, poIncomingProduct, CurrentProductOnDB, RuleTreeReport);
+
+                /*
+                 * NOTE: Do we need anything like this method
+                 * 
+                if (PostApplicationDelegate != null)
+                    PostApplicationDelegate.Invoke(poIncomingProduct, CurrentProductOnDB);
+                */
+            }
+            finally
+            {
+                if (TransactionState != null)
+                    TransactionState.ClearPendingTransaction();
+            }
 
             return RuleTreeReport;
         }
@@ -297,7 +309,7 @@ namespace WonkaBre
                 if (!UsingOrchestrationMode)
                     RetrieveCurrRecord = value;
                 else
-                    throw new Exception("ERROR!  Cannot reassign the delegate when running in orchestration mode.");
+                    throw new WonkaBreException("ERROR!  Cannot reassign the delegate when running in orchestration mode.");
             }
         }
 
@@ -306,6 +318,8 @@ namespace WonkaBre
         public Dictionary<string, WonkaBreSource> CustomOpMap { get; set; }
 
         public string DefaultSource { get; set; }
+
+        public ITransactionState TransactionState { get; set; }
 
         #endregion
 
