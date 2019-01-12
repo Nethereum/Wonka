@@ -6,29 +6,29 @@ pragma solidity ^0.5.1;
 /// @dev 
 contract TransactionStateInterface
 {
-  function addConfirmation(address psOwner) public;
+    function addConfirmation(address psOwner) public;
 
-  function clearPendingTransaction() public;
+    function clearPendingTransaction() public;
 
-  function getCurrentScore() public view returns (uint);
+    function getCurrentScore() public view returns (uint);
 
-  function getMinScoreRequirement() public view returns (uint);
+    function getMinScoreRequirement() public view returns (uint);
   
-  function getOwnersConfirmed() public view returns (address[] memory confirmed);
+    function getOwnersConfirmed() public view returns (address[] memory);
   
-  function getOwnersUnconfirmed() public view returns (address[] memory unconfirmed);
+    function getOwnersUnconfirmed() public view returns (address[] memory);
   
-  function hasConfirmed(address owner) public view returns (bool);
+    function hasConfirmed(address owner) public view returns (bool);
   
-  function isTransactionConfirmed(address owner) public view returns (bool);
+    function isTransactionConfirmed() public view returns (bool);
   
-  function removeOwner(address owner) public;
+    function removeOwner(address owner) public;
   
-  function revokeAllConfirmations() public view returns (bool);
+    function revokeAllConfirmations() public view returns (bool);
   
-  function revokeConfirmation(address owner) public returns (bool);
+    function revokeConfirmation(address owner) public returns (bool);
   
-  function setMinScoreRequirement(uint newMinReqScore) public;
+    function setMinScoreRequirement(uint newMinReqScore) public;
   
-  function setOwner(address owner, uint8 weight) public;
+    function setOwner(address owner, uint weight) public;
 }
