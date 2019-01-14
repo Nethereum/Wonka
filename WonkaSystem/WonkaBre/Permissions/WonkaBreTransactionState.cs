@@ -24,7 +24,9 @@ namespace WonkaBre.Permissions
         {
             ContractAddress = psContractAddress;
 
-            OwnerWeights = new Dictionary<string, uint>();
+            ApprovedExecutors  = new HashSet<string>();
+            OwnerWeights       = new Dictionary<string, uint>();
+            OwnerConfirmations = new Dictionary<string, bool>();
 
             foreach (string sTmpOwner in poOwners)
             {
@@ -168,6 +170,8 @@ namespace WonkaBre.Permissions
         #region Properties
 
         public readonly string ContractAddress;
+
+        public HashSet<string> ApprovedExecutors { get; set; }
 
         private uint MinReqScoreForApproval { get; set; }
 
