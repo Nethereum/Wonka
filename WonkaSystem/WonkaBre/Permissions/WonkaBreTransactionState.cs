@@ -20,8 +20,10 @@ namespace WonkaBre.Permissions
 
         #endregion
 
-        public WonkaBreTransactionState(IEnumerable<string> poOwners, uint pnMinReqScoreForApproval = 0)
+        public WonkaBreTransactionState(IEnumerable<string> poOwners, uint pnMinReqScoreForApproval = 0, string psContractAddress = null)
         {
+            ContractAddress = psContractAddress;
+
             OwnerWeights = new Dictionary<string, uint>();
 
             foreach (string sTmpOwner in poOwners)
@@ -164,6 +166,8 @@ namespace WonkaBre.Permissions
         #endregion
 
         #region Properties
+
+        public readonly string ContractAddress;
 
         private uint MinReqScoreForApproval { get; set; }
 
