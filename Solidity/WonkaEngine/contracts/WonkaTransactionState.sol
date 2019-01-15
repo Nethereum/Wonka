@@ -14,11 +14,11 @@ contract WonkaTransactionState is TransactionStateInterface {
 
     address[] owners;
 
-    mapping(address => bool) executors;
-
     mapping(address => bool) ownerConfirmations;
 
     mapping(address => uint) ownerWeights;
+
+    mapping(address => bool) executors;
     
     /// @dev Constructor for the transaction state
     /// @author Aaron Kendall
@@ -130,9 +130,12 @@ contract WonkaTransactionState is TransactionStateInterface {
         revokeConfirmation(owner);
     }
   
-    function revokeAllConfirmations() public view returns (bool) {
+    function revokeAllConfirmations() public returns (bool) {
         
-        // NOTE: To be implemented
+        for (uint16 idx = 0; idx < owners.length; ++idx) {
+            revokeConfirmation(owners[idx]);
+        }
+
         return true;
     }
   

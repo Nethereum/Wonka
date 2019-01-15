@@ -28,7 +28,7 @@ contract TransactionStateInterface
   
     function removeOwner(address owner) public;
   
-    function revokeAllConfirmations() public view returns (bool);
+    function revokeAllConfirmations() public returns (bool);
   
     function revokeConfirmation(address owner) public returns (bool);
 
