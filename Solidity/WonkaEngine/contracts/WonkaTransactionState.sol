@@ -2,7 +2,7 @@ pragma solidity ^0.5.1;
 
 import "./TransactionStateInterface.sol";
 
-/// @title An Ethereum library that contains information about all the instances of the Wonka rules engines in a blockchain
+/// @title An example of a class that implements the interface defined by TransactionStateInterface
 /// @author Aaron Kendall
 /// @notice 
 /// @dev 
@@ -14,10 +14,11 @@ contract WonkaTransactionState is TransactionStateInterface {
 
     address[] owners;
 
+    mapping(address => bool) executors;
+
     mapping(address => bool) ownerConfirmations;
 
     mapping(address => uint) ownerWeights;
-
     
     /// @dev Constructor for the transaction state
     /// @author Aaron Kendall
@@ -101,6 +102,11 @@ contract WonkaTransactionState is TransactionStateInterface {
        
         return ownerConfirmations[owner];
     }
+
+    function isExecutor(address candidate) public view returns (bool) {
+
+        return executors[candidate];
+    }
   
     function isTransactionConfirmed() public view returns (bool) {
         
@@ -109,6 +115,11 @@ contract WonkaTransactionState is TransactionStateInterface {
         require(owners.length == 0, "No owners have been provided.");
         
         return (getCurrentScore() >= minReqScoreForApproval);
+    }
+
+    function removeExecutor(address executor) public {
+
+        executors[executor] = false;
     }
   
     function removeOwner(address owner) public {
@@ -136,6 +147,11 @@ contract WonkaTransactionState is TransactionStateInterface {
     function setMinScoreRequirement(uint newMinReqScore) public {
         
         minReqScoreForApproval = newMinReqScore;
+    }
+
+    function setExecutor(address executor) public {
+
+        executors[executor] = true;
     }
   
     function setOwner(address owner, uint weight) public {

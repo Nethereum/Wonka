@@ -19,14 +19,20 @@ contract TransactionStateInterface
     function getOwnersUnconfirmed() public view returns (address[] memory);
   
     function hasConfirmed(address owner) public view returns (bool);
+
+    function isExecutor(address candidate) public view returns (bool);
   
     function isTransactionConfirmed() public view returns (bool);
+
+    function removeExecutor(address executor) public;
   
     function removeOwner(address owner) public;
   
     function revokeAllConfirmations() public view returns (bool);
   
     function revokeConfirmation(address owner) public returns (bool);
+
+    function setExecutor(address executor) public;
   
     function setMinScoreRequirement(uint newMinReqScore) public;
   
