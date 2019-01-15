@@ -47,7 +47,8 @@ contract WonkaTransactionState is TransactionStateInterface {
         uint currScore = 0;
         
         for (uint16 idx = 0; idx < owners.length; ++idx) {
-            currScore += ownerWeights[owners[idx]];
+            if (ownerConfirmations[owners[idx]])
+                currScore += ownerWeights[owners[idx]];
         }
         
         return currScore;
@@ -110,9 +111,9 @@ contract WonkaTransactionState is TransactionStateInterface {
   
     function isTransactionConfirmed() public view returns (bool) {
         
-        require(getMinScoreRequirement() == 0, "Minimum score has not yet been set.");
+        require(getMinScoreRequirement() > 0, "Minimum score has not yet been set.");
         
-        require(owners.length == 0, "No owners have been provided.");
+        require(owners.length > 0, "No owners have been provided.");
         
         return (getCurrentScore() >= minReqScoreForApproval);
     }
@@ -162,6 +163,9 @@ contract WonkaTransactionState is TransactionStateInterface {
         require(owners.length < CONST_MAX_OWNERS, "The maximum number of owners has already been reached.");
         
         owners.push(owner);
+
+        if (getMinScoreRequirement() < owners.length)
+            setMinScoreRequirement(owners.length);
         
         ownerWeights[owner] = weight;
         
