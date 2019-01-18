@@ -1,5 +1,7 @@
 pragma solidity ^0.5.1;
 
+import "./TransactionStateInterface.sol";
+
 /// @title An Ethereum library that contains the functionality for a rules engine
 /// @author Aaron Kendall
 /// @notice 1.) Not all structs are being used yet + 2.) Certain steps are required in order to use this engine correctly + 3.) Deployment of this contract to a blockchain is expensive (~9000000 gas)
@@ -140,6 +142,9 @@ contract WonkaEngine {
         bool isValue;
     }
 
+    /**
+     ** NOTE: USE WHEN DEBUGGING IS NEEDED
+     **
     /// @dev Defines an event that will report when a ruletree has been added to the contract instance. Useful for debugging.
     /// @author Aaron Kendall
     /// @notice 
@@ -171,6 +176,8 @@ contract WonkaEngine {
         bytes32 indexed ruleId,
         uint ruleType
     );
+     **
+     */
 
     // An enum for the type of rules currently supported
     enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, OpDiv, CustomOp, MAX_TYPE }
@@ -210,6 +217,12 @@ contract WonkaEngine {
 
     // The cache of available sources for calling 'op' methods (i.e., that contain special logic to implement a custom operator)
     mapping(bytes32 => WonkaSource) opMap;
+
+    // The cache that indicates if a transaction state exist for a RuleTree
+    mapping(bytes32 => bool) transStateInd;
+
+    // The cache of transaction states assigned to RuleTrees
+    mapping(bytes32 => TransactionStateInterface) transStateMap;
 
     // For the function splitStr(...)
     // Currently unsure how the function will perform in a multithreaded scenario
@@ -310,7 +323,8 @@ contract WonkaEngine {
 
         require(ruletrees[ruler].isValue != true, "A RuleTree with this ID already exists.");
 
-        emit CallAddRuleTree(ruler);
+        // NOTE: USE WHEN DEBUGGING IS NEEDED
+        // emit CallAddRuleTree(ruler);
 
         ruletrees[ruler] = WonkaRuleTree({
             ruleTreeId: rsName,
@@ -322,6 +336,8 @@ contract WonkaEngine {
         });
 
         addRuleSet(ruler, rsName, desc, "", severeFailureFlag, useAndOperator, flagFailImmediately);
+
+        transStateInd[ruletrees[ruler].ruleTreeId] = false;
     }
 
     /// @dev This method will add a new custom operator to the cache.
@@ -355,7 +371,8 @@ contract WonkaEngine {
             require(ruletrees[ruler].allRuleSets[parentRSName].isValue == true, "The specified parent RuleSet does not exist.");
         }
 
-        require(ruletrees[ruler].allRuleSets[ruleSetName].isValue == false, "The specified RuleSet with the provided ID already exists.");
+        // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
+        // require(ruletrees[ruler].allRuleSets[ruleSetName].isValue == false, "The specified RuleSet with the provided ID already exists.");
 
         ruletrees[ruler].allRuleSetList.push(ruleSetName);
 
@@ -494,9 +511,11 @@ contract WonkaEngine {
 
         require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
 
-        require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
+        // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
+        // require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
 
-        emit CallRuleTree(ruler);
+        // NOTE: USE WHEN DEBUGGING IS NEEDED
+        // emit CallRuleTree(ruler);
 
         lastSenderAddressProvided = ruler;
 
@@ -524,7 +543,8 @@ contract WonkaEngine {
 
         require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
 
-        emit CallRuleTree(ruler);
+        // NOTE: USE WHEN DEBUGGING IS NEEDED
+        // emit CallRuleTree(ruler);
 
         lastSenderAddressProvided = ruler;
 
@@ -548,7 +568,16 @@ contract WonkaEngine {
        
         executeSuccess = true;
 
-        emit CallRuleSet(ruler, targetRuleSet.ruleSetId);
+        // NOTE: USE WHEN DEBUGGING IS NEEDED
+        // emit CallRuleSet(ruler, targetRuleSet.ruleSetId);
+
+        // NOTE: NEW STEPS
+        if (transStateInd[ruletrees[ruler].ruleTreeId]) {
+
+            require(transStateMap[ruletrees[ruler].ruleTreeId].isTransactionConfirmed(), "Transaction has not been confirmed.");
+
+            require(transStateMap[ruletrees[ruler].ruleTreeId].isExecutor(ruler), "Sender is not a permitted executor.");
+        }
 
         bool tempResult = false;
         bool tempSetResult = true;
@@ -605,7 +634,8 @@ contract WonkaEngine {
 
         string memory tempValue = getValueOnRecord(ruler, targetRule.targetAttr.attrName);
 
-        emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
+        // NOTE: USE WHEN DEBUGGING IS NEEDED
+        // emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
 
         if (targetRule.targetAttr.isNumeric) {          
             testNumValue = parseInt(tempValue, 0);
@@ -678,7 +708,8 @@ contract WonkaEngine {
 
         if (!ruleResult && ruletrees[ruler].allRuleSets[targetRule.parentRuleSetId].isLeaf) {            
 
-            emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
+            // NOTE: USE WHEN DEBUGGING IS NEEDED
+            // emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
 
             ruleReport.ruleSetIds[ruleReport.ruleFailCount] = targetRule.parentRuleSetId;
 
@@ -795,7 +826,15 @@ contract WonkaEngine {
         orchestrationMode = orchMode;
 
         defaultTargetSource = defSource;
-    }    
+    }
+
+    /// @dev This method will set the transaction state to be used by a RuleTree
+    /// @author Aaron Kendall
+    function setTransactionState(address ruler, address transStateAddr) public {
+
+        transStateInd[ruletrees[ruler].ruleTreeId] = true;
+        transStateMap[ruletrees[ruler].ruleTreeId] = TransactionStateInterface(transStateAddr);
+    }
 
     /// @dev This method will set an Attribute value on the record associated with the provided address/account
     /// @author Aaron Kendall
