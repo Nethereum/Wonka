@@ -541,7 +541,8 @@ contract WonkaEngine {
 
         require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
 
-        require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
+        // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
+        // require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
 
         // NOTE: USE WHEN DEBUGGING IS NEEDED
         // emit CallRuleTree(ruler);
