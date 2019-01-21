@@ -1,6 +1,7 @@
-var WonkaEngine      = artifacts.require("./WonkaEngine.sol");
-var OrchTestContract = artifacts.require("./OrchTestContract.sol");
-var WonkaRegistry  = artifacts.require("./WonkaRegistry.sol");
+var WonkaEngine           = artifacts.require("./WonkaEngine.sol");
+var OrchTestContract      = artifacts.require("./OrchTestContract.sol");
+var WonkaRegistry         = artifacts.require("./WonkaRegistry.sol");
+var WonkaTransactionState = artifacts.require("./WonkaTransactionState.sol");
 
 // create an instance of web3 using the HTTP provider.
 // NOTE: in mist web3 is already available, so check first if it's available before instantiating
@@ -25,7 +26,7 @@ var CUSTOM_OP_RULE    = 10;
 contract('WonkaEngine', function(accounts) {
 contract('OrchTestContract', function(accounts) {
 contract('WonkaRegistry', function(accounts3) {
-
+contract('WonkaTransactionState', function(accounts4) {
  
   /*
   beforeEach(function () {
@@ -101,10 +102,14 @@ contract('WonkaRegistry', function(accounts3) {
       // }).then(done).catch(done));
       //
 
+      /**
+       ** NOTE: Use when debugging is needed
+       **
       var event1 = instance.CallAddRuleTree(function(error, result) {
         if (!error)
           console.log("CALLBACK -> Added the ruletree assigned to ruler: (" + result.args.ruler + ")");
       });
+       **/
 
       instance.addRuleTree(accounts[0], web3.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), true, true, false);
 
@@ -349,6 +354,31 @@ contract('WonkaRegistry', function(accounts3) {
       });
     });
   });
+  it("Set Transaction State for RuleTree", function() {
+
+    return WonkaEngine.deployed().then(function(instance) {
+
+      console.log("STS - Got the handle for the RuleTree.");
+
+      return WonkaTransactionState.deployed().then(function(tInstance) {
+
+        console.log("Started the setting of transaction state for the RuleTree.");
+
+        tInstance.setOwner(accounts[0], 100);
+
+        tInstance.setExecutor(accounts[0]);
+
+        tInstance.addConfirmation(accounts[0]);
+
+        tInstance.setMinScoreRequirement(1);
+
+        instance.setTransactionState(accounts[0], tInstance.address);
+
+        console.log("Completed the setting of transaction state for the RuleTree.");
+
+      });
+    });
+  });  
   it("Running the rules engine with a Custom Operator rule", function() {
     return WonkaEngine.deployed().then(function(wInstance) {      
       return OrchTestContract.deployed().then(function(testInstance) {
@@ -402,6 +432,7 @@ contract('WonkaRegistry', function(accounts3) {
     });
   });
 
+})  // end of the scope for WonkaTransactionState
 })  // end of the scope for WonkaRegistry
 })  // end of the scope for OrchTestContract
 }); // end of the scope for WonkaEngine
