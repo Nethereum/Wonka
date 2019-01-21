@@ -118,6 +118,7 @@
     <Folder Include="Orchestration\BlockchainEvents\" />
     <Folder Include="Orchestration\BlockchainOutput\" />
     <Folder Include="Orchestration\Init\" />
+    <Folder Include="Contracts\Ethereum\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaBre\WonkaBre.csproj">
@@ -136,6 +137,9 @@
       <Project>{CDE8B010-2F96-4801-8DEE-BB110FC709A9}</Project>
       <Name>WonkaIpfs</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Contracts\Ethereum\TransactionStateInterface.abi" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
