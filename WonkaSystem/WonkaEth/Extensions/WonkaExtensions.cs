@@ -668,18 +668,19 @@ namespace WonkaEth.Extensions
 
         /// <summary>
         /// 
-        /// This method will use Nethereum to serialize a in the blockchain's registry.
+        /// This method will use Nethereum to serialize the transaction state into the blockchain's registry.
         /// 
-        /// <returns>Indicates whether or not the registry info was submitted to the blockchain</returns>
+        /// <param name="poTransState">The instance of the transaction state</param>
+        /// <param name="psSender">The Ethereum address of the sender account</param>
+        /// <param name="psPassword">The password for the sender/param>
+        /// <param name="psTransStateContractAddress">The address of the instance of the blockchain contract that serves as the transaction state</param>
+        /// <returns>Indicates whether or not the transaction state was submitted to the blockchain</returns>
         /// </summary>
         public static bool Serialize(this WonkaBre.Permissions.ITransactionState poTransState,
                                                                           string psSender,
                                                                           string psPassword,
                                                                           string psTransStateContractAddress)
         {
-            HashSet<string> SourcesAdded   = new HashSet<string>();
-            HashSet<string> CustomOpsAdded = new HashSet<string>();
-
             var sPassword     = psPassword;
             var sContractAddr = psTransStateContractAddress;
 
@@ -705,11 +706,19 @@ namespace WonkaEth.Extensions
             // var gas = addRegistryItemFunction.EstimateGasAsync(etc,etc,etc).Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
-            var setMinScoreReceipt =
-                setMinScoreFunction.SendTransactionAsync(psSender, gas, null, 1);
+            var nMinScore = poTransState.GetMinScoreRequirement();
+            if (nMinScore > 0)
+            {
+                var setMinScoreReceipt =
+                    setMinScoreFunction.SendTransactionAsync(psSender, gas, null, nMinScore);
+            }
 
-            var setExecutorReceipt =
-                setExecutorFunction.SendTransactionAsync(psSender, gas, null, psSender);
+            HashSet<string> TrxStateExecutors = poTransState.GetExecutors();
+            foreach (string sTmpExecutor in TrxStateExecutors)
+            {
+                var setExecutorReceipt =
+                    setExecutorFunction.SendTransactionAsync(psSender, gas, null, sTmpExecutor);
+            }
 
             var setOwnerReceipt =
                 setExecutorFunction.SendTransactionAsync(psSender, gas, null, psSender, 1);
