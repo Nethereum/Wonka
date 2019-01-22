@@ -164,74 +164,6 @@
       "type": "constructor"
     },
     {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "ruler",
-          "type": "address"
-        }
-      ],
-      "name": "CallAddRuleTree",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "ruler",
-          "type": "address"
-        }
-      ],
-      "name": "CallRuleTree",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "ruler",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "tmpRuleSetId",
-          "type": "bytes32"
-        }
-      ],
-      "name": "CallRuleSet",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "ruler",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "ruleSetId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "name": "ruleId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "name": "ruleType",
-          "type": "uint256"
-        }
-      ],
-      "name": "CallRule",
-      "type": "event"
-    },
-    {
       "constant": false,
       "inputs": [
         {
@@ -768,6 +700,24 @@
         }
       ],
       "name": "setOrchestrationMode",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ruler",
+          "type": "address"
+        },
+        {
+          "name": "transStateAddr",
+          "type": "address"
+        }
+      ],
+      "name": "setTransactionState",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
