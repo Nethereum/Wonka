@@ -483,9 +483,15 @@ namespace WonkaEth.Extensions
         /// <param name="psPassword">The password for the sender</param>
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
+        /// <param name="psTransStateContractAddress">The address of the instance of the transaction state</param>
         /// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
         /// </summary>
-        public static bool Serialize(this WonkaBreRulesEngine poEngine, string psSenderAddress, string psPassword, string psContractAddress, string psAbi)
+        public static bool Serialize(this WonkaBreRulesEngine poEngine, 
+                                                       string psSenderAddress, 
+                                                       string psPassword, 
+                                                       string psContractAddress, 
+                                                       string psAbi, 
+                                                       string psTransStateContractAddress = null)
         {
             bool bResult = true;
 
@@ -514,8 +520,24 @@ namespace WonkaEth.Extensions
             if (poEngine.UsingOrchestrationMode)
                 poEngine.SerializeOrchestrationInfo(sSenderAddress, contract);
 
+            if (!String.IsNullOrEmpty(psTransStateContractAddress))
+            {
+                var setTrxStateFunction = contract.GetFunction("setTransactionState");
+
+                // NOTE: Caused exception to be thrown
+                var gas = setTrxStateFunction.EstimateGasAsync("UserAddress", "ContractAddress").Result;
+                // var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+                var receiptSetTrxState =
+                    setTrxStateFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psTransStateContractAddress).Result;
+
+                if (poEngine.TransactionState != null)
+                    poEngine.TransactionState.Serialize(psSenderAddress, psPassword, psTransStateContractAddress);
+            }
+
             return bResult;
         }
+
 
         /// <summary>
         /// 
@@ -640,6 +662,60 @@ namespace WonkaEth.Extensions
                                                              poRegistryItem.RequiredAttributes,
                                                              poRegistryItem.UsedCustomOps,
                                                              nSecondsSinceEpoch).Result;
+            
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to serialize a in the blockchain's registry.
+        /// 
+        /// <returns>Indicates whether or not the registry info was submitted to the blockchain</returns>
+        /// </summary>
+        public static bool Serialize(this WonkaBre.Permissions.ITransactionState poTransState,
+                                                                          string psSender,
+                                                                          string psPassword,
+                                                                          string psTransStateContractAddress)
+        {
+            HashSet<string> SourcesAdded   = new HashSet<string>();
+            HashSet<string> CustomOpsAdded = new HashSet<string>();
+
+            var sPassword     = psPassword;
+            var sContractAddr = psTransStateContractAddress;
+
+            var TmpAssembly = System.Reflection.Assembly.GetCallingAssembly();
+
+            string sABI = "";
+            using (var AbiReader = new System.IO.StreamReader(TmpAssembly.GetManifestResourceStream("WonkaEth.Contracts.Ethereum.TransactionStateInterface.abi")))
+            {
+                sABI = AbiReader.ReadToEnd();
+            }
+
+            var account  = new Account(sPassword);
+            var web3     = new Nethereum.Web3.Web3(account);
+            var contract = web3.Eth.GetContract(sABI, sContractAddr);
+
+            var addConfirmFunction  = contract.GetFunction("addConfirmation");
+            var getMinScoreFunction = contract.GetFunction("getMinScoreRequirement");
+            var setExecutorFunction = contract.GetFunction("setExecutor");
+            var setMinScoreFunction = contract.GetFunction("setMinScoreRequirement");
+            var setOwnerFunction    = contract.GetFunction("setOwner");
+
+            // NOTE: Causes "out of gas" exception to be thrown?
+            // var gas = addRegistryItemFunction.EstimateGasAsync(etc,etc,etc).Result;
+            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+            var setMinScoreReceipt =
+                setMinScoreFunction.SendTransactionAsync(psSender, gas, null, 1);
+
+            var setExecutorReceipt =
+                setExecutorFunction.SendTransactionAsync(psSender, gas, null, psSender);
+
+            var setOwnerReceipt =
+                setExecutorFunction.SendTransactionAsync(psSender, gas, null, psSender, 1);
+
+            var confirmReceipt =
+                addConfirmFunction.SendTransactionAsync(psSender, gas, null, psSender);
             
             return true;
         }
