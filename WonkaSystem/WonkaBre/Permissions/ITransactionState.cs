@@ -10,9 +10,13 @@ namespace WonkaBre.Permissions
     {
         void AddConfirmation(string psOwner);
 
+        void AddExecutor(string psExecutor);
+
         void ClearPendingTransaction();
 
         uint GetCurrentScore();
+
+        HashSet<string> GetExecutors();
 
         uint GetMinScoreRequirement();
 
@@ -20,11 +24,15 @@ namespace WonkaBre.Permissions
 
         HashSet<string> GetOwnersUnconfirmed();
 
+        uint GetOwnerWeight(string psOwner);
+
         bool HasConfirmed(string psOwner);
 
         bool IsOwner(string psOwner);
 
         bool IsTransactionConfirmed();
+
+        void RemoveExecutor(string psExecutor);
 
         void RemoveOwner(string psNewOwner);
 

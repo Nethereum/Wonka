@@ -54,6 +54,12 @@ namespace WonkaBre.Permissions
             OwnerConfirmations[psOwner] = true;
         }
 
+        public void AddExecutor(string psExecutor)
+        {
+            if (!String.IsNullOrEmpty(psExecutor))
+                ApprovedExecutors.Add(psExecutor);
+        }
+
         public void ClearPendingTransaction()
         {
             RevokeAllConfirmations();
@@ -72,6 +78,11 @@ namespace WonkaBre.Permissions
             }
 
             return nCurrentScore;
+        }
+
+        public HashSet<string> GetExecutors()
+        {
+            return ApprovedExecutors;
         }
 
         public uint GetMinScoreRequirement()
@@ -97,6 +108,19 @@ namespace WonkaBre.Permissions
             return Confirmed;
         }
 
+        public uint GetOwnerWeight(string psOwner)
+        {
+            if (!String.IsNullOrEmpty(psOwner))
+            {
+                if (OwnerWeights.ContainsKey(psOwner))
+                    return OwnerWeights[psOwner];
+                else
+                    return 0;
+            }
+            else
+                return 0;
+        }
+
         public bool HasConfirmed(string psOwner)
         {
             if (!IsOwner(psOwner))
@@ -116,6 +140,12 @@ namespace WonkaBre.Permissions
         public bool IsTransactionConfirmed()
         {
             return (GetCurrentScore() >= MinReqScoreForApproval);
+        }
+
+        public void RemoveExecutor(string psExecutor)
+        {
+            if (!String.IsNullOrEmpty(psExecutor))
+                ApprovedExecutors.Remove(psExecutor);
         }
 
         public void RemoveOwner(string psOwner)
