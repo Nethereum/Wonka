@@ -696,11 +696,12 @@ namespace WonkaEth.Extensions
             var web3     = new Nethereum.Web3.Web3(account);
             var contract = web3.Eth.GetContract(sABI, sContractAddr);
 
-            var addConfirmFunction  = contract.GetFunction("addConfirmation");
-            var getMinScoreFunction = contract.GetFunction("getMinScoreRequirement");
-            var setExecutorFunction = contract.GetFunction("setExecutor");
-            var setMinScoreFunction = contract.GetFunction("setMinScoreRequirement");
-            var setOwnerFunction    = contract.GetFunction("setOwner");
+            var addConfirmFunction        = contract.GetFunction("addConfirmation");
+            var getMinScoreFunction       = contract.GetFunction("getMinScoreRequirement");
+            var revokeAllConfirmsFunction = contract.GetFunction("revokeAllConfirmations");
+            var setExecutorFunction       = contract.GetFunction("setExecutor");
+            var setMinScoreFunction       = contract.GetFunction("setMinScoreRequirement");
+            var setOwnerFunction          = contract.GetFunction("setOwner");
 
             // NOTE: Causes "out of gas" exception to be thrown?
             // var gas = addRegistryItemFunction.EstimateGasAsync(etc,etc,etc).Result;
@@ -720,12 +721,26 @@ namespace WonkaEth.Extensions
                     setExecutorFunction.SendTransactionAsync(psSender, gas, null, sTmpExecutor);
             }
 
-            var setOwnerReceipt =
-                setExecutorFunction.SendTransactionAsync(psSender, gas, null, psSender, 1);
+            var revokeAllConfirmsReceipt = 
+                revokeAllConfirmsFunction.SendTransactionAsync(psSender, gas, null);
 
-            var confirmReceipt =
-                addConfirmFunction.SendTransactionAsync(psSender, gas, null, psSender);
-            
+            HashSet<string> TrxStateConfirmedList = poTransState.GetOwnersConfirmed();
+            foreach (string sTmpConfirmed in TrxStateConfirmedList)
+            {
+                var setOwnerReceipt =
+                    setExecutorFunction.SendTransactionAsync(psSender, gas, null, sTmpConfirmed, poTransState.GetOwnerWeight(sTmpConfirmed));
+
+                var confirmReceipt =
+                    addConfirmFunction.SendTransactionAsync(psSender, gas, null, sTmpConfirmed);
+            }
+
+            HashSet<string> TrxStateUnconfirmedList = poTransState.GetOwnersUnconfirmed();
+            foreach (string sTmpUnconfirmed in TrxStateUnconfirmedList)
+            {
+                var setOwnerReceipt =
+                    setExecutorFunction.SendTransactionAsync(psSender, gas, null, sTmpUnconfirmed, poTransState.GetOwnerWeight(sTmpUnconfirmed));
+            }
+
             return true;
         }
 
