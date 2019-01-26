@@ -406,7 +406,8 @@ namespace WonkaEth.Orchestration
                     moRulesEngine.Serialize(moInitData.BlockchainEngine.SenderAddress, 
                                             moInitData.BlockchainEngine.Password, 
                                             moInitData.BlockchainEngine.ContractAddress, 
-                                            moInitData.BlockchainEngine.ContractABI);
+                                            moInitData.BlockchainEngine.ContractABI,
+                                            moInitData.TrxStateContractAddress);
         }
 
         public static void SetAttribute(WonkaProduct poTargetProduct, WonkaRefAttr poTargetAttr, string psTargetValue)

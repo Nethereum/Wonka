@@ -1226,6 +1226,8 @@ namespace WonkaEth.Extensions
                                    poEthInitData.BlockchainEngine.ContractABI,
                                    "", "", null);
 
+            OrchInitData.TrxStateContractAddress = poEthInitData.BlockchainEngine.TrxStateContractAddress;
+
             OrchInitData.DefaultBlockchainDataSource =
                 new WonkaBreSource(poEthInitData.DefaultValueRetrieval.ContractMarkupId,
                                    poEthInitData.DefaultValueRetrieval.ContractSender,
