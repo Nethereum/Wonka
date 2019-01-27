@@ -523,6 +523,9 @@ namespace WonkaSystem.TestHarness
                 InitData.DefaultBlockchainDataSource = moDefaultSource;
                 InitData.BlockchainDataSources       = moAttrSourceMap;
                 InitData.BlockchainCustomOpFunctions = moCustomOpMap;
+
+                InitData.TrxStateContractAddress = moOrchInitData.TrxStateContractAddress;
+
             }
 
             return InitData;
