@@ -65,7 +65,8 @@ namespace WonkaEth.Orchestration
             moRulesEngine = new WonkaBreRulesEngine(msRulesContents, 
                                                     poOrchInitData.BlockchainDataSources, 
                                                     poOrchInitData.BlockchainCustomOpFunctions, 
-                                                    poOrchInitData.AttributesMetadataSource);
+                                                    poOrchInitData.AttributesMetadataSource,
+                                                    true);
 
             if (!String.IsNullOrEmpty(psGroveId) && (pnGroveIndex > 0))
             {
