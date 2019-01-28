@@ -525,7 +525,7 @@ namespace WonkaEth.Extensions
                 var setTrxStateFunction = contract.GetFunction("setTransactionState");
 
                 // NOTE: Caused exception to be thrown
-                var gas = setTrxStateFunction.EstimateGasAsync("UserAddress", "ContractAddress").Result;
+                var gas = setTrxStateFunction.EstimateGasAsync(psSenderAddress, psTransStateContractAddress).Result;
                 // var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
                 var receiptSetTrxState =
@@ -684,10 +684,11 @@ namespace WonkaEth.Extensions
             var sPassword     = psPassword;
             var sContractAddr = psTransStateContractAddress;
 
-            var TmpAssembly = System.Reflection.Assembly.GetCallingAssembly();
+            var TmpAssembly  = System.Reflection.Assembly.GetExecutingAssembly();
+            var TmpResStream = TmpAssembly.GetManifestResourceStream("WonkaEth.Contracts.Ethereum.TransactionStateInterface.abi");
 
             string sABI = "";
-            using (var AbiReader = new System.IO.StreamReader(TmpAssembly.GetManifestResourceStream("WonkaEth.Contracts.Ethereum.TransactionStateInterface.abi")))
+            using (var AbiReader = new System.IO.StreamReader(TmpResStream))
             {
                 sABI = AbiReader.ReadToEnd();
             }
@@ -698,6 +699,8 @@ namespace WonkaEth.Extensions
 
             var addConfirmFunction        = contract.GetFunction("addConfirmation");
             var getMinScoreFunction       = contract.GetFunction("getMinScoreRequirement");
+            var hasConfirmedFunction      = contract.GetFunction("hasConfirmed");
+            var revokeConfirmFunction     = contract.GetFunction("revokeConfirmation");
             var revokeAllConfirmsFunction = contract.GetFunction("revokeAllConfirmations");
             var setExecutorFunction       = contract.GetFunction("setExecutor");
             var setMinScoreFunction       = contract.GetFunction("setMinScoreRequirement");
@@ -710,35 +713,42 @@ namespace WonkaEth.Extensions
             var nMinScore = poTransState.GetMinScoreRequirement();
             if (nMinScore > 0)
             {
-                var setMinScoreReceipt =
-                    setMinScoreFunction.SendTransactionAsync(psSender, gas, null, nMinScore);
+                var setMinScoreRetVal =
+                    setMinScoreFunction.SendTransactionAsync(psSender, gas, null, nMinScore).Result;
             }
 
             HashSet<string> TrxStateExecutors = poTransState.GetExecutors();
             foreach (string sTmpExecutor in TrxStateExecutors)
             {
-                var setExecutorReceipt =
-                    setExecutorFunction.SendTransactionAsync(psSender, gas, null, sTmpExecutor);
+                var setExecutorRetVal =
+                    setExecutorFunction.SendTransactionAsync(psSender, gas, null, sTmpExecutor).Result;
             }
 
-            var revokeAllConfirmsReceipt = 
-                revokeAllConfirmsFunction.SendTransactionAsync(psSender, gas, null);
+            var revokeAllConfirmsRetVal =
+                revokeAllConfirmsFunction.SendTransactionAsync(psSender, gas, null).Result;
 
             HashSet<string> TrxStateConfirmedList = poTransState.GetOwnersConfirmed();
             foreach (string sTmpConfirmed in TrxStateConfirmedList)
             {
-                var setOwnerReceipt =
-                    setExecutorFunction.SendTransactionAsync(psSender, gas, null, sTmpConfirmed, poTransState.GetOwnerWeight(sTmpConfirmed));
+                uint nOwnerWeight = poTransState.GetOwnerWeight(sTmpConfirmed);
 
-                var confirmReceipt =
-                    addConfirmFunction.SendTransactionAsync(psSender, gas, null, sTmpConfirmed);
+                var setOwnerRetVal =
+                    setOwnerFunction.SendTransactionAsync(psSender, gas, null, sTmpConfirmed, nOwnerWeight).Result;
+
+                var confirmRetVal =
+                    addConfirmFunction.SendTransactionAsync(psSender, gas, null, sTmpConfirmed).Result;
             }
 
             HashSet<string> TrxStateUnconfirmedList = poTransState.GetOwnersUnconfirmed();
             foreach (string sTmpUnconfirmed in TrxStateUnconfirmedList)
             {
-                var setOwnerReceipt =
-                    setExecutorFunction.SendTransactionAsync(psSender, gas, null, sTmpUnconfirmed, poTransState.GetOwnerWeight(sTmpUnconfirmed));
+                uint nOwnerWeight = poTransState.GetOwnerWeight(sTmpUnconfirmed);
+
+                var setOwnerRetVal =
+                    setOwnerFunction.SendTransactionAsync(psSender, gas, null, sTmpUnconfirmed, nOwnerWeight).Result;
+
+                var revokeRetVal =
+                    revokeConfirmFunction.SendTransactionAsync(psSender, gas, null, sTmpUnconfirmed).Result;
             }
 
             return true;
@@ -890,9 +900,12 @@ namespace WonkaEth.Extensions
         {
             var addRuleTreeFunction = poContract.GetFunction("addRuleTree");
 
+            /**
+             ** NOTE: Useful when debugging is needed
+             **
             var callAddRuleTreeEvent = poContract.GetEvent(CONST_EVENT_CALL_RULE_TREE);
-
             var filterARTAll = callAddRuleTreeEvent.CreateFilterAsync().Result;
+             **/
 
             var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeName", "SomeDesc", true, true, true).Result;
 
@@ -922,10 +935,14 @@ namespace WonkaEth.Extensions
                 TempChildRuleSet.SerializeRuleSet(psSenderAddress, poContract, sRootName);
             }
 
+            /**
+             ** NOTE: Useful when debugging is needed
+             **
             var ruleTreeLog = callAddRuleTreeEvent.GetFilterChanges<CallAddRuleTreeEvent>(filterARTAll).Result;
 
             if (ruleTreeLog.Count > 0)
                 System.Console.WriteLine("RuleTree Added that Belongs to : (" + ruleTreeLog[0].Event.TreeOwner + ")");
+             **/
 
             return true;
         }
