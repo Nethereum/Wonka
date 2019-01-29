@@ -184,13 +184,6 @@ contract WonkaEngine {
     RuleTypes constant defaultType = RuleTypes.IsEqual;
 
     string constant blankValue = "";
-    
-    string constant CONST_ERR_MSG_FUNCTION_FORBIDDEN = "The caller of this method does not have permission to this functionality.";
-    string constant CONST_ERR_MSG_RULETREE_NOT_EXIST = "The specified RuleTree does not exist.";
-    string constant CONST_ERR_MSG_RULESET_NOT_EXIST  = "The specified RuleSet does not exist.";
-    string constant CONST_ERR_MSG_ATTR_NOT_EXIST     = "The specified Attribute does not exist.";
-    string constant CONST_ERR_MSG_RULETREE_IS_EMPTY  = "The specified RuleTree is empty.";
-    string constant CONST_ERR_MSG_NO_RULETREE_OWNED  = "The provided user does not own anything on this instance of the contract.";
 
     uint constant CONST_CUSTOM_OP_ARGS = 4;
 
@@ -301,7 +294,7 @@ contract WonkaEngine {
     /// @notice 
     function addAttribute(bytes32 pAttrName, uint pMaxLen, uint pMaxNumVal, string memory pDefVal, bool pIsStr, bool pIsNum) public {
 
-        require(msg.sender == rulesMaster, CONST_ERR_MSG_FUNCTION_FORBIDDEN);
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add Attributes.");
 
         bool maxLenTrun = (pMaxLen > 0);
 
@@ -326,7 +319,7 @@ contract WonkaEngine {
     /// @notice Currently, only one ruletree can be defined for any given address/account
     function addRuleTree(address ruler, bytes32 rsName, string memory desc, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public {
 
-        require(msg.sender == rulesMaster, CONST_ERR_MSG_FUNCTION_FORBIDDEN);
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add RuleTrees.");
 
         require(ruletrees[ruler].isValue != true, "A RuleTree with this ID already exists.");
 
@@ -352,7 +345,7 @@ contract WonkaEngine {
     /// @notice 
     function addCustomOp(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName) public {
 
-        require(msg.sender == rulesMaster, CONST_ERR_MSG_FUNCTION_FORBIDDEN);
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add Custom Operators.");
 
         opMap[srcName] = 
             WonkaSource({
@@ -370,9 +363,9 @@ contract WonkaEngine {
     /// @notice Currently, a RuleSet can only belong to one RuleTree and be a child of one parent RuleSet, though there are plans to have a RuleSet capable of being shared among parents
     function addRuleSet(address ruler, bytes32 ruleSetName, string memory desc, bytes32 parentRSName, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public {
 
-        require((msg.sender == rulesMaster) || (msg.sender == ruler), CONST_ERR_MSG_FUNCTION_FORBIDDEN);
+        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to add a RuleSet to the specified RuleTree.");
 
-        require(ruletrees[ruler].isValue == true, CONST_ERR_MSG_RULETREE_NOT_EXIST);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
         if (parentRSName != "") {
             require(ruletrees[ruler].allRuleSets[parentRSName].isValue == true, "The specified parent RuleSet does not exist.");
@@ -409,13 +402,13 @@ contract WonkaEngine {
     /// @notice Currently, a Rule can only belong to one RuleSet
     function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string memory rVal, bool notFlag, bool passiveFlag) public {
 
-        require((msg.sender == rulesMaster) || (msg.sender == ruler), CONST_ERR_MSG_FUNCTION_FORBIDDEN);
+        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to add a Rule to the specified RuleSet.");
 
-        require(ruletrees[ruler].isValue == true, CONST_ERR_MSG_RULETREE_NOT_EXIST);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
-        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, CONST_ERR_MSG_RULESET_NOT_EXIST);
+        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, "The specified RuleSet does not exist.");
 
-        require(attrMap[attrName].isValue, CONST_ERR_MSG_ATTR_NOT_EXIST);
+        require(attrMap[attrName].isValue, "The specified Attribute of the Rule does not exist.");
 
         require(rType < uint(RuleTypes.MAX_TYPE), "The specified type of the Rule does not exist.");
 
@@ -473,11 +466,11 @@ contract WonkaEngine {
     /// @notice Currently, a Rule can only belong to one RuleSet
     function addRuleCustomOpArgs(address ruler, bytes32 ruleSetId, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public {
 
-        require((msg.sender == rulesMaster) || (msg.sender == ruler), CONST_ERR_MSG_FUNCTION_FORBIDDEN);
+        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to set arguments in a Custom Op rule added recently.");
 
-        require(ruletrees[ruler].isValue == true, CONST_ERR_MSG_RULETREE_NOT_EXIST);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
-        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, CONST_ERR_MSG_RULESET_NOT_EXIST);
+        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, "The specified RuleSet does not exist.");
 
         require(ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].ruleType == uint(RuleTypes.CustomOp), "The last rule added to this RuleTree was not a Custom Op rule.");
 
@@ -492,7 +485,7 @@ contract WonkaEngine {
     /// @notice 
     function addSource(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName, bytes32 setMethName) public {
 
-        require(msg.sender == rulesMaster, CONST_ERR_MSG_FUNCTION_FORBIDDEN);
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add a Source.");
 
         sourceMap[srcName] = 
             WonkaSource({
@@ -512,11 +505,11 @@ contract WonkaEngine {
 
         executeSuccess = true;
 
-        require((msg.sender == rulesMaster) || (msg.sender == ruler), CONST_ERR_MSG_FUNCTION_FORBIDDEN);
+        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to execute a RuleTree.");
 
-        require(ruletrees[ruler].isValue == true, CONST_ERR_MSG_RULETREE_NOT_EXIST);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
-        require(ruletrees[ruler].allRuleSetList.length > 0, CONST_ERR_MSG_RULETREE_IS_EMPTY);
+        require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
 
         // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
         // require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
@@ -542,11 +535,11 @@ contract WonkaEngine {
     /// @notice This method will return a disassembled RuleReport that can be reassembled, especially by using the Nethereum library
     function executeWithReport(address ruler) public returns (uint fails, bytes32[] memory rsets, bytes32[] memory rules) {
 
-        require((msg.sender == rulesMaster) || (msg.sender == ruler), CONST_ERR_MSG_FUNCTION_FORBIDDEN);
+        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to execute a RuleTree.");
 
-        require(ruletrees[ruler].isValue == true, CONST_ERR_MSG_RULETREE_NOT_EXIST);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
-        require(ruletrees[ruler].allRuleSetList.length > 0, CONST_ERR_MSG_RULETREE_IS_EMPTY);
+        require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
 
         // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
         // require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
@@ -747,7 +740,7 @@ contract WonkaEngine {
     /// @author Aaron Kendall
     function getRuleProps(address ruler, bytes32 rsId, bool evalRuleFlag, uint ruleIdx) public view returns (bytes32, uint, bytes32, string memory, bool, bytes32[] memory) {
 
-        require(ruletrees[ruler].isValue == true, CONST_ERR_MSG_RULETREE_NOT_EXIST);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
         WonkaRule storage targetRule = (evalRuleFlag) ? ruletrees[ruler].allRuleSets[rsId].evaluativeRules[ruletrees[ruler].allRuleSets[rsId].evalRuleList[ruleIdx]] : ruletrees[ruler].allRuleSets[rsId].assertiveRules[ruletrees[ruler].allRuleSets[rsId].assertiveRuleList[ruleIdx]];
         
@@ -758,7 +751,7 @@ contract WonkaEngine {
     /// @author Aaron Kendall
     function getRuleSetChildId(address ruler, bytes32 rsId, uint rsChildIdx) public view returns (bytes32) {
 
-        require(ruletrees[ruler].isValue == true, CONST_ERR_MSG_RULETREE_NOT_EXIST);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
         return ruletrees[ruler].allRuleSets[rsId].childRuleSetList[rsChildIdx];
     }
@@ -767,7 +760,7 @@ contract WonkaEngine {
     /// @author Aaron Kendall
     function getRuleSetProps(address ruler, bytes32 rsId) public view returns (string memory, bool, bool, uint, uint, uint) {
 
-        require(ruletrees[ruler].isValue == true, CONST_ERR_MSG_RULETREE_NOT_EXIST);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
         return (ruletrees[ruler].allRuleSets[rsId].description, ruletrees[ruler].allRuleSets[rsId].severeFailure, ruletrees[ruler].allRuleSets[rsId].andOp, ruletrees[ruler].allRuleSets[rsId].evalRuleList.length, ruletrees[ruler].allRuleSets[rsId].assertiveRuleList.length, ruletrees[ruler].allRuleSets[rsId].childRuleSetList.length);
     }
@@ -776,7 +769,7 @@ contract WonkaEngine {
     /// @author Aaron Kendall
     function getRuleTreeProps(address ruler) public view returns (bytes32, string memory, bytes32) { 
 
-        require(ruletrees[ruler].isValue == true, CONST_ERR_MSG_RULETREE_NOT_EXIST);
+        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
         return (ruletrees[ruler].ruleTreeId, ruletrees[ruler].description, ruletrees[ruler].rootRuleSetName);
     }
@@ -786,9 +779,9 @@ contract WonkaEngine {
     /// @notice This method should only be used for debugging purposes.
     function getValueOnRecord(address ruler, bytes32 key) public returns(string memory) { 
 
-        require(ruletrees[ruler].isValue, CONST_ERR_MSG_NO_RULETREE_OWNED);
+        require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
 
-        require (attrMap[key].isValue == true, CONST_ERR_MSG_ATTR_NOT_EXIST);
+        require (attrMap[key].isValue == true, "The specified Attribute does not exist.");
 
         if (!orchestrationMode) {
             return (currentRecords[ruler])[key];
@@ -828,7 +821,7 @@ contract WonkaEngine {
     /// @author Aaron Kendall
     function setOrchestrationMode(bool orchMode, bytes32 defSource) public { 
 
-        require(msg.sender == rulesMaster, CONST_ERR_MSG_FUNCTION_FORBIDDEN);
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission to set the Orchestration flag.");
 
         orchestrationMode = orchMode;
 
@@ -848,9 +841,9 @@ contract WonkaEngine {
     /// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
     function setValueOnRecord(address ruler, bytes32 key, string memory value) public returns(string memory) { 
 
-        require(ruletrees[ruler].isValue, CONST_ERR_MSG_NO_RULETREE_OWNED);
+        require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
 
-        require(attrMap[key].isValue == true, CONST_ERR_MSG_ATTR_NOT_EXIST);
+        require(attrMap[key].isValue == true, "The specified Attribute does not exist.");
         
         if (!orchestrationMode) {
             (currentRecords[ruler])[key] = value;
