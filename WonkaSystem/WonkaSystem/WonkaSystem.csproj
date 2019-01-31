@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\xunit.core.2.3.1\build\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.3.1\build\xunit.core.props')" />
+  <Import Project="..\packages\xunit.core.2.4.1\build\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.4.1\build\xunit.core.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -44,63 +44,63 @@
     <Reference Include="Common.Logging.Core">
       <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Nethereum.Hex">
-      <HintPath>..\packages\Nethereum.Hex.2.4.0\lib\net451\Nethereum.Hex.dll</HintPath>
-    </Reference>
     <Reference Include="System.Numerics" />
-    <Reference Include="Nethereum.JsonRpc.Client">
-      <HintPath>..\packages\Nethereum.JsonRpc.Client.2.4.0\lib\net451\Nethereum.JsonRpc.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.RPC">
-      <HintPath>..\packages\Nethereum.RPC.2.4.0\lib\net451\Nethereum.RPC.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.Util">
-      <HintPath>..\packages\Nethereum.Util.2.4.0\lib\net451\Nethereum.Util.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.ABI">
-      <HintPath>..\packages\Nethereum.ABI.2.4.0\lib\net451\Nethereum.ABI.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.Contracts">
-      <HintPath>..\packages\Nethereum.Contracts.2.4.0\lib\net451\Nethereum.Contracts.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.JsonRpc.RpcClient">
-      <HintPath>..\packages\Nethereum.JsonRpc.RpcClient.2.4.0\lib\net451\Nethereum.JsonRpc.RpcClient.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.KeyStore">
-      <HintPath>..\packages\Nethereum.KeyStore.2.4.0\lib\net451\Nethereum.KeyStore.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.RLP">
-      <HintPath>..\packages\Nethereum.RLP.2.4.0\lib\net451\Nethereum.RLP.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.Signer">
-      <HintPath>..\packages\Nethereum.Signer.2.4.0\lib\net451\Nethereum.Signer.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.Accounts">
-      <HintPath>..\packages\Nethereum.Accounts.2.4.0\lib\net451\Nethereum.Accounts.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.Web3">
-      <HintPath>..\packages\Nethereum.Web3.2.4.0\lib\net451\Nethereum.Web3.dll</HintPath>
-    </Reference>
-    <Reference Include="Nethereum.Geth">
-      <HintPath>..\packages\Nethereum.Geth.2.4.0\lib\net451\Nethereum.Geth.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.abstractions">
-      <HintPath>..\packages\xunit.abstractions.2.0.1\lib\net35\xunit.abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.assert">
-      <HintPath>..\packages\xunit.assert.2.3.1\lib\netstandard1.1\xunit.assert.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.core">
-      <HintPath>..\packages\xunit.extensibility.core.2.3.1\lib\netstandard1.1\xunit.core.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.execution.desktop">
-      <HintPath>..\packages\xunit.extensibility.execution.2.3.1\lib\net452\xunit.execution.desktop.dll</HintPath>
-    </Reference>
-    <Reference Include="BouncyCastle.Crypto">
-      <HintPath>..\packages\BouncyCastle.1.8.2\lib\BouncyCastle.Crypto.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle.Crypto">
+      <HintPath>..\packages\BouncyCastle.1.8.4\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.Hex">
+      <HintPath>..\packages\Nethereum.Hex.3.0.0\lib\net451\Nethereum.Hex.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.JsonRpc.Client">
+      <HintPath>..\packages\Nethereum.JsonRpc.Client.3.0.0\lib\net451\Nethereum.JsonRpc.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.JsonRpc.RpcClient">
+      <HintPath>..\packages\Nethereum.JsonRpc.RpcClient.3.0.0\lib\net451\Nethereum.JsonRpc.RpcClient.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.KeyStore">
+      <HintPath>..\packages\Nethereum.KeyStore.3.0.0\lib\net451\Nethereum.KeyStore.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.RLP">
+      <HintPath>..\packages\Nethereum.RLP.3.0.0\lib\net451\Nethereum.RLP.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.Util">
+      <HintPath>..\packages\Nethereum.Util.3.0.0\lib\net451\Nethereum.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.ABI">
+      <HintPath>..\packages\Nethereum.ABI.3.0.0\lib\net451\Nethereum.ABI.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.RPC">
+      <HintPath>..\packages\Nethereum.RPC.3.0.0\lib\net451\Nethereum.RPC.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.Contracts">
+      <HintPath>..\packages\Nethereum.Contracts.3.0.0\lib\net451\Nethereum.Contracts.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.Signer">
+      <HintPath>..\packages\Nethereum.Signer.3.0.0\lib\net451\Nethereum.Signer.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.Accounts">
+      <HintPath>..\packages\Nethereum.Accounts.3.0.0\lib\net451\Nethereum.Accounts.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.Web3">
+      <HintPath>..\packages\Nethereum.Web3.3.0.0\lib\net451\Nethereum.Web3.dll</HintPath>
+    </Reference>
+    <Reference Include="Nethereum.Geth">
+      <HintPath>..\packages\Nethereum.Geth.3.0.0\lib\net451\Nethereum.Geth.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.abstractions">
+      <HintPath>..\packages\xunit.abstractions.2.0.3\lib\net35\xunit.abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.assert">
+      <HintPath>..\packages\xunit.assert.2.4.1\lib\netstandard1.1\xunit.assert.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.core">
+      <HintPath>..\packages\xunit.extensibility.core.2.4.1\lib\net452\xunit.core.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.execution.desktop">
+      <HintPath>..\packages\xunit.extensibility.execution.2.4.1\lib\net452\xunit.execution.desktop.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -168,5 +168,5 @@
     <EmbeddedResource Include="TestData\WonkaRegistry.init.xml" />            
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\xunit.core.2.3.1\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core.2.3.1\build\xunit.core.targets')" />
+  <Import Project="..\packages\xunit.core.2.4.1\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core.2.4.1\build\xunit.core.targets')" />
 </Project>
