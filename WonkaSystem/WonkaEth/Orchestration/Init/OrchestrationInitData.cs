@@ -9,9 +9,21 @@ namespace WonkaEth.Orchestration.Init
 {
     public class OrchestrationInitData
     {
+        public OrchestrationInitData()
+        {
+            AttributesMetadataSource    = null;
+            BlockchainEngine            = null;
+            TrxStateContractAddress     = null;
+            DefaultBlockchainDataSource = null;
+            BlockchainDataSources       = null;
+            BlockchainCustomOpFunctions = null;
+        }
+
         public IMetadataRetrievable AttributesMetadataSource;
 
         public WonkaBreSource BlockchainEngine;
+
+        public string TrxStateContractAddress;
 
         public WonkaBreSource DefaultBlockchainDataSource;
 

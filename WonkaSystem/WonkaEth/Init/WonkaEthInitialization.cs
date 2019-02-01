@@ -45,6 +45,8 @@ namespace WonkaEth.Init
 
         public string CustomOpContractMethod { get; set; }
 
+        public string TrxStateContractAddress { get; set; }
+
         public string ContractABIEmbeddedResource
         { 
             get { return msContractABIEmbeddedResource;  } 

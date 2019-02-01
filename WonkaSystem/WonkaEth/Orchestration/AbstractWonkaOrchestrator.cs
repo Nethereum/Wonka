@@ -65,7 +65,8 @@ namespace WonkaEth.Orchestration
             moRulesEngine = new WonkaBreRulesEngine(msRulesContents, 
                                                     poOrchInitData.BlockchainDataSources, 
                                                     poOrchInitData.BlockchainCustomOpFunctions, 
-                                                    poOrchInitData.AttributesMetadataSource);
+                                                    poOrchInitData.AttributesMetadataSource,
+                                                    true);
 
             if (!String.IsNullOrEmpty(psGroveId) && (pnGroveIndex > 0))
             {
@@ -201,6 +202,9 @@ namespace WonkaEth.Orchestration
             return TransformedProduct;
         }
 
+        /**
+         ** NOTE: Useful when debugging is needed
+         **
         protected void HandleEvents(Event poRuleTreeEvent, Event poRuleSetEvent, Event poRuleEvent, HexBigInteger rtFilter, HexBigInteger rsFilter, HexBigInteger rlFilter)
         {            
             var ruleTreeLog = poRuleTreeEvent.GetFilterChanges<CallRuleTreeEvent>(rtFilter).Result;
@@ -211,16 +215,14 @@ namespace WonkaEth.Orchestration
             // var ruleSetLog  = callRuleSetEvent.GetAllChanges<CQS.Validation.CallRuleSetEvent>(filterCRSAll).Result;
             // var ruleLog     = callRuleSetEvent.GetAllChanges<CQS.Validation.CallRuleEvent>(filterCRAll).Result;
 
-            /*
-            for (int i = 0; i < 5; ++i)
-            {
-                System.Threading.Thread.Sleep(10000);
-
-                ruleTreeLog = callRuleTreeEvent.GetFilterChanges<CQS.Validation.CallRuleTreeEvent>(filterCRTAll).Result;
-                ruleSetLog  = callRuleSetEvent.GetFilterChanges<CQS.Validation.CallRuleSetEvent>(filterCRSAll).Result;
-                ruleLog     = callRuleSetEvent.GetFilterChanges<CQS.Validation.CallRuleEvent>(filterCRAll).Result;
-            }
-            */
+            //for (int i = 0; i < 5; ++i)
+            //{
+            //    System.Threading.Thread.Sleep(10000);
+            //
+            //    ruleTreeLog = callRuleTreeEvent.GetFilterChanges<CQS.Validation.CallRuleTreeEvent>(filterCRTAll).Result;
+            //    ruleSetLog  = callRuleSetEvent.GetFilterChanges<CQS.Validation.CallRuleSetEvent>(filterCRSAll).Result;
+            //    ruleLog     = callRuleSetEvent.GetFilterChanges<CQS.Validation.CallRuleEvent>(filterCRAll).Result;
+            // }
 
             // Assert.Equal(1, ruleTreeLog.Count);
 
@@ -242,8 +244,8 @@ namespace WonkaEth.Orchestration
                     System.Console.WriteLine("Rule Called with ID : (" + TmpRuleEvent.Event.RuleId + ") and RuleType(" + TmpRuleEvent.Event.RuleType + ")");
                 }
             }
-
         }
+         **/
 
         private void Init(T poCommand, OrchestrationInitData poOrchInitData)
         {
@@ -310,6 +312,9 @@ namespace WonkaEth.Orchestration
 
             var contract = GetContract(moInitData.BlockchainEngine);
 
+            /**
+             ** NOTE: Useful when debugging is needed
+             **
             var callRuleTreeEvent = contract.GetEvent(CONST_EVENT_CALL_RULE_TREE);
             var callRuleSetEvent  = contract.GetEvent(CONST_EVENT_CALL_RULE_SET);
             var callRuleEvent     = contract.GetEvent(CONST_EVENT_CALL_RULE);
@@ -317,6 +322,7 @@ namespace WonkaEth.Orchestration
             var filterCRTAll = callRuleTreeEvent.CreateFilterAsync().Result;
             var filterCRSAll = callRuleSetEvent.CreateFilterAsync().Result;
             var filterCRAll  = callRuleEvent.CreateFilterAsync().Result;
+             **/
 
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(2000000);
 
@@ -340,8 +346,12 @@ namespace WonkaEth.Orchestration
                 ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<WonkaRuleTreeReport>().Result;
             }
 
+            /**
+             ** NOTE: Useful when debugging is needed
+             **
             // Finally, we handle any events that have been issued during the execution of the rules engine
             HandleEvents(callRuleTreeEvent, callRuleSetEvent, callRuleEvent, filterCRTAll, filterCRSAll, filterCRAll);
+             **/
 
             if (ruleTreeReport.NumberOfRuleFailures <= 0)
                 bValid = true;
@@ -406,7 +416,8 @@ namespace WonkaEth.Orchestration
                     moRulesEngine.Serialize(moInitData.BlockchainEngine.SenderAddress, 
                                             moInitData.BlockchainEngine.Password, 
                                             moInitData.BlockchainEngine.ContractAddress, 
-                                            moInitData.BlockchainEngine.ContractABI);
+                                            moInitData.BlockchainEngine.ContractABI,
+                                            moInitData.TrxStateContractAddress);
         }
 
         public static void SetAttribute(WonkaProduct poTargetProduct, WonkaRefAttr poTargetAttr, string psTargetValue)

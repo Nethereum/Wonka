@@ -483,9 +483,15 @@ namespace WonkaEth.Extensions
         /// <param name="psPassword">The password for the sender</param>
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
+        /// <param name="psTransStateContractAddress">The address of the instance of the transaction state</param>
         /// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
         /// </summary>
-        public static bool Serialize(this WonkaBreRulesEngine poEngine, string psSenderAddress, string psPassword, string psContractAddress, string psAbi)
+        public static bool Serialize(this WonkaBreRulesEngine poEngine, 
+                                                       string psSenderAddress, 
+                                                       string psPassword, 
+                                                       string psContractAddress, 
+                                                       string psAbi, 
+                                                       string psTransStateContractAddress = null)
         {
             bool bResult = true;
 
@@ -514,8 +520,24 @@ namespace WonkaEth.Extensions
             if (poEngine.UsingOrchestrationMode)
                 poEngine.SerializeOrchestrationInfo(sSenderAddress, contract);
 
+            if (!String.IsNullOrEmpty(psTransStateContractAddress))
+            {
+                var setTrxStateFunction = contract.GetFunction("setTransactionState");
+
+                // NOTE: Caused exception to be thrown
+                var gas = setTrxStateFunction.EstimateGasAsync(psSenderAddress, psTransStateContractAddress).Result;
+                // var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+                var receiptSetTrxState =
+                    setTrxStateFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psTransStateContractAddress).Result;
+
+                if (poEngine.TransactionState != null)
+                    poEngine.TransactionState.Serialize(psSenderAddress, psPassword, psTransStateContractAddress);
+            }
+
             return bResult;
         }
+
 
         /// <summary>
         /// 
@@ -641,6 +663,94 @@ namespace WonkaEth.Extensions
                                                              poRegistryItem.UsedCustomOps,
                                                              nSecondsSinceEpoch).Result;
             
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to serialize the transaction state into the blockchain's registry.
+        /// 
+        /// <param name="poTransState">The instance of the transaction state</param>
+        /// <param name="psSender">The Ethereum address of the sender account</param>
+        /// <param name="psPassword">The password for the sender/param>
+        /// <param name="psTransStateContractAddress">The address of the instance of the blockchain contract that serves as the transaction state</param>
+        /// <returns>Indicates whether or not the transaction state was submitted to the blockchain</returns>
+        /// </summary>
+        public static bool Serialize(this WonkaBre.Permissions.ITransactionState poTransState,
+                                                                          string psSender,
+                                                                          string psPassword,
+                                                                          string psTransStateContractAddress)
+        {
+            var sPassword     = psPassword;
+            var sContractAddr = psTransStateContractAddress;
+
+            var TmpAssembly  = System.Reflection.Assembly.GetExecutingAssembly();
+            var TmpResStream = TmpAssembly.GetManifestResourceStream("WonkaEth.Contracts.Ethereum.TransactionStateInterface.abi");
+
+            string sABI = "";
+            using (var AbiReader = new System.IO.StreamReader(TmpResStream))
+            {
+                sABI = AbiReader.ReadToEnd();
+            }
+
+            var account  = new Account(sPassword);
+            var web3     = new Nethereum.Web3.Web3(account);
+            var contract = web3.Eth.GetContract(sABI, sContractAddr);
+
+            var addConfirmFunction        = contract.GetFunction("addConfirmation");
+            var getMinScoreFunction       = contract.GetFunction("getMinScoreRequirement");
+            var hasConfirmedFunction      = contract.GetFunction("hasConfirmed");
+            var revokeConfirmFunction     = contract.GetFunction("revokeConfirmation");
+            var revokeAllConfirmsFunction = contract.GetFunction("revokeAllConfirmations");
+            var setExecutorFunction       = contract.GetFunction("setExecutor");
+            var setMinScoreFunction       = contract.GetFunction("setMinScoreRequirement");
+            var setOwnerFunction          = contract.GetFunction("setOwner");
+
+            // NOTE: Causes "out of gas" exception to be thrown?
+            // var gas = addRegistryItemFunction.EstimateGasAsync(etc,etc,etc).Result;
+            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+            var nMinScore = poTransState.GetMinScoreRequirement();
+            if (nMinScore > 0)
+            {
+                var setMinScoreRetVal =
+                    setMinScoreFunction.SendTransactionAsync(psSender, gas, null, nMinScore).Result;
+            }
+
+            HashSet<string> TrxStateExecutors = poTransState.GetExecutors();
+            foreach (string sTmpExecutor in TrxStateExecutors)
+            {
+                var setExecutorRetVal =
+                    setExecutorFunction.SendTransactionAsync(psSender, gas, null, sTmpExecutor).Result;
+            }
+
+            var revokeAllConfirmsRetVal =
+                revokeAllConfirmsFunction.SendTransactionAsync(psSender, gas, null).Result;
+
+            HashSet<string> TrxStateConfirmedList = poTransState.GetOwnersConfirmed();
+            foreach (string sTmpConfirmed in TrxStateConfirmedList)
+            {
+                uint nOwnerWeight = poTransState.GetOwnerWeight(sTmpConfirmed);
+
+                var setOwnerRetVal =
+                    setOwnerFunction.SendTransactionAsync(psSender, gas, null, sTmpConfirmed, nOwnerWeight).Result;
+
+                var confirmRetVal =
+                    addConfirmFunction.SendTransactionAsync(psSender, gas, null, sTmpConfirmed).Result;
+            }
+
+            HashSet<string> TrxStateUnconfirmedList = poTransState.GetOwnersUnconfirmed();
+            foreach (string sTmpUnconfirmed in TrxStateUnconfirmedList)
+            {
+                uint nOwnerWeight = poTransState.GetOwnerWeight(sTmpUnconfirmed);
+
+                var setOwnerRetVal =
+                    setOwnerFunction.SendTransactionAsync(psSender, gas, null, sTmpUnconfirmed, nOwnerWeight).Result;
+
+                var revokeRetVal =
+                    revokeConfirmFunction.SendTransactionAsync(psSender, gas, null, sTmpUnconfirmed).Result;
+            }
+
             return true;
         }
 
@@ -790,9 +900,12 @@ namespace WonkaEth.Extensions
         {
             var addRuleTreeFunction = poContract.GetFunction("addRuleTree");
 
+            /**
+             ** NOTE: Useful when debugging is needed
+             **
             var callAddRuleTreeEvent = poContract.GetEvent(CONST_EVENT_CALL_RULE_TREE);
-
             var filterARTAll = callAddRuleTreeEvent.CreateFilterAsync().Result;
+             **/
 
             var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeName", "SomeDesc", true, true, true).Result;
 
@@ -822,10 +935,14 @@ namespace WonkaEth.Extensions
                 TempChildRuleSet.SerializeRuleSet(psSenderAddress, poContract, sRootName);
             }
 
+            /**
+             ** NOTE: Useful when debugging is needed
+             **
             var ruleTreeLog = callAddRuleTreeEvent.GetFilterChanges<CallAddRuleTreeEvent>(filterARTAll).Result;
 
             if (ruleTreeLog.Count > 0)
                 System.Console.WriteLine("RuleTree Added that Belongs to : (" + ruleTreeLog[0].Event.TreeOwner + ")");
+             **/
 
             return true;
         }
@@ -1125,6 +1242,8 @@ namespace WonkaEth.Extensions
                                    poEthInitData.BlockchainEngine.ContractAddress,
                                    poEthInitData.BlockchainEngine.ContractABI,
                                    "", "", null);
+
+            OrchInitData.TrxStateContractAddress = poEthInitData.BlockchainEngine.TrxStateContractAddress;
 
             OrchInitData.DefaultBlockchainDataSource =
                 new WonkaBreSource(poEthInitData.DefaultValueRetrieval.ContractMarkupId,
