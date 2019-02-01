@@ -618,6 +618,11 @@ contract WonkaEngine {
         }
         else
             executeSuccess = true;
+
+	    // NOTE: Should the transaction state be reset automatically upon the completion of the transaction?
+        //if (transStateInd[ruletrees[ruler].ruleTreeId]) {
+        //    transStateMap[ruletrees[ruler].ruleTreeId].revokeAllConfirmations();
+        //}
     }
 
     /// @dev This method will invoke one Rule within a RuleSet when validating a stored record
