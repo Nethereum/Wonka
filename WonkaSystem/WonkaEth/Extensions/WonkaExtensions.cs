@@ -31,8 +31,6 @@ namespace WonkaEth.Extensions
     [FunctionOutput]
     public class ExportRuleTreeProps
     {
-        // bytes32, string memory, bytes32
-        
         [Parameter("bytes32", "rtid", 1)]
         public string RuleTreeId { get; set; }
 
@@ -630,7 +628,6 @@ namespace WonkaEth.Extensions
 
             uint nSecondsSinceEpoch = 0;
 
-            // function addRuleTreeIndex(address ruler, bytes32 rsId, string desc, bytes32 ruleTreeGrpId, uint grpIdx, address host, uint minCost, uint maxCost, address[] associates, bytes32[] attributes, bytes32[] ops, uint createTime) public {
             var addRegistryItemFunction = contract.GetFunction("addRuleTreeIndex");
 
             // NOTE: Causes "out of gas" exception to be thrown?
@@ -1033,7 +1030,6 @@ namespace WonkaEth.Extensions
             // var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeRSID", "SomeRuleName", "SomeAttrName", 0, "SomeVal", false, false).Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1500000);
 
-            // NOTE: ADD RULES HERE
             foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in poRuleSet.EvaluativeRules)
             {
                 var    sRuleName    = "";
