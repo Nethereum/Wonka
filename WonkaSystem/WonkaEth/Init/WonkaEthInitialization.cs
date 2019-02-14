@@ -27,6 +27,8 @@ namespace WonkaEth.Init
             msContractABIEmbeddedResource = msContractABIFileResource = msContractABIIpfsResource = "";
         }
 
+        public string Web3HttpUrl { get; set; }
+
         public string ContractMarkupId { get; set; }
 
         public string ContractAddress { get; set; }
