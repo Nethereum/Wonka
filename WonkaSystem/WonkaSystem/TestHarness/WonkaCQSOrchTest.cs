@@ -182,7 +182,8 @@ namespace WonkaSystem.TestHarness
                 WonkaEth.Contracts.WonkaRuleTreeRegistry.CreateInstance(moWonkaRegistryInit.BlockchainRegistry.ContractSender, 
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractPassword,
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractAddress, 
-                                                                        moWonkaRegistryInit.BlockchainRegistry.ContractABI);
+                                                                        moWonkaRegistryInit.BlockchainRegistry.ContractABI,
+                                                                        moWonkaRegistryInit.Web3HttpUrl);
 
             // Here, the data domain is serialized to the blockchain for use by the RuleTree(s)
             RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka);
@@ -363,8 +364,8 @@ namespace WonkaSystem.TestHarness
                 WonkaEth.Contracts.WonkaRuleTreeRegistry.CreateInstance(moWonkaRegistryInit.BlockchainRegistry.ContractSender, 
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractPassword,
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractAddress, 
-                                                                        moWonkaRegistryInit.BlockchainRegistry.ContractABI);
-
+                                                                        moWonkaRegistryInit.BlockchainRegistry.ContractABI,
+                                                                        moWonkaRegistryInit.Web3HttpUrl);
 
             RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka);
         }
