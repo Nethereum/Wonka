@@ -1229,6 +1229,7 @@ namespace WonkaEth.Extensions
         {
             WonkaEth.Orchestration.Init.OrchestrationInitData OrchInitData = new WonkaEth.Orchestration.Init.OrchestrationInitData();
 
+            OrchInitData.Web3HttpUrl              = poEthInitData.Web3HttpUrl;
             OrchInitData.AttributesMetadataSource = piMetadataSource;
 
             OrchInitData.BlockchainEngine =
