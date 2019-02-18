@@ -13,6 +13,8 @@ namespace WonkaEth.Init
     {
         public WonkaEthRegistryInitialization()
         {
+            Web3HttpUrl = null;
+
             BlockchainRegistry = new WonkaEthSource();
         }
 
@@ -29,6 +31,8 @@ namespace WonkaEth.Init
                 }
             }
         }
+
+        public string Web3HttpUrl { get; set; }
 
         public WonkaEthSource BlockchainRegistry { get; set; }
     }

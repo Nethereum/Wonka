@@ -11,6 +11,7 @@ namespace WonkaEth.Orchestration.Init
     {
         public OrchestrationInitData()
         {
+            Web3HttpUrl                 = null;
             AttributesMetadataSource    = null;
             BlockchainEngine            = null;
             TrxStateContractAddress     = null;
@@ -18,6 +19,8 @@ namespace WonkaEth.Orchestration.Init
             BlockchainDataSources       = null;
             BlockchainCustomOpFunctions = null;
         }
+
+        public string Web3HttpUrl;
 
         public IMetadataRetrievable AttributesMetadataSource;
 

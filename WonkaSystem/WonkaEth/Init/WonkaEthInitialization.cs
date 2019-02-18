@@ -27,8 +27,6 @@ namespace WonkaEth.Init
             msContractABIEmbeddedResource = msContractABIFileResource = msContractABIIpfsResource = "";
         }
 
-        public string Web3HttpUrl { get; set; }
-
         public string ContractMarkupId { get; set; }
 
         public string ContractAddress { get; set; }
@@ -157,6 +155,8 @@ namespace WonkaEth.Init
     {
         public WonkaEthInitialization()
         {
+            Web3HttpUrl = "";
+
             BlockchainEngine      = new WonkaEthSource();
             DefaultValueRetrieval = new WonkaEthSource();
 
@@ -224,6 +224,8 @@ namespace WonkaEth.Init
                 }
             }
         }
+
+        public string Web3HttpUrl { get; set; }
 
         public WonkaEthSource BlockchainEngine { get; set; }
 
