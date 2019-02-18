@@ -99,7 +99,7 @@ namespace WonkaEth.Contracts
 
         Dictionary<string, WonkaRegistryItem> moRegisteredRuleTrees;
 
-        private WonkaRuleTreeRegistry(string psSenderAddress, string psPassword, string psContractAddress, string psAbi)
+        private WonkaRuleTreeRegistry(string psSenderAddress, string psPassword, string psContractAddress, string psAbi, string psWeb3HttpUrl)
         {
             moRegisteredRuleTrees = new Dictionary<string, WonkaRegistryItem>();
 
@@ -107,14 +107,15 @@ namespace WonkaEth.Contracts
             RegistryPassword        = psPassword;
             RegistryContractAddress = psContractAddress;
             RegistryAbi             = psAbi;
+            RegistryWeb3HttpUrl     = psWeb3HttpUrl;
         }
 
-        static public WonkaRuleTreeRegistry CreateInstance(string psSenderAddress, string psPassword, string psContractAddress, string psAbi)
+        static public WonkaRuleTreeRegistry CreateInstance(string psSenderAddress, string psPassword, string psContractAddress, string psAbi, string psWeb3HttpUrl = "")
         {
             lock (mLock)
             {
                 if (mInstance == null)
-                    mInstance = new WonkaRuleTreeRegistry(psSenderAddress, psPassword, psContractAddress, psAbi);
+                    mInstance = new WonkaRuleTreeRegistry(psSenderAddress, psPassword, psContractAddress, psAbi, psWeb3HttpUrl);
 
                 return mInstance;
             }
@@ -197,6 +198,8 @@ namespace WonkaEth.Contracts
         #endregion
 
         #region Properties
+
+        public readonly string RegistryWeb3HttpUrl;
 
         public readonly string RegistrySender;
 
