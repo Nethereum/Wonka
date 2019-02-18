@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <WonkaEthInitialization>
+    <Web3HttpUrl></Web3HttpUrl>
     <BlockchainEngine>
         <ContractAddress>0x7e51d4a94c3649e496d91b8aeed0e05fa4e896ae</ContractAddress>
         <ContractSender>0x019d19f2f9db5b43f5fb8cdbfc045c21cc5746d4</ContractSender>
