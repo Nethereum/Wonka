@@ -559,15 +559,25 @@ namespace WonkaEth.Extensions
         /// <param name="psPassword">The password for the sender/param>
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
+        /// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the RefEnvironment instance</param>
         /// <returns>Indicates whether or not the Attributes were submitted to the blockchain</returns>
         /// </summary>
-        public static bool Serialize(this WonkaRefEnvironment poInstance, string psSenderAddress, string psPassword, string psContractAddress, string psAbi)
+        public static bool Serialize(this WonkaRefEnvironment poInstance,
+                                                       string psSenderAddress,
+                                                       string psPassword,
+                                                       string psContractAddress,
+                                                       string psAbi,
+                                                       string psWeb3HttpUrl = null)
         {
             uint nAttrNum = 3;
 
             var account = new Account(psPassword);
 
-            var web3 = new Nethereum.Web3.Web3(account);
+            Nethereum.Web3.Web3 web3 = null;
+            if (!String.IsNullOrEmpty(psWeb3HttpUrl))
+                web3 = new Nethereum.Web3.Web3(account, psWeb3HttpUrl);
+            else
+                web3 = new Nethereum.Web3.Web3(account);
 
             var contract = web3.Eth.GetContract(psAbi, psContractAddress);
 

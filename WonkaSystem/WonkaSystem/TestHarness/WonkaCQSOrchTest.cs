@@ -186,7 +186,7 @@ namespace WonkaSystem.TestHarness
                                                                         moWonkaRegistryInit.Web3HttpUrl);
 
             // Here, the data domain is serialized to the blockchain for use by the RuleTree(s)
-            RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka);
+            RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka, moOrchInitData.Web3HttpUrl);
         }
 
         // This constructor will be called in the case that we wish to initialize the framework
@@ -367,7 +367,7 @@ namespace WonkaSystem.TestHarness
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractABI,
                                                                         moWonkaRegistryInit.Web3HttpUrl);
 
-            RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka);
+            RefEnv.Serialize(msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka, moOrchInitData.Web3HttpUrl);
         }
 
 
