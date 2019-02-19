@@ -206,17 +206,23 @@ namespace WonkaEth.Extensions
         /// NOTE: Currently, we use a StringBuilder class to build the XML Document.  In the future, we should transition to
         /// using a XmlDocument and a XmlWriter.
         /// 
+        /// <param name="psWeb3HttpUrl">The URL for the Ethereum node/client from which we will export the RuleTree</param>
         /// <returns>Returns the XML payload that represents a RuleTree within the blockchain</returns>
         /// </summary>
-        public static string ExportXmlString(this WonkaRegistryItem poRegistryItem)
+        public static string ExportXmlString(this WonkaRegistryItem poRegistryItem, string psWeb3HttpUrl = "")
         {
             var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
 
             var sPassword = WonkaRegistry.RegistryPassword;
             var sABI      = poRegistryItem.HostContractABI;
+            var account   = new Account(sPassword);
 
-            var account  = new Account(sPassword);
-            var web3     = new Nethereum.Web3.Web3(account);
+            Nethereum.Web3.Web3 web3 = null;
+            if (!String.IsNullOrEmpty(psWeb3HttpUrl))
+                web3 = new Nethereum.Web3.Web3(account, psWeb3HttpUrl);
+            else   
+                web3 = new Nethereum.Web3.Web3(account);
+            
             var contract = web3.Eth.GetContract(sABI, poRegistryItem.HostContractAddress);
 
             StringBuilder sbExportXmlString = new StringBuilder("<?xml version=\"1.0\"?>\n<RuleTree>\n");

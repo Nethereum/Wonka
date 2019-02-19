@@ -500,7 +500,7 @@ namespace WonkaSystem.TestHarness
 
             // Now test exporting the RuleTree from the blockchain
             var RegistryItem = NewSaleGrove.OrderedRuleTrees[0];
-            var ExportedXml  = RegistryItem.ExportXmlString();
+            var ExportedXml  = RegistryItem.ExportXmlString(InitData.Web3HttpUrl);
 
             System.Console.WriteLine("DEBUG: The payload is: \n(\n" + ExportedXml + "\n)\n");
         }
