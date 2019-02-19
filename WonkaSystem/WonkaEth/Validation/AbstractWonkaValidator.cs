@@ -85,6 +85,12 @@ namespace WonkaEth.Validation
         */
     }
 
+    /// <summary>
+    /// 
+    /// This base class serves as the first iteration of the executor class for the rules engine, namely 
+    /// its more simple functionality (i.e., without orchestration).
+    /// 
+    /// </summary>
     public abstract class AbstractWonkaValidator<T> where T : ICommand
     {
         public const string CONST_EVENT_CALL_RULE_TREE        = "CallRuleTree";
@@ -100,28 +106,31 @@ namespace WonkaEth.Validation
         public readonly string        msRulesFilepath;
         public readonly StringBuilder msRulesContents;
 
+        public readonly string              msWeb3HttpUrl;
         public readonly WonkaBreRulesEngine moRulesEngine;
 
         public WonkaBlockchainEngine BlockchainEngine { get; set; }
 
-        public AbstractWonkaValidator(T poCommand, string psRulesFilepath, bool bDeployEngineToBlockchain = false)
+        public AbstractWonkaValidator(T poCommand, string psRulesFilepath, bool bDeployEngineToBlockchain = false, string psWeb3HttpUrl = null)
         {
             BlockchainEngine = new WonkaBlockchainEngine();
 
             msRulesFilepath = psRulesFilepath;
             msRulesContents = null;
+            msWeb3HttpUrl   = psWeb3HttpUrl;
 
             Init();
 
             moRulesEngine = new WonkaBreRulesEngine(msRulesFilepath);
         }
 
-        public AbstractWonkaValidator(T poCommand, StringBuilder psRules, bool bDeployEngineToBlockchain = false)
+        public AbstractWonkaValidator(T poCommand, StringBuilder psRules, bool bDeployEngineToBlockchain = false, string psWebHttpUrl = null)
         {
             BlockchainEngine = new WonkaBlockchainEngine();
 
             msRulesFilepath = null;
             msRulesContents = psRules;
+            msWeb3HttpUrl   = psWebHttpUrl;
 
             Init();
 
