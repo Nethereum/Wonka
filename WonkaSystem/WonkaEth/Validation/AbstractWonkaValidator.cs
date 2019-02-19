@@ -111,8 +111,8 @@ namespace WonkaEth.Validation
 
         public WonkaBlockchainEngine BlockchainEngine { get; set; }
 
-        public AbstractWonkaValidator(T poCommand, string psRulesFilepath, bool bDeployEngineToBlockchain = false, string psWeb3HttpUrl = null)
-        {
+        public AbstractWonkaValidator(T poCommand, string psRulesFilepath, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
+         {
             BlockchainEngine = new WonkaBlockchainEngine();
 
             msRulesFilepath = psRulesFilepath;
@@ -124,13 +124,13 @@ namespace WonkaEth.Validation
             moRulesEngine = new WonkaBreRulesEngine(msRulesFilepath);
         }
 
-        public AbstractWonkaValidator(T poCommand, StringBuilder psRules, bool bDeployEngineToBlockchain = false, string psWebHttpUrl = null)
+        public AbstractWonkaValidator(T poCommand, StringBuilder psRules, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
         {
             BlockchainEngine = new WonkaBlockchainEngine();
 
             msRulesFilepath = null;
             msRulesContents = psRules;
-            msWeb3HttpUrl   = psWebHttpUrl;
+            msWeb3HttpUrl   = psWeb3HttpUrl;
 
             Init();
 

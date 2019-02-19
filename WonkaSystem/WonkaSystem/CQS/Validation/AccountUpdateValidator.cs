@@ -17,15 +17,18 @@ namespace WonkaSystem.CQS.Validation
      **/
     public class AccountUpdateValidator : AbstractWonkaValidator<AccountUpdateCommand>
     {
-        public AccountUpdateValidator(AccountUpdateCommand command, string psRulesFilepath) : base(command, psRulesFilepath)
+        public AccountUpdateValidator(AccountUpdateCommand command, string psRulesFilepath, string psWeb3HttpUrl = null)
+            : base(command, psRulesFilepath, psWeb3HttpUrl)
         {
         }
 
-        public AccountUpdateValidator(AccountUpdateCommand command, StringBuilder psRulesContents) : base(command, psRulesContents)
+        public AccountUpdateValidator(AccountUpdateCommand command, StringBuilder psRulesContents, string psWeb3HttpUrl = null)
+            : base(command, psRulesContents, psWeb3HttpUrl)
         {
         }
 
-        public AccountUpdateValidator(AccountUpdateCommand command, FileInfo psRulesFile) : base(command, psRulesFile.FullName)
+        public AccountUpdateValidator(AccountUpdateCommand command, FileInfo psRulesFile, string psWeb3HttpUrl = null)
+            : base(command, psRulesFile.FullName, psWeb3HttpUrl)
         {
         }
 
