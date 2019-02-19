@@ -429,6 +429,32 @@ namespace WonkaEth.Extensions
 
         /// <summary>
         /// 
+        /// This method will return a proxy to the Registry contract.
+        /// 
+        /// <returns>Provides the proxy to the Registry contract</returns>
+        /// </summary>
+        public static Nethereum.Contracts.Contract GetRegistryContract()
+        {
+            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
+            var sPassword     = WonkaRegistry.RegistryPassword;
+            var sABI          = WonkaRegistry.RegistryAbi;
+            var sContractAddr = WonkaRegistry.RegistryContractAddress;
+
+            var account = new Account(sPassword);
+
+            Nethereum.Web3.Web3 web3 = null;
+            if (!String.IsNullOrEmpty(WonkaRegistry.RegistryWeb3HttpUrl))
+                web3 = new Nethereum.Web3.Web3(account, WonkaRegistry.RegistryWeb3HttpUrl);
+            else
+                web3 = new Nethereum.Web3.Web3(account);
+
+            var contract = web3.Eth.GetContract(sABI, sContractAddr);
+
+            return contract;
+        }
+
+        /// <summary>
+        /// 
         /// This method will return the metadata about a RuleTree that is registered within the blockchain.
         /// 
         /// <param name="psRuleTreeId">The ID of the RuleTree of interest</param>
@@ -436,15 +462,7 @@ namespace WonkaEth.Extensions
         /// </summary>
         public static RuleTreeRegistryIndex GetRuleTreeIndex(string psRuleTreeId)
         {
-            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
-
-            var sPassword     = WonkaRegistry.RegistryPassword;
-            var sABI          = WonkaRegistry.RegistryAbi;
-            var sContractAddr = WonkaRegistry.RegistryContractAddress;
-
-            var account    = new Account(sPassword);
-            var web3       = new Nethereum.Web3.Web3(account);
-            var contract   = web3.Eth.GetContract(sABI, sContractAddr);
+            var contract = GetRegistryContract();
 
             var getRuleTreeIndexFunction = contract.GetFunction("getRuleTreeIndex"); 
 
@@ -461,15 +479,7 @@ namespace WonkaEth.Extensions
         /// </summary>
         public static bool IsRuleTreeRegistered(this WonkaBreRulesEngine poEngine)
         {
-            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
-
-            var sPassword     = WonkaRegistry.RegistryPassword;
-            var sABI          = WonkaRegistry.RegistryAbi;
-            var sContractAddr = WonkaRegistry.RegistryContractAddress;
-
-            var account    = new Account(sPassword);
-            var web3       = new Nethereum.Web3.Web3(account);
-            var contract   = web3.Eth.GetContract(sABI, sContractAddr);
+            var contract   = GetRegistryContract();
             var ruleTreeID = poEngine.DetermineRuleTreeID();
 
             var isRegisteredFunction = contract.GetFunction("isRuleTreeRegistered");
@@ -514,8 +524,7 @@ namespace WonkaEth.Extensions
                 web3 = new Nethereum.Web3.Web3(account);
 
             var contractAddress = psContractAddress;
-
-            var contract = web3.Eth.GetContract(psAbi, contractAddress);
+            var contract        = web3.Eth.GetContract(psAbi, contractAddress);
 
             if (poEngine.AddToRegistry)
             {
@@ -530,7 +539,7 @@ namespace WonkaEth.Extensions
             if (poEngine.UsingOrchestrationMode)
                 poEngine.SerializeOrchestrationInfo(sSenderAddress, contract);
 
-            if (!String.IsNullOrEmpty(psTransStateContractAddress))
+            if (!String.IsNullOrEmpty(psTransStateContractAddress)) 
             {
                 var setTrxStateFunction = contract.GetFunction("setTransactionState");
 
@@ -548,7 +557,6 @@ namespace WonkaEth.Extensions
             return bResult;
         }
 
-
         /// <summary>
         /// 
         /// This method will use Nethereum to call upon an instance of the Ethgine contract and 
@@ -562,10 +570,10 @@ namespace WonkaEth.Extensions
         /// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the RefEnvironment instance</param>
         /// <returns>Indicates whether or not the Attributes were submitted to the blockchain</returns>
         /// </summary>
-        public static bool Serialize(this WonkaRefEnvironment poInstance,
-                                                       string psSenderAddress,
-                                                       string psPassword,
-                                                       string psContractAddress,
+        public static bool Serialize(this WonkaRefEnvironment poInstance, 
+                                                       string psSenderAddress, 
+                                                       string psPassword, 
+                                                       string psContractAddress, 
                                                        string psAbi,
                                                        string psWeb3HttpUrl = null)
         {
@@ -615,7 +623,6 @@ namespace WonkaEth.Extensions
             return true;
         }
 
-        ///
         /// <summary>
         /// 
         /// This method will use Nethereum to register a RuleTree in the blockchain's registry.
@@ -624,14 +631,10 @@ namespace WonkaEth.Extensions
         /// </summary>
         public static bool Serialize(this WonkaRegistryItem poRegistryItem)
         {
+            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
+            
             HashSet<string> SourcesAdded   = new HashSet<string>();
             HashSet<string> CustomOpsAdded = new HashSet<string>();
-
-            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
-
-            var sPassword     = WonkaRegistry.RegistryPassword;
-            var sABI          = WonkaRegistry.RegistryAbi;
-            var sContractAddr = WonkaRegistry.RegistryContractAddress;
 
             string sGroveId  = "";
             int    nGroveIdx = 0;
@@ -644,9 +647,7 @@ namespace WonkaEth.Extensions
                 break;
             }
 
-            var account  = new Account(sPassword);
-            var web3     = new Nethereum.Web3.Web3(account);
-            var contract = web3.Eth.GetContract(sABI, sContractAddr);
+            var contract = GetRegistryContract();
 
             uint nSecondsSinceEpoch = 0;
 
