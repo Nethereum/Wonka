@@ -488,6 +488,7 @@ namespace WonkaEth.Extensions
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
         /// <param name="psTransStateContractAddress">The address of the instance of the transaction state</param>
+        /// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the RuleTree</param>
         /// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
         /// </summary>
         public static bool Serialize(this WonkaBreRulesEngine poEngine, 
@@ -495,7 +496,8 @@ namespace WonkaEth.Extensions
                                                        string psPassword, 
                                                        string psContractAddress, 
                                                        string psAbi, 
-                                                       string psTransStateContractAddress = null)
+                                                       string psTransStateContractAddress = null,
+                                                       string psWeb3HttpUrl = null)
         {
             bool bResult = true;
 
@@ -505,7 +507,11 @@ namespace WonkaEth.Extensions
 
             var account = new Account(psPassword);
 
-            var web3 = new Nethereum.Web3.Web3(account);
+            Nethereum.Web3.Web3 web3 = null;
+            if (!String.IsNullOrEmpty(psWeb3HttpUrl))
+                web3 = new Nethereum.Web3.Web3(account, psWeb3HttpUrl);
+            else
+                web3 = new Nethereum.Web3.Web3(account);
 
             var contractAddress = psContractAddress;
 

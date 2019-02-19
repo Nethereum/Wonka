@@ -417,7 +417,8 @@ namespace WonkaEth.Orchestration
                                             moInitData.BlockchainEngine.Password, 
                                             moInitData.BlockchainEngine.ContractAddress, 
                                             moInitData.BlockchainEngine.ContractABI,
-                                            moInitData.TrxStateContractAddress);
+                                            moInitData.TrxStateContractAddress,
+                                            moInitData.Web3HttpUrl);
         }
 
         public static void SetAttribute(WonkaProduct poTargetProduct, WonkaRefAttr poTargetAttr, string psTargetValue)

@@ -379,7 +379,12 @@ namespace WonkaEth.Validation
                 hasRuleTreeFunction.CallAsync<bool>(BlockchainEngine.SenderAddress, gas, null, BlockchainEngine.SenderAddress).Result;
 
             if (!bTreeAlreadyExists)
-                moRulesEngine.Serialize(BlockchainEngine.SenderAddress, BlockchainEngine.Password, BlockchainEngine.ContractAddress, BlockchainEngine.ContractABI);
+                moRulesEngine.Serialize(BlockchainEngine.SenderAddress, 
+                                        BlockchainEngine.Password, 
+                                        BlockchainEngine.ContractAddress, 
+                                        BlockchainEngine.ContractABI,
+                                        null,
+                                        msWeb3HttpUrl);
         }
 
         public static void SetAttribute(WonkaProduct poTargetProduct, WonkaRefAttr poTargetAttr, string psTargetValue)
