@@ -86,19 +86,10 @@ namespace WonkaEth.Extensions
         /// </summary>
         public static void PopulateFromRegistry(this WonkaRuleGrove poGrove, string psDefaultWonkaABI)
         {
-            var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
-
             if (String.IsNullOrEmpty(poGrove.GroveId))
                 throw new Exception("ERROR!  No Grove ID provided.");
 
-            var sPassword     = WonkaRegistry.RegistryPassword;
-            var sABI          = WonkaRegistry.RegistryAbi;
-            var sContractAddr = WonkaRegistry.RegistryContractAddress;
-
-            var account  = new Account(sPassword);
-            var web3     = new Nethereum.Web3.Web3(account);
-            var contract = web3.Eth.GetContract(sABI, sContractAddr);
-
+            var contract             = WonkaExtensions.GetRegistryContract();
             var getGroveInfoFunction = contract.GetFunction("getRuleGrove");
 
             var groveRegistryInfo = getGroveInfoFunction.CallDeserializingToObjectAsync<RuleGroveRegistryData>(poGrove.GroveId).Result;
