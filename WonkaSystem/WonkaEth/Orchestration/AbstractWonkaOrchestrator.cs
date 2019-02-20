@@ -150,7 +150,11 @@ namespace WonkaEth.Orchestration
         {
             var account = new Account(poBlockchainSource.Password);
 
-            var web3 = new Nethereum.Web3.Web3(account);
+            Nethereum.Web3.Web3 web3 = null;
+            if ((moInitData != null) && !String.IsNullOrEmpty(moInitData.Web3HttpUrl))
+                web3 = new Nethereum.Web3.Web3(account, moInitData.Web3HttpUrl);
+            else
+                web3 = new Nethereum.Web3.Web3(account);
 
             var contract = web3.Eth.GetContract(poBlockchainSource.ContractABI, poBlockchainSource.ContractAddress);
 

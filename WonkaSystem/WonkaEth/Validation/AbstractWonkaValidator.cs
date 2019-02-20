@@ -171,7 +171,11 @@ namespace WonkaEth.Validation
         {
             var account = new Account(BlockchainEngine.Password);
 
-            var web3 = new Nethereum.Web3.Web3(account);
+            Nethereum.Web3.Web3 web3 = null;
+            if (!String.IsNullOrEmpty(msWeb3HttpUrl))
+                web3 = new Nethereum.Web3.Web3(account, msWeb3HttpUrl);
+            else
+                web3 = new Nethereum.Web3.Web3(account);
 
             var contract = web3.Eth.GetContract(BlockchainEngine.ContractABI, BlockchainEngine.ContractAddress);
 
