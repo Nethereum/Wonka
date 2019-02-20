@@ -551,7 +551,7 @@ namespace WonkaEth.Extensions
                     setTrxStateFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psTransStateContractAddress).Result;
 
                 if (poEngine.TransactionState != null)
-                    poEngine.TransactionState.Serialize(psSenderAddress, psPassword, psTransStateContractAddress);
+                    poEngine.TransactionState.Serialize(psSenderAddress, psPassword, psTransStateContractAddress, psWeb3HttpUrl);
             }
 
             return bResult;
@@ -694,12 +694,14 @@ namespace WonkaEth.Extensions
         /// <param name="psSender">The Ethereum address of the sender account</param>
         /// <param name="psPassword">The password for the sender/param>
         /// <param name="psTransStateContractAddress">The address of the instance of the blockchain contract that serves as the transaction state</param>
+        /// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the TransactionState</param>
         /// <returns>Indicates whether or not the transaction state was submitted to the blockchain</returns>
         /// </summary>
         public static bool Serialize(this WonkaBre.Permissions.ITransactionState poTransState,
                                                                           string psSender,
                                                                           string psPassword,
-                                                                          string psTransStateContractAddress)
+                                                                          string psTransStateContractAddress,
+                                                                          string psWeb3HttpUrl)
         {
             var sPassword     = psPassword;
             var sContractAddr = psTransStateContractAddress;
@@ -713,8 +715,14 @@ namespace WonkaEth.Extensions
                 sABI = AbiReader.ReadToEnd();
             }
 
-            var account  = new Account(sPassword);
-            var web3     = new Nethereum.Web3.Web3(account);
+            var account = new Account(sPassword);
+
+            Nethereum.Web3.Web3 web3 = null;
+            if (!String.IsNullOrEmpty(psWeb3HttpUrl))
+                web3 = new Nethereum.Web3.Web3(account, psWeb3HttpUrl);
+            else
+                web3 = new Nethereum.Web3.Web3(account);
+
             var contract = web3.Eth.GetContract(sABI, sContractAddr);
 
             var addConfirmFunction        = contract.GetFunction("addConfirmation");
