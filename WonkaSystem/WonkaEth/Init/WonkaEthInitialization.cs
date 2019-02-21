@@ -223,9 +223,31 @@ namespace WonkaEth.Init
                     }
                 }
             }
+
+            // Quick sanity check
+            if (!String.IsNullOrEmpty(Web3HttpUrl) && (Web3HttpUri == null))
+                throw new Exception("ERRROR!  Provided Web3HttpUrl(" + Web3HttpUrl + ") is invalid.");
         }
 
         public string Web3HttpUrl { get; set; }
+
+        public Uri Web3HttpUri 
+        {
+            get 
+            {
+                Uri uriResult = null;
+
+                bool bValid = !String.IsNullOrEmpty(Web3HttpUrl);
+
+                if (bValid)
+                {
+                    bValid = Uri.TryCreate(Web3HttpUrl, UriKind.Absolute, out uriResult)
+                               && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+                }
+
+                return (bValid ? uriResult : null );
+            }
+        }
 
         public WonkaEthSource BlockchainEngine { get; set; }
 
