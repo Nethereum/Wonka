@@ -496,7 +496,7 @@ namespace WonkaSystem.TestHarness
             // TrxGeneratorProxy.DeserializeRecordFromBlockchain(SalesTrxCommand);
 
             Dictionary<string, WonkaEth.Contracts.IOrchestrate> GroveMembers = new Dictionary<string, WonkaEth.Contracts.IOrchestrate>();
-            GroveMembers[NewSaleGrove.OrderedRuleTrees[0].RuleTreeId] = TrxGenerator;
+            GroveMembers[NewSaleGrove.OrderedRuleTrees[0].RuleTreeId] = TrxGeneratorProxy;
 
             // With their provided proxies for each RuleTree, we can now execute the Grove (or, in this case, our sole RuleTree)
             NewSaleGrove.Orchestrate(SalesTrxCommand, GroveMembers);
