@@ -377,7 +377,12 @@ namespace WonkaSystem.TestHarness
             string sContractAddress = "blah";
 
             var account = new Account(msPassword);
-            var web3    = new Nethereum.Web3.Web3(account);
+
+            Nethereum.Web3.Web3 web3 = null;
+            if ((moOrchInitData != null) && !String.IsNullOrEmpty(moOrchInitData.Web3HttpUrl))
+                web3 = new Nethereum.Web3.Web3(account, moOrchInitData.Web3HttpUrl);
+            else
+                web3 = new Nethereum.Web3.Web3(account);
 
             System.Numerics.BigInteger totalSupply = System.Numerics.BigInteger.Parse("10000000");
 
@@ -401,7 +406,12 @@ namespace WonkaSystem.TestHarness
             string sContractAddress = "blah";
 
             var account = new Account(msPassword);
-            var web3    = new Nethereum.Web3.Web3(account);
+
+            Nethereum.Web3.Web3 web3 = null;
+            if ((moOrchInitData != null) && !String.IsNullOrEmpty(moOrchInitData.Web3HttpUrl))
+                web3 = new Nethereum.Web3.Web3(account, moOrchInitData.Web3HttpUrl);
+            else
+                web3 = new Nethereum.Web3.Web3(account);
 
             System.Numerics.BigInteger totalSupply = System.Numerics.BigInteger.Parse("10000000");
 
@@ -535,7 +545,13 @@ namespace WonkaSystem.TestHarness
         public Nethereum.Contracts.Contract GetContract(WonkaBre.RuleTree.WonkaBreSource TargetSource)
         {
             var account  = new Account(TargetSource.Password);
-            var web3     = new Nethereum.Web3.Web3(account);
+
+            Nethereum.Web3.Web3 web3 = null;
+            if ((moOrchInitData != null) && !String.IsNullOrEmpty(moOrchInitData.Web3HttpUrl))
+                web3 = new Nethereum.Web3.Web3(account, moOrchInitData.Web3HttpUrl);
+            else
+                web3 = new Nethereum.Web3.Web3(account);
+
             var contract = web3.Eth.GetContract(TargetSource.ContractABI, TargetSource.ContractAddress);
 
             return contract;
