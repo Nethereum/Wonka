@@ -1256,7 +1256,11 @@ namespace WonkaEth.Extensions
         /// <param name="poEthInitData">The initialization info that will be repackaged</param>
         /// <returns>The transformation of 'poEthInitData' into an instance of OrchestrationInitData</returns>
         /// </summary>
-        public static WonkaEth.Orchestration.Init.OrchestrationInitData TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, IMetadataRetrievable piMetadataSource = null)
+        public static WonkaEth.Orchestration.Init.OrchestrationInitData 
+            TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, 
+                                                                IMetadataRetrievable piMetadataSource = null,
+                         Dictionary<string, WonkaBreXmlReader.ExecuteCustomOperator> poDelegateMap = null)
+
         {
             WonkaEth.Orchestration.Init.OrchestrationInitData OrchInitData = new WonkaEth.Orchestration.Init.OrchestrationInitData();
 
@@ -1308,13 +1312,18 @@ namespace WonkaEth.Extensions
             {
                 foreach (Init.WonkaEthSource TmpSource in poEthInitData.CustomOperatorList)
                 {
+                    WonkaBreXmlReader.ExecuteCustomOperator poCustomOpDelegate = null;
+
+                    if ((poDelegateMap != null) && poDelegateMap.ContainsKey(TmpSource.CustomOpContractMethod))
+                        poCustomOpDelegate = poDelegateMap[TmpSource.CustomOpContractMethod];
+
                     WonkaBreSource TmpBreSource =
                         new WonkaBreSource(TmpSource.CustomOpMarkupId,
                                            TmpSource.ContractSender,
                                            TmpSource.ContractPassword,
                                            TmpSource.ContractAddress,
                                            TmpSource.ContractABI,
-                                           null,
+                                           poCustomOpDelegate,
                                            TmpSource.CustomOpContractMethod);
 
                     if (OrchInitData.BlockchainCustomOpFunctions == null)
