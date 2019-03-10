@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -159,7 +160,9 @@ namespace WonkaBre.Permissions
 
         public bool RevokeAllConfirmations()
         {
-            foreach (string sTmpOwner in OwnerConfirmations.Keys)
+            HashSet<string> AllOwners = new HashSet<string>(OwnerConfirmations.Keys);
+
+            foreach (string sTmpOwner in AllOwners)
                 RevokeConfirmation(sTmpOwner);
 
             return true;
@@ -191,8 +194,7 @@ namespace WonkaBre.Permissions
             if (String.IsNullOrEmpty(psOwner))
                 throw new WonkaBrePermissionsException("ERROR!  Provided owner cannot be null or blank.");
 
-            OwnerConfirmations[psOwner] = false;
-            OwnerWeights[psOwner]       = pnWeight;
+            OwnerWeights[psOwner] = pnWeight;
         }
 
         #endregion
