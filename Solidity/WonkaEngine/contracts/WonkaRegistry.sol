@@ -82,7 +82,7 @@ contract WonkaRegistry {
 
         require(groveId != "", "Blank GroveID has been provided.");
 
-        require(ruleGroves[groveId].isValue != true, "Grove with ID does not exist.");
+        require(ruleGroves[groveId].isValue != true, "Grove with ID already exists.");
 
         ruleGroves[groveId] = WonkaRuleGrove({
             ruleGroveId: groveId,
@@ -105,7 +105,7 @@ contract WonkaRegistry {
 
         require(rsId != "", "Blank ID for RuleSet has been provided");
 
-        require(ruleTrees[rsId].isValue != true, "RuleTree for ID does not exist.");
+        require(ruleTrees[rsId].isValue != true, "RuleTree for ID already exists.");
 
         ruleTrees[rsId] = WonkaRuleTreeIndex({
             ruleTreeId: rsId,
@@ -145,10 +145,10 @@ contract WonkaRegistry {
     function addRuleTreeToGrove(bytes32 groveId, bytes32 treeId) public {
 
         // require(msg.sender == rulesMaster);
+		
+		require(ruleGroves[groveId].isValue == true, "Grove for ID does not exist.");
 
         require(ruleTrees[treeId].isValue == true, "RuleTree for ID does not exist.");
-
-        require(ruleGroves[groveId].isValue != true, "Grove for ID does not exist.");
 
         require(ruleGroves[groveId].memberPositions[treeId] == 0, "RuleTree already exists within Grove.");
 
@@ -213,7 +213,7 @@ contract WonkaRegistry {
 
         // require(msg.sender == rulesMaster);
 
-        require(ruleGroves[groveId].isValue != true, "Grove with ID does not exist.");
+        require(ruleGroves[groveId].isValue == true, "Grove with ID does not exist.");
 
         uint orderIdx = 999999;
 
