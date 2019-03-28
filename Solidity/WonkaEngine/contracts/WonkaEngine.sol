@@ -801,6 +801,14 @@ contract WonkaEngine {
         }
     }
 
+	/// @dev This method will indicate whether or not a particular source exists
+    /// @author Aaron Kendall
+    /// @notice This method should only be used for debugging purposes.
+    function getIsSourceMapped(bytes32 key) public view returns(bool) {
+
+        return sourceMap[key].isValue;
+    }
+
     /// @dev This method will return the current number of Attributes in the cache
     /// @author Aaron Kendall
     /// @notice This method should only be used for debugging purposes.
@@ -808,6 +816,14 @@ contract WonkaEngine {
 
         return attributes.length;
     }
+
+	/// @dev This method will indicate whether or not the Orchestration mode has been enabled
+    /// @author Aaron Kendall
+    /// @notice This method should only be used for debugging purposes.
+    function getOrchestrationMode() public view returns(bool) {
+
+        return orchestrationMode;
+    }	
 
     /// @dev This method will indicate whether or not the provided address/account has a RuleTree associated with it
     /// @author Aaron Kendall

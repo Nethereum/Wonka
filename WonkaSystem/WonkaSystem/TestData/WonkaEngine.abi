@@ -670,6 +670,39 @@
     },
     {
       "constant": true,
+      "inputs": [],
+      "name": "getOrchestrationMode",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getIsSourceMapped",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },	
+    {
+      "constant": true,
       "inputs": [
         {
           "name": "ruler",
