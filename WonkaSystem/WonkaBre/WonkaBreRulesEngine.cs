@@ -188,7 +188,7 @@ namespace WonkaBre
             this.RetrieveCurrRecord = null;
             this.TransactionState   = null;
 
-            GroveId       = "";
+            GroveId       = RegistrationId = "";
             GroveIndex    = 0;
             SourceMap     = new Dictionary<string, WonkaBreSource>();
             CustomOpMap   = new Dictionary<string, WonkaBreSource>();
@@ -288,6 +288,8 @@ namespace WonkaBre
         public readonly bool UsingOrchestrationMode;
 
         public readonly WonkaRefEnvironment RefEnvHandle;
+
+        public string RegistrationId { get; set; }
 
         public string GroveId { get; set; }
 
