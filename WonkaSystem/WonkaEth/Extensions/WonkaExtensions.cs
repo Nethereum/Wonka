@@ -172,7 +172,7 @@ namespace WonkaEth.Extensions
         /// </summary>
         public static void CompareRuleTrees(this WonkaBreRulesEngine poEngine, string psSenderAddress)
         {
-            var ruleTreeID = poEngine.DetermineRuleTreeID();
+            var ruleTreeID = poEngine.DetermineRuleTreeChainID();
 
             var RuleTreeInfo = GetRuleTreeIndex(ruleTreeID);
 
@@ -189,13 +189,34 @@ namespace WonkaEth.Extensions
         /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
         /// <returns>Provides the ID of the RuleTree contained by the engine</returns>
         /// </summary>
-        private static string DetermineRuleTreeID(this WonkaBreRulesEngine poEngine)
+        public static string DetermineRuleTreeChainID(this WonkaBreRulesEngine poEngine)
         {
-            string sRuleTreeId = poEngine.RuleTreeRoot.Description.Replace(" ", "");
-            if (sRuleTreeId.Length > CONST_MAX_RULE_TREE_ID_LEN)
-                sRuleTreeId = sRuleTreeId.Substring(0, CONST_MAX_RULE_TREE_ID_LEN);
+            return poEngine.RuleTreeRoot.DetermineRuleSetID(poEngine.RegistrationId);
+        }
 
-            return sRuleTreeId;
+        /// <summary>
+        /// 
+        /// This method will determine the ID of the RuleSet meant for the blockchain.
+        /// 
+        /// <param name="poEngine">The instance of an engine which contains a node of the RuleTree</param>
+        /// <param name="psRegistrationId">The Registration ID for the Registry on the blockchain</param>
+        /// <returns>Provides the ID of the RuleTree for the blockchain</returns>
+        /// </summary>
+        public static string DetermineRuleSetID(this WonkaBreRuleSet poRootRuleSet, string psRegistrationId)
+        {
+            string sRuleTreeChainId = "";
+
+            if (!String.IsNullOrEmpty(psRegistrationId))
+                sRuleTreeChainId = psRegistrationId;
+            else
+                sRuleTreeChainId = poRootRuleSet.Description;
+
+            if (sRuleTreeChainId.Length >= (CONST_CONTRACT_BYTE32_MAX - 4))
+                sRuleTreeChainId = "Root" + sRuleTreeChainId.Replace(" ", "").Trim().Substring(0, 27);
+            else
+                sRuleTreeChainId = "Root" + sRuleTreeChainId.Replace(" ", "").Trim();
+
+            return sRuleTreeChainId;
         }
 
         ///
@@ -480,11 +501,11 @@ namespace WonkaEth.Extensions
         public static bool IsRuleTreeRegistered(this WonkaBreRulesEngine poEngine)
         {
             var contract   = GetRegistryContract();
-            var ruleTreeID = poEngine.DetermineRuleTreeID();
+            var ruleTreeID = poEngine.DetermineRuleTreeChainID();
 
             var isRegisteredFunction = contract.GetFunction("isRuleTreeRegistered");
 
-            return isRegisteredFunction.CallAsync<bool>(poEngine.DetermineRuleTreeID()).Result;
+            return isRegisteredFunction.CallAsync<bool>(poEngine.DetermineRuleTreeChainID()).Result;
         }
 
         /// <summary>
@@ -534,7 +555,7 @@ namespace WonkaEth.Extensions
                     poEngine.CompareRuleTrees(psSenderAddress);
             }
 
-            treeRoot.SerializeTreeRoot(sSenderAddress, contract);
+            treeRoot.SerializeTreeRoot(contract, sSenderAddress, poEngine.RegistrationId);
 
             if (poEngine.UsingOrchestrationMode)
                 poEngine.SerializeOrchestrationInfo(sSenderAddress, contract);
@@ -877,7 +898,7 @@ namespace WonkaEth.Extensions
         /// </summary>
         private static bool SerializeRegistryInfo(this WonkaBreRulesEngine poEngine, string psSenderAddress, string psContractAddress)
         {
-            string sRuleTreeId = poEngine.DetermineRuleTreeID();
+            string sRuleTreeId = poEngine.DetermineRuleTreeChainID();
 
             HashSet<string> RequiredAttributes = new HashSet<string>();
             HashSet<string> ContractAssociates = new HashSet<string>();
@@ -924,7 +945,7 @@ namespace WonkaEth.Extensions
         /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree</param>
         /// <returns>Indicates whether or not all of the RuleTree's nodes were submitted to the blockchain</returns>
         /// </summary>
-        private static bool SerializeTreeRoot(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, string psSenderAddress, Nethereum.Contracts.Contract poContract)
+        private static bool SerializeTreeRoot(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, Nethereum.Contracts.Contract poContract, string psSenderAddress, string psRegistrationId)
         {
             var addRuleTreeFunction = poContract.GetFunction("addRuleTree");
 
@@ -948,10 +969,7 @@ namespace WonkaEth.Extensions
             var severeFailFlag = (poRuleSet.ErrorSeverity == RULE_SET_ERR_LVL.ERR_LVL_SEVERE);
             var andOpFlag      = (poRuleSet.RulesEvalOperator == RULE_OP.OP_AND);
 
-            if (poRuleSet.Description.Length > CONST_CONTRACT_BYTE32_MAX)
-                sRootName = poRuleSet.Description.Replace(" ", "").Trim().Substring(0, 27) + "Root";
-            else
-                sRootName = poRuleSet.Description.Replace(" ", "").Trim() + "Root";
+            sRootName = poRuleSet.DetermineRuleSetID(psRegistrationId);
 
             var result =
                 addRuleTreeFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, sRootName, sDesc, severeFailFlag, andOpFlag, false).Result;
