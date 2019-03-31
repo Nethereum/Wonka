@@ -156,6 +156,14 @@ contract WonkaRegistry {
 
         ruleGroves[groveId].memberPositions[treeId] = (ruleGroves[groveId].ruleTreeMembers.length + 1);
     }
+	
+    /// @dev This method will all registered ruletrees
+    /// @author Aaron Kendall
+    /// @notice 
+    function getAllRegisteredRuleTrees() public view returns (bytes32[]){
+
+        return (ruleTreesEnum);
+    }	
 
     /// @dev This method will return info about the specified grove
     /// @author Aaron Kendall
