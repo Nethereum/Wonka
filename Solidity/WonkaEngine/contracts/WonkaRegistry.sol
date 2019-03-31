@@ -160,7 +160,7 @@ contract WonkaRegistry {
     /// @dev This method will all registered ruletrees
     /// @author Aaron Kendall
     /// @notice 
-    function getAllRegisteredRuleTrees() public view returns (bytes32[]){
+    function getAllRegisteredRuleTrees() public view returns (bytes32[] memory){
 
         return (ruleTreesEnum);
     }	
