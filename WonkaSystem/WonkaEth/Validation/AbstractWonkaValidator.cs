@@ -109,11 +109,13 @@ namespace WonkaEth.Validation
         public readonly string              msWeb3HttpUrl;
         public readonly WonkaBreRulesEngine moRulesEngine;
 
+        public string                BlockchainEngineOwner { get; set; }
         public WonkaBlockchainEngine BlockchainEngine { get; set; }
 
         public AbstractWonkaValidator(T poCommand, string psRulesFilepath, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
          {
-            BlockchainEngine = new WonkaBlockchainEngine();
+            BlockchainEngine      = new WonkaBlockchainEngine();
+            BlockchainEngineOwner = "";
 
             msRulesFilepath = psRulesFilepath;
             msRulesContents = null;
@@ -126,7 +128,8 @@ namespace WonkaEth.Validation
 
         public AbstractWonkaValidator(T poCommand, StringBuilder psRules, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
         {
-            BlockchainEngine = new WonkaBlockchainEngine();
+            BlockchainEngine      = new WonkaBlockchainEngine();
+            BlockchainEngineOwner = "";
 
             msRulesFilepath = null;
             msRulesContents = psRules;
@@ -376,15 +379,16 @@ namespace WonkaEth.Validation
             var hasRuleTreeFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_HAS_RT);
 
             // Out of gas exception
-            var gas = hasRuleTreeFunction.EstimateGasAsync(BlockchainEngine.SenderAddress).Result;
+            var gas = hasRuleTreeFunction.EstimateGasAsync(BlockchainEngineOwner).Result;
             // var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
             bool bTreeAlreadyExists =
-                hasRuleTreeFunction.CallAsync<bool>(BlockchainEngine.SenderAddress, gas, null, BlockchainEngine.SenderAddress).Result;
+                hasRuleTreeFunction.CallAsync<bool>(BlockchainEngineOwner, gas, null, BlockchainEngine.SenderAddress).Result;
 
             if (!bTreeAlreadyExists)
-                moRulesEngine.Serialize(BlockchainEngine.SenderAddress, 
-                                        BlockchainEngine.Password, 
+                moRulesEngine.Serialize(BlockchainEngineOwner,
+                                        BlockchainEngine.Password,
+                                        BlockchainEngine.SenderAddress,
                                         BlockchainEngine.ContractAddress, 
                                         BlockchainEngine.ContractABI,
                                         null,

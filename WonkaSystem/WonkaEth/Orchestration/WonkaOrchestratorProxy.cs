@@ -287,7 +287,7 @@ namespace WonkaEth.Orchestration
             {
                 // Next, we execute the rules engine within a transaction, so that the any persistence will actually change the state of the blockchain
                 var receiptAddAttribute =
-                    executeWithReportFunction.SendTransactionAsync(moInitData.BlockchainEngine.SenderAddress, gas, null, moInitData.BlockchainEngine.SenderAddress).Result;
+                    executeWithReportFunction.SendTransactionAsync(moInitData.BlockchainEngineOwner, gas, null, moInitData.BlockchainEngine.SenderAddress).Result;
 
                 // Now, we get a full report on the execution of the rules engine, including the possibility of any failures
                 ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<WonkaRuleTreeReport>().Result;

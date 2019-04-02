@@ -344,7 +344,7 @@ namespace WonkaEth.Orchestration
             {
                 // Next, we execute the rules engine within a transaction, so that the any persistence will actually change the state of the blockchain
                 var receiptAddAttribute =
-                    executeWithReportFunction.SendTransactionAsync(moInitData.BlockchainEngine.SenderAddress, gas, null, moInitData.BlockchainEngine.SenderAddress).Result;
+                    executeWithReportFunction.SendTransactionAsync(moInitData.BlockchainEngineOwner, gas, null, moInitData.BlockchainEngine.SenderAddress).Result;
 
                 // Now, we get a full report on the execution of the rules engine, including the possibility of any failures
                 ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<WonkaRuleTreeReport>().Result;
@@ -410,15 +410,16 @@ namespace WonkaEth.Orchestration
             var hasRuleTreeFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_HAS_RT);
 
             // Out of gas exception
-            var gas = hasRuleTreeFunction.EstimateGasAsync(moInitData.BlockchainEngine.SenderAddress).Result;
+            var gas = hasRuleTreeFunction.EstimateGasAsync(moInitData.BlockchainEngineOwner).Result;
             // var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
             bool bTreeAlreadyExists =
-                hasRuleTreeFunction.CallAsync<bool>(moInitData.BlockchainEngine.SenderAddress, gas, null, moInitData.BlockchainEngine.SenderAddress).Result;
+                hasRuleTreeFunction.CallAsync<bool>(moInitData.BlockchainEngineOwner, gas, null, moInitData.BlockchainEngine.SenderAddress).Result;
 
             if (!bTreeAlreadyExists)
-                    moRulesEngine.Serialize(moInitData.BlockchainEngine.SenderAddress, 
-                                            moInitData.BlockchainEngine.Password, 
+                    moRulesEngine.Serialize(moInitData.BlockchainEngineOwner, 
+                                            moInitData.BlockchainEngine.Password,
+                                            moInitData.BlockchainEngine.SenderAddress,
                                             moInitData.BlockchainEngine.ContractAddress, 
                                             moInitData.BlockchainEngine.ContractABI,
                                             moInitData.TrxStateContractAddress,
