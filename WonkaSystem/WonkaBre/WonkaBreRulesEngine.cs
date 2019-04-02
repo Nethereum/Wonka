@@ -24,6 +24,11 @@ namespace WonkaBre
     /// a RuleTree provides the ability to validate a set of data, but it can also be used to invoke 
     /// user-defined actions (call a custom function, etc.) within a certain context.
     /// 
+    /// NOTE: There is only 1 RuleTree allowed per instance of this class.  This is unlike an instance of the
+    /// Wonka rules engine contract on the Ethereum blockchain, which can execute multiple instances of RuleTrees 
+    /// held in its storage.  Multiple instances of the contract are not created in order to save expenses 
+    /// (especially in terms of saving gas).
+    /// 
     /// </summary>
     public class WonkaBreRulesEngine
     {
