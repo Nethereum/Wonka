@@ -514,8 +514,9 @@ namespace WonkaEth.Extensions
         /// to create a RuleTree that will be owned by the Sender.
         /// 
         /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender (i.e., owner) account</param>
+        /// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
         /// <param name="psPassword">The password for the sender</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender (i.e., owner) account</param>
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
         /// <param name="psTransStateContractAddress">The address of the instance of the transaction state</param>
@@ -523,8 +524,9 @@ namespace WonkaEth.Extensions
         /// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
         /// </summary>
         public static bool Serialize(this WonkaBreRulesEngine poEngine, 
-                                                       string psSenderAddress, 
+                                                       string psRuleMasterAddress,
                                                        string psPassword, 
+                                                       string psSenderAddress,
                                                        string psContractAddress, 
                                                        string psAbi, 
                                                        string psTransStateContractAddress = null,
@@ -533,9 +535,7 @@ namespace WonkaEth.Extensions
             bool bResult = true;
 
             WonkaBre.RuleTree.WonkaBreRuleSet treeRoot = poEngine.RuleTreeRoot;
-
-            string sSenderAddress = psSenderAddress;
-
+            
             var account = new Account(psPassword);
 
             Nethereum.Web3.Web3 web3 = null;
@@ -555,10 +555,10 @@ namespace WonkaEth.Extensions
                     poEngine.CompareRuleTrees(psSenderAddress);
             }
 
-            treeRoot.SerializeTreeRoot(contract, sSenderAddress, poEngine.RegistrationId);
+            treeRoot.SerializeTreeRoot(contract, psRuleMasterAddress, psSenderAddress, poEngine.RegistrationId);
 
             if (poEngine.UsingOrchestrationMode)
-                poEngine.SerializeOrchestrationInfo(sSenderAddress, contract);
+                poEngine.SerializeOrchestrationInfo(contract, psRuleMasterAddress, psSenderAddress);
 
             if (!String.IsNullOrEmpty(psTransStateContractAddress)) 
             {
@@ -569,7 +569,7 @@ namespace WonkaEth.Extensions
                 // var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
                 var receiptSetTrxState =
-                    setTrxStateFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psTransStateContractAddress).Result;
+                    setTrxStateFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psTransStateContractAddress).Result;
 
                 if (poEngine.TransactionState != null)
                     poEngine.TransactionState.Serialize(psSenderAddress, psPassword, psTransStateContractAddress, psWeb3HttpUrl);
@@ -584,16 +584,18 @@ namespace WonkaEth.Extensions
         /// to establish the Attributes (i.e., data points) that our intended RuleTree will examine.
         /// 
         /// <param name="poInstance">The instance of an Environment which contains the Attributes that we will want to share with the Ethgine contract</param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
+        /// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
         /// <param name="psPassword">The password for the sender/param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
         /// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the RefEnvironment instance</param>
         /// <returns>Indicates whether or not the Attributes were submitted to the blockchain</returns>
         /// </summary>
         public static bool Serialize(this WonkaRefEnvironment poInstance, 
-                                                       string psSenderAddress, 
-                                                       string psPassword, 
+                                                       string psRuleMasterAddress, 
+                                                       string psPassword,
+                                                       string psSenderAddress,
                                                        string psContractAddress, 
                                                        string psAbi,
                                                        string psWeb3HttpUrl = null)
@@ -637,7 +639,7 @@ namespace WonkaEth.Extensions
                     var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
                     var receiptAddAttribute =
-                        addAttrFunction.SendTransactionAsync(psSenderAddress, gas, null, sAttrName, MaxLen, MaxNumVal, DefVal, IsString, IsNumeric).Result;
+                        addAttrFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, sAttrName, MaxLen, MaxNumVal, DefVal, IsString, IsNumeric).Result;
                 }
             }
 
@@ -809,11 +811,12 @@ namespace WonkaEth.Extensions
         /// to set the Orchestration mode information.
         /// 
         /// <param name="poEngine">The instance of an engine which contains the Orchestration info</param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
         /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree</param>
+        /// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
         /// <returns>Indicates whether or not the Orchestration info was submitted to the blockchain</returns>
         /// </summary>
-        private static bool SerializeOrchestrationInfo(this WonkaBreRulesEngine poEngine, string psSenderAddress, Nethereum.Contracts.Contract poContract)
+        private static bool SerializeOrchestrationInfo(this WonkaBreRulesEngine poEngine, Nethereum.Contracts.Contract poContract, string psRuleMasterAddress, string psSenderAddress)
         {
             var addSourceFunction   = poContract.GetFunction("addSource");
             var addCustomOpFunction = poContract.GetFunction("addCustomOp");
@@ -832,7 +835,7 @@ namespace WonkaEth.Extensions
                 var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
                 result =
-                    setOrchModeFunction.SendTransactionAsync(psSenderAddress, gas, null, true, defSrc).Result;
+                    setOrchModeFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, true, defSrc).Result;
 
                 foreach (string sTmpAttrId in poEngine.SourceMap.Keys)
                 {
@@ -845,7 +848,7 @@ namespace WonkaEth.Extensions
                     if (!SourcesAdded.Contains(TmpSource.SourceId))
                     {
                         result =
-                            addSourceFunction.SendTransactionAsync(psSenderAddress, 
+                            addSourceFunction.SendTransactionAsync(psRuleMasterAddress, 
                                                                    addSrcGas, 
                                                                    null, 
                                                                    TmpSource.SourceId, 
@@ -869,7 +872,7 @@ namespace WonkaEth.Extensions
                     if (!CustomOpsAdded.Contains(TmpSource.SourceId))
                     {
                         result =
-                            addCustomOpFunction.SendTransactionAsync(psSenderAddress,
+                            addCustomOpFunction.SendTransactionAsync(psRuleMasterAddress,
                                                                      addSrcGas,
                                                                      null,
                                                                      TmpSource.SourceId,
@@ -941,11 +944,17 @@ namespace WonkaEth.Extensions
         /// to add the root node for a RuleTree (as well as the rest of the RuleTree).
         /// 
         /// <param name="poRuleSet">The root node of the RuleTree that we are creating in the Ethgine contract</param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree</param>
         /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree</param>
+        /// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree</param>
+        /// <param name="psRegistrationId">The alternate ID for the RuleTree to use when registering it within the Registry</param>
         /// <returns>Indicates whether or not all of the RuleTree's nodes were submitted to the blockchain</returns>
         /// </summary>
-        private static bool SerializeTreeRoot(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, Nethereum.Contracts.Contract poContract, string psSenderAddress, string psRegistrationId)
+        private static bool SerializeTreeRoot(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, 
+                                                        Nethereum.Contracts.Contract poContract, 
+                                                                              string psRuleMasterAddress,
+                                                                              string psSenderAddress, 
+                                                                              string psRegistrationId)
         {
             var addRuleTreeFunction = poContract.GetFunction("addRuleTree");
 
@@ -972,13 +981,13 @@ namespace WonkaEth.Extensions
             sRootName = poRuleSet.DetermineRuleSetID(psRegistrationId);
 
             var result =
-                addRuleTreeFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, sRootName, sDesc, severeFailFlag, andOpFlag, false).Result;
+                addRuleTreeFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, sRootName, sDesc, severeFailFlag, andOpFlag, false).Result;
 
-            poRuleSet.SerializeRules(psSenderAddress, poContract, sRootName);
+            poRuleSet.SerializeRules(poContract, psRuleMasterAddress, psSenderAddress, sRootName);
 
             foreach (WonkaBre.RuleTree.WonkaBreRuleSet TempChildRuleSet in poRuleSet.ChildRuleSets)
             {
-                TempChildRuleSet.SerializeRuleSet(psSenderAddress, poContract, sRootName);
+                TempChildRuleSet.SerializeRuleSet(poContract, psRuleMasterAddress, psSenderAddress, sRootName);
             }
 
             /**
@@ -999,12 +1008,17 @@ namespace WonkaEth.Extensions
         /// to add another node for a RuleTree.
         /// 
         /// <param name="poRuleSet">The current node of the RuleTree that we are creating in the Ethgine contract</param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree</param>
         /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree</param>
+        /// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree</param>
         /// <param name="psRSParentName">The parent node of the current node that we are adding to the RuleTree</param>
         /// <returns>Indicates whether or not the current node was submitted to the blockchain</returns>
         /// </summary>
-        private static bool SerializeRuleSet(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, string psSenderAddress, Nethereum.Contracts.Contract poContract, string psRSParentName)
+        private static bool SerializeRuleSet(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet,
+                                                       Nethereum.Contracts.Contract poContract,
+                                                                             string psRuleMasterAddress,
+                                                                             string psSenderAddress, 
+                                                                             string psRSParentName)
         {
             var addRuleSetFunction = poContract.GetFunction("addRuleSet");
 
@@ -1047,13 +1061,13 @@ namespace WonkaEth.Extensions
             }
 
             var result =
-                addRuleSetFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, sResultSetID, sDescription, psRSParentName, severeFailFlag, andOpFlag, false).Result;
+                addRuleSetFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, sResultSetID, sDescription, psRSParentName, severeFailFlag, andOpFlag, false).Result;
 
-            poRuleSet.SerializeRules(psSenderAddress, poContract, sResultSetID);
+            poRuleSet.SerializeRules(poContract, psRuleMasterAddress, psSenderAddress,  sResultSetID);
 
             foreach (WonkaBre.RuleTree.WonkaBreRuleSet TempChildRuleSet in poRuleSet.ChildRuleSets)
             {
-                TempChildRuleSet.SerializeRuleSet(psSenderAddress, poContract, sResultSetID);
+                TempChildRuleSet.SerializeRuleSet(poContract, psRuleMasterAddress, psSenderAddress, sResultSetID);
             }
 
             return true;
@@ -1065,12 +1079,17 @@ namespace WonkaEth.Extensions
         /// to add all of the rules that belong to a RuleSet node of the RuleTree.
         /// 
         /// <param name="poRuleSet">The current node of the RuleTree whose rules we are creating in the Ethgine contract</param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree</param>
         /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree</param>
+        /// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree</param>
         /// <param name="psRuleSetId">The name of the current node in the blockchain whose rules we are adding to the RuleTree</param>
         /// <returns>Indicates whether or not the rules of the current node were submitted to the blockchain</returns>
         /// </summary>
-        private static bool SerializeRules(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, string psSenderAddress, Nethereum.Contracts.Contract poContract, string psRuleSetId)
+        private static bool SerializeRules(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, 
+                                                     Nethereum.Contracts.Contract poContract, 
+                                                                           string psRuleMasterAddress, 
+                                                                           string psSenderAddress, 
+                                                                           string psRuleSetId)
         {
             var addRuleTreeFunction     = poContract.GetFunction("addRule");
             var addCustomOpArgsFunction = poContract.GetFunction("addRuleCustomOpArgs");
@@ -1153,7 +1172,7 @@ namespace WonkaEth.Extensions
                 if (nRuleType > 0)
                 {
                     var result =
-                        addRuleTreeFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
+                        addRuleTreeFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
                 }
                 else 
                 {
@@ -1249,11 +1268,11 @@ namespace WonkaEth.Extensions
                 if (nRuleType > 0)
                 {
                     var result =
-                        addRuleTreeFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
+                        addRuleTreeFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
 
                     if (TempRule.RuleType == RULE_TYPE.RT_CUSTOM_OP)
                     {
-                        var result2 = addCustomOpArgsFunction.SendTransactionAsync(psSenderAddress, gas, null, psSenderAddress, psRuleSetId, CustomOpArgs[0], CustomOpArgs[1], CustomOpArgs[2], CustomOpArgs[3]).Result;
+                        var result2 = addCustomOpArgsFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, CustomOpArgs[0], CustomOpArgs[1], CustomOpArgs[2], CustomOpArgs[3]).Result;
                     }
                 }
                 else 
@@ -1284,6 +1303,7 @@ namespace WonkaEth.Extensions
 
             OrchInitData.Web3HttpUrl              = poEthInitData.Web3HttpUrl;
             OrchInitData.AttributesMetadataSource = piMetadataSource;
+            OrchInitData.BlockchainEngineOwner    = poEthInitData.BlockchainEngine.ContractOwner;
 
             OrchInitData.BlockchainEngine =
                 new WonkaBreSource(poEthInitData.BlockchainEngine.ContractMarkupId,
