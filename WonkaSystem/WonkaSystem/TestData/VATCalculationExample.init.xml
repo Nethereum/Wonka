@@ -3,8 +3,9 @@
     <Web3HttpUrl></Web3HttpUrl>
     <BlockchainEngine>
         <ContractAddress>0x7e51d4a94c3649e496d91b8aeed0e05fa4e896ae</ContractAddress>
-        <ContractSender>0x019d19f2f9db5b43f5fb8cdbfc045c21cc5746d4</ContractSender>
+        <ContractOwner>0x019d19f2f9db5b43f5fb8cdbfc045c21cc5746d4</ContractOwner>
         <ContractPassword>8b69607d2f3611925c8802b5c8433acfdbdf9f35f13f346535fe736e5ef01ae4</ContractPassword>
+        <ContractSender>0x019d19f2f9db5b43f5fb8cdbfc045c21cc5746d4</ContractSender>      
         <ContractGetterMethod>getAttrValueBytes32</ContractGetterMethod>
         <ContractABIEmbeddedResource><![CDATA[WonkaSystem.TestData.WonkaEngine.abi]]></ContractABIEmbeddedResource>
         <BusinessRulesEmbeddedResource><![CDATA[WonkaSystem.TestData.VATCalculationExample.xml]]></BusinessRulesEmbeddedResource>

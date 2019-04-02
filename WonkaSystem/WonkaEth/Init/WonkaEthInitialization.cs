@@ -20,6 +20,8 @@ namespace WonkaEth.Init
 
         public WonkaEthSource()
         {
+            ContractMarkupId = ContractOwner = ContractAddress = ContractSender = ContractPassword = null;
+
             ContractABI = BusinessRules = null;
 
             msBusinessRulesEmbeddedResource = msBusinessRulesFileResource = msBusinessRulesIpfsResource = "";
@@ -28,6 +30,8 @@ namespace WonkaEth.Init
         }
 
         public string ContractMarkupId { get; set; }
+
+        public string ContractOwner { get; set; }
 
         public string ContractAddress { get; set; }
 
