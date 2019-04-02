@@ -460,7 +460,7 @@ namespace WonkaSystem.TestHarness
                 hasRuleTreeFunction.CallAsync<bool>(this.msSenderAddress, gas, null, this.msSenderAddress).Result;
 
             if (!bTreeAlreadyExists)
-                moRulesEngine.Serialize(msSenderAddress, msPassword, msContractAddress, msAbiWonka);
+                moRulesEngine.Serialize(msSenderAddress, msPassword, msSenderAddress, msContractAddress, msAbiWonka);
         }
 
         public void SetAttribute(WonkaProduct poTargetProduct, WonkaRefAttr poTargetAttr, string psTargetValue)

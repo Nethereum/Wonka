@@ -76,7 +76,7 @@ namespace WonkaSystem.TestHarness
                 msContractAddress = psContractAddress;
 
             // Finally we serialize the data domain to the blockchain
-            RefEnv.Serialize(msSenderAddress, msPassword, msContractAddress, msAbiWonka);
+            RefEnv.Serialize(msSenderAddress, msPassword, msSenderAddress, msContractAddress, msAbiWonka);
         }
 
         public string DeployContract()
@@ -129,6 +129,7 @@ namespace WonkaSystem.TestHarness
             CQS.Validation.AccountUpdateValidator UpdateValidator =
                    new CQS.Validation.AccountUpdateValidator(UpdateCommand, new StringBuilder(msRulesContents));
 
+            UpdateValidator.BlockchainEngineOwner            = msSenderAddress;
             UpdateValidator.BlockchainEngine.SenderAddress   = msSenderAddress;
             UpdateValidator.BlockchainEngine.Password        = msPassword;
             UpdateValidator.BlockchainEngine.ContractAddress = msContractAddress;
