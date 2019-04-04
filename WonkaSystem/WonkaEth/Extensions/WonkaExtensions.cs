@@ -172,12 +172,12 @@ namespace WonkaEth.Extensions
         /// </summary>
         public static void CompareRuleTrees(this WonkaBreRulesEngine poEngine, string psSenderAddress)
         {
-            var ruleTreeID = poEngine.DetermineRuleTreeChainID();
+            var sRuleTreeID = poEngine.DetermineRuleTreeChainID();
 
-            var RuleTreeInfo = GetRuleTreeIndex(ruleTreeID);
+            var RuleTreeInfo = GetRuleTreeIndex(sRuleTreeID);
 
             if (RuleTreeInfo.RuleTreeOwner != psSenderAddress)
-                throw new Exception("ERROR!  You are attempting to save a RuleTree with an ID that's already been registered by a different owner.");
+                throw new Exception("ERROR!  You are attempting to save a RuleTree with the ID(" + sRuleTreeID + "), which is already registered by a different owner.");
 
             string sCreateDateTime = RuleTreeInfo.CreationTime.ToString();
         }
