@@ -515,7 +515,7 @@ namespace WonkaEth.Extensions
         /// 
         /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
         /// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
-        /// <param name="psPassword">The password for the sender</param>
+        /// <param name="psPassword">The password for the psRuleMasterAddress</param>
         /// <param name="psSenderAddress">The Ethereum address of the sender (i.e., owner) account</param>
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
@@ -562,17 +562,8 @@ namespace WonkaEth.Extensions
 
             if (!String.IsNullOrEmpty(psTransStateContractAddress)) 
             {
-                var setTrxStateFunction = contract.GetFunction("setTransactionState");
-
-                // NOTE: Caused exception to be thrown
-                var gas = setTrxStateFunction.EstimateGasAsync(psSenderAddress, psTransStateContractAddress).Result;
-                // var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
-
-                var receiptSetTrxState =
-                    setTrxStateFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psTransStateContractAddress).Result;
-
                 if (poEngine.TransactionState != null)
-                    poEngine.TransactionState.Serialize(psSenderAddress, psPassword, psTransStateContractAddress, psWeb3HttpUrl);
+                    poEngine.TransactionState.Serialize(contract, psRuleMasterAddress, psPassword, psSenderAddress, psTransStateContractAddress, psWeb3HttpUrl);
             }
 
             return bResult;
@@ -585,7 +576,7 @@ namespace WonkaEth.Extensions
         /// 
         /// <param name="poInstance">The instance of an Environment which contains the Attributes that we will want to share with the Ethgine contract</param>
         /// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
-        /// <param name="psPassword">The password for the sender/param>
+        /// <param name="psPassword">The password for the psRuleMasterAddress/param>
         /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
@@ -714,31 +705,46 @@ namespace WonkaEth.Extensions
         /// This method will use Nethereum to serialize the transaction state into the blockchain's registry.
         /// 
         /// <param name="poTransState">The instance of the transaction state</param>
-        /// <param name="psSender">The Ethereum address of the sender account</param>
-        /// <param name="psPassword">The password for the sender/param>
+        /// <param name="poContract">The Ethgine contract in which we are adding the RuleTree</param>
+        /// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
+        /// <param name="psSenderAddress">The Ethereum address of the sender account who owns the RuleTree</param>
         /// <param name="psTransStateContractAddress">The address of the instance of the blockchain contract that serves as the transaction state</param>
         /// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the TransactionState</param>
         /// <returns>Indicates whether or not the transaction state was submitted to the blockchain</returns>
         /// </summary>
         public static bool Serialize(this WonkaBre.Permissions.ITransactionState poTransState,
-                                                                          string psSender,
+                                                    Nethereum.Contracts.Contract poWonkaContract,
+                                                                          string psRuleMasterAddress,
                                                                           string psPassword,
+                                                                          string psSenderAddress,
                                                                           string psTransStateContractAddress,
                                                                           string psWeb3HttpUrl)
         {
-            var sPassword     = psPassword;
-            var sContractAddr = psTransStateContractAddress;
+            #region Set Trx State on Tree in the Chain
+
+            var setTrxStateFunction = poWonkaContract.GetFunction("setTransactionState");
+
+            var gas = setTrxStateFunction.EstimateGasAsync(psSenderAddress, psTransStateContractAddress).Result;
+
+            var receiptSetTrxState =
+                setTrxStateFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psTransStateContractAddress).Result;
+
+            #endregion
+
+            #region Now set all properties for this TrxState on the contract
+
+            var sTrxStateContractAddr = psTransStateContractAddress;
 
             var TmpAssembly  = System.Reflection.Assembly.GetExecutingAssembly();
             var TmpResStream = TmpAssembly.GetManifestResourceStream("WonkaEth.Contracts.Ethereum.TransactionStateInterface.abi");
 
-            string sABI = "";
+            string sTrxStateABI = "";
             using (var AbiReader = new System.IO.StreamReader(TmpResStream))
             {
-                sABI = AbiReader.ReadToEnd();
+                sTrxStateABI = AbiReader.ReadToEnd();
             }
 
-            var account = new Account(sPassword);
+            var account = new Account(psPassword);
 
             Nethereum.Web3.Web3 web3 = null;
             if (!String.IsNullOrEmpty(psWeb3HttpUrl))
@@ -746,7 +752,7 @@ namespace WonkaEth.Extensions
             else
                 web3 = new Nethereum.Web3.Web3(account);
 
-            var contract = web3.Eth.GetContract(sABI, sContractAddr);
+            var contract = web3.Eth.GetContract(sTrxStateABI, psTransStateContractAddress);
 
             var addConfirmFunction        = contract.GetFunction("addConfirmation");
             var getMinScoreFunction       = contract.GetFunction("getMinScoreRequirement");
@@ -758,25 +764,25 @@ namespace WonkaEth.Extensions
             var setOwnerFunction          = contract.GetFunction("setOwner");
 
             // NOTE: Causes "out of gas" exception to be thrown?
-            // var gas = addRegistryItemFunction.EstimateGasAsync(etc,etc,etc).Result;
-            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+            // gas = addRegistryItemFunction.EstimateGasAsync(etc,etc,etc).Result;
+            gas = new Nethereum.Hex.HexTypes.HexBigInteger(100000);
 
             var nMinScore = poTransState.GetMinScoreRequirement();
             if (nMinScore > 0)
             {
                 var setMinScoreRetVal =
-                    setMinScoreFunction.SendTransactionAsync(psSender, gas, null, nMinScore).Result;
+                    setMinScoreFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, nMinScore).Result;
             }
 
             HashSet<string> TrxStateExecutors = poTransState.GetExecutors();
             foreach (string sTmpExecutor in TrxStateExecutors)
             {
                 var setExecutorRetVal =
-                    setExecutorFunction.SendTransactionAsync(psSender, gas, null, sTmpExecutor).Result;
+                    setExecutorFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, sTmpExecutor).Result;
             }
 
             var revokeAllConfirmsRetVal =
-                revokeAllConfirmsFunction.SendTransactionAsync(psSender, gas, null).Result;
+                revokeAllConfirmsFunction.SendTransactionAsync(psRuleMasterAddress, gas, null).Result;
 
             HashSet<string> TrxStateConfirmedList = poTransState.GetOwnersConfirmed();
             foreach (string sTmpConfirmed in TrxStateConfirmedList)
@@ -784,10 +790,10 @@ namespace WonkaEth.Extensions
                 uint nOwnerWeight = poTransState.GetOwnerWeight(sTmpConfirmed);
 
                 var setOwnerRetVal =
-                    setOwnerFunction.SendTransactionAsync(psSender, gas, null, sTmpConfirmed, nOwnerWeight).Result;
+                    setOwnerFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, sTmpConfirmed, nOwnerWeight).Result;
 
                 var confirmRetVal =
-                    addConfirmFunction.SendTransactionAsync(psSender, gas, null, sTmpConfirmed).Result;
+                    addConfirmFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, sTmpConfirmed).Result;
             }
 
             HashSet<string> TrxStateUnconfirmedList = poTransState.GetOwnersUnconfirmed();
@@ -796,11 +802,13 @@ namespace WonkaEth.Extensions
                 uint nOwnerWeight = poTransState.GetOwnerWeight(sTmpUnconfirmed);
 
                 var setOwnerRetVal =
-                    setOwnerFunction.SendTransactionAsync(psSender, gas, null, sTmpUnconfirmed, nOwnerWeight).Result;
+                    setOwnerFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, sTmpUnconfirmed, nOwnerWeight).Result;
 
                 var revokeRetVal =
-                    revokeConfirmFunction.SendTransactionAsync(psSender, gas, null, sTmpUnconfirmed).Result;
+                    revokeConfirmFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, sTmpUnconfirmed).Result;
             }
+
+            #endregion
 
             return true;
         }
@@ -895,7 +903,7 @@ namespace WonkaEth.Extensions
         /// 
         /// <param name="poEngine">The instance of an engine/RuleTree whose info we wish to write to the Registry on the blockchain</param>
         /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
-        /// <param name="psPassword">The password for the sender</param>
+        /// <param name="psPassword">The password for the psRuleMasterAddress</param>
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <returns>Indicates whether or not the Attributes were submitted to the blockchain</returns>
         /// </summary>
