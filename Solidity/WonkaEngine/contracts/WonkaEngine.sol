@@ -296,6 +296,8 @@ contract WonkaEngine {
 
         require((msg.sender == rulesMaster) || (msg.sender == _RTOwner), "The caller of this method does not have permission for this action.");
 
+        require(ruletrees[_RTOwner].isValue == true, "The specified RuleTree does not exist.");
+
         // Do not forget the "_;"! It will
         // be replaced by the actual function
         // body when the modifier is used.
@@ -370,8 +372,6 @@ contract WonkaEngine {
     /// @notice Currently, a RuleSet can only belong to one RuleTree and be a child of one parent RuleSet, though there are plans to have a RuleSet capable of being shared among parents
     function addRuleSet(address ruler, bytes32 ruleSetName, string memory desc, bytes32 parentRSName, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public onlyEngineOwnerOrTreeOwner(ruler) {
 
-        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
-
         if (parentRSName != "") {
             require(ruletrees[ruler].allRuleSets[parentRSName].isValue == true, "The specified parent RuleSet does not exist.");
         }
@@ -406,8 +406,6 @@ contract WonkaEngine {
     /// @author Aaron Kendall
     /// @notice Currently, a Rule can only belong to one RuleSet
     function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string memory rVal, bool notFlag, bool passiveFlag) public onlyEngineOwnerOrTreeOwner(ruler) {
-
-        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
         require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, "The specified RuleSet does not exist.");
 
@@ -469,8 +467,6 @@ contract WonkaEngine {
     /// @notice Currently, a Rule can only belong to one RuleSet
     function addRuleCustomOpArgs(address ruler, bytes32 ruleSetId, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public onlyEngineOwnerOrTreeOwner(ruler) {
 
-        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
-
         require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, "The specified RuleSet does not exist.");
 
         require(ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].ruleType == uint(RuleTypes.CustomOp), "The last rule added to this RuleTree was not a Custom Op rule.");
@@ -504,8 +500,6 @@ contract WonkaEngine {
 
         executeSuccess = true;
 
-        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
-
         require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
 
         // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
@@ -531,8 +525,6 @@ contract WonkaEngine {
     /// @author Aaron Kendall
     /// @notice This method will return a disassembled RuleReport that can be reassembled, especially by using the Nethereum library
     function executeWithReport(address ruler) public onlyEngineOwnerOrTreeOwner(ruler) returns (uint fails, bytes32[] memory rsets, bytes32[] memory rules) {
-
-        require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
         require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
 
