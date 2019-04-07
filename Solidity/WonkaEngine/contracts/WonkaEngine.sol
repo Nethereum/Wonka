@@ -142,9 +142,6 @@ contract WonkaEngine {
         bool isValue;
     }
 
-    /**
-     ** NOTE: USE WHEN DEBUGGING IS NEEDED
-     **
     /// @dev Defines an event that will report when a ruletree has been added to the contract instance. Useful for debugging.
     /// @author Aaron Kendall
     /// @notice 
@@ -176,8 +173,6 @@ contract WonkaEngine {
         bytes32 indexed ruleId,
         uint ruleType
     );
-     **
-     */
 
     // An enum for the type of rules currently supported
     enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, OpDiv, CustomOp, MAX_TYPE }
@@ -287,12 +282,30 @@ contract WonkaEngine {
         attrCounter = 4;
     }
 
+    modifier onlyEngineOwner()
+    {
+        require(msg.sender == rulesMaster, "The caller of this method does not have permission for this action.");
+
+        // Do not forget the "_;"! It will
+        // be replaced by the actual function
+        // body when the modifier is used.
+        _;
+    }
+
+    modifier onlyEngineOwnerOrTreeOwner(address _RTOwner) {
+
+        require((msg.sender == rulesMaster) || (msg.sender == _RTOwner), "The caller of this method does not have permission for this action.");
+
+        // Do not forget the "_;"! It will
+        // be replaced by the actual function
+        // body when the modifier is used.
+        _;
+    }
+
     /// @dev This method will add a new Attribute to the cache.  By adding Attributes, we expand the set of possible values that can be held by a record.
     /// @author Aaron Kendall
     /// @notice 
-    function addAttribute(bytes32 pAttrName, uint pMaxLen, uint pMaxNumVal, string memory pDefVal, bool pIsStr, bool pIsNum) public {
-
-        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add Attributes.");
+    function addAttribute(bytes32 pAttrName, uint pMaxLen, uint pMaxNumVal, string memory pDefVal, bool pIsStr, bool pIsNum) public onlyEngineOwner {
 
         bool maxLenTrun = (pMaxLen > 0);
 
@@ -315,14 +328,12 @@ contract WonkaEngine {
     /// @dev This method will add a new Attribute to the cache.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
     /// @author Aaron Kendall
     /// @notice Currently, only one ruletree can be defined for any given address/account
-    function addRuleTree(address ruler, bytes32 rsName, string memory desc, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public {
-
-        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add RuleTrees.");
+    function addRuleTree(address ruler, bytes32 rsName, string memory desc, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public onlyEngineOwner {
 
         require(ruletrees[ruler].isValue != true, "A RuleTree with this ID already exists.");
 
         // NOTE: USE WHEN DEBUGGING IS NEEDED
-        // emit CallAddRuleTree(ruler);
+        emit CallAddRuleTree(ruler);
 
         ruletrees[ruler] = WonkaRuleTree({
             ruleTreeId: rsName,
@@ -341,9 +352,7 @@ contract WonkaEngine {
     /// @dev This method will add a new custom operator to the cache.
     /// @author Aaron Kendall
     /// @notice 
-    function addCustomOp(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName) public {
-
-        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add Custom Operators.");
+    function addCustomOp(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName) public onlyEngineOwner {
 
         opMap[srcName] = 
             WonkaSource({
@@ -359,9 +368,7 @@ contract WonkaEngine {
     /// @dev This method will add a new RuleSet to the cache and to the indicated RuleTree.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
     /// @author Aaron Kendall
     /// @notice Currently, a RuleSet can only belong to one RuleTree and be a child of one parent RuleSet, though there are plans to have a RuleSet capable of being shared among parents
-    function addRuleSet(address ruler, bytes32 ruleSetName, string memory desc, bytes32 parentRSName, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public {
-
-        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to add a RuleSet to the specified RuleTree.");
+    function addRuleSet(address ruler, bytes32 ruleSetName, string memory desc, bytes32 parentRSName, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public onlyEngineOwnerOrTreeOwner(ruler) {
 
         require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
@@ -398,9 +405,7 @@ contract WonkaEngine {
     /// @dev This method will add a new Rule to the indicated RuleSet
     /// @author Aaron Kendall
     /// @notice Currently, a Rule can only belong to one RuleSet
-    function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string memory rVal, bool notFlag, bool passiveFlag) public {
-
-        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to add a Rule to the specified RuleSet.");
+    function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string memory rVal, bool notFlag, bool passiveFlag) public onlyEngineOwnerOrTreeOwner(ruler) {
 
         require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
@@ -462,9 +467,7 @@ contract WonkaEngine {
     /// @dev This method will supply the args to the last rule added (of type Custom Operator)
     /// @author Aaron Kendall
     /// @notice Currently, a Rule can only belong to one RuleSet
-    function addRuleCustomOpArgs(address ruler, bytes32 ruleSetId, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public {
-
-        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to set arguments in a Custom Op rule added recently.");
+    function addRuleCustomOpArgs(address ruler, bytes32 ruleSetId, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public onlyEngineOwnerOrTreeOwner(ruler) {
 
         require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
@@ -481,9 +484,7 @@ contract WonkaEngine {
     /// @dev This method will add a new source to the mapping cache.
     /// @author Aaron Kendall
     /// @notice 
-    function addSource(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName, bytes32 setMethName) public {
-
-        require(msg.sender == rulesMaster, "The caller of this method does not have permission to add a Source.");
+    function addSource(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName, bytes32 setMethName) public onlyEngineOwner {
 
         sourceMap[srcName] = 
             WonkaSource({
@@ -499,11 +500,9 @@ contract WonkaEngine {
     /// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
     /// @author Aaron Kendall
     /// @notice This method will only return a boolean
-    function execute(address ruler) public returns (bool executeSuccess) {
+    function execute(address ruler) public onlyEngineOwnerOrTreeOwner(ruler) returns (bool executeSuccess) {
 
         executeSuccess = true;
-
-        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to execute a RuleTree.");
 
         require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
@@ -513,7 +512,7 @@ contract WonkaEngine {
         // require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
 
         // NOTE: USE WHEN DEBUGGING IS NEEDED
-        // emit CallRuleTree(ruler);
+        emit CallRuleTree(ruler);
 
         lastSenderAddressProvided = ruler;
 
@@ -531,9 +530,7 @@ contract WonkaEngine {
     /// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
     /// @author Aaron Kendall
     /// @notice This method will return a disassembled RuleReport that can be reassembled, especially by using the Nethereum library
-    function executeWithReport(address ruler) public returns (uint fails, bytes32[] memory rsets, bytes32[] memory rules) {
-
-        require((msg.sender == rulesMaster) || (msg.sender == ruler), "The caller of this method does not have permission to execute a RuleTree.");
+    function executeWithReport(address ruler) public onlyEngineOwnerOrTreeOwner(ruler) returns (uint fails, bytes32[] memory rsets, bytes32[] memory rules) {
 
         require(ruletrees[ruler].isValue == true, "The specified RuleTree does not exist.");
 
@@ -543,7 +540,7 @@ contract WonkaEngine {
         // require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
 
         // NOTE: USE WHEN DEBUGGING IS NEEDED
-        // emit CallRuleTree(ruler);
+        emit CallRuleTree(ruler);
 
         lastSenderAddressProvided = ruler;
 
@@ -568,7 +565,7 @@ contract WonkaEngine {
         executeSuccess = true;
 
         // NOTE: USE WHEN DEBUGGING IS NEEDED
-        // emit CallRuleSet(ruler, targetRuleSet.ruleSetId);
+        emit CallRuleSet(ruler, targetRuleSet.ruleSetId);
 
         if (transStateInd[ruletrees[ruler].ruleTreeId]) {
 
@@ -638,7 +635,7 @@ contract WonkaEngine {
         string memory tempValue = getValueOnRecord(ruler, targetRule.targetAttr.attrName);
 
         // NOTE: USE WHEN DEBUGGING IS NEEDED
-        // emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
+        emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
 
         if (targetRule.targetAttr.isNumeric) {          
             testNumValue = parseInt(tempValue, 0);
@@ -710,7 +707,7 @@ contract WonkaEngine {
         if (!ruleResult && ruletrees[ruler].allRuleSets[targetRule.parentRuleSetId].isLeaf) {            
 
             // NOTE: USE WHEN DEBUGGING IS NEEDED
-            // emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
+            emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
 
             ruleReport.ruleSetIds[ruleReport.ruleFailCount] = targetRule.parentRuleSetId;
 
@@ -724,9 +721,6 @@ contract WonkaEngine {
     /// @dev This method will return the report generated by the engine's last execution
     /// @author Aaron Kendall
     function getLastRuleReport() public view returns (uint fails, bytes32[] memory rsets, bytes32[] memory rules) {
-
-	    // NOTE: Commented out due to deployment costs
-        // require(lastSenderAddressProvided > 0);
 
         return (lastRuleReport.ruleFailCount, lastRuleReport.ruleSetIds, lastRuleReport.ruleIds);
     }
@@ -835,9 +829,7 @@ contract WonkaEngine {
 
     /// @dev This method will set the flag as to whether or not the engine should run in Orchestration mode (i.e., use the sourceMap)
     /// @author Aaron Kendall
-    function setOrchestrationMode(bool orchMode, bytes32 defSource) public { 
-
-        require(msg.sender == rulesMaster, "The caller of this method does not have permission to set the Orchestration flag.");
+    function setOrchestrationMode(bool orchMode, bytes32 defSource) public onlyEngineOwner { 
 
         orchestrationMode = orchMode;
 
