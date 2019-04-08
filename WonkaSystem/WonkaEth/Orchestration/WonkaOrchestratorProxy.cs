@@ -148,9 +148,6 @@ namespace WonkaEth.Orchestration
             }
         }
 
-        /**
-         ** NOTE: Useful when debugging is needed
-         **
         protected void HandleEvents(Event poRuleTreeEvent, Event poRuleSetEvent, Event poRuleEvent, HexBigInteger rtFilter, HexBigInteger rsFilter, HexBigInteger rlFilter)
         {
             var ruleTreeLog = poRuleTreeEvent.GetFilterChanges<CallRuleTreeEvent>(rtFilter).Result;
@@ -192,7 +189,6 @@ namespace WonkaEth.Orchestration
                 }
             }
         }
-        */
 
         private void Init(T poCommand, OrchestrationInitData poOrchInitData)
         {
@@ -259,9 +255,6 @@ namespace WonkaEth.Orchestration
 
             var contract = GetContract(moInitData.BlockchainEngine);
 
-            /**
-             ** NOTE: Useful when debugging is needed
-             **
             var callRuleTreeEvent = contract.GetEvent(CONST_EVENT_CALL_RULE_TREE);
             var callRuleSetEvent  = contract.GetEvent(CONST_EVENT_CALL_RULE_SET);
             var callRuleEvent     = contract.GetEvent(CONST_EVENT_CALL_RULE);
@@ -269,7 +262,6 @@ namespace WonkaEth.Orchestration
             var filterCRTAll = callRuleTreeEvent.CreateFilterAsync().Result;
             var filterCRSAll = callRuleSetEvent.CreateFilterAsync().Result;
             var filterCRAll  = callRuleEvent.CreateFilterAsync().Result;
-             **/
 
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(2000000);
 
@@ -293,12 +285,8 @@ namespace WonkaEth.Orchestration
                 ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<WonkaRuleTreeReport>().Result;
             }
 
-            /**
-             ** NOTE: Useful when debugging is needed
-             **
             // Finally, we handle any events that have been issued during the execution of the rules engine
             // HandleEvents(callRuleTreeEvent, callRuleSetEvent, callRuleEvent, filterCRTAll, filterCRSAll, filterCRAll);
-             **/
 
             if (ruleTreeReport.NumberOfRuleFailures <= 0)
                 bValid = true;

@@ -22,12 +22,6 @@ using WonkaRef;
 
 namespace WonkaEth.Extensions
 {
-    public class CallAddRuleTreeEvent
-    {
-        [Parameter("address", "ruler", 1, true)]
-        public string TreeOwner { get; set; }
-    }
-
     [FunctionOutput]
     public class ExportRuleTreeProps
     {
@@ -966,13 +960,6 @@ namespace WonkaEth.Extensions
         {
             var addRuleTreeFunction = poContract.GetFunction("addRuleTree");
 
-            /**
-             ** NOTE: Useful when debugging is needed
-             **
-            var callAddRuleTreeEvent = poContract.GetEvent(CONST_EVENT_CALL_RULE_TREE);
-            var filterARTAll = callAddRuleTreeEvent.CreateFilterAsync().Result;
-             **/
-
             var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeName", "SomeDesc", true, true, true).Result;
 
             //
@@ -997,15 +984,6 @@ namespace WonkaEth.Extensions
             {
                 TempChildRuleSet.SerializeRuleSet(poContract, psRuleMasterAddress, psSenderAddress, sRootName);
             }
-
-            /**
-             ** NOTE: Useful when debugging is needed
-             **
-            var ruleTreeLog = callAddRuleTreeEvent.GetFilterChanges<CallAddRuleTreeEvent>(filterARTAll).Result;
-
-            if (ruleTreeLog.Count > 0)
-                System.Console.WriteLine("RuleTree Added that Belongs to : (" + ruleTreeLog[0].Event.TreeOwner + ")");
-             **/
 
             return true;
         }
