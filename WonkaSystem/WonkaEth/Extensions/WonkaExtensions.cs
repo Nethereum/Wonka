@@ -8,16 +8,13 @@ using Nethereum.ABI.Model;
 using Nethereum.Web3.Accounts;
 
 using Nethereum.Contracts;
-using Nethereum.Geth;
-using Nethereum.Web3;
-using Nethereum.Web3.Accounts.Managed;
-using Nethereum.Geth.RPC.Miner;
-using Nethereum.RPC.Eth.DTOs;
+using Nethereum.Hex.HexTypes;
 
 using WonkaBre;
 using WonkaBre.Readers;
 using WonkaBre.RuleTree;
 using WonkaEth.Contracts;
+using WonkaEth.Orchestration.BlockchainEvents;
 using WonkaRef;
 
 namespace WonkaEth.Extensions
@@ -116,6 +113,119 @@ namespace WonkaEth.Extensions
         }
     }
 
+    public class WonkaInvocationEvents
+    {
+        public WonkaInvocationEvents(Contract poWonkaEngineContract)
+        {
+            RuleTreeEvents      = poWonkaEngineContract.GetEvent(WonkaExtensions.CONST_EVENT_CALL_RULE_TREE);
+            RuleTreeEventFilter = RuleTreeEvents.CreateFilterAsync().Result;
+
+            RuleSetEvents      = poWonkaEngineContract.GetEvent(WonkaExtensions.CONST_EVENT_CALL_RULE_SET);
+            RuleSetEventFilter = RuleSetEvents.CreateFilterAsync().Result;
+
+            RuleEvents      = poWonkaEngineContract.GetEvent(WonkaExtensions.CONST_EVENT_CALL_RULE);
+            RuleEventFilter = RuleEvents.CreateFilterAsync().Result;
+
+            RuleSetErrorEvents      = poWonkaEngineContract.GetEvent(WonkaExtensions.CONST_EVENT_RULE_SET_ERROR);
+            RuleSetErrorEventFilter = RuleSetErrorEvents.CreateFilterAsync().Result;
+        }
+
+        public Event RuleTreeEvents { get; set; }
+
+        public Event RuleSetEvents { get; set; }
+
+        public Event RuleEvents { get; set; }
+
+        public Event RuleSetErrorEvents { get; set; }
+
+        public HexBigInteger RuleTreeEventFilter { get; set; }
+
+        public HexBigInteger RuleSetEventFilter { get; set; }
+
+        public HexBigInteger RuleEventFilter { get; set; }
+
+        public HexBigInteger RuleSetErrorEventFilter { get; set; }
+
+        public void HandleEvents(RuleTreeReport poRuleTreeReport)
+        {
+            var ruleTreeLog   = RuleTreeEvents.GetFilterChanges<CallRuleTreeEvent>(RuleTreeEventFilter).Result;
+            var ruleSetLog    = RuleSetEvents.GetFilterChanges<CallRuleSetEvent>(RuleSetEventFilter).Result;
+            var ruleLog       = RuleEvents.GetFilterChanges<CallRuleEvent>(RuleEventFilter).Result;
+            var ruleSetErrLog = RuleSetErrorEvents.GetFilterChanges<RuleSetErrorEvent>(RuleSetErrorEventFilter).Result;
+
+            /**
+            if (ruleTreeLog.Count > 0)
+                System.Console.WriteLine("RuleTree Called that Belongs to : (" + ruleTreeLog[0].Event.TreeOwner + ")");
+            **/
+
+            if (ruleSetLog.Count > 0)
+            {
+                foreach (EventLog<CallRuleSetEvent> TmpRuleSetEvent in ruleSetLog)
+                {
+                    if (TmpRuleSetEvent.Event != null)
+                        poRuleTreeReport.RuleSetIds.Add(TmpRuleSetEvent.Event.RuleSetId);
+                }
+            }
+
+            if (ruleLog.Count > 0)
+            {
+                foreach (EventLog<CallRuleEvent> TmpRuleEvent in ruleLog)
+                {
+                    if (TmpRuleEvent.Event != null)
+                        poRuleTreeReport.RuleIds.Add(TmpRuleEvent.Event.RuleId); // TmpRuleEvent.Event.RuleType
+                }
+            }
+
+            if (ruleSetErrLog.Count > 0)
+            {
+                foreach (EventLog<RuleSetErrorEvent> TmpRuleSetError in ruleSetErrLog)
+                {
+                    if (TmpRuleSetError.Event != null)
+                    {
+                        if (TmpRuleSetError.Event.SevereFailure)
+                            poRuleTreeReport.RuleSetFailures.Add(TmpRuleSetError.Event.RuleSetId);
+                        else
+                            poRuleTreeReport.RuleSetWarnings.Add(TmpRuleSetError.Event.RuleSetId);
+                    }                        
+                }
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// This class represents the aggregated output of the rules engine on the blockchain.
+    /// </summary>
+    [FunctionOutput]
+    public class RuleTreeReport
+    {
+        public RuleTreeReport()
+        {
+            NumberOfRuleFailures = 0;
+
+            RuleSetIds = new List<string>();
+            RuleIds    = new List<string>();
+
+            RuleSetWarnings = new List<string>();
+            RuleSetFailures = new List<string>();
+        }
+
+        [Parameter("uint", "fails", 1)]
+        public uint NumberOfRuleFailures { get; set; }
+
+        [Parameter("bytes32[]", "rsets", 2)]
+        public List<string> RuleSetIds { get; set; }
+
+        [Parameter("bytes32[]", "rules", 3)]
+        public List<string> RuleIds { get; set; }
+
+        [Parameter("bytes32[]", "rset_warnings", 4)]
+        public List<string> RuleSetWarnings { get; set; }
+
+        [Parameter("bytes32[]", "rset_failures", 5)]
+        public List<string> RuleSetFailures { get; set; }
+    }
+
     /// <summary>
     /// 
     /// This extensions class provides the functionality to "serialize" a Wonka RuleTree into an
@@ -128,7 +238,14 @@ namespace WonkaEth.Extensions
         private static int mnChildCounter = 1;
         private static int mnLeafCounter  = 1;
 
-        public const string CONST_EVENT_CALL_RULE_TREE = "CallAddRuleTree";
+        public const string CONST_EVENT_CALL_RULE_TREE = "CallRuleTree";
+        public const string CONST_EVENT_CALL_RULE_SET  = "CallRuleSet";
+        public const string CONST_EVENT_CALL_RULE      = "CallRule";
+        public const string CONST_EVENT_RULE_SET_ERROR = "RuleSetError";
+
+        public const string CONST_CONTRACT_FUNCTION_EXEC         = "execute"; 
+        public const string CONST_CONTRACT_FUNCTION_EXEC_RPT     = "executeWithReport"; 
+        public const string CONST_CONTRACT_FUNCTION_GET_LAST_RPT = "getLastRuleReport";
 
         private const int CONST_CONTRACT_ATTR_NUM_ON_START = 3;
         private const int CONST_CONTRACT_BYTE32_MAX        = 32;
@@ -482,6 +599,27 @@ namespace WonkaEth.Extensions
             var getRuleTreeIndexFunction = contract.GetFunction("getRuleTreeIndex"); 
 
             return getRuleTreeIndexFunction.CallDeserializingToObjectAsync<RuleTreeRegistryIndex>(psRuleTreeId).Result;
+        }
+
+        public static RuleTreeReport InvokeOnChain(this WonkaBreRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress)
+        {
+            var InvocationReport = new RuleTreeReport();
+            var WonkaEvents      = new WonkaInvocationEvents(poWonkaContract);
+
+            var executeFunction = poWonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC);
+
+            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(CONST_MAX_GAS_COST_DEFAULT);
+
+            var receiptInvocation = 
+                executeFunction.SendTransactionAsync(psRuleTreeOwnerAddress, gas, null, psRuleTreeOwnerAddress).Result;
+
+            // ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>().Result;
+
+            // Finally, we handle any events that have been issued during the execution of the rules engine
+            if (InvocationReport != null)
+                WonkaEvents.HandleEvents(InvocationReport);
+            
+            return InvocationReport;
         }
 
         /// <summary>
