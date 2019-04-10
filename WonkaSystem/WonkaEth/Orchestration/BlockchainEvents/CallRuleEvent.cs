@@ -4,6 +4,7 @@ using Nethereum.ABI.FunctionEncoding.Attributes;
 
 namespace WonkaEth.Orchestration.BlockchainEvents
 {
+    [Event("CallRule")]
     public class CallRuleEvent
     {
         [Parameter("address", "ruler", 1, true)]
