@@ -142,21 +142,14 @@ contract WonkaEngine {
         bool isValue;
     }
 
-    /// @dev Defines an event that will report when a ruletree has been added to the contract instance. Useful for debugging.
-    /// @author Aaron Kendall
-    /// @notice 
-    event CallAddRuleTree(
-        address indexed ruler
-    );
-
-    /// @dev Defines an event that will report when a ruletree has been invoked to validate a provided record.  seful for debugging (especially for the execution flow of a ruletree).
+    /// @dev Defines an event that will report when a ruletree has been invoked to validate a provided record.
     /// @author Aaron Kendall
     /// @notice 
     event CallRuleTree(
         address indexed ruler
     );
 
-    /// @dev Defines an event that will report when a ruleset has been invoked when validating a provided record.  Useful for debugging (especially for the execution flow of a ruletree).
+    /// @dev Defines an event that will report when a ruleset has been invoked when validating a provided record.
     /// @author Aaron Kendall
     /// @notice 
     event CallRuleSet(
@@ -164,7 +157,7 @@ contract WonkaEngine {
         bytes32 indexed tmpRuleSetId
     );
 
-    /// @dev Defines an event that will report when a ruleset has been invoked when validating a provided record.  Useful for debugging (especially for the execution flow of a ruletree).
+    /// @dev Defines an event that will report when a rule has been invoked when validating a provided record.
     /// @author Aaron Kendall
     /// @notice 
     event CallRule(
@@ -173,6 +166,14 @@ contract WonkaEngine {
         bytes32 indexed ruleId,
         uint ruleType
     );
+	
+    /// @dev Defines an event that will report when the record does not satisfy a ruleset.
+    /// @author Aaron Kendall
+    event RuleSetError (
+        address indexed ruler,
+        bytes32 indexed ruleSetId,
+        bool severeFailure
+    );	
 
     // An enum for the type of rules currently supported
     enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, OpDiv, CustomOp, MAX_TYPE }
@@ -333,9 +334,6 @@ contract WonkaEngine {
     function addRuleTree(address ruler, bytes32 rsName, string memory desc, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public onlyEngineOwner {
 
         require(ruletrees[ruler].isValue != true, "A RuleTree with this ID already exists.");
-
-        // NOTE: USE WHEN DEBUGGING IS NEEDED
-        emit CallAddRuleTree(ruler);
 
         ruletrees[ruler] = WonkaRuleTree({
             ruleTreeId: rsName,
@@ -591,9 +589,13 @@ contract WonkaEngine {
                     tempSetResult = (tempSetResult || tempResult);
             }
         }
-
+		
         executeSuccess = tempSetResult;
-
+		
+		if (!executeSuccess) {		    
+			emit RuleSetError(ruler, targetRuleSet.ruleSetId, severeFailure);
+		}
+		
         if (targetRuleSet.isLeaf && severeFailure)
             return executeSuccess;
 

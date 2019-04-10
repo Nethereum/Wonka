@@ -172,18 +172,6 @@
         "type": "address"
       }
     ],
-    "name": "CallAddRuleTree",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "ruler",
-        "type": "address"
-      }
-    ],
     "name": "CallRuleTree",
     "type": "event"
   },
@@ -229,6 +217,28 @@
       }
     ],
     "name": "CallRule",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "ruler",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "ruleSetId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "severeFailure",
+        "type": "bool"
+      }
+    ],
+    "name": "RuleSetError",
     "type": "event"
   },
   {
