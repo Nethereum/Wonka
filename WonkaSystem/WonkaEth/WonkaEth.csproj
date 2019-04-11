@@ -83,6 +83,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\WonkaExtClasses.cs" />
     <Compile Include="Orchestration\BlockchainEvents\RuleSetErrorEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\WonkaExtensions.cs" />
