@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using Nethereum.ABI.FunctionEncoding.Attributes;
@@ -410,7 +411,19 @@ namespace WonkaEth.Extensions
             // Finally, we handle any events that have been issued during the execution of the rules engine
             if (InvocationReport != null)
                 WonkaEvents.HandleEvents(poRulesEngine, InvocationReport);
-            
+
+            if (poRulesEngine.AllRuleSets != null)
+            {
+                foreach (string sTmpCustomId in InvocationReport.RuleSetFailures)
+                {
+                    WonkaBreRuleSet FoundRuleSet = 
+                        poRulesEngine.AllRuleSets.Where(x => x.CustomId == sTmpCustomId).FirstOrDefault();
+
+                    if (!String.IsNullOrEmpty(FoundRuleSet.CustomId))
+                        InvocationReport.RuleSetFailMessages[FoundRuleSet.CustomId] = FoundRuleSet.CustomFailureMsg;
+                }
+            }
+
             return InvocationReport;
         }
 
@@ -947,7 +960,14 @@ namespace WonkaEth.Extensions
             var severeFailFlag = (poRuleSet.ErrorSeverity == RULE_SET_ERR_LVL.ERR_LVL_SEVERE);
             var andOpFlag      = (poRuleSet.RulesEvalOperator == RULE_OP.OP_AND);
 
-            if (String.IsNullOrEmpty(poRuleSet.Description) && (poRuleSet.ChildRuleSets.Count == 0))
+            if (!String.IsNullOrEmpty(poRuleSet.CustomId))
+            {
+                if (poRuleSet.CustomId.Length >= 32)
+                    sResultSetID = psRSParentName.Substring(0, 32);
+                else
+                    sResultSetID = poRuleSet.CustomId;
+            }
+            else if (String.IsNullOrEmpty(poRuleSet.Description) && (poRuleSet.ChildRuleSets.Count == 0))
             {
                 if (psRSParentName.Length >= 24)
                     sResultSetID = psRSParentName.Substring(0, 24) + "_Leaf" + mnLeafCounter++;
@@ -975,6 +995,9 @@ namespace WonkaEth.Extensions
                 sResultSetID = poRuleSet.Description.Replace(" ", "").Trim();
                 sDescription = poRuleSet.Description;
             }
+
+            if (String.IsNullOrEmpty(poRuleSet.CustomId))
+                poRuleSet.CustomId = sResultSetID;
 
             var result =
                 addRuleSetFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, sResultSetID, sDescription, psRSParentName, severeFailFlag, andOpFlag, false).Result;
