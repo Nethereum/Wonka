@@ -135,10 +135,11 @@ namespace WonkaBre.Readers
 
         private void Init(IMetadataRetrievable piMetadataSource)
         {
-            RuleSetIdCounter = 0;
-            RuleIdCounter    = 0;
-            ValSeqIdCounter  = 0;
-            CustomOpSources  = new Dictionary<string, WonkaBreSource>();
+            RuleSetIdCounter  = 0;
+            RuleIdCounter     = 0;
+            ValSeqIdCounter   = 0;
+            CustomOpSources   = new Dictionary<string, WonkaBreSource>();
+            AllParsedRuleSets = new List<WonkaBreRuleSet>();
 
             BasicOps = new HashSet<string>();
             BasicOps.Add(CONST_BASIC_OP_NOT_POP);
@@ -197,6 +198,7 @@ namespace WonkaBre.Readers
             NewRootRuleSet.Description = "Root";
 
             this.RootRuleSet = NewRootRuleSet;
+            AllParsedRuleSets.Add(NewRootRuleSet);
 
             XmlDocument XmlDoc = new XmlDocument();
             if (BreXmlFilepath != null)
@@ -230,6 +232,8 @@ namespace WonkaBre.Readers
         private WonkaBreRuleSet ParseRuleSet(XmlNode RuleSetXmlNode, bool pbLeafNode = false)
         {
             WonkaBreRuleSet CurrentRuleSet = new WonkaBreRuleSet(++(this.RuleSetIdCounter));
+
+            AllParsedRuleSets.Add(CurrentRuleSet);
 
             var AttrDesc = RuleSetXmlNode.Attributes.GetNamedItem(CONST_RS_FLOW_DESC_ATTR);
             if (AttrDesc != null)
@@ -488,6 +492,8 @@ namespace WonkaBre.Readers
         private Dictionary<string, WonkaBreSource> CustomOpSources { get; set; }
 
         public WonkaBreRuleSet RootRuleSet { get; set; }
+
+        public List<WonkaBreRuleSet> AllParsedRuleSets { get; set; }
 
         #endregion
     }

@@ -73,6 +73,7 @@ namespace WonkaBre
             WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRulesFilepath);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
+            AllRuleSets  = BreXmlReader.AllParsedRuleSets;
         }
 
         public WonkaBreRulesEngine(StringBuilder psRules, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
@@ -88,6 +89,7 @@ namespace WonkaBre
             WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
+            AllRuleSets  = BreXmlReader.AllParsedRuleSets;
         }
 
         public WonkaBreRulesEngine(StringBuilder                      psRules, 
@@ -107,6 +109,7 @@ namespace WonkaBre
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             SourceMap    = poSourceMap;
+            AllRuleSets  = BreXmlReader.AllParsedRuleSets;
 
             this.RetrieveCurrRecord = AssembleCurrentProduct;
         }
@@ -137,6 +140,7 @@ namespace WonkaBre
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             SourceMap    = poSourceMap;
             CustomOpMap  = poCustomOpBlockchainSources;
+            AllRuleSets  = BreXmlReader.AllParsedRuleSets;
 
             this.RetrieveCurrRecord = AssembleCurrentProduct;
         }
@@ -327,6 +331,8 @@ namespace WonkaBre
         public string DefaultSource { get; set; }
 
         public ITransactionState TransactionState { get; set; }
+
+        public List<WonkaBreRuleSet> AllRuleSets { get; set; }
 
         #endregion
 
