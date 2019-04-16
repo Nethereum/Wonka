@@ -160,6 +160,25 @@
     "constant": true,
     "inputs": [
       {
+        "name": "groveId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getRuleGroveDesc",
+    "outputs": [
+      {
+        "name": "desc",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
         "name": "rsId",
         "type": "bytes32"
       }

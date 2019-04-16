@@ -173,7 +173,16 @@ contract WonkaRegistry {
         require(ruleGroves[groveId].isValue == true, "Grove with ID does not exist.");
 
         return (ruleGroves[groveId].ruleGroveId, ruleGroves[groveId].description, ruleGroves[groveId].ruleTreeMembers, ruleGroves[groveId].owner, ruleGroves[groveId].creationEpochTime);
-    }    
+    }
+
+	/// @dev This method will return a description about the specified grove
+    /// @author Aaron Kendall
+    function getRuleGroveDesc(bytes32 groveId) public view returns (string memory desc){
+
+        require(ruleGroves[groveId].isValue == true, "Grove with ID does not exist.");
+
+        return (ruleGroves[groveId].description);
+    }
 
     /// @dev This method will return an index from the registry
     /// @author Aaron Kendall
