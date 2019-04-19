@@ -403,24 +403,28 @@ namespace WonkaEth.Extensions
 
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(CONST_MAX_GAS_COST_DEFAULT);
 
-            var receiptInvocation = 
+            var trxHash = 
                 executeFunction.SendTransactionAsync(psRuleTreeOwnerAddress, gas, null, psRuleTreeOwnerAddress).Result;
 
             // ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>().Result;
 
             // Finally, we handle any events that have been issued during the execution of the rules engine
             if (InvocationReport != null)
+            {
+                InvocationReport.TransactionHash = trxHash;
+
                 WonkaEvents.HandleEvents(poRulesEngine, InvocationReport);
 
-            if (poRulesEngine.AllRuleSets != null)
-            {
-                foreach (string sTmpCustomId in InvocationReport.RuleSetFailures)
+                if (poRulesEngine.AllRuleSets != null)
                 {
-                    WonkaBreRuleSet FoundRuleSet = 
-                        poRulesEngine.AllRuleSets.Where(x => x.CustomId == sTmpCustomId).FirstOrDefault();
+                    foreach (string sTmpCustomId in InvocationReport.RuleSetFailures)
+                    {
+                        WonkaBreRuleSet FoundRuleSet =
+                            poRulesEngine.AllRuleSets.Where(x => x.CustomId == sTmpCustomId).FirstOrDefault();
 
-                    if (!String.IsNullOrEmpty(FoundRuleSet.CustomId))
-                        InvocationReport.RuleSetFailMessages[FoundRuleSet.CustomId] = FoundRuleSet.CustomFailureMsg;
+                        if (!String.IsNullOrEmpty(FoundRuleSet.CustomId))
+                            InvocationReport.RuleSetFailMessages[FoundRuleSet.CustomId] = FoundRuleSet.CustomFailureMsg;
+                    }
                 }
             }
 
