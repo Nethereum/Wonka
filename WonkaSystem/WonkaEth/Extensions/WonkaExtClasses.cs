@@ -198,6 +198,7 @@ namespace WonkaEth.Extensions
         public RuleTreeReport()
         {
             NumberOfRuleFailures = 0;
+            TransactionHash      = "";
 
             RuleSetIds = new List<string>();
             RuleIds    = new List<string>();
@@ -224,5 +225,7 @@ namespace WonkaEth.Extensions
         public List<string> RuleSetFailures { get; set; }
 
         public Dictionary<string, string> RuleSetFailMessages { get; set; }
+
+        public string TransactionHash { get; set; }
     }
 }
