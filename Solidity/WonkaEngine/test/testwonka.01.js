@@ -156,12 +156,12 @@ contract('WonkaTransactionState', function(accounts4) {
         return WonkaRegistry.deployed().then(function(rInstance) {
 
           var assocArray = [tInstance.address];
-          var attrArray  = ['BankAccountID','BankAccountName','AccountStatus','AccountCurrValue','AccountType','AccountCurrency'];
-          var opArray    = ['MyCustomOp'];
+          var attrArray  = [web3.fromAscii('BankAccountID'), web3.fromAscii('BankAccountName'), web3.fromAscii('AccountStatus'), web3.fromAscii('AccountCurrValue'), web3.fromAscii('AccountType'), web3.fromAscii('AccountCurrency')];
+          var opArray    = [web3.fromAscii('MyCustomOp')];
           var groupIndex = 1; // Group Order starts with index one
 
           // var currTimeInMilliseconds = (new Date).getTime();
-          var currTimeInSeconds = (new Date).getTime() / 1000;
+          var currTimeInSeconds = Math.floor( ((new Date).getTime()) / 1000 );
 
           console.log("Adding the 'JohnSmithRuleTree' ruletree to the registry!");      
 
