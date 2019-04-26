@@ -83,6 +83,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Autogen\ContractDefinition.cs" />
+    <Compile Include="Autogen\WonkaService.cs" />
     <Compile Include="Extensions\WonkaExtClasses.cs" />
     <Compile Include="Orchestration\BlockchainEvents\RuleSetErrorEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
