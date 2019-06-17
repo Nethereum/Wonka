@@ -394,7 +394,7 @@ namespace WonkaEth.Extensions
             return getRuleTreeIndexFunction.CallDeserializingToObjectAsync<RuleTreeRegistryIndex>(psRuleTreeId).Result;
         }
 
-        public static RuleTreeReport InvokeOnChain(this WonkaBreRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress)
+        public static RuleTreeReport InvokeOnChain(this WonkaBreRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress, uint nSendTrxGas = 0)
         {
             var InvocationReport = new RuleTreeReport();
             var WonkaEvents      = new WonkaInvocationEvents(poWonkaContract);
@@ -402,6 +402,8 @@ namespace WonkaEth.Extensions
             var executeFunction = poWonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC);
 
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(CONST_MAX_GAS_COST_DEFAULT);
+            if (nSendTrxGas > 0)
+                gas = new Nethereum.Hex.HexTypes.HexBigInteger(nSendTrxGas);
 
             var trxHash = 
                 executeFunction.SendTransactionAsync(psRuleTreeOwnerAddress, gas, null, psRuleTreeOwnerAddress).Result;
