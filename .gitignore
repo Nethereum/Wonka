@@ -1,4 +1,5 @@
 Solidity/WonkaEngine/build/contracts/
+Solidity/WonkaEngine/node_modules
 WonkaSystem/.vs/
 WonkaSystem/packages
 WonkaSystem/WonkaBre/WonkaBreRuleMediator.xml
