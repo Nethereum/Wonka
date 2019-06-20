@@ -68,6 +68,7 @@ contract('WonkaTransactionState', function(accounts4) {
       instance.addAttribute(web3.fromAscii('AccountType'),    1024, 0, new String('Checking').valueOf(), true, false);
       instance.addAttribute(web3.fromAscii('AccountCurrency'),   3, 0, new String('USD').valueOf(), true, false);
       instance.addAttribute(web3.fromAscii('AccountPrevValue'), 64, 100000, new String('').valueOf(), false, true);
+      instance.addAttribute(web3.fromAscii('StartSaleDate'),    64, 0, new String('').valueOf(), true, true);
 
       console.log("Added more Attributes!");
     });
@@ -135,6 +136,7 @@ contract('WonkaTransactionState', function(accounts4) {
 
       instance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('ValidateStatusRule'), web3.fromAscii('AccountStatus'), EQUAL_TO_RULE, new String('ACT').valueOf(), false, true);
       instance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('PopulatedValueRule'), web3.fromAscii('Language'), POPULATED_RULE, new String('').valueOf(), false, true);
+      instance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('SaleDateRule'), web3.fromAscii('StartSaleDate'), LESS_THAN_RULE, new String('NOW').valueOf(), false, true);
 
       console.log("Added the rules to the leaf ruleset for the first child RS!");
 
@@ -249,6 +251,7 @@ contract('WonkaTransactionState', function(accounts4) {
       instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountCurrValue'), new String('999').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountCurrency'), new String('USD').valueOf());
       instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountType'), new String('Checking').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.fromAscii('Language'), new String('ENG').valueOf());
       console.log("Added more values onto current record!");
 
       instance.setValueOnRecord(accounts[0], web3.fromAscii('Language'), new String('ENG').valueOf());
@@ -300,6 +303,18 @@ contract('WonkaTransactionState', function(accounts4) {
 
         // console.log("Value of AccountStatus attribute is (" + web3.toAscii(accountStatus.valueOf()) + ")");
         console.log("Value of AccountStatus attribute is (" + new String(accountStatus).valueOf() + ")");
+
+        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('Language'));
+
+      }).then(function(langCd) {
+
+        console.log("Value of Language attribute is (" + new String(langCd).valueOf() + ")");
+
+        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('StartSaleDate'));
+
+      }).then(function(startSaleDt) {
+
+        console.log("Value of StartSaleDate attribute is (" + new String(startSaleDt).valueOf() + ")");        
 
         return wInstance.execute.call(accounts[0]);
 

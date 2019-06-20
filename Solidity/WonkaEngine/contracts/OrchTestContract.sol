@@ -39,6 +39,7 @@ contract OrchTestContract {
         testRecord["PrevSellTaxAmount"] = "5";
         testRecord["NewSellTaxAmount"] = "0";
         testRecord["NewVATAmountForHMRC"] = "0";
+        testRecord["StartSaleDate"] = "1560633165";
     }
 
     function getAttrValueBytes32(bytes32 key) public view returns(bytes32) { 
