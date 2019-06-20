@@ -634,16 +634,14 @@ contract WonkaEngine {
         if (targetRule.targetAttr.isNumeric) {
 
             testNumValue = parseInt(tempValue, 0);
+            ruleNumValue = parseInt(targetRule.ruleValue, 0);
 
             // NOTE: Too expensive to deploy?
             // if (keccak256(abi.encodePacked(targetRule.ruleValue)) != keccak256(abi.encodePacked("NOW"))) {
 
-            // This indicates that we are doing a timestamp comparison
-            if (targetRule.targetAttr.isString && targetRule.targetAttr.isNumeric) {
+            // This indicates that we are doing a timestamp comparison with the value for NOW
+            if (targetRule.targetAttr.isString && targetRule.targetAttr.isNumeric && (ruleNumValue == 0)) {
                 ruleNumValue = block.timestamp;
-            }
-            else {
-                ruleNumValue = parseInt(targetRule.ruleValue, 0);
             }
         }
 
