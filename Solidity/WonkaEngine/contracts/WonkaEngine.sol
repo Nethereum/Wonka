@@ -631,9 +631,20 @@ contract WonkaEngine {
         // NOTE: USE WHEN DEBUGGING IS NEEDED
         emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
 
-        if (targetRule.targetAttr.isNumeric) {          
+        if (targetRule.targetAttr.isNumeric) {
+
             testNumValue = parseInt(tempValue, 0);
-            ruleNumValue = parseInt(targetRule.ruleValue, 0);
+
+            // NOTE: Too expensive to deploy?
+            // if (keccak256(abi.encodePacked(targetRule.ruleValue)) != keccak256(abi.encodePacked("NOW"))) {
+
+            // This indicates that we are doing a timestamp comparison
+            if (targetRule.targetAttr.isString && targetRule.targetAttr.isNumeric) {
+                ruleNumValue = block.timestamp;
+            }
+            else {
+                ruleNumValue = parseInt(targetRule.ruleValue, 0);
+            }
         }
 
         if (uint(RuleTypes.IsEqual) == targetRule.ruleType) {
