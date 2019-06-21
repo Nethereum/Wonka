@@ -568,6 +568,10 @@ namespace WonkaEth.Extensions
                     bool   IsString  = !TempAttr.IsNumeric;
                     bool   IsNumeric = TempAttr.IsNumeric;
 
+                    // For now, this is a kludge in order to identify an Attribute that is a date
+                    if (TempAttr.IsDate)
+                        IsString = IsNumeric = true;
+
                     // NOTE: Caused exception to be thrown
                     // var gas = addAttrFunction.EstimateGasAsync("SomeAttr", 0, 0, "SomeVal", false, false).Result;
                     var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
