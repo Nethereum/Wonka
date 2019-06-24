@@ -1081,6 +1081,30 @@ namespace WonkaEth.Extensions
                     sAltRuleName = "Limit(" + sValue + ") for -> [" + 
                         ((TempRule.TargetAttribute.AttrName.Length > 8) ? TempRule.TargetAttribute.AttrName.Substring(0,8) : TempRule.TargetAttribute.AttrName);
                 }
+                else if (TempRule.RuleType == RULE_TYPE.RT_DATE_LIMIT)
+                {
+                    var DateLimitRule =
+                            (WonkaBre.RuleTree.RuleTypes.DateLimitRule) TempRule;
+
+                    if (DateLimitRule.MinValue <= DateTime.MinValue)
+                    {
+                        nRuleType = (uint) CONTRACT_RULE_TYPES.LESS_THAN_RULE;
+                        sValue    = Convert.ToString(DateLimitRule.MaxValue.ToEpochTime());
+                    }
+                    else if (DateLimitRule.MaxValue >= DateTime.MaxValue)
+                    {
+                        nRuleType = (uint) CONTRACT_RULE_TYPES.GREATER_THAN_RULE;
+                        sValue    = Convert.ToString(DateLimitRule.MinValue.ToEpochTime());
+                    }
+                    else
+                    {
+                        nRuleType = (uint)CONTRACT_RULE_TYPES.EQUAL_TO_RULE;
+                        sValue    = Convert.ToString(DateLimitRule.MinValue.ToEpochTime());
+                    }
+
+                    sAltRuleName = "Date Limit(" + sValue + ") for -> [" +
+                        ((TempRule.TargetAttribute.AttrName.Length > 8) ? TempRule.TargetAttribute.AttrName.Substring(0, 8) : TempRule.TargetAttribute.AttrName);
+                }
                 else if (TempRule.RuleType == RULE_TYPE.RT_POPULATED)
                 {
                     nRuleType = (uint) CONTRACT_RULE_TYPES.POPULATED_RULE;
@@ -1231,6 +1255,16 @@ namespace WonkaEth.Extensions
             }
 
             return true;
+        }
+
+        public static Int32 ToEpochTime(this DateTime poTargetTime)
+        {
+            return (Int32) (poTargetTime.ToUniversalTime().Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+        }
+
+        public static Int32 ToEpochTimeNow()
+        {
+            return (Int32) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
 
         /// <summary>
