@@ -159,6 +159,8 @@ namespace WonkaBre.RuleTree.RuleTypes
 
         private void Init(TARGET_RECORD peTargetRecord, int pnTargetAttrId)
         {
+            this.TodayIndicator = false;
+
             this.MinValue      = DateTime.MinValue;
             this.MinValueProps = new WonkaBreRuleValueProps() { IsLiteralValue = true };
 
@@ -248,7 +250,7 @@ namespace WonkaBre.RuleTree.RuleTypes
                 double dValue        = 0.0;
                 string sTempValue    = paValueSet[0];
 
-                DateTime             DateTimeValue       = DateTime.Now;
+                DateTime               DateTimeValue       = DateTime.Now;
                 WonkaBreRuleValueProps AttributeValueProps = new WonkaBreRuleValueProps() { IsLiteralValue = false };
 
                 try
@@ -262,6 +264,8 @@ namespace WonkaBre.RuleTree.RuleTypes
                     {
                         DateTimeValue = DateTime.Now;
                         bLiteralValue = true;
+
+                        this.TodayIndicator = true;
                     }
                     else
                         AttributeValueProps = this.GetAttributeValueProps(sTempValue);
@@ -296,6 +300,8 @@ namespace WonkaBre.RuleTree.RuleTypes
         #endregion
 
         #region Properties
+
+        public bool TodayIndicator { get; protected set; }
 
         public DateTime MinValue { get; set; }
 

@@ -1098,9 +1098,12 @@ namespace WonkaEth.Extensions
                     }
                     else
                     {
-                        nRuleType = (uint)CONTRACT_RULE_TYPES.EQUAL_TO_RULE;
+                        nRuleType = (uint) CONTRACT_RULE_TYPES.EQUAL_TO_RULE;
                         sValue    = Convert.ToString(DateLimitRule.MinValue.ToEpochTime());
                     }
+
+                    // if (DateLimitRule.TodayIndicator)
+                    //    sValue = "0";
 
                     sAltRuleName = "Date Limit(" + sValue + ") for -> [" +
                         ((TempRule.TargetAttribute.AttrName.Length > 8) ? TempRule.TargetAttribute.AttrName.Substring(0, 8) : TempRule.TargetAttribute.AttrName);
