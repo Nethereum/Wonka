@@ -1102,8 +1102,8 @@ namespace WonkaEth.Extensions
                         sValue    = Convert.ToString(DateLimitRule.MinValue.ToEpochTime());
                     }
 
-                    // if (DateLimitRule.TodayIndicator)
-                    //    sValue = "0";
+                    if (DateLimitRule.TodayIndicator)
+                        sValue = "0";
 
                     sAltRuleName = "Date Limit(" + sValue + ") for -> [" +
                         ((TempRule.TargetAttribute.AttrName.Length > 8) ? TempRule.TargetAttribute.AttrName.Substring(0, 8) : TempRule.TargetAttribute.AttrName);
