@@ -1103,7 +1103,18 @@ namespace WonkaEth.Extensions
                     }
 
                     if (DateLimitRule.TodayIndicator)
+                    {
                         sValue = "0";
+
+                        if (DateLimitRule.AlmostOperator)
+                            sValue = "1";
+                    }
+
+                    /*
+                     * NOTE: How do we serialize this operator?  Until we figure that out, prevent this rule from serialization
+                    if (DateLimitRule.AroundOperator)
+                    {}
+                     */
 
                     sAltRuleName = "Date Limit(" + sValue + ") for -> [" +
                         ((TempRule.TargetAttribute.AttrName.Length > 8) ? TempRule.TargetAttribute.AttrName.Substring(0, 8) : TempRule.TargetAttribute.AttrName);
@@ -1131,7 +1142,7 @@ namespace WonkaEth.Extensions
 
                     string sDomainAbbr = (sValue.Length > 8) ? sValue.Substring(0, 8) + "..." : sValue;
                     sAltRuleName = "Domain(" + sDomainAbbr + ") for [" +
-                        ((TempRule.TargetAttribute.AttrName.Length > 13) ? TempRule.TargetAttribute.AttrName.Substring(0, 13) : TempRule.TargetAttribute.AttrName);                        
+                        ((TempRule.TargetAttribute.AttrName.Length > 13) ? TempRule.TargetAttribute.AttrName.Substring(0, 13) : TempRule.TargetAttribute.AttrName);
                 }
 
                 if (!String.IsNullOrEmpty(TempRule.DescRuleId))

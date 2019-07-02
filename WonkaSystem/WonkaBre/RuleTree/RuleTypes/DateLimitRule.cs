@@ -15,7 +15,7 @@ namespace WonkaBre.RuleTree.RuleTypes
 	/// 
 	///  <validate err="severe">
 	///     <criteria op="AND" >
-	///           <eval>(N.CreationDt) IS BEFORE ('01/01/1900')</eval>
+	///           <eval>(N.CreationDt) IS BEFORE (01/01/1900)</eval>
 	///     </criteria >
 	/// 
 	/// Has one instances of the DateLimitRule that focuses on the Attribute 'CreationDt'.
@@ -159,6 +159,8 @@ namespace WonkaBre.RuleTree.RuleTypes
 
         private void Init(TARGET_RECORD peTargetRecord, int pnTargetAttrId)
         {
+            this.AlmostOperator = false;
+            this.AroundOperator = false;
             this.TodayIndicator = false;
 
             this.MinValue      = DateTime.MinValue;
@@ -188,44 +190,66 @@ namespace WonkaBre.RuleTree.RuleTypes
         {
             string sTempAttrValue = null;
 
-            if (!this.MinValueProps.IsLiteralValue)
+            if (this.TodayIndicator)
             {
-                int nAttrId  = this.MinValueProps.AttributeInfo.AttrId;
-                int nGroupId = this.MinValueProps.AttributeInfo.GroupId;
+                DateTime DateTimeNow = DateTime.Now;
 
-                WonkaPrdGroup TempProductGroup = null;
+                if (this.AlmostOperator)
+                {
+                    System.TimeSpan WindowSpan = new System.TimeSpan(-1, 0, 0, 0);
 
-                if (this.MinValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
-                    TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
+                    this.MinValue = DateTimeNow.Add(WindowSpan);
+                    this.MaxValue = DateTimeNow;
+                }
                 else
-                    TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
-
-                sTempAttrValue = TempProductGroup[0][nAttrId];
-
-                if (!String.IsNullOrEmpty(sTempAttrValue))
-                    this.MinValue = DateTime.ParseExact(sTempAttrValue, CONST_WONKA_DATETIME_FORMAT, null);
-                else
-                    this.MinValue = DateTime.MinValue;
+                {
+                    if (this.MinValue != DateTime.MinValue)
+                        this.MinValue = DateTimeNow;
+                    else
+                        this.MaxValue = DateTimeNow;
+                }
             }
-
-            if (!this.MaxValueProps.IsLiteralValue)
+            else
             {
-                int nAttrId  = this.MaxValueProps.AttributeInfo.AttrId;
-                int nGroupId = this.MaxValueProps.AttributeInfo.GroupId;
+                if (!this.MinValueProps.IsLiteralValue)
+                {
+                    int nAttrId  = this.MinValueProps.AttributeInfo.AttrId;
+                    int nGroupId = this.MinValueProps.AttributeInfo.GroupId;
 
-                WonkaPrdGroup TempProductGroup = null;
+                    WonkaPrdGroup TempProductGroup = null;
 
-                if (this.MaxValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
-                    TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
-                else
-                    TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
+                    if (this.MinValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
+                        TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
+                    else
+                        TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
 
-                sTempAttrValue = TempProductGroup[0][nAttrId];
+                    sTempAttrValue = TempProductGroup[0][nAttrId];
 
-                if (!String.IsNullOrEmpty(sTempAttrValue))
-                    this.MaxValue = DateTime.ParseExact(sTempAttrValue, CONST_WONKA_DATETIME_FORMAT, null);
-                else
-                    this.MaxValue = DateTime.MaxValue;
+                    if (!String.IsNullOrEmpty(sTempAttrValue))
+                        this.MinValue = DateTime.ParseExact(sTempAttrValue, CONST_WONKA_DATETIME_FORMAT, null);
+                    else
+                        this.MinValue = DateTime.MinValue;
+                }
+
+                if (!this.MaxValueProps.IsLiteralValue)
+                {
+                    int nAttrId  = this.MaxValueProps.AttributeInfo.AttrId;
+                    int nGroupId = this.MaxValueProps.AttributeInfo.GroupId;
+
+                    WonkaPrdGroup TempProductGroup = null;
+
+                    if (this.MaxValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
+                        TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
+                    else
+                        TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
+
+                    sTempAttrValue = TempProductGroup[0][nAttrId];
+
+                    if (!String.IsNullOrEmpty(sTempAttrValue))
+                        this.MaxValue = DateTime.ParseExact(sTempAttrValue, CONST_WONKA_DATETIME_FORMAT, null);
+                    else
+                        this.MaxValue = DateTime.MaxValue;
+                }
             }
         }
 
@@ -295,11 +319,39 @@ namespace WonkaBre.RuleTree.RuleTypes
                     if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_DL_NOT_IA))
                         this.NotOperator = true;
                 }
+                else if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_DL_ALMOST))
+                {
+                    if (!this.TodayIndicator)
+                        throw new Exception("ERROR!  Cannot use ALMOST operator without using the TODAY keyword.");
+
+                    System.TimeSpan WindowSpan = new System.TimeSpan(-1, 0, 0, 0);
+
+                    this.MinValue = DateTimeValue.Add(WindowSpan);
+                    this.MaxValue = DateTimeValue;
+
+                    this.AlmostOperator = true;
+                }
+                /*
+                 * NOTE: Will be implemented later, with a defined plan 
+                else if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_DL_AROUND))
+                {
+                    System.TimeSpan WindowSpan = new System.TimeSpan(0, 12, 0, 0);
+
+                    this.MinValue = DateTimeValue.Subtract(WindowSpan);
+                    this.MaxValue = DateTimeValue.Add(WindowSpan);
+
+                    this.AroundOperator = true;
+                }
+                */
             }
         }
         #endregion
 
         #region Properties
+
+        public bool AlmostOperator { get; protected set; }
+
+        public bool AroundOperator { get; protected set; }
 
         public bool TodayIndicator { get; protected set; }
 

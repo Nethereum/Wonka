@@ -82,6 +82,8 @@ namespace WonkaBre.Readers
         public const string CONST_DL_NOT_IB = "IS NOT BEFORE";
         public const string CONST_DL_IA     = "IS AFTER";
         public const string CONST_DL_NOT_IA = "IS NOT AFTER";
+        public const string CONST_DL_AROUND = "IS AROUND";
+        public const string CONST_DL_ALMOST = "IS ALMOST";
 
         public const string CONST_RS_VALID_SUCCESS_MSG = "EQ";
         public const string CONST_RS_VALID_FAILURE_MSG = "NOT EQ";
@@ -171,7 +173,11 @@ namespace WonkaBre.Readers
             DateLimitOps.Add(CONST_DL_IB);
             DateLimitOps.Add(CONST_DL_NOT_IB);
             DateLimitOps.Add(CONST_DL_IA);
-            DateLimitOps.Add(CONST_DL_NOT_IA);
+            DateLimitOps.Add(CONST_DL_NOT_IA);            
+            DateLimitOps.Add(CONST_DL_ALMOST);
+
+            // NOTE: Will be implemented later, with a defined plan
+            // DateLimitOps.Add(CONST_DL_AROUND);
 
             if (piMetadataSource != null)
             {
