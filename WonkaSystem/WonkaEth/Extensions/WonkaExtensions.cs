@@ -1052,7 +1052,7 @@ namespace WonkaEth.Extensions
                 var    sRuleName    = "";
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
                 var    sAttrName    = TempRule.TargetAttribute.AttrName;
-                uint   nRuleType    = 0;
+                uint   nRuleType    = (uint) CONTRACT_RULE_TYPES.MODE_MAX;
                 string sValue       = "";
                 var    passFlag     = TempRule.IsPassive;
                 var    notFlag      = TempRule.NotOperator;
@@ -1106,8 +1106,8 @@ namespace WonkaEth.Extensions
                     {
                         sValue = "0";
 
-                        if (DateLimitRule.AlmostOperator)
-                            sValue = "1";
+						if (DateLimitRule.AlmostOperator)
+							sValue = "1";
                     }
 
                     /*
@@ -1156,7 +1156,7 @@ namespace WonkaEth.Extensions
                 }
 
                 // if ((nRuleType > 0) && !TempRule.NotOperator)
-                if (nRuleType > 0)
+                if (nRuleType < (uint) CONTRACT_RULE_TYPES.MODE_MAX)
                 {
                     var result =
                         addRuleTreeFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
@@ -1172,7 +1172,7 @@ namespace WonkaEth.Extensions
                 var    sRuleName    = "";
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
                 var    sAttrName    = TempRule.TargetAttribute.AttrName;
-                uint   nRuleType    = 0;
+                uint   nRuleType    = (uint) CONTRACT_RULE_TYPES.MODE_MAX;
                 string sValue       = "";
                 var    notFlag      = TempRule.NotOperator;
 
@@ -1252,8 +1252,8 @@ namespace WonkaEth.Extensions
                     sRuleName = sAltRuleName;
                 }
 
-                if (nRuleType > 0)
-                {
+				if (nRuleType < (uint) CONTRACT_RULE_TYPES.MODE_MAX)
+				{
                     var result =
                         addRuleTreeFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
 
