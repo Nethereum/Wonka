@@ -642,11 +642,12 @@ contract WonkaEngine {
 
             // This indicates that we are doing a timestamp comparison with the value for NOW (and maybe looking for a window of one day ahead)
             if (targetRule.targetAttr.isString && targetRule.targetAttr.isNumeric && (ruleNumValue <= 1)) {
-                ruleNumValue = block.timestamp - (ruleNumValue * 1 days);
 
                 if (ruleNumValue == 1) {
                     almostOpInd = true;
                 }
+
+                ruleNumValue = block.timestamp - (ruleNumValue * 1 days);
             }
         }
 
