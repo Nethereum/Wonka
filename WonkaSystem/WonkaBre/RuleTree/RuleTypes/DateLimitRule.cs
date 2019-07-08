@@ -196,10 +196,10 @@ namespace WonkaBre.RuleTree.RuleTypes
 
                 if (this.AlmostOperator)
                 {
-                    System.TimeSpan WindowSpan = new System.TimeSpan(-1, 0, 0, 0);
+                    System.TimeSpan WindowSpan = new System.TimeSpan(1, 0, 0, 0);
 
-                    this.MinValue = DateTimeNow.Add(WindowSpan);
-                    this.MaxValue = DateTimeNow;
+                    this.MinValue = DateTimeNow;
+                    this.MaxValue = DateTimeNow.Add(WindowSpan);
                 }
                 else
                 {
@@ -324,10 +324,10 @@ namespace WonkaBre.RuleTree.RuleTypes
                     if (!this.TodayIndicator)
                         throw new Exception("ERROR!  Cannot use ALMOST operator without using the TODAY keyword.");
 
-                    System.TimeSpan WindowSpan = new System.TimeSpan(-1, 0, 0, 0);
+                    System.TimeSpan WindowSpan = new System.TimeSpan(1, 0, 0, 0);
 
-                    this.MinValue = DateTimeValue.Add(WindowSpan);
-                    this.MaxValue = DateTimeValue;
+                    this.MinValue = DateTimeValue;
+                    this.MaxValue = DateTimeValue.Add(WindowSpan); ;
 
                     this.AlmostOperator = true;
                 }
