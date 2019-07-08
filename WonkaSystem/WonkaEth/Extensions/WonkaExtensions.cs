@@ -1062,12 +1062,12 @@ namespace WonkaEth.Extensions
                     var ArithLimitRule = 
                             (WonkaBre.RuleTree.RuleTypes.ArithmeticLimitRule) TempRule;
 
-                    if (ArithLimitRule.MinValue <= -999999.0)
+                    if (ArithLimitRule.MinValue <= Double.MinValue)
                     {
                         nRuleType = (uint)CONTRACT_RULE_TYPES.LESS_THAN_RULE;
                         sValue    = Convert.ToString(ArithLimitRule.MaxValue);
                     }
-                    else if (ArithLimitRule.MaxValue >= 999999.0)
+                    else if (ArithLimitRule.MaxValue >= Double.MaxValue)
                     {
                         nRuleType = (uint)CONTRACT_RULE_TYPES.GREATER_THAN_RULE;
                         sValue    = Convert.ToString(ArithLimitRule.MinValue);
