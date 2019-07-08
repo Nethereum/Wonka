@@ -647,14 +647,14 @@ contract WonkaEngine {
                     almostOpInd = true;
                 }
 
-                ruleNumValue = block.timestamp - (ruleNumValue * 1 days);
+                ruleNumValue = block.timestamp + (ruleNumValue * 1 days);
             }
         }
 
         
         if (almostOpInd) {
 
-            ruleResult = ((testNumValue > ruleNumValue) && (testNumValue < block.timestamp));
+            ruleResult = ((testNumValue > block.timestamp) && (testNumValue < ruleNumValue));
 
         } else if (uint(RuleTypes.IsEqual) == targetRule.ruleType) {
 
