@@ -32,6 +32,7 @@
                 <!-- <eval id="dom3">(N.AccountType) != (O.AccountType)</eval> -->
                 <!-- <eval>(N.CreationDate) IS BEFORE (TODAY)</eval> -->
                 <!-- <eval>(N.CreationDate) IS BEFORE (TODAY)</eval> -->
+				<eval>(N.CreationDt) IS AFTER (06/09/1996)</eval> -->
             </criteria>
 
             <validate err="severe">

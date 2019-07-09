@@ -568,6 +568,10 @@ namespace WonkaEth.Extensions
                     bool   IsString  = !TempAttr.IsNumeric;
                     bool   IsNumeric = TempAttr.IsNumeric;
 
+                    // For now, this is a kludge in order to identify an Attribute that is a date
+                    if (TempAttr.IsDate)
+                        IsString = IsNumeric = true;
+
                     // NOTE: Caused exception to be thrown
                     // var gas = addAttrFunction.EstimateGasAsync("SomeAttr", 0, 0, "SomeVal", false, false).Result;
                     var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
@@ -1048,7 +1052,7 @@ namespace WonkaEth.Extensions
                 var    sRuleName    = "";
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
                 var    sAttrName    = TempRule.TargetAttribute.AttrName;
-                uint   nRuleType    = 0;
+                uint   nRuleType    = (uint) CONTRACT_RULE_TYPES.MODE_MAX;
                 string sValue       = "";
                 var    passFlag     = TempRule.IsPassive;
                 var    notFlag      = TempRule.NotOperator;
@@ -1058,12 +1062,12 @@ namespace WonkaEth.Extensions
                     var ArithLimitRule = 
                             (WonkaBre.RuleTree.RuleTypes.ArithmeticLimitRule) TempRule;
 
-                    if (ArithLimitRule.MinValue <= -999999.0)
+                    if (ArithLimitRule.MinValue <= Double.MinValue)
                     {
                         nRuleType = (uint)CONTRACT_RULE_TYPES.LESS_THAN_RULE;
                         sValue    = Convert.ToString(ArithLimitRule.MaxValue);
                     }
-                    else if (ArithLimitRule.MaxValue >= 999999.0)
+                    else if (ArithLimitRule.MaxValue >= Double.MaxValue)
                     {
                         nRuleType = (uint)CONTRACT_RULE_TYPES.GREATER_THAN_RULE;
                         sValue    = Convert.ToString(ArithLimitRule.MinValue);
@@ -1076,6 +1080,44 @@ namespace WonkaEth.Extensions
 
                     sAltRuleName = "Limit(" + sValue + ") for -> [" + 
                         ((TempRule.TargetAttribute.AttrName.Length > 8) ? TempRule.TargetAttribute.AttrName.Substring(0,8) : TempRule.TargetAttribute.AttrName);
+                }
+                else if (TempRule.RuleType == RULE_TYPE.RT_DATE_LIMIT)
+                {
+                    var DateLimitRule =
+                            (WonkaBre.RuleTree.RuleTypes.DateLimitRule) TempRule;
+
+                    if (DateLimitRule.MinValue <= DateTime.MinValue)
+                    {
+                        nRuleType = (uint) CONTRACT_RULE_TYPES.LESS_THAN_RULE;
+                        sValue    = Convert.ToString(DateLimitRule.MaxValue.ToEpochTime());
+                    }
+                    else if (DateLimitRule.MaxValue >= DateTime.MaxValue)
+                    {
+                        nRuleType = (uint) CONTRACT_RULE_TYPES.GREATER_THAN_RULE;
+                        sValue    = Convert.ToString(DateLimitRule.MinValue.ToEpochTime());
+                    }
+                    else
+                    {
+                        nRuleType = (uint) CONTRACT_RULE_TYPES.EQUAL_TO_RULE;
+                        sValue    = Convert.ToString(DateLimitRule.MinValue.ToEpochTime());
+                    }
+
+                    if (DateLimitRule.TodayIndicator)
+                    {
+                        sValue = "0";
+
+						if (DateLimitRule.AlmostOperator)
+							sValue = "1";
+                    }
+
+                    /*
+                     * NOTE: How do we serialize this operator?  Until we figure that out, prevent this rule from serialization
+                    if (DateLimitRule.AroundOperator)
+                    {}
+                     */
+
+                    sAltRuleName = "Date Limit(" + sValue + ") for -> [" +
+                        ((TempRule.TargetAttribute.AttrName.Length > 8) ? TempRule.TargetAttribute.AttrName.Substring(0, 8) : TempRule.TargetAttribute.AttrName);
                 }
                 else if (TempRule.RuleType == RULE_TYPE.RT_POPULATED)
                 {
@@ -1100,7 +1142,7 @@ namespace WonkaEth.Extensions
 
                     string sDomainAbbr = (sValue.Length > 8) ? sValue.Substring(0, 8) + "..." : sValue;
                     sAltRuleName = "Domain(" + sDomainAbbr + ") for [" +
-                        ((TempRule.TargetAttribute.AttrName.Length > 13) ? TempRule.TargetAttribute.AttrName.Substring(0, 13) : TempRule.TargetAttribute.AttrName);                        
+                        ((TempRule.TargetAttribute.AttrName.Length > 13) ? TempRule.TargetAttribute.AttrName.Substring(0, 13) : TempRule.TargetAttribute.AttrName);
                 }
 
                 if (!String.IsNullOrEmpty(TempRule.DescRuleId))
@@ -1114,7 +1156,7 @@ namespace WonkaEth.Extensions
                 }
 
                 // if ((nRuleType > 0) && !TempRule.NotOperator)
-                if (nRuleType > 0)
+                if (nRuleType < (uint) CONTRACT_RULE_TYPES.MODE_MAX)
                 {
                     var result =
                         addRuleTreeFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
@@ -1130,7 +1172,7 @@ namespace WonkaEth.Extensions
                 var    sRuleName    = "";
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
                 var    sAttrName    = TempRule.TargetAttribute.AttrName;
-                uint   nRuleType    = 0;
+                uint   nRuleType    = (uint) CONTRACT_RULE_TYPES.MODE_MAX;
                 string sValue       = "";
                 var    notFlag      = TempRule.NotOperator;
 
@@ -1210,8 +1252,8 @@ namespace WonkaEth.Extensions
                     sRuleName = sAltRuleName;
                 }
 
-                if (nRuleType > 0)
-                {
+				if (nRuleType < (uint) CONTRACT_RULE_TYPES.MODE_MAX)
+				{
                     var result =
                         addRuleTreeFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
 
@@ -1227,6 +1269,16 @@ namespace WonkaEth.Extensions
             }
 
             return true;
+        }
+
+        public static Int32 ToEpochTime(this DateTime poTargetTime)
+        {
+            return (Int32) (poTargetTime.ToUniversalTime().Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+        }
+
+        public static Int32 ToEpochTimeNow()
+        {
+            return (Int32) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
 
         /// <summary>

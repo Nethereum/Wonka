@@ -623,6 +623,7 @@ contract WonkaEngine {
 
         ruleResult = true;
 
+        bool almostOpInd  = false;
         uint testNumValue = 0;
         uint ruleNumValue = 0;
 
@@ -639,13 +640,23 @@ contract WonkaEngine {
             // NOTE: Too expensive to deploy?
             // if (keccak256(abi.encodePacked(targetRule.ruleValue)) != keccak256(abi.encodePacked("NOW"))) {
 
-            // This indicates that we are doing a timestamp comparison with the value for NOW
-            if (targetRule.targetAttr.isString && targetRule.targetAttr.isNumeric && (ruleNumValue == 0)) {
-                ruleNumValue = block.timestamp;
+            // This indicates that we are doing a timestamp comparison with the value for NOW (and maybe looking for a window of one day ahead)
+            if (targetRule.targetAttr.isString && targetRule.targetAttr.isNumeric && (ruleNumValue <= 1)) {
+
+                if (ruleNumValue == 1) {
+                    almostOpInd = true;
+                }
+
+                ruleNumValue = block.timestamp + (ruleNumValue * 1 days);
             }
         }
 
-        if (uint(RuleTypes.IsEqual) == targetRule.ruleType) {
+        
+        if (almostOpInd) {
+
+            ruleResult = ((testNumValue > block.timestamp) && (testNumValue < ruleNumValue));
+
+        } else if (uint(RuleTypes.IsEqual) == targetRule.ruleType) {
 
             if (targetRule.targetAttr.isNumeric) {
                 ruleResult = (testNumValue == ruleNumValue);
@@ -778,7 +789,8 @@ contract WonkaEngine {
     /// @notice This method should only be used for debugging purposes.
     function getValueOnRecord(address ruler, bytes32 key) public returns(string memory) { 
 
-        require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
+        // NOTE: Likely to retire this check
+        // require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
 
         require (attrMap[key].isValue == true, "The specified Attribute does not exist.");
 
@@ -852,7 +864,8 @@ contract WonkaEngine {
     /// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
     function setValueOnRecord(address ruler, bytes32 key, string memory value) public returns(string memory) { 
 
-        require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
+        // NOTE: Likely to retire this check
+        // require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
 
         require(attrMap[key].isValue == true, "The specified Attribute does not exist.");
         

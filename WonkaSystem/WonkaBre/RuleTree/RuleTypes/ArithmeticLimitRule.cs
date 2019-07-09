@@ -261,7 +261,7 @@ namespace WonkaBre.RuleTree.RuleTypes
                 if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_LT) ||
                     psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_LT))
                 {
-                    this.MinValue = -999999.0;
+                    this.MinValue = Double.MinValue;
                     this.MaxValue = dValue - 0.001;
 
                     if (!bLiteralValue)
@@ -274,7 +274,7 @@ namespace WonkaBre.RuleTree.RuleTypes
                          psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_GT))
                 {
                     this.MinValue = dValue + 0.001;
-                    this.MaxValue = 999999;
+                    this.MaxValue = Double.MaxValue;
 
                     if (!bLiteralValue)
                         this.MinValueProps = AttributeValueProps;
@@ -285,7 +285,7 @@ namespace WonkaBre.RuleTree.RuleTypes
                 else if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_LE) ||
                          psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_LE))
                 {
-                    this.MinValue = -999999;
+                    this.MinValue = Double.MinValue;
                     this.MaxValue = dValue;
 
                     if (!bLiteralValue)
@@ -298,7 +298,7 @@ namespace WonkaBre.RuleTree.RuleTypes
                          psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_GE))
                 {
                     this.MinValue = dValue;
-                    this.MaxValue = 999999;
+                    this.MaxValue = Double.MaxValue;
 
                     if (!bLiteralValue)
                         this.MinValueProps = AttributeValueProps;
