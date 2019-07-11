@@ -1040,11 +1040,11 @@ namespace WonkaEth.Extensions
                                                                            string psSenderAddress, 
                                                                            string psRuleSetId)
         {
-            var addRuleTreeFunction     = poContract.GetFunction("addRule");
+            var addRuleFunction         = poContract.GetFunction("addRule");
             var addCustomOpArgsFunction = poContract.GetFunction("addRuleCustomOpArgs");
 
             // NOTE: Caused exception to be thrown
-            // var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeRSID", "SomeRuleName", "SomeAttrName", 0, "SomeVal", false, false).Result;
+            // var gas = addRuleFunction.EstimateGasAsync(psSenderAddress, "SomeRSID", "SomeRuleName", "SomeAttrName", 0, "SomeVal", false, false).Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1500000);
 
             foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in poRuleSet.EvaluativeRules)
@@ -1159,7 +1159,7 @@ namespace WonkaEth.Extensions
                 if (nRuleType < (uint) CONTRACT_RULE_TYPES.MODE_MAX)
                 {
                     var result =
-                        addRuleTreeFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
+                        addRuleFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
                 }
                 else 
                 {
@@ -1255,7 +1255,7 @@ namespace WonkaEth.Extensions
 				if (nRuleType < (uint) CONTRACT_RULE_TYPES.MODE_MAX)
 				{
                     var result =
-                        addRuleTreeFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
+                        addRuleFunction.SendTransactionAsync(psRuleMasterAddress, gas, null, psSenderAddress, psRuleSetId, sRuleName, sAttrName, nRuleType, sValue, notFlag, passFlag).Result;
 
                     if (TempRule.RuleType == RULE_TYPE.RT_CUSTOM_OP)
                     {
