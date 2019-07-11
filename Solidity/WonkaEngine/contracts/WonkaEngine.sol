@@ -649,6 +649,11 @@ contract WonkaEngine {
 
                 ruleNumValue = block.timestamp + (ruleNumValue * 1 days);
             }
+			// This indicates that we are doing a block number comparison (i.e., the hex number is the keccak256() result for the string "BLOCKNUMOP")
+			else if (ruleNumValue == 0x097e1e87731280e8f96a70168adfc5d34dd965a7872641ff3ae757423592505e) {
+
+				ruleNumValue = block.number;
+			}			
         }
 
         
