@@ -172,6 +172,8 @@ namespace WonkaBre.RuleTree.RuleTypes
             if (pnTargetAttrId > 0)
                 this.TargetAttribute  = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
 
+            this.BlockNumOperator = false;
+
             this.MinValue      = pnMinValue;
             this.MinValueProps = new WonkaBreRuleValueProps() { IsLiteralValue = true };
 
@@ -326,6 +328,9 @@ namespace WonkaBre.RuleTree.RuleTypes
         #endregion
 
         #region Properties
+
+        public bool BlockNumOperator { get; protected set; }
+
         public double MinValue { get; set; }
 
         public WonkaBreRuleValueProps MinValueProps { get; set; }
