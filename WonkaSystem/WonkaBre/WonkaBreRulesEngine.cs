@@ -35,6 +35,7 @@ namespace WonkaBre
         #region Delegates
         //public delegate bool ComplexEditsDelegate(WonkaProduct poNewProduct, WonkaProduct poOldProduct);
         public delegate WonkaProduct RetrieveOldRecordDelegate(Dictionary<string, string> KeyValues);
+        public delegate string       RetrieveStdOpValDelegate(string OptionalKeyVal);
         #endregion
 
         #region CONSTANTS
@@ -199,6 +200,7 @@ namespace WonkaBre
 
             GroveId       = RegistrationId = "";
             GroveIndex    = 0;
+            StdOpMap      = new Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate>();
             SourceMap     = new Dictionary<string, WonkaBreSource>();
             CustomOpMap   = new Dictionary<string, WonkaBreSource>();
             DefaultSource = "";
@@ -323,6 +325,8 @@ namespace WonkaBre
                     throw new WonkaBreException("ERROR!  Cannot reassign the delegate when running in orchestration mode.");
             }
         }
+
+        public Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate> StdOpMap { get; set; }
 
         public Dictionary<string, WonkaBreSource> SourceMap { get; set; }
 
