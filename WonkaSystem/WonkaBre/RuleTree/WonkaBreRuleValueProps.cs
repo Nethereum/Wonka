@@ -16,12 +16,16 @@
 
 			TargetRecord = TARGET_RECORD.TRID_NEW_RECORD;
 
-			AttributeInfo = new WonkaRef.WonkaRefAttr();
+            OpType = STD_OP_TYPE.STD_OP_NONE;
+
+            AttributeInfo = new WonkaRef.WonkaRefAttr();
 		}
 
 		public bool IsLiteralValue { get; set; }
 
-		public TARGET_RECORD TargetRecord { get; set; }
+        public STD_OP_TYPE OpType { get; set; }
+
+        public TARGET_RECORD TargetRecord { get; set; }
 
 		public WonkaRef.WonkaRefAttr AttributeInfo { get; set; }
 	}
