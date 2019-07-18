@@ -177,7 +177,6 @@ namespace WonkaBre.RuleTree.RuleTypes
                 this.TargetAttribute  = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
 
             this.BlockNumOperator = false;
-            this.ParentEngine     = null;
             this.BlockNumDelegate = null;
 
             this.MinValue      = pnMinValue;
@@ -203,9 +202,9 @@ namespace WonkaBre.RuleTree.RuleTypes
         {
             if (this.BlockNumOperator)
             {
-                if ((this.BlockNumDelegate != null) && (this.ParentEngine != null))
+                if ((this.BlockNumDelegate != null) && (this.RulesHostEngine != null))
                 {
-                    string sCurrBlockNum = this.BlockNumDelegate.Invoke(this.ParentEngine, null);
+                    string sCurrBlockNum = this.BlockNumDelegate.Invoke(this.RulesHostEngine, null);
 
                     if (!String.IsNullOrEmpty(sCurrBlockNum))
                     {
@@ -365,8 +364,6 @@ namespace WonkaBre.RuleTree.RuleTypes
         #region Properties
 
         public bool BlockNumOperator { get; protected set; }
-
-        public WonkaBreRulesEngine ParentEngine { get; set; }
 
         public WonkaBreRulesEngine.RetrieveStdOpValDelegate BlockNumDelegate { get; set; }
 
