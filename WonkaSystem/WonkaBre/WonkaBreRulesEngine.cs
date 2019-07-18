@@ -35,7 +35,7 @@ namespace WonkaBre
         #region Delegates
         //public delegate bool ComplexEditsDelegate(WonkaProduct poNewProduct, WonkaProduct poOldProduct);
         public delegate WonkaProduct RetrieveOldRecordDelegate(Dictionary<string, string> KeyValues);
-        public delegate string       RetrieveStdOpValDelegate(string OptionalKeyVal);
+        public delegate string       RetrieveStdOpValDelegate(WonkaBreRulesEngine EngineId, string OptionalKeyVal);
         #endregion
 
         #region CONSTANTS
