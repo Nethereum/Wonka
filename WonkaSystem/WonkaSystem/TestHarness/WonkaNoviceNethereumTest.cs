@@ -447,6 +447,8 @@ namespace WonkaSystem.TestHarness
             moRulesEngine =
                 new WonkaBreRulesEngine(new StringBuilder(msRulesContents), moMetadataSource);
 
+            moRulesEngine.SetDefaultStdOps(this.msPassword);
+
             var contract = GetContract();
 
             var hasRuleTreeFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_HAS_RT);
