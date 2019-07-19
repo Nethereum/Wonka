@@ -71,7 +71,7 @@ namespace WonkaBre
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRulesFilepath);
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRulesFilepath, piMetadataSource, this);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             AllRuleSets  = BreXmlReader.AllParsedRuleSets;
@@ -87,7 +87,7 @@ namespace WonkaBre
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules, piMetadataSource, this);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             AllRuleSets  = BreXmlReader.AllParsedRuleSets;
@@ -106,7 +106,7 @@ namespace WonkaBre
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules, piMetadataSource, this);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             SourceMap    = poSourceMap;
@@ -129,7 +129,7 @@ namespace WonkaBre
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules, piMetadataSource, this);
 
             foreach (string sKey in poCustomOpBlockchainSources.Keys)
             {
