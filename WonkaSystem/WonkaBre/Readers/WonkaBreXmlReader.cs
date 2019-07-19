@@ -91,7 +91,7 @@ namespace WonkaBre.Readers
         #endregion
 
         #region Constructors
-        public WonkaBreXmlReader(string psBreXmlFilepath, IMetadataRetrievable piMetadataSource = null)
+        public WonkaBreXmlReader(string psBreXmlFilepath, IMetadataRetrievable piMetadataSource = null, WonkaBreRulesEngine poRulesHostEngine = null)
         {
             if (String.IsNullOrEmpty(psBreXmlFilepath))
                 throw new WonkaBreException(-1, -1, "ERROR!  The rules file provided is null.");
@@ -99,19 +99,21 @@ namespace WonkaBre.Readers
             if (!File.Exists(psBreXmlFilepath))
                 throw new WonkaBreException(-1, -1, "ERROR!  The rules file(" + psBreXmlFilepath + ") does not exist.");
 
-            BreXmlFilepath = psBreXmlFilepath;
-            BreXmlContents = null;
+            BreXmlFilepath  = psBreXmlFilepath;
+            BreXmlContents  = null;
+            RulesHostEngine = poRulesHostEngine;
 
             Init(piMetadataSource);
         }
 
-        public WonkaBreXmlReader(StringBuilder psBreXml, IMetadataRetrievable piMetadataSource = null)
+        public WonkaBreXmlReader(StringBuilder psBreXml, IMetadataRetrievable piMetadataSource = null, WonkaBreRulesEngine poRulesHostEngine = null)
         {
             if ((psBreXml == null) || (psBreXml.Length <= 0))
                 throw new WonkaBreException(-1, -1, "ERROR!  The rules file provided is null.");
 
-            BreXmlFilepath = null;
-            BreXmlContents = psBreXml.ToString();
+            BreXmlFilepath  = null;
+            BreXmlContents  = psBreXml.ToString();
+            RulesHostEngine = poRulesHostEngine;
 
             Init(piMetadataSource);
         }
@@ -124,7 +126,7 @@ namespace WonkaBre.Readers
                 throw new Exception("ERROR!  Provided operator is already a basic operator within the rules engine.");
             
             if (ArithmeticLimitOps.Contains(psCustomOpName))
-                throw new Exception("ERROR!  Provided operator is already a arithmetic limit operator within the rules engine.");
+                throw new Exception("ERROR!  Provided operator is already an arithmetic limit operator within the rules engine.");
             
             if (DateLimitOps.Contains(psCustomOpName))
                 throw new Exception("ERROR!  Provided operator is already a date limit operator within the rules engine.");
@@ -142,6 +144,7 @@ namespace WonkaBre.Readers
             ValSeqIdCounter   = 0;
             CustomOpSources   = new Dictionary<string, WonkaBreSource>();
             AllParsedRuleSets = new List<WonkaBreRuleSet>();
+            RulesHostEngine   = null;
 
             BasicOps = new HashSet<string>();
             BasicOps.Add(CONST_BASIC_OP_NOT_POP);
@@ -342,7 +345,7 @@ namespace WonkaBre.Readers
             else if (sRuleExpression.Contains("ASSIGN_PROD"))
                 NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_PROD };
             else if (sRuleExpression.Contains("ASSIGN_QUOT"))
-                NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_QUOT };            
+                NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_QUOT };
             else if (sRuleExpression.Contains("ASSIGN"))
                 NewRule = new AssignmentRule() { RuleId = nNewRuleId, NotOperator = false };
 
@@ -358,6 +361,17 @@ namespace WonkaBre.Readers
 
                 if (NewRule.RuleType != RULE_TYPE.RT_POPULATED)
                     SetRuleValues(NewRule, sRuleExpression);
+
+                if (RulesHostEngine != null)
+                {
+                    NewRule.RulesHostEngine = RulesHostEngine;
+
+                    if (RulesHostEngine.StdOpMap != null)
+                    {
+                        if ((NewRule is ArithmeticLimitRule) && RulesHostEngine.StdOpMap.ContainsKey(STD_OP_TYPE.STD_OP_BLOCK_NUM))
+                            ((ArithmeticLimitRule)NewRule).BlockNumDelegate = RulesHostEngine.StdOpMap[STD_OP_TYPE.STD_OP_BLOCK_NUM];
+                    }
+                }
             }
 
             if (NewRule != null)
@@ -500,6 +514,8 @@ namespace WonkaBre.Readers
         public WonkaBreRuleSet RootRuleSet { get; set; }
 
         public List<WonkaBreRuleSet> AllParsedRuleSets { get; set; }
+
+        public WonkaBreRulesEngine RulesHostEngine { get; set; }
 
         #endregion
     }
