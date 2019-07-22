@@ -208,8 +208,9 @@ namespace WonkaBre.RuleTree.RuleTypes
 
                     if (!String.IsNullOrEmpty(sCurrBlockNum))
                     {
-                        double dVal = Double.Parse(sCurrBlockNum, System.Globalization.NumberStyles.HexNumber);
+                        byte HexBytes = Convert.ToByte(sCurrBlockNum, 16);
 
+                        double dVal = Convert.ToDouble(HexBytes);
                         if (this.MinValue != Double.MinValue)
                             this.MinValue = dVal;
                         else
