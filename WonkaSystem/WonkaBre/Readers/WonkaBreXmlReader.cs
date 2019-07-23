@@ -144,7 +144,6 @@ namespace WonkaBre.Readers
             ValSeqIdCounter   = 0;
             CustomOpSources   = new Dictionary<string, WonkaBreSource>();
             AllParsedRuleSets = new List<WonkaBreRuleSet>();
-            RulesHostEngine   = null;
 
             BasicOps = new HashSet<string>();
             BasicOps.Add(CONST_BASIC_OP_NOT_POP);
