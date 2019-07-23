@@ -41,8 +41,13 @@ namespace WonkaEth.Extensions
 
             EngineWeb3Accounts[poEngine] = web3;
 
-            poEngine.StdOpMap[STD_OP_TYPE.STD_OP_BLOCK_NUM] = GetCurrentBlockNum;
-        }
+			Dictionary<STD_OP_TYPE, WonkaBreRulesEngine.RetrieveStdOpValDelegate> DefaultStdOpMap =
+				new Dictionary<STD_OP_TYPE, WonkaBreRulesEngine.RetrieveStdOpValDelegate>();
+
+			DefaultStdOpMap[STD_OP_TYPE.STD_OP_BLOCK_NUM] = GetCurrentBlockNum;
+
+			poEngine.StdOpMap = DefaultStdOpMap;
+		}
 
         #region Default Op Functions
 
