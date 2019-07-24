@@ -47,6 +47,8 @@ namespace WonkaEth.Extensions
         private const int CONST_MAX_GAS_COST_DEFAULT       = 2000000;
         private const int CONST_MAX_RULE_TREE_ID_LEN       = 16;
 
+        private const string CONST_BLOCK_NUM_OP_IND = "00000";
+
         private static WonkaRefEnvironment moWonkaRevEnv = WonkaRefEnvironment.GetInstance();
 
         public enum CONTRACT_RULE_TYPES
@@ -1077,6 +1079,9 @@ namespace WonkaEth.Extensions
                         nRuleType = (uint)CONTRACT_RULE_TYPES.EQUAL_TO_RULE;
                         sValue    = Convert.ToString(ArithLimitRule.MinValue);
                     }
+
+                    if (ArithLimitRule.BlockNumOperator)
+                        sValue = CONST_BLOCK_NUM_OP_IND;
 
                     sAltRuleName = "Limit(" + sValue + ") for -> [" + 
                         ((TempRule.TargetAttribute.AttrName.Length > 8) ? TempRule.TargetAttribute.AttrName.Substring(0,8) : TempRule.TargetAttribute.AttrName);
