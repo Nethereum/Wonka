@@ -415,7 +415,10 @@ namespace WonkaEth.Extensions
             // Finally, we handle any events that have been issued during the execution of the rules engine
             if (InvocationReport != null)
             {
-                InvocationReport.TransactionHash = trxHash;
+                var receipt = poWonkaContract.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(trxHash).Result;
+
+                InvocationReport.TransactionHash      = trxHash;
+                InvocationReport.InvokeTrxBlockNumber = receipt.BlockNumber;
 
                 WonkaEvents.HandleEvents(poRulesEngine, InvocationReport);
 
