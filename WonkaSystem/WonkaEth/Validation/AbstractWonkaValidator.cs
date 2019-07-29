@@ -103,14 +103,13 @@ namespace WonkaEth.Validation
         public const string CONST_CONTRACT_FUNCTION_HAS_RT    = "hasRuleTree";
         public const string CONST_CONTRACT_FUNCTION_SET_VALUE = "setValueOnRecord";
 
+        private WonkaBlockchainEngine moBlockchainEngine;
+
         public readonly string        msRulesFilepath;
         public readonly StringBuilder msRulesContents;
 
         public readonly string              msWeb3HttpUrl;
         public readonly WonkaBreRulesEngine moRulesEngine;
-
-        public string                BlockchainEngineOwner { get; set; }
-        public WonkaBlockchainEngine BlockchainEngine { get; set; }
 
         public AbstractWonkaValidator(T poCommand, string psRulesFilepath, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
          {
@@ -447,5 +446,27 @@ namespace WonkaEth.Validation
 
             return bValid;
         }
+
+        #region Properties
+
+        public string BlockchainEngineOwner { get; set; }
+
+        public WonkaBlockchainEngine BlockchainEngine
+        {
+            get
+            {
+                return moBlockchainEngine;
+            }
+
+            set
+            {
+                moBlockchainEngine = value;
+
+                if (moRulesEngine != null)
+                    moRulesEngine.SetDefaultStdOps(moBlockchainEngine.Password, this.msWeb3HttpUrl);
+            }
+        }
+
+        #endregion 
     }
 }

@@ -85,7 +85,7 @@
 
     public enum STD_OP_TYPE
     {
-        STD_OP_BLOCKN_NUM = 1,
+        STD_OP_BLOCK_NUM = 1,
         STD_OP_NONE
     }
 }

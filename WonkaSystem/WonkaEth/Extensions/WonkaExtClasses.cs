@@ -199,6 +199,7 @@ namespace WonkaEth.Extensions
         {
             NumberOfRuleFailures = 0;
             TransactionHash      = "";
+            InvokeTrxBlockNumber = null;
 
             RuleSetIds = new List<string>();
             RuleIds    = new List<string>();
@@ -227,5 +228,7 @@ namespace WonkaEth.Extensions
         public Dictionary<string, string> RuleSetFailMessages { get; set; }
 
         public string TransactionHash { get; set; }
+
+        public HexBigInteger InvokeTrxBlockNumber { get; set; }
     }
 }

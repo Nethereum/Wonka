@@ -9,6 +9,7 @@ using WonkaBre.Permissions;
 using WonkaBre.Readers;
 using WonkaBre.Reporting;
 using WonkaBre.RuleTree;
+using WonkaBre.RuleTree.RuleTypes;
 using WonkaPrd;
 using WonkaRef;
 
@@ -35,7 +36,7 @@ namespace WonkaBre
         #region Delegates
         //public delegate bool ComplexEditsDelegate(WonkaProduct poNewProduct, WonkaProduct poOldProduct);
         public delegate WonkaProduct RetrieveOldRecordDelegate(Dictionary<string, string> KeyValues);
-        public delegate string       RetrieveStdOpValDelegate(string OptionalKeyVal);
+        public delegate string       RetrieveStdOpValDelegate(WonkaBreRulesEngine EngineId, string OptionalKeyVal);
         #endregion
 
         #region CONSTANTS
@@ -71,7 +72,7 @@ namespace WonkaBre
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRulesFilepath);
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRulesFilepath, piMetadataSource, this);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             AllRuleSets  = BreXmlReader.AllParsedRuleSets;
@@ -87,7 +88,7 @@ namespace WonkaBre
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules, piMetadataSource, this);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             AllRuleSets  = BreXmlReader.AllParsedRuleSets;
@@ -106,7 +107,7 @@ namespace WonkaBre
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules, piMetadataSource, this);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             SourceMap    = poSourceMap;
@@ -129,7 +130,7 @@ namespace WonkaBre
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules);
+            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules, piMetadataSource, this);
 
             foreach (string sKey in poCustomOpBlockchainSources.Keys)
             {
@@ -286,14 +287,20 @@ namespace WonkaBre
             return RuleTreeReport;
         }
 
-        #endregion
+		#endregion
 
-        #region Properties
+		#region Members
 
-        private string TempDirectory { get; set; }
+		private RetrieveOldRecordDelegate RetrieveCurrRecord;
 
-        private RetrieveOldRecordDelegate RetrieveCurrRecord;
+		private Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate> StandardOps;
 
+		#endregion
+
+		#region Properties
+
+		private string TempDirectory { get; set; }
+			
         public readonly bool AddToRegistry;
 
         public readonly bool UsingOrchestrationMode;
@@ -324,9 +331,35 @@ namespace WonkaBre
                 else
                     throw new WonkaBreException("ERROR!  Cannot reassign the delegate when running in orchestration mode.");
             }
-        }
+		}
 
-        public Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate> StdOpMap { get; set; }
+	    public Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate> StdOpMap
+		{   
+		    get
+			{
+				return new Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate>(StandardOps);
+			}
+
+			set
+			{
+				StandardOps = value;
+
+				if (AllRuleSets != null)
+				{
+					foreach (WonkaBreRuleSet TempRuleSet in AllRuleSets)
+					{
+						foreach (WonkaBreRule TempRule in TempRuleSet.EvaluativeRules)
+						{
+							if (StandardOps != null)
+							{
+								if ((TempRule is ArithmeticLimitRule) && StandardOps.ContainsKey(STD_OP_TYPE.STD_OP_BLOCK_NUM))
+									((ArithmeticLimitRule)TempRule).BlockNumDelegate = StandardOps[STD_OP_TYPE.STD_OP_BLOCK_NUM];
+							}
+						}
+					}
+				}
+			}
+		}
 
         public Dictionary<string, WonkaBreSource> SourceMap { get; set; }
 

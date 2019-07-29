@@ -30,6 +30,10 @@ namespace WonkaBre.RuleTree.RuleTypes
 	/// </summary>
 	public class ArithmeticLimitRule : WonkaBreRule
     {
+        #region CONSTANTS
+        private const string CONST_BLOCKNUM_IND  = "BLOCKNUM";
+        #endregion
+
         #region Constructors
         public ArithmeticLimitRule() : base(-1, RULE_TYPE.RT_ARITH_LIMIT)
         {
@@ -173,6 +177,7 @@ namespace WonkaBre.RuleTree.RuleTypes
                 this.TargetAttribute  = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
 
             this.BlockNumOperator = false;
+            this.BlockNumDelegate = null;
 
             this.MinValue      = pnMinValue;
             this.MinValueProps = new WonkaBreRuleValueProps() { IsLiteralValue = true };
@@ -195,34 +200,56 @@ namespace WonkaBre.RuleTree.RuleTypes
 		/// </summary>
 	    private void RefreshMinAndMax(WonkaProduct poTransactionRecord, WonkaProduct poCurrentRecord)
         {
-            if (!this.MinValueProps.IsLiteralValue)
+            if (this.BlockNumOperator)
             {
-                int nAttrId  = this.MinValueProps.AttributeInfo.AttrId;
-                int nGroupId = this.MinValueProps.AttributeInfo.GroupId;
+                if ((this.BlockNumDelegate != null) && (this.RulesHostEngine != null))
+                {
+                    string sCurrBlockNum = this.BlockNumDelegate.Invoke(this.RulesHostEngine, null);
 
-                WonkaPrdGroup TempProductGroup = null;
+                    if (!String.IsNullOrEmpty(sCurrBlockNum))
+                    {
+                        byte HexBytes = Convert.ToByte(sCurrBlockNum, 16);
 
-                if (this.MinValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
-                    TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
-                else
-                    TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
+                        double dVal = Convert.ToDouble(HexBytes);
+                        if (this.MinValue != Double.MinValue)
+                            this.MinValue = dVal;
+                        else
+                            this.MaxValue = dVal;
 
-                this.MinValue = Convert.ToDouble(TempProductGroup[0][nAttrId]);
+                    }
+                }
             }
-
-            if (!this.MaxValueProps.IsLiteralValue)
+            else
             {
-                int nAttrId  = this.MaxValueProps.AttributeInfo.AttrId;
-                int nGroupId = this.MaxValueProps.AttributeInfo.GroupId;
+                if (!this.MinValueProps.IsLiteralValue)
+                {
+                    int nAttrId  = this.MinValueProps.AttributeInfo.AttrId;
+                    int nGroupId = this.MinValueProps.AttributeInfo.GroupId;
 
-                WonkaPrdGroup TempProductGroup = null;
+                    WonkaPrdGroup TempProductGroup = null;
 
-                if (this.MaxValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
-                    TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
-                else
-                    TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
+                    if (this.MinValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
+                        TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
+                    else
+                        TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
 
-                this.MaxValue = Convert.ToDouble(TempProductGroup[0][nAttrId]);
+                    this.MinValue = Convert.ToDouble(TempProductGroup[0][nAttrId]);
+                }
+
+                if (!this.MaxValueProps.IsLiteralValue)
+                {
+                    int nAttrId  = this.MaxValueProps.AttributeInfo.AttrId;
+                    int nGroupId = this.MaxValueProps.AttributeInfo.GroupId;
+
+                    WonkaPrdGroup TempProductGroup = null;
+
+                    if (this.MaxValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
+                        TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
+                    else
+                        TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
+
+                    this.MaxValue = Convert.ToDouble(TempProductGroup[0][nAttrId]);
+                }
             }
         }
 
@@ -256,8 +283,16 @@ namespace WonkaBre.RuleTree.RuleTypes
                 }
                 catch (Exception ex)
                 {
-                    dValue              = 0.0;
-                    AttributeValueProps = this.GetAttributeValueProps(sTempValue);
+                    dValue = 0.0;
+
+                    if (sTempValue == CONST_BLOCKNUM_IND)
+                    {
+                        bLiteralValue = true;
+
+                        this.BlockNumOperator = true;
+                    }
+                    else
+                        AttributeValueProps = this.GetAttributeValueProps(sTempValue);
                 }
 
                 if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_LT) ||
@@ -330,6 +365,8 @@ namespace WonkaBre.RuleTree.RuleTypes
         #region Properties
 
         public bool BlockNumOperator { get; protected set; }
+
+        public WonkaBreRulesEngine.RetrieveStdOpValDelegate BlockNumDelegate { get; set; }
 
         public double MinValue { get; set; }
 
