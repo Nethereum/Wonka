@@ -83,7 +83,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Autogen\ContractDefinition.cs" />
     <Compile Include="Autogen\WonkaService.cs" />
     <Compile Include="Extensions\WonkaExtClasses.cs" />
     <Compile Include="Extensions\WonkaOpExtensions.cs" />
@@ -109,6 +108,10 @@
     <Compile Include="Orchestration\BlockchainOutput\WonkaRuleTreeReport.cs" />
     <Compile Include="Orchestration\WonkaOrchestratorProxy.cs" />
     <Compile Include="Init\WonkaEthRegistryInitialization.cs" />
+    <Compile Include="Autogen\WonkaEngine\ContractDefinition.cs" />
+    <Compile Include="Autogen\WonkaRegistry\ContractDefinition.cs" />
+    <Compile Include="Autogen\WonkaTestContract\ContractDefinition.cs" />
+    <Compile Include="Autogen\WonkaTestTrxState\ContractDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -124,6 +127,10 @@
     <Folder Include="Orchestration\BlockchainOutput\" />
     <Folder Include="Orchestration\Init\" />
     <Folder Include="Contracts\Ethereum\" />
+    <Folder Include="Autogen\WonkaEngine\" />
+    <Folder Include="Autogen\WonkaRegistry\" />
+    <Folder Include="Autogen\WonkaTestContract\" />
+    <Folder Include="Autogen\WonkaTestTrxState\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaBre\WonkaBre.csproj">
