@@ -129,11 +129,16 @@ namespace WonkaSystem.TestHarness
             CQS.Validation.AccountUpdateValidator UpdateValidator =
                    new CQS.Validation.AccountUpdateValidator(UpdateCommand, new StringBuilder(msRulesContents));
 
-            UpdateValidator.BlockchainEngineOwner            = msSenderAddress;
-            UpdateValidator.BlockchainEngine.SenderAddress   = msSenderAddress;
-            UpdateValidator.BlockchainEngine.Password        = msPassword;
-            UpdateValidator.BlockchainEngine.ContractAddress = msContractAddress;
-            UpdateValidator.BlockchainEngine.ContractABI     = msAbiWonka;
+            UpdateValidator.BlockchainEngineOwner = msSenderAddress;
+
+            UpdateValidator.BlockchainEngine =
+                new WonkaEth.Validation.WonkaBlockchainEngine()
+                {
+                    SenderAddress = msSenderAddress,
+                    Password = msPassword,
+                    ContractAddress = msContractAddress,
+                    ContractABI = msAbiWonka
+                };
 
             // Now execute the rules engine on the blockchain
             bool bValid = UpdateValidator.Validate(UpdateCommand);

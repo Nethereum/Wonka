@@ -190,6 +190,8 @@ namespace WonkaSystem.TestHarness
                 RulesEngine.DefaultSource = sDefaultSource;
             }
 
+            RulesEngine.SetDefaultStdOps(msPassword);
+
             // The contract dictates that the RuleTree (and its other info, like the Source mapping) is serialized 
             // to the blockchain before interacting with it
             SerializeRulesEngineToBlockchain(RulesEngine);

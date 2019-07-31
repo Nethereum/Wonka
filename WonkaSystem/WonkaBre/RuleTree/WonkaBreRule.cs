@@ -69,7 +69,9 @@ namespace WonkaBre.RuleTree
 			IsPassive   = true;
 
             DescRuleId = "";
-		}
+
+            RulesHostEngine = null;
+        }
 
 		#region Abstract Methods
 
@@ -143,6 +145,8 @@ namespace WonkaBre.RuleTree
 
 		public bool IsPassive { get; set; }
 
-		#endregion
-	}
+        public WonkaBreRulesEngine RulesHostEngine { get; set; }
+
+        #endregion
+    }
 }
