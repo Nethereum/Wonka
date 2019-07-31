@@ -120,14 +120,15 @@ namespace WonkaSystem.TestHarness
             WonkaRefAttr        AccountTypeAttr     = WonkaRefEnv.GetAttributeByAttrName("AccountType");
             WonkaRefAttr        AccountCurrencyAttr = WonkaRefEnv.GetAttributeByAttrName("AccountCurrency");
             WonkaRefAttr        RvwFlagAttr         = WonkaRefEnv.GetAttributeByAttrName("AuditReviewFlag");
+			WonkaRefAttr        CreationDtAttr      = WonkaRefEnv.GetAttributeByAttrName("CreationDt");
 
-            // We create a target list of the Attributes of the old (i.e., existing) record that currently exists on the blockchain
-            // and which we want to pull back during the engine's execution
-            moTargetAttrList = new List<WonkaRefAttr>();
+			// We create a target list of the Attributes of the old (i.e., existing) record that currently exists on the blockchain
+			// and which we want to pull back during the engine's execution
+			moTargetAttrList = new List<WonkaRefAttr>();
 
-            moTargetAttrList =
-                new List<WonkaRefAttr>() { AccountIDAttr, AccountNameAttr, AccountStsAttr, AccountCurrValAttr, AccountTypeAttr, AccountCurrencyAttr, RvwFlagAttr };
-
+			moTargetAttrList =
+			    new List<WonkaRefAttr>() { AccountIDAttr, AccountNameAttr, AccountStsAttr, AccountCurrValAttr, AccountTypeAttr, AccountCurrencyAttr, RvwFlagAttr, CreationDtAttr };
+				
             // Serialize the data domain to the blockchain
             if (pbSerializeMetadataToBlockchain)
             {
