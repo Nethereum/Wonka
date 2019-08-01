@@ -10,7 +10,7 @@ using Nethereum.Contracts.CQS;
 using Nethereum.Contracts;
 using System.Threading;
 
-namespace WonkaEth.Autogen
+namespace WonkaEth.Autogen.WonkaEngine
 {
 
     public partial class WonkaEngineDeployment : WonkaEngineDeploymentBase
