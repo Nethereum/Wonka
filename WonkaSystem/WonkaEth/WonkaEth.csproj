@@ -83,6 +83,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\WonkaAutogenExtensions.cs" />
     <Compile Include="Autogen\WonkaService.cs" />
     <Compile Include="Extensions\WonkaExtClasses.cs" />
     <Compile Include="Extensions\WonkaOpExtensions.cs" />
