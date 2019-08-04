@@ -118,22 +118,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Extensions\" />
-    <Folder Include="Validation\" />
-    <Folder Include="Contracts\" />
-    <Folder Include="Misc\" />
-    <Folder Include="Orchestration\" />
-    <Folder Include="Init\" />
-    <Folder Include="Orchestration\BlockchainEvents\" />
-    <Folder Include="Orchestration\BlockchainOutput\" />
-    <Folder Include="Orchestration\Init\" />
-    <Folder Include="Contracts\Ethereum\" />
-    <Folder Include="Autogen\WonkaEngine\" />
-    <Folder Include="Autogen\WonkaRegistry\" />
-    <Folder Include="Autogen\WonkaTestContract\" />
-    <Folder Include="Autogen\WonkaTestTrxState\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\WonkaBre\WonkaBre.csproj">
       <Project>{D3F26FB8-89AC-44A5-96C3-6A785AF0DE51}</Project>
