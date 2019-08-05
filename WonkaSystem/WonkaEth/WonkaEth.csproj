@@ -85,6 +85,7 @@
   <ItemGroup>
     <Compile Include="Extensions\WonkaAutogenExtensions.cs" />
     <Compile Include="Autogen\WonkaService.cs" />
+    <Compile Include="Extensions\WonkaEthEngineExtensions.cs" />
     <Compile Include="Extensions\WonkaExtClasses.cs" />
     <Compile Include="Extensions\WonkaOpExtensions.cs" />
     <Compile Include="Init\WonkaEthEngineInitialization.cs" />
