@@ -39,6 +39,7 @@ namespace WonkaEth.Extensions
         public const string CONST_CONTRACT_FUNCTION_EXEC         = "execute"; 
         public const string CONST_CONTRACT_FUNCTION_EXEC_RPT     = "executeWithReport"; 
         public const string CONST_CONTRACT_FUNCTION_GET_LAST_RPT = "getLastRuleReport";
+        public const string CONST_CONTRACT_FUNCTION_HAS_RT       = "hasRuleTree";
 
         private const int CONST_CONTRACT_ATTR_NUM_ON_START = 3;
         private const int CONST_CONTRACT_BYTE32_MAX        = 32;
@@ -123,6 +124,25 @@ namespace WonkaEth.Extensions
                 sRuleTreeChainId = "Root" + sRuleTreeChainId.Replace(" ", "").Trim();
 
             return sRuleTreeChainId;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will determine whether or not a tree exists in the instance of the Wonka engine on the chain.  Currently,
+        /// a RuleTree can only exist for one account, and the owner's account serves as the ID for the RuleTree.
+        /// 
+        /// <param name="poEngine">The instance of an engine which wraps around a RuleTree</param>
+        /// <param name="poWonkaContract">The instance of a Wonka contract on the blockchain</param>
+        /// <param name="psTreeOwnerAddress">Address of the owner of the RuleTree in this engine instance on the chain</param>
+        /// <returns>Indicates whether or not the RuleTree exists</returns>
+        /// </summary>
+        public static bool DoesTreeExistOnChain(this WonkaBreRulesEngine poEngine, Contract poWonkaContract, string psSenderAddress)
+        {
+            var hasRuleTreeFunction = poWonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_HAS_RT);
+
+            var gas = hasRuleTreeFunction.EstimateGasAsync(psSenderAddress).Result;
+
+            return hasRuleTreeFunction.CallAsync<bool>(psSenderAddress, gas, null, psSenderAddress).Result;
         }
 
         ///
