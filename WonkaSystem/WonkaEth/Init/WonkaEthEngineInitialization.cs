@@ -17,11 +17,15 @@ namespace WonkaEth.Init
 
             EthSenderAddress = EthPassword = EthRuleTreeOwnerAddress = "";
 
-            RulesEngineContractAddress = RulesEngineABI      = "";
-            RegistryContractAddress    = RegistryContractABI = "";
+            RulesEngineABI      = WonkaEth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
+            RegistryContractABI = WonkaEth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
+            TestContractABI     = WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
+
+            RulesEngineContractAddress = "";
+            RegistryContractAddress    = "";
 
             UsingTestContract   = true;
-            TestContractAddress = TestContractABI = "";
+            TestContractAddress = "";
 
             UsingTrxStateContract   = false;
             TrxStateContractAddress = null;
