@@ -38,8 +38,6 @@ namespace WonkaSystem.TestHarness
     /// contract).  In this way, during the application of a RuleTree, the rules engine (i.e., WonkaEngine contract) 
     /// on the blockchain can interact with other contracts in order to obtain (and set) Attribute values.
     ///
-    /// NOTE: This test does execute the Ethereum implementation of the rules engine.
-    ///
     /// NOTE: In order to use the Orchestration functionality, the current design has requirements that certain functions
     ///       (and their respective signatures) must be placed on the contracts, much like implementing the functions of 
     ///       an interface in C#.
