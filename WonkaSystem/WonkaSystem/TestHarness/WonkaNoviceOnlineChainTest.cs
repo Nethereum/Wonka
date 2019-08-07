@@ -34,7 +34,8 @@ namespace WonkaSystem.TestHarness
     /// RuleTree to the blockchain.  It will also execute the rules engine on the Ethereum blockchain 
     /// and examine the report that is returned.
     /// 
-    /// Finally (and most importantly), this test will showcase the deployment functionality and the Orchestration functionality.
+    /// Finally (and most importantly), this test will showcase the deployment functionality, orchestration, and usage
+    /// of the online test chain.
     ///
     /// NOTE: In order to use the Orchestration functionality, the current design has requirements that certain functions
     ///       (and their respective signatures) must be placed on the contracts, much like implementing the functions of 
@@ -88,6 +89,9 @@ namespace WonkaSystem.TestHarness
             // that define our data record            
             moMetadataSource = new WonkaMetadataTestSource();            
             WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
+
+            // var IpfsEnv = WonkaIpfs.WonkaIpfsEnvironment.CreateInstance();
+            // IpfsEnv.Test();
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
@@ -321,7 +325,6 @@ namespace WonkaSystem.TestHarness
 
             AttributeNames.ToList().ForEach(x => moTargetAttrList.Add( WonkaRefEnv.GetAttributeByAttrName(x) ));
 
-            /*
             WonkaRefAttr        AccountIDAttr       = WonkaRefEnv.GetAttributeByAttrName("BankAccountID");
             WonkaRefAttr        AccountNameAttr     = WonkaRefEnv.GetAttributeByAttrName("BankAccountName");
             WonkaRefAttr        AccountStsAttr      = WonkaRefEnv.GetAttributeByAttrName("AccountStatus");
@@ -333,7 +336,6 @@ namespace WonkaSystem.TestHarness
 
 			moTargetAttrList =
 			    new List<WonkaRefAttr>() { AccountIDAttr, AccountNameAttr, AccountStsAttr, AccountCurrValAttr, AccountTypeAttr, AccountCurrencyAttr, RvwFlagAttr, CreationDtAttr };
-            */
 
             string sDefaultSource      = "S";
             string sContractSourceId   = sDefaultSource;
@@ -412,7 +414,6 @@ namespace WonkaSystem.TestHarness
 
             var getRecordValueFunction = contract.GetFunction(poTargetSource.MethodName);
 
-            // var result = getRecordValueFunction.CallAsync<string>(poTargetSource.SenderAddress, psAttrName).Result;
             var result = getRecordValueFunction.CallAsync<string>(psAttrName).Result;
 
             return result;
