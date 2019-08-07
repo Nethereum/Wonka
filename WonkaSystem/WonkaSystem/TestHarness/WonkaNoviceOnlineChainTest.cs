@@ -324,19 +324,7 @@ namespace WonkaSystem.TestHarness
                 new HashSet<string>() { "BankAccountID", "BankAccountName", "AccountStatus", "AccountCurrValue", "AccountType", "AccountCurrency", "AuditReviewFlag", "CreationDt" };
 
             AttributeNames.ToList().ForEach(x => moTargetAttrList.Add( WonkaRefEnv.GetAttributeByAttrName(x) ));
-
-            WonkaRefAttr        AccountIDAttr       = WonkaRefEnv.GetAttributeByAttrName("BankAccountID");
-            WonkaRefAttr        AccountNameAttr     = WonkaRefEnv.GetAttributeByAttrName("BankAccountName");
-            WonkaRefAttr        AccountStsAttr      = WonkaRefEnv.GetAttributeByAttrName("AccountStatus");
-            WonkaRefAttr        AccountCurrValAttr  = WonkaRefEnv.GetAttributeByAttrName("AccountCurrValue");
-            WonkaRefAttr        AccountTypeAttr     = WonkaRefEnv.GetAttributeByAttrName("AccountType");
-            WonkaRefAttr        AccountCurrencyAttr = WonkaRefEnv.GetAttributeByAttrName("AccountCurrency");
-            WonkaRefAttr        RvwFlagAttr         = WonkaRefEnv.GetAttributeByAttrName("AuditReviewFlag");
-			WonkaRefAttr        CreationDtAttr      = WonkaRefEnv.GetAttributeByAttrName("CreationDt");
-
-			moTargetAttrList =
-			    new List<WonkaRefAttr>() { AccountIDAttr, AccountNameAttr, AccountStsAttr, AccountCurrValAttr, AccountTypeAttr, AccountCurrencyAttr, RvwFlagAttr, CreationDtAttr };
-
+            
             string sDefaultSource      = "S";
             string sContractSourceId   = sDefaultSource;
             string sContractAddress    = "";
