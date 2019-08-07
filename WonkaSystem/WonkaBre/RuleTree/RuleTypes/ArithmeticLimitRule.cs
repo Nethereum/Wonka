@@ -203,14 +203,15 @@ namespace WonkaBre.RuleTree.RuleTypes
             if (this.BlockNumOperator)
             {
                 if ((this.BlockNumDelegate != null) && (this.RulesHostEngine != null))
-                {
+                {                
                     string sCurrBlockNum = this.BlockNumDelegate.Invoke(this.RulesHostEngine, null);
 
                     if (!String.IsNullOrEmpty(sCurrBlockNum))
                     {
-                        byte HexBytes = Convert.ToByte(sCurrBlockNum, 16);
+						var HexNum = 
+							System.Numerics.BigInteger.Parse(sCurrBlockNum, System.Globalization.NumberStyles.HexNumber);
 
-                        double dVal = Convert.ToDouble(HexBytes);
+						double dVal = (double) HexNum;
                         if (this.MinValue != Double.MinValue)
                             this.MinValue = dVal;
                         else
