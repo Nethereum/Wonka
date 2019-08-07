@@ -382,7 +382,7 @@ namespace WonkaSystem.TestHarness
                 moRulesEngine.DefaultSource = sDefaultSource;
             }
 
-            moRulesEngine.SetDefaultStdOps(msPassword);
+            moRulesEngine.SetDefaultStdOps(msPassword, CONST_ONLINE_TEST_CHAIN_URL);
         
             // Serialize the data domain to the blockchain
             if (pbInitChainEnv)
