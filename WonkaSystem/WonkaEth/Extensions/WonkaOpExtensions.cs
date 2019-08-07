@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Web3.Accounts;
 
 using WonkaBre;
@@ -61,6 +62,9 @@ namespace WonkaEth.Extensions
 
                 sCurrBlockNum = EngineWeb3.Eth.Blocks.GetBlockNumber.SendRequestAsync().Result.HexValue.ToString();
             }
+
+			if (sCurrBlockNum.HasHexPrefix())
+				sCurrBlockNum = sCurrBlockNum.RemoveHexPrefix();
 
             return sCurrBlockNum;
         }
