@@ -26,7 +26,13 @@ namespace WonkaPrd
             if (this.MasterGroup.IsSequenced)
             {
                 GroupSeqAttrId = WonkaRefEnvironment.GetInstance().GetGroupSeqAttrId(MasterGroup.GroupId);
-                KeyAttrIds     = WonkaRefEnvironment.GetInstance().IdXref.GroupIdToKeyAttrIds[poGroup.GroupId];
+
+				// NOTE: Should KeyAttrIds be required for a group?
+				//if (!WonkaRefEnvironment.GetInstance().IdXref.GroupIdToKeyAttrIds.ContainsKey(poGroup.GroupId))
+				//	throw new Exception("ERROR!  No keys found for the group with ID(" + poGroup.GroupId + ")");
+
+				if (WonkaRefEnvironment.GetInstance().IdXref.GroupIdToKeyAttrIds.ContainsKey(poGroup.GroupId))
+					KeyAttrIds = WonkaRefEnvironment.GetInstance().IdXref.GroupIdToKeyAttrIds[poGroup.GroupId];
             }
             else
                 GroupSeqAttrId = 0;

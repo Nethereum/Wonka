@@ -242,7 +242,12 @@ namespace WonkaRef
 
         public int GetGroupSeqAttrId(int pnGroupId)
         {
-            return IdXref.GroupIdToGroupSeqAttrId[pnGroupId];
+			int nGrpSeqAttrId = -1;
+
+			if (IdXref.GroupIdToGroupSeqAttrId.ContainsKey(pnGroupId))
+				nGrpSeqAttrId = IdXref.GroupIdToGroupSeqAttrId[pnGroupId];
+
+			return nGrpSeqAttrId;
         }
 
         public WonkaRefSourceField GetSourceField(WonkaRefSource poSource, WonkaRefField poField)
