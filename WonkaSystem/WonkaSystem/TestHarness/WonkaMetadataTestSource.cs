@@ -28,7 +28,7 @@ namespace WonkaSystem.TestHarness
             AttrCache.Add(new WonkaRefAttr() { AttrId = 7, AttrName = "CreationDt",       FieldId = 105, GroupId = 1, IsAudited = true, IsDate = true, MaxLength = 12 });
             AttrCache.Add(new WonkaRefAttr() { AttrId = 8, AttrName = "OwnerFirstName",   FieldId = 2, GroupId = 2, IsAudited = true, MaxLength = 1024 });
             AttrCache.Add(new WonkaRefAttr() { AttrId = 9, AttrName = "OwnerLastName",    FieldId = 2, GroupId = 2, IsAudited = true, MaxLength = 1024 });
-            AttrCache.Add(new WonkaRefAttr() { AttrId = 10, AttrName = "OwnerSSN",        FieldId = 2, GroupId = 2, IsAudited = true, IsNumeric = true });
+            AttrCache.Add(new WonkaRefAttr() { AttrId = 10, AttrName = "OwnerSSN",        FieldId = 2, GroupId = 2, IsAudited = true, IsNumeric = true, IsKey = true });
             AttrCache.Add(new WonkaRefAttr() { AttrId = 11, AttrName = "OwnerRank",       FieldId = 2, GroupId = 2, IsAudited = true, IsNumeric = true });
             AttrCache.Add(new WonkaRefAttr() { AttrId = 12, AttrName = "AuditReviewFlag", FieldId = 106, GroupId = 1, IsAudited = true, MaxLength = 3 });
 
@@ -69,9 +69,10 @@ namespace WonkaSystem.TestHarness
             List<WonkaRefGroup> GroupCache = new List<WonkaRefGroup>();
 
             GroupCache.Add(new WonkaRefGroup() { GroupId = 1, GroupName = "Account", Description = "The account" });
-            GroupCache.Add(new WonkaRefGroup() { GroupId = 2, GroupName = "Owner", IsSequenced = true, Description = "One owner of the account" });
+			// GroupCache.Add(new WonkaRefGroup() { GroupId = 2, GroupName = "Owner", IsSequenced = true, Description = "One owner of the account" });
+			GroupCache.Add(new WonkaRefGroup() { GroupId = 2, GroupName = "Owner", Description = "One owner of the account" });
 
-            return GroupCache;
+			return GroupCache;
         }
 
         public List<WonkaRefSource> GetSourceCache()
