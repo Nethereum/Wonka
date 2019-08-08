@@ -73,7 +73,7 @@ namespace WonkaSystem.TestHarness
 
         private Dictionary<string, WonkaBre.RuleTree.WonkaBreSource> moSourceMap = new Dictionary<string, WonkaBreSource>();
 
-        public WonkaNoviceOnlineChainTest(string psContractAddress, bool pbInitChainEnv = true)
+        public WonkaNoviceOnlineChainTest(string psContractAddress, bool pbInitChainEnv = true, bool pbRetrieveMarkupFromIpfs = false)
         {                       
             msSenderAddress   = "0x12890D2cce102216644c59daE5baed380d84830c";
             msPassword        = "0xb5b1870957d373ef0eeffecc6e4812c0fd08f554b37b233526acc331bf1544f7";
@@ -89,19 +89,25 @@ namespace WonkaSystem.TestHarness
             // that define our data record            
             moMetadataSource = new WonkaMetadataTestSource();            
             WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
-
-            // var IpfsEnv = WonkaIpfs.WonkaIpfsEnvironment.CreateInstance();
-            // IpfsEnv.Test();
-
+            
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
-            // Read the XML markup that lists the business rules
-            using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.SimpleAccountCheck.xml")))
-            {
-                msRulesContents = RulesReader.ReadToEnd();
-            }
+			if (pbRetrieveMarkupFromIpfs)
+			{
+				var IpfsEnv = WonkaIpfs.WonkaIpfsEnvironment.CreateInstance();
 
-            if (psContractAddress == null)
+				msRulesContents = IpfsEnv.GetFile("QmQtQNKMTUoypYLvRj5kvUvSXmoPXP4LWbAD251rJSambd");
+            }
+			else
+			{
+				// Read the XML markup that lists the business rules
+				using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.SimpleAccountCheck.xml")))
+				{
+					msRulesContents = RulesReader.ReadToEnd();
+				}
+			}
+
+			if (psContractAddress == null)
             {
                 msEngineContractAddress = DeployWonka();
             }
@@ -133,7 +139,7 @@ namespace WonkaSystem.TestHarness
             return msEngineContractAddress;
         }
 
-        public void Execute(bool pbValidateWithinTransaction = false)
+        public void Execute(bool pbValidateTransaction = false)
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
@@ -144,16 +150,16 @@ namespace WonkaSystem.TestHarness
             // We are only using this record to test the .NET implementation
             WonkaProduct NewProduct = GetNewProduct();
 
-            string sStatusValueBefore = GetAttributeValue(NewProduct, AccountStsAttr);
-            string sFlagValueBefore   = GetAttributeValue(NewProduct, RvwFlagAttr);
+            string sStatusValueBefore = NewProduct.GetAttributeValue(AccountStsAttr);
+            string sFlagValueBefore   = NewProduct.GetAttributeValue(RvwFlagAttr);
 
             // SerializeProductToBlockchain(NewProduct);
 
             // Validate that the .NET implementation and the rules markup are both working properly
             WonkaBre.Reporting.WonkaBreRuleTreeReport Report = moRulesEngine.Validate(NewProduct);
 
-            string sStatusValueAfter = GetAttributeValue(NewProduct, AccountStsAttr);
-            string sFlagValueAfter   = GetAttributeValue(NewProduct, RvwFlagAttr);
+            string sStatusValueAfter = NewProduct.GetAttributeValue(AccountStsAttr);
+            string sFlagValueAfter   = NewProduct.GetAttributeValue(RvwFlagAttr);
 
             if (Report.OverallRuleTreeResult == ERR_CD.CD_SUCCESS)
             {
@@ -184,7 +190,7 @@ namespace WonkaSystem.TestHarness
                  **       call, in order to examine the record here.
                  **       
                  **/
-                var BlockchainReport = ExecuteWithReport(moRulesEngine, pbValidateWithinTransaction, moSourceMap[RvwFlagAttr.AttrName]);
+                var BlockchainReport = ExecuteWithReport(moRulesEngine, pbValidateTransaction, moSourceMap[RvwFlagAttr.AttrName]);
 
                 if (BlockchainReport.NumberOfRuleFailures == 0)
                 {
@@ -266,22 +272,7 @@ namespace WonkaSystem.TestHarness
 
             return NewProduct;
         }
-
-        public string GetAttributeValue(WonkaProduct poTargetProduct, WonkaRefAttr poTargetAttr)
-        {
-            if (poTargetProduct.GetProductGroup(poTargetAttr.GroupId).GetRowCount() <= 0)
-                throw new Exception("ERROR!  Provided incoming product has empty group.");
-
-            string sAttrValue = "";
-            if (poTargetProduct.GetProductGroup(poTargetAttr.GroupId)[0].ContainsKey(poTargetAttr.AttrId))
-                sAttrValue = poTargetProduct.GetProductGroup(poTargetAttr.GroupId)[0][poTargetAttr.AttrId];
-
-            if (String.IsNullOrEmpty(sAttrValue))
-                throw new Exception("ERROR!  Provided incoming product has no value for needed key(" + poTargetAttr.AttrName + ").");
-
-            return sAttrValue;
-        }
-
+        
         public Nethereum.Contracts.Contract GetContract()
         {
             var web3 = GetWeb3();
@@ -310,7 +301,7 @@ namespace WonkaSystem.TestHarness
             return web3;
         }
 
-        public void Init(bool pbInitChainEnv)
+        private void Init(bool pbInitChainEnv)
         {
             // We create a target list of the Attributes of the old (i.e., existing) record that currently exists on the blockchain
             // and which we want to pull back during the engine's execution
@@ -320,46 +311,15 @@ namespace WonkaSystem.TestHarness
             WonkaRefEnvironment WonkaRefEnv =
                 WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
 
-            HashSet<string> AttributeNames =
-                new HashSet<string>() { "BankAccountID", "BankAccountName", "AccountStatus", "AccountCurrValue", "AccountType", "AccountCurrency", "AuditReviewFlag", "CreationDt" };
+			//HashSet<string> AttributeNames =
+			//    new HashSet<string>() { "BankAccountID", "BankAccountName", "AccountStatus", "AccountCurrValue", "AccountType", "AccountCurrency", "AuditReviewFlag", "CreationDt" };
+			//AttributeNames.ToList().ForEach(x => moTargetAttrList.Add( WonkaRefEnv.GetAttributeByAttrName(x) ));
 
-            AttributeNames.ToList().ForEach(x => moTargetAttrList.Add( WonkaRefEnv.GetAttributeByAttrName(x) ));
+			WonkaRefEnv.AttrCache.ForEach(x => moTargetAttrList.Add(x));
             
-            string sDefaultSource      = "S";
-            string sContractSourceId   = sDefaultSource;
-            string sContractAddress    = "";
-            string sContractAbi        = "";
-            string sOrchGetterMethod   = "";
-            string sOrchSetterMethod   = "";
+            string sDefaultSource = "S";
 
-            // If a 'psOrchestrationTestAddress' value has been provided, it indicates that the user wishes
-            // to use Orchestration
-            if (!String.IsNullOrEmpty(msTestContractAddress))
-            {
-                // Here we set the values for Orchestration (like the target contract) and the implemented 
-                // methods that have the expected function signatures for getting/setting Attribute values
-                sContractAddress  = msTestContractAddress;
-                sContractAbi      = msAbiOrchTest;
-                sOrchGetterMethod = "getAttrValueBytes32";
-                sOrchSetterMethod = "setAttrValueBytes32";
-            }
-            else 
-            {
-                sContractAddress  = msEngineContractAddress;
-                sContractAbi      = msAbiWonka;
-                sOrchGetterMethod = "getValueOnRecord";
-                sOrchSetterMethod = "";
-            }
-
-            // Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
-            // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
-            foreach (WonkaRefAttr TempAttr in moTargetAttrList)
-            {                
-                WonkaBreSource TempSource =
-                    new WonkaBreSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchGetterMethod, sOrchSetterMethod, RetrieveValueMethod);
-
-                moSourceMap[TempAttr.AttrName] = TempSource;
-            }
+			InitSourceMap(sDefaultSource);
 
             // Creating an instance of the rules engine using our rules and the metadata
             if (msTestContractAddress == null)
@@ -395,6 +355,44 @@ namespace WonkaSystem.TestHarness
                 EthEngineInit.Serialize();
             }
         }
+
+		private void InitSourceMap(string psDefaultSource)
+		{
+            string sContractSourceId   = psDefaultSource;
+            string sContractAddress    = "";
+            string sContractAbi        = "";
+            string sOrchGetterMethod   = "";
+            string sOrchSetterMethod   = "";
+
+            // If a 'psOrchestrationTestAddress' value has been provided, it indicates that the user wishes
+            // to use Orchestration
+            if (!String.IsNullOrEmpty(msTestContractAddress))
+            {
+                // Here we set the values for Orchestration (like the target contract) and the implemented 
+                // methods that have the expected function signatures for getting/setting Attribute values
+                sContractAddress  = msTestContractAddress;
+                sContractAbi      = msAbiOrchTest;
+                sOrchGetterMethod = "getAttrValueBytes32";
+                sOrchSetterMethod = "setAttrValueBytes32";
+            }
+            else 
+            {
+                sContractAddress  = msEngineContractAddress;
+                sContractAbi      = msAbiWonka;
+                sOrchGetterMethod = "getValueOnRecord";
+                sOrchSetterMethod = "";
+            }
+
+            // Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
+            // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
+            foreach (WonkaRefAttr TempAttr in moTargetAttrList)
+            {                
+                WonkaBreSource TempSource =
+                    new WonkaBreSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchGetterMethod, sOrchSetterMethod, RetrieveValueMethod);
+
+                moSourceMap[TempAttr.AttrName] = TempSource;
+            }
+		}
 
         public string RetrieveValueMethod(WonkaBre.RuleTree.WonkaBreSource poTargetSource, string psAttrName)
         {
