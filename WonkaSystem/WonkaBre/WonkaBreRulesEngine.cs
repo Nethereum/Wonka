@@ -224,15 +224,19 @@ namespace WonkaBre
 
             foreach (WonkaRefAttr TempAttrKey in WonkaRefEnv.AttrKeys)
             {
-                if (poTargetProduct.GetProductGroup(TempAttrKey.GroupId).GetRowCount() <= 0)
-                    throw new WonkaBreException("ERROR!  Provided incoming product has empty group for needed key (" + TempAttrKey.AttrName + ").");
+				// NOTE: 1 is the primary group and has the keys that identify the product as a whole
+				if (TempAttrKey.GroupId == 1)
+				{
+					if (poTargetProduct.GetProductGroup(TempAttrKey.GroupId).GetRowCount() <= 0)
+						throw new WonkaBreException("ERROR!  Provided incoming product has empty group for needed key (" + TempAttrKey.AttrName + ").");
 
-                string sTempKeyValue = poTargetProduct.GetProductGroup(TempAttrKey.GroupId)[0][TempAttrKey.AttrId];
+					string sTempKeyValue = poTargetProduct.GetProductGroup(TempAttrKey.GroupId)[0][TempAttrKey.AttrId];
 
-                if (String.IsNullOrEmpty(sTempKeyValue))
-                    throw new WonkaBreException("ERROR!  Provided incoming product has no value for needed key(" + TempAttrKey.AttrName + ").");
+					if (String.IsNullOrEmpty(sTempKeyValue))
+						throw new WonkaBreException("ERROR!  Provided incoming product has no value for needed key(" + TempAttrKey.AttrName + ").");
 
-                ProductKeys[TempAttrKey.AttrName] = sTempKeyValue;
+					ProductKeys[TempAttrKey.AttrName] = sTempKeyValue;
+				}
             }
 
             return ProductKeys;
