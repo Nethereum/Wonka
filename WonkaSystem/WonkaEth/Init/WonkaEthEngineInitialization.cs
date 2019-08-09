@@ -5,33 +5,59 @@ using System.Text;
 using System.Threading.Tasks;
 
 using WonkaBre;
+using WonkaBre.RuleTree;
+using WonkaRef;
 
 namespace WonkaEth.Init
 {
-    public class WonkaEthEngineInitialization
+	public class WonkaEthEngineProps
+	{
+		public WonkaEthEngineProps()
+		{
+			MetadataSource = null;
+			RulesMarkupXml = null; 
+			RulesEngine    = null;
+			SourceMap      = null;
+
+			DotNetRetrieveMethod = null;
+		}
+
+		public IMetadataRetrievable MetadataSource { get; set; }
+
+		public string RulesMarkupXml { get; set; }
+
+		public WonkaBreRulesEngine RulesEngine { get; set; }
+
+		public Dictionary<string, WonkaBreSource> SourceMap { get; set; }
+
+		public WonkaBreSource.RetrieveDataMethod DotNetRetrieveMethod { get; set; }
+	}
+
+	public class WonkaEthEngineInitialization
     {
         public WonkaEthEngineInitialization()
         {
-            RulesEngine = null;
+            Engine      = new WonkaEthEngineProps();
             Web3HttpUrl = "";
 
             EthSenderAddress = EthPassword = EthRuleTreeOwnerAddress = "";
 
             RulesEngineABI      = WonkaEth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
             RegistryContractABI = WonkaEth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
-            TestContractABI     = WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
+            StorageContractABI  = WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
 
             RulesEngineContractAddress = "";
             RegistryContractAddress    = "";
 
-            UsingTestContract   = true;
-            TestContractAddress = "";
+            UsingStorageContract   = true;
+            StorageContractAddress = "";
+			StorageDefaultSourceId = StorageGetterMethod = StorageSetterMethod = "";
 
             UsingTrxStateContract   = false;
             TrxStateContractAddress = null;
         }
 
-        public WonkaBreRulesEngine RulesEngine { get; set; }
+		public WonkaEthEngineProps Engine { get; set; }
 
         public string Web3HttpUrl { get; set; }
 
@@ -49,11 +75,17 @@ namespace WonkaEth.Init
 
         public string RegistryContractABI { get; set; }
 
-        public bool UsingTestContract { get; set; }
+        public bool UsingStorageContract { get; set; }
 
-        public string TestContractAddress { get; set; }
+        public string StorageContractAddress { get; set; }
 
-        public string TestContractABI { get; set; }
+        public string StorageContractABI { get; set; }
+
+		public string StorageDefaultSourceId { get; set; }
+
+		public string StorageGetterMethod { get; set; }
+
+		public string StorageSetterMethod { get; set; }
 
         public bool UsingTrxStateContract { get; set; }
 
