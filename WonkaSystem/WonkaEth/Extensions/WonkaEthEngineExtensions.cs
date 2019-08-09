@@ -8,8 +8,11 @@ using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Web3.Accounts;
 
+using WonkaBre;
+using WonkaBre.RuleTree;
 using WonkaEth.Contracts;
 using WonkaEth.Init;
+using WonkaRef;
 
 namespace WonkaEth.Extensions
 {
@@ -17,18 +20,73 @@ namespace WonkaEth.Extensions
     {
         private const int CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST = 8388608;
 
-        /// <summary>
-        /// 
-        /// This method will use Nethereum to call upon (or create) an instance of the Ethgine contract and 
-        /// to create a RuleTree that will be owned by the Sender.
-        /// 
-        /// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
-        /// </summary>
-        public static bool Serialize(this WonkaEthEngineInitialization poEngineInitData)
+		/// <summary>
+		/// 
+		/// This method will initialize an instance of the Wonka.Net engine, using all the data provided.
+		/// 
+		/// <returns>None</returns>
+		/// </summary>
+		public static void InitEngine(this WonkaEthEngineInitialization poEngineInitData, bool pbRequireRetrieveValueMethod = true)
+		{
+			var EngineProps = poEngineInitData.Engine;
+
+			if (EngineProps == null)
+				throw new Exception("ERROR!  No engine properties provided.");
+
+			if ((EngineProps.RulesEngine == null) && !String.IsNullOrEmpty(EngineProps.RulesMarkupXml))
+			{
+				if (pbRequireRetrieveValueMethod && (EngineProps.DotNetRetrieveMethod == null))
+					throw new WonkaEthInitException("ERROR!  Retrieve method not provided for the Wonka.NET engine.", poEngineInitData);
+
+				if (EngineProps.MetadataSource == null)
+					throw new WonkaEthInitException("ERROR!  No metadata source has been provided.", poEngineInitData);
+
+				// Using the metadata source, we create an instance of a defined data domain
+				WonkaRefEnvironment WonkaRefEnv = WonkaRefEnvironment.CreateInstance(false, EngineProps.MetadataSource);
+
+				if ((EngineProps.SourceMap == null) || (EngineProps.SourceMap.Count == 0))
+				{
+					EngineProps.SourceMap = new Dictionary<string, WonkaBre.RuleTree.WonkaBreSource>();
+
+					// Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
+					// - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
+					foreach (WonkaRefAttr TempAttr in WonkaRefEnv.AttrCache)
+					{
+						WonkaBreSource TempSource =
+							new WonkaBreSource(poEngineInitData.StorageDefaultSourceId,
+											   poEngineInitData.EthSenderAddress, 
+											   poEngineInitData.EthPassword, 
+											   poEngineInitData.StorageContractAddress, 
+											   poEngineInitData.StorageContractABI,
+											   poEngineInitData.StorageGetterMethod, 
+											   poEngineInitData.StorageSetterMethod,
+											   EngineProps.DotNetRetrieveMethod);
+
+						EngineProps.SourceMap[TempAttr.AttrName] = TempSource;
+					}
+				}
+
+				EngineProps.RulesEngine = 
+					new WonkaBreRulesEngine(new StringBuilder(EngineProps.RulesMarkupXml), EngineProps.SourceMap, EngineProps.MetadataSource);
+
+				EngineProps.RulesEngine.DefaultSource = poEngineInitData.StorageDefaultSourceId;
+
+				EngineProps.RulesEngine.SetDefaultStdOps(poEngineInitData.EthPassword, poEngineInitData.Web3HttpUrl);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// This method will use Nethereum to call upon (or create) an instance of the Ethgine contract and 
+		/// to create a RuleTree that will be owned by the Sender.
+		/// 
+		/// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
+		/// </summary>
+		public static bool Serialize(this WonkaEthEngineInitialization poEngineInitData)
         {
             bool bResult = false;
 
-            if ((poEngineInitData != null) && (poEngineInitData.RulesEngine != null))
+            if ((poEngineInitData != null) && (poEngineInitData.Engine != null) && (poEngineInitData.Engine.RulesEngine != null))
             {
                 var account = new Account(poEngineInitData.EthPassword);
 
@@ -56,34 +114,34 @@ namespace WonkaEth.Extensions
                         RegistryDeployment.DeployContract(web3, poEngineInitData.RegistryContractABI, poEngineInitData.EthSenderAddress, poEngineInitData.Web3HttpUrl);
                 }
 
-                if (String.IsNullOrEmpty(poEngineInitData.TestContractAddress))
+                if (String.IsNullOrEmpty(poEngineInitData.StorageContractAddress))
                 {
                     var TestContractDeployment = new Autogen.WonkaTestContract.WonkaTestContractDeployment();
 
-                    poEngineInitData.TestContractAddress =
-                        TestContractDeployment.DeployContract(web3, poEngineInitData.TestContractABI, poEngineInitData.EthSenderAddress, poEngineInitData.Web3HttpUrl);
+                    poEngineInitData.StorageContractAddress =
+                        TestContractDeployment.DeployContract(web3, poEngineInitData.StorageContractABI, poEngineInitData.EthSenderAddress, poEngineInitData.Web3HttpUrl);
                 }
 
-                if (poEngineInitData.RulesEngine.RefEnvHandle != null)
+                if (poEngineInitData.Engine.RulesEngine.RefEnvHandle != null)
                 {
                     bResult =
-                        poEngineInitData.RulesEngine.RefEnvHandle.Serialize(poEngineInitData.EthRuleTreeOwnerAddress,
-                                                                            poEngineInitData.EthPassword,
-                                                                            poEngineInitData.EthSenderAddress,
-                                                                            poEngineInitData.RulesEngineContractAddress,
-                                                                            poEngineInitData.RulesEngineABI,
-                                                                            poEngineInitData.Web3HttpUrl);
+                        poEngineInitData.Engine.RulesEngine.RefEnvHandle.Serialize(poEngineInitData.EthRuleTreeOwnerAddress,
+                                                                                   poEngineInitData.EthPassword,
+                                                                                   poEngineInitData.EthSenderAddress,
+                                                                                   poEngineInitData.RulesEngineContractAddress,
+                                                                                   poEngineInitData.RulesEngineABI,
+                                                                                   poEngineInitData.Web3HttpUrl);
 
                     if (bResult)
                     {
                         bResult =
-                            poEngineInitData.RulesEngine.Serialize(poEngineInitData.EthRuleTreeOwnerAddress,
-                                                                   poEngineInitData.EthPassword,
-                                                                   poEngineInitData.EthSenderAddress,
-                                                                   poEngineInitData.RulesEngineContractAddress,
-                                                                   poEngineInitData.RulesEngineABI,
-                                                                   poEngineInitData.RulesEngineContractAddress,
-                                                                   poEngineInitData.Web3HttpUrl);
+                            poEngineInitData.Engine.RulesEngine.Serialize(poEngineInitData.EthRuleTreeOwnerAddress,
+                                                                          poEngineInitData.EthPassword,
+                                                                          poEngineInitData.EthSenderAddress,
+                                                                          poEngineInitData.RulesEngineContractAddress,
+                                                                          poEngineInitData.RulesEngineABI,
+                                                                          poEngineInitData.RulesEngineContractAddress,
+                                                                          poEngineInitData.Web3HttpUrl);
                     }
                 }
             }
