@@ -115,6 +115,7 @@
     <Compile Include="Autogen\WonkaRegistry\ContractDefinition.cs" />
     <Compile Include="Autogen\WonkaTestContract\ContractDefinition.cs" />
     <Compile Include="Autogen\WonkaTestTrxState\ContractDefinition.cs" />
+    <Compile Include="Init\WonkaEthInitException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
