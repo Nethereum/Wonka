@@ -18,7 +18,8 @@ namespace WonkaEth.Extensions
 {
     public static class WonkaEthEngineExtensions
     {
-        private const int CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST = 8388608;
+        private const int CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST  = 8388608;
+		private const int CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST = 1000000;
 
 		/// <summary>
 		/// 
@@ -43,6 +44,44 @@ namespace WonkaEth.Extensions
 
 				// Using the metadata source, we create an instance of a defined data domain
 				WonkaRefEnvironment WonkaRefEnv = WonkaRefEnvironment.CreateInstance(false, EngineProps.MetadataSource);
+
+				var account = new Account(poEngineInitData.EthPassword);
+
+				Nethereum.Web3.Web3 web3 = null;
+				if (!String.IsNullOrEmpty(poEngineInitData.Web3HttpUrl))
+					web3 = new Nethereum.Web3.Web3(account, poEngineInitData.Web3HttpUrl);
+				else
+					web3 = new Nethereum.Web3.Web3(account);
+
+				if (String.IsNullOrEmpty(poEngineInitData.RulesEngineContractAddress))
+				{
+					var EngineDeployment = new Autogen.WonkaEngine.WonkaEngineDeployment();
+
+					HexBigInteger nDeployGas = new HexBigInteger(CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST);
+
+					poEngineInitData.RulesEngineContractAddress =
+						EngineDeployment.DeployContract(web3, poEngineInitData.RulesEngineABI, poEngineInitData.EthSenderAddress, nDeployGas, poEngineInitData.Web3HttpUrl);
+				}
+
+				if (String.IsNullOrEmpty(poEngineInitData.RegistryContractAddress))
+				{
+					var RegistryDeployment = new Autogen.WonkaRegistry.WonkaRegistryDeployment();
+
+					HexBigInteger nDeployGas = new HexBigInteger(CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST);
+
+					poEngineInitData.RegistryContractAddress =
+						RegistryDeployment.DeployContract(web3, poEngineInitData.RegistryContractABI, poEngineInitData.EthSenderAddress, nDeployGas, poEngineInitData.Web3HttpUrl);
+				}
+
+				if (String.IsNullOrEmpty(poEngineInitData.StorageContractAddress))
+				{
+					var TestContractDeployment = new Autogen.WonkaTestContract.WonkaTestContractDeployment();
+
+					HexBigInteger nDeployGas = new HexBigInteger(CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST);
+
+					poEngineInitData.StorageContractAddress =
+						TestContractDeployment.DeployContract(web3, poEngineInitData.StorageContractABI, poEngineInitData.EthSenderAddress, nDeployGas, poEngineInitData.Web3HttpUrl);
+				}
 
 				if ((EngineProps.SourceMap == null) || (EngineProps.SourceMap.Count == 0))
 				{
@@ -88,40 +127,6 @@ namespace WonkaEth.Extensions
 
             if ((poEngineInitData != null) && (poEngineInitData.Engine != null) && (poEngineInitData.Engine.RulesEngine != null))
             {
-                var account = new Account(poEngineInitData.EthPassword);
-
-                Nethereum.Web3.Web3 web3 = null;
-                if (!String.IsNullOrEmpty(poEngineInitData.Web3HttpUrl))
-                    web3 = new Nethereum.Web3.Web3(account, poEngineInitData.Web3HttpUrl);
-                else
-                    web3 = new Nethereum.Web3.Web3(account);
-
-                if (String.IsNullOrEmpty(poEngineInitData.RulesEngineContractAddress))
-                {
-                    var EngineDeployment = new Autogen.WonkaEngine.WonkaEngineDeployment();
-
-                    HexBigInteger nDeployGas = new HexBigInteger(CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST);
-
-                    poEngineInitData.RulesEngineContractAddress = 
-                        EngineDeployment.DeployContract(web3, poEngineInitData.RulesEngineABI, poEngineInitData.EthSenderAddress, nDeployGas, poEngineInitData.Web3HttpUrl);
-                }
-
-                if (String.IsNullOrEmpty(poEngineInitData.RegistryContractAddress))
-                {
-                    var RegistryDeployment = new Autogen.WonkaRegistry.WonkaRegistryDeployment();
-
-                    poEngineInitData.RegistryContractAddress =
-                        RegistryDeployment.DeployContract(web3, poEngineInitData.RegistryContractABI, poEngineInitData.EthSenderAddress, poEngineInitData.Web3HttpUrl);
-                }
-
-                if (String.IsNullOrEmpty(poEngineInitData.StorageContractAddress))
-                {
-                    var TestContractDeployment = new Autogen.WonkaTestContract.WonkaTestContractDeployment();
-
-                    poEngineInitData.StorageContractAddress =
-                        TestContractDeployment.DeployContract(web3, poEngineInitData.StorageContractABI, poEngineInitData.EthSenderAddress, poEngineInitData.Web3HttpUrl);
-                }
-
                 if (poEngineInitData.Engine.RulesEngine.RefEnvHandle != null)
                 {
                     bResult =
