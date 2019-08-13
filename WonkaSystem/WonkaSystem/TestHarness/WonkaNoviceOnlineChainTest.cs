@@ -34,9 +34,10 @@ namespace WonkaSystem.TestHarness
     /// </summary>
     public class WonkaNoviceOnlineChainTest
     {
-        public const string CONST_ONLINE_TEST_CHAIN_URL = "http://testchain.nethereum.com:8545";
+        public const string CONST_ONLINE_TEST_CHAIN_URL   = "http://testchain.nethereum.com:8545";
+		public const string CONST_INFURA_IPFS_GATEWAY_URL = "https://ipfs.infura.io/ipfs/";
 
-        public const string CONST_CONTRACT_FUNCTION_EXEC_RPT     = "executeWithReport";
+		public const string CONST_CONTRACT_FUNCTION_EXEC_RPT     = "executeWithReport";
         public const string CONST_CONTRACT_FUNCTION_GET_LAST_RPT = "getLastRuleReport";
 
         private readonly string msRulesContents;
@@ -74,20 +75,21 @@ namespace WonkaSystem.TestHarness
             moMetadataSource = new WonkaMetadataTestSource();            
             WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
             
-            var TmpAssembly = Assembly.GetExecutingAssembly();
-
 			// NOTE: As a reminder, you must have a IPFS daemon configured and running (perhaps on your machine)
 			// in order for the Ipfs.Api to work successfully
 			if (pbRetrieveMarkupFromIpfs)
 			{
-				var IpfsEnv = WonkaIpfs.WonkaIpfsEnvironment.CreateInstance();
+				using (System.Net.WebClient client = new System.Net.WebClient())
+				{
+					string sIpfsUrl = String.Format("{0}/{1}", CONST_INFURA_IPFS_GATEWAY_URL, "QmXcsGDQthxbGW8C3Sx9r4tV9PGSj4MxJmtXF7dnXN5XUT");
 
-				IpfsEnv.Test();
-
-				msRulesContents = IpfsEnv.GetFile("QmQtQNKMTUoypYLvRj5kvUvSXmoPXP4LWbAD251rJSambd");
+					msRulesContents = client.DownloadString(sIpfsUrl);
+				}
             }
 			else
 			{
+				var TmpAssembly = Assembly.GetExecutingAssembly();
+
 				// Read the XML markup that lists the business rules
 				using (var RulesReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.SimpleAccountCheck.xml")))
 				{
