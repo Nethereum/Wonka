@@ -97,10 +97,19 @@ namespace WonkaSystem.TestHarness
 				}
 			}
 
+			// By setting the addresses to NULL, we indicates that we want the API to deploy the contracts for us
 			if (psContractAddress == null)
             {
-                msEngineContractAddress = DeployWonka();
-            }
+				msEngineContractAddress   = null;
+				msRegistryContractAddress = null;
+				msTestContractAddress     = null;
+			}
+			// By using the indicator "DEPLOY" here, we will manually deploy the contracts ourselves
+			else if (psContractAddress == "DEPLOY")
+			{
+				msEngineContractAddress = DeployWonka();
+			}
+			// Else, we will use existing contracts on the test chain
             else
             {
                 if (psContractAddress == "")
@@ -122,7 +131,9 @@ namespace WonkaSystem.TestHarness
             var RegistryDeployment = new WonkaEth.Autogen.WonkaRegistry.WonkaRegistryDeployment();
             var TestCntDeployment  = new WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment();
 
-            msEngineContractAddress   = EngineDeployment.DeployContract(web3, msAbiWonka, msSenderAddress, CONST_ONLINE_TEST_CHAIN_URL);
+			Nethereum.Hex.HexTypes.HexBigInteger nDeployGas = new Nethereum.Hex.HexTypes.HexBigInteger(8388608);
+
+			msEngineContractAddress   = EngineDeployment.DeployContract(web3, msAbiWonka, msSenderAddress, nDeployGas, CONST_ONLINE_TEST_CHAIN_URL);
             msRegistryContractAddress = RegistryDeployment.DeployContract(web3, msAbiRegistry, msSenderAddress, CONST_ONLINE_TEST_CHAIN_URL);
             msTestContractAddress     = TestCntDeployment.DeployContract(web3, msAbiOrchTest, msSenderAddress, CONST_ONLINE_TEST_CHAIN_URL);
 
