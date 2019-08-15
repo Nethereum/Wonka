@@ -136,13 +136,13 @@ namespace WonkaEth.Extensions
         /// <param name="psTreeOwnerAddress">Address of the owner of the RuleTree in this engine instance on the chain</param>
         /// <returns>Indicates whether or not the RuleTree exists</returns>
         /// </summary>
-        public static bool DoesTreeExistOnChain(this WonkaBreRulesEngine poEngine, Contract poWonkaContract, string psSenderAddress)
+        public static bool DoesTreeExistOnChain(this WonkaBreRulesEngine poEngine, Contract poWonkaContract, string psTreeOwnerAddress)
         {
             var hasRuleTreeFunction = poWonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_HAS_RT);
 
-            var gas = hasRuleTreeFunction.EstimateGasAsync(psSenderAddress).Result;
+            var gas = hasRuleTreeFunction.EstimateGasAsync(psTreeOwnerAddress).Result;
 
-            return hasRuleTreeFunction.CallAsync<bool>(psSenderAddress, gas, null, psSenderAddress).Result;
+            return hasRuleTreeFunction.CallAsync<bool>(psTreeOwnerAddress, gas, null, psTreeOwnerAddress).Result;
         }
 
         ///
@@ -515,24 +515,27 @@ namespace WonkaEth.Extensions
             var contractAddress = psContractAddress;
             var contract        = web3.Eth.GetContract(psAbi, contractAddress);
 
-            if (poEngine.AddToRegistry)
-            {
-                if (!poEngine.IsRuleTreeRegistered())
-                    poEngine.SerializeRegistryInfo(psSenderAddress, psContractAddress);
-                else
-                    poEngine.CompareRuleTrees(psSenderAddress);
-            }
+			if (!poEngine.DoesTreeExistOnChain(contract, psRuleMasterAddress))
+			{
+				if (poEngine.AddToRegistry)
+				{
+					if (!poEngine.IsRuleTreeRegistered())
+						poEngine.SerializeRegistryInfo(psRuleMasterAddress, psContractAddress);
+					else
+						poEngine.CompareRuleTrees(psRuleMasterAddress);
+				}
 
-            treeRoot.SerializeTreeRoot(contract, psRuleMasterAddress, psSenderAddress, poEngine.RegistrationId);
+				treeRoot.SerializeTreeRoot(contract, psRuleMasterAddress, psSenderAddress, poEngine.RegistrationId);
 
-            if (poEngine.UsingOrchestrationMode)
-                poEngine.SerializeOrchestrationInfo(contract, psRuleMasterAddress, psSenderAddress);
+				if (poEngine.UsingOrchestrationMode)
+					poEngine.SerializeOrchestrationInfo(contract, psRuleMasterAddress, psSenderAddress);
 
-            if (!String.IsNullOrEmpty(psTransStateContractAddress)) 
-            {
-                if (poEngine.TransactionState != null)
-                    poEngine.TransactionState.Serialize(contract, psRuleMasterAddress, psPassword, psSenderAddress, psTransStateContractAddress, psWeb3HttpUrl);
-            }
+				if (!String.IsNullOrEmpty(psTransStateContractAddress))
+				{
+					if (poEngine.TransactionState != null)
+						poEngine.TransactionState.Serialize(contract, psRuleMasterAddress, psPassword, psSenderAddress, psTransStateContractAddress, psWeb3HttpUrl);
+				}
+			}
 
             return bResult;
         }
