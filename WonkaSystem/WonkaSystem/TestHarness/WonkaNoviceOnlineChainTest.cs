@@ -122,20 +122,21 @@ namespace WonkaSystem.TestHarness
             }
 
             Init(pbInitChainEnv);
-        }
+		}
 
-        public string DeployWonka()
+		public string DeployWonka()
         {
             var web3               = GetWeb3();
             var EngineDeployment   = new WonkaEth.Autogen.WonkaEngine.WonkaEngineDeployment();
             var RegistryDeployment = new WonkaEth.Autogen.WonkaRegistry.WonkaRegistryDeployment();
             var TestCntDeployment  = new WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment();
 
-			Nethereum.Hex.HexTypes.HexBigInteger nDeployGas = new Nethereum.Hex.HexTypes.HexBigInteger(8388608);
+			Nethereum.Hex.HexTypes.HexBigInteger nEngineGas  = new Nethereum.Hex.HexTypes.HexBigInteger(8388608);
+			Nethereum.Hex.HexTypes.HexBigInteger nDefaultGas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
-			msEngineContractAddress   = EngineDeployment.DeployContract(web3, msAbiWonka, msSenderAddress, nDeployGas, CONST_ONLINE_TEST_CHAIN_URL);
-            msRegistryContractAddress = RegistryDeployment.DeployContract(web3, msAbiRegistry, msSenderAddress, CONST_ONLINE_TEST_CHAIN_URL);
-            msTestContractAddress     = TestCntDeployment.DeployContract(web3, msAbiOrchTest, msSenderAddress, CONST_ONLINE_TEST_CHAIN_URL);
+			msEngineContractAddress   = EngineDeployment.DeployContract(web3, msAbiWonka, msSenderAddress, nEngineGas, CONST_ONLINE_TEST_CHAIN_URL);
+            msRegistryContractAddress = RegistryDeployment.DeployContract(web3, msAbiRegistry, msSenderAddress, nDefaultGas, CONST_ONLINE_TEST_CHAIN_URL);
+            msTestContractAddress     = TestCntDeployment.DeployContract(web3, msAbiOrchTest, msSenderAddress, nDefaultGas, CONST_ONLINE_TEST_CHAIN_URL);
 
             return msEngineContractAddress;
         }
@@ -176,7 +177,7 @@ namespace WonkaSystem.TestHarness
 
             // If a 'psOrchestrationTestAddress' value has been provided, it indicates that the user wishes
             // to use Orchestration
-            if (!String.IsNullOrEmpty(msTestContractAddress))
+            if (!String.IsNullOrEmpty(moEthEngineInit.StorageContractAddress))
             {
                 /**
                  ** Now execute the rules engine on the blockchain.
@@ -189,7 +190,7 @@ namespace WonkaSystem.TestHarness
                  **       call, in order to examine the record here.
                  **       
                  **/
-                var BlockchainReport = ExecuteWithReport(RulesEngine, pbValidateTransaction, SourceMap[RvwFlagAttr.AttrName]);
+                var BlockchainReport = ExecuteWithReport(RulesEngine, pbValidateTransaction);
 
                 if (BlockchainReport.NumberOfRuleFailures == 0)
                 {
@@ -202,43 +203,48 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        public RuleTreeReport ExecuteWithReport(WonkaBreRulesEngine poRulesEngine, bool pbValidateWithinTransaction, WonkaBreSource poFlagSource)
+        public RuleTreeReport ExecuteWithReport(WonkaBreRulesEngine poRulesEngine, bool pbValidateWithinTransaction)
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
             WonkaRefAttr CurrValueAttr  = RefEnv.GetAttributeByAttrName("AccountCurrValue");
             WonkaRefAttr ReviewFlagAttr = RefEnv.GetAttributeByAttrName("AuditReviewFlag");
 
-            Dictionary<string, string> PrdKeys = new Dictionary<string, string>();
+			Dictionary<string, string> PrdKeys = new Dictionary<string, string>();
 
-            var contract = GetContract();
+            var contract         = GetContract();
+			var senderAddress    = moEthEngineInit.EthSenderAddress;
+			var treeOwnerAddress = moEthEngineInit.EthRuleTreeOwnerAddress;
 
-            var executeWithReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC_RPT);
+			var executeWithReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC_RPT);
 
             RuleTreeReport ruleTreeReport = null;
-
+			
             if (pbValidateWithinTransaction)
             {
+				var FlagSource    = poRulesEngine.SourceMap[ReviewFlagAttr.AttrName];
+				var CurrValSource = poRulesEngine.SourceMap[CurrValueAttr.AttrName];
+
                 var executeGetLastReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_GET_LAST_RPT);
 
-                // NOTE: Caused exception to be thrown
-                // var gas = executeWithReportFunction.EstimateGasAsync(msSenderAddress).Result;
-                var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+				// NOTE: Caused exception to be thrown
+				// var gas = executeWithReportFunction.EstimateGasAsync(senderAddress).Result;
+				var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
                 WonkaProduct OrchContractCurrValues = poRulesEngine.AssembleCurrentProduct(new Dictionary<string, string>());
 
-                string sFlagBeforeOrchestrationAssignment  = RetrieveValueMethod(poFlagSource, ReviewFlagAttr.AttrName);
-                string sValueBeforeOrchestrationAssignment = RetrieveValueMethod(poFlagSource, CurrValueAttr.AttrName);
+                string sFlagBeforeOrchestrationAssignment  = RetrieveValueMethod(FlagSource, ReviewFlagAttr.AttrName);
+                string sValueBeforeOrchestrationAssignment = RetrieveValueMethod(CurrValSource, CurrValueAttr.AttrName);
 
-                var receiptAddAttribute = executeWithReportFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress).Result;
+                var receiptAddAttribute = executeWithReportFunction.SendTransactionAsync(senderAddress, gas, null, treeOwnerAddress).Result;
 
-                string sFlagAfterOrchestrationAssignment  = RetrieveValueMethod(poFlagSource, ReviewFlagAttr.AttrName);
-                string sValueAfterOrchestrationAssignment = RetrieveValueMethod(poFlagSource, CurrValueAttr.AttrName);
+                string sFlagAfterOrchestrationAssignment  = RetrieveValueMethod(FlagSource, ReviewFlagAttr.AttrName);
+                string sValueAfterOrchestrationAssignment = RetrieveValueMethod(CurrValSource, CurrValueAttr.AttrName);
 
                 ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>().Result;
             }
             else 
-                ruleTreeReport = executeWithReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>(msSenderAddress).Result;
+                ruleTreeReport = executeWithReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>(senderAddress).Result;
 
             return ruleTreeReport;
         }
@@ -272,7 +278,7 @@ namespace WonkaSystem.TestHarness
         {
             var web3 = GetWeb3();
 
-            var contractAddress = msEngineContractAddress;
+            var contractAddress = moEthEngineInit.RulesEngineContractAddress;
 
             var contract = web3.Eth.GetContract(msAbiWonka, contractAddress);
 
@@ -344,5 +350,5 @@ namespace WonkaSystem.TestHarness
             return result;
         }
 
-    }
+	}
 }
