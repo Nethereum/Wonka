@@ -99,7 +99,7 @@ namespace WonkaSystem.TestHarness
 
 			// By setting the addresses to NULL, we indicates that we want the API to deploy the contracts for us
 			if (psContractAddress == null)
-            {
+			{
 				msEngineContractAddress   = null;
 				msRegistryContractAddress = null;
 				msTestContractAddress     = null;
@@ -110,16 +110,16 @@ namespace WonkaSystem.TestHarness
 				msEngineContractAddress = DeployWonka();
 			}
 			// Else, we will use existing contracts on the test chain
-            else
-            {
-                if (psContractAddress == "")
-                    msEngineContractAddress = "0xfB419DEA1f28283edAD89103fc1f1272f7573E6A";
-                else
-                    msEngineContractAddress = psContractAddress;
+			else
+			{
+				if (psContractAddress == "")
+					msEngineContractAddress = "0xfB419DEA1f28283edAD89103fc1f1272f7573E6A";
+				else
+					msEngineContractAddress = psContractAddress;
 
-                msRegistryContractAddress = "0x7E618a3948F6a5D2EA6b92D8Ce6723a468540CaA";
-                msTestContractAddress     = "0x4092bc250ef6c384804af2f871Af9c679b672d0B";
-            }
+				msRegistryContractAddress = "0x7E618a3948F6a5D2EA6b92D8Ce6723a468540CaA";
+				msTestContractAddress     = "0x4092bc250ef6c384804af2f871Af9c679b672d0B";
+			}
 
             Init(pbInitChainEnv);
 		}
@@ -227,9 +227,9 @@ namespace WonkaSystem.TestHarness
 
                 var executeGetLastReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_GET_LAST_RPT);
 
-				// NOTE: Caused exception to be thrown
-				// var gas = executeWithReportFunction.EstimateGasAsync(senderAddress).Result;
-				var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+				uint nMaxGas = this.moEthEngineInit.Engine.CalculateMaxGasEstimate();
+
+				var gas = new Nethereum.Hex.HexTypes.HexBigInteger(nMaxGas);
 
                 WonkaProduct OrchContractCurrValues = poRulesEngine.AssembleCurrentProduct(new Dictionary<string, string>());
 
@@ -237,6 +237,9 @@ namespace WonkaSystem.TestHarness
                 string sValueBeforeOrchestrationAssignment = RetrieveValueMethod(CurrValSource, CurrValueAttr.AttrName);
 
                 var receiptAddAttribute = executeWithReportFunction.SendTransactionAsync(senderAddress, gas, null, treeOwnerAddress).Result;
+
+				// NOTE: Sleeping about 5 seconds should suffice, in order to ensure that the transaction has been mined
+				System.Threading.Thread.Sleep(5000);
 
                 string sFlagAfterOrchestrationAssignment  = RetrieveValueMethod(FlagSource, ReviewFlagAttr.AttrName);
                 string sValueAfterOrchestrationAssignment = RetrieveValueMethod(CurrValSource, CurrValueAttr.AttrName);

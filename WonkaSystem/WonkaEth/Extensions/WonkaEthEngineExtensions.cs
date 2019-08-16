@@ -21,6 +21,65 @@ namespace WonkaEth.Extensions
         private const int CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST  = 8388608;
 		private const int CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST = 1000000;
 
+		private const int CONST_GAS_PER_READ_OP  = 80000;
+		private const int CONST_GAS_PER_WRITE_OP = 125000;
+
+		public static uint CalculateMinGasEstimate(this WonkaEthEngineProps poEngineProps)
+		{
+			uint nMinGasCost = 50000;
+
+			if ((poEngineProps.RulesEngine != null) && (poEngineProps.RulesEngine.RuleTreeRoot != null))
+			{
+				// NOTE: Do work here
+				// 63200 gas per op, based on gas default price
+				// 12 ops for Validate, 18 ops Calculate
+
+				if (poEngineProps.RulesEngine.RuleTreeRoot.ChildRuleSets != null)
+				{
+					poEngineProps.RulesEngine.RuleTreeRoot.ChildRuleSets.ForEach(x => nMinGasCost += (uint)(x.EvaluativeRules.Count * CONST_GAS_PER_READ_OP));
+					poEngineProps.RulesEngine.RuleTreeRoot.ChildRuleSets.ForEach(x => nMinGasCost += (uint)(x.AssertiveRules.Count * CONST_GAS_PER_WRITE_OP));
+				}
+			}
+
+			return nMinGasCost;
+		}
+
+		public static uint CalculateMaxGasEstimate(this WonkaEthEngineProps poEngineProps)
+		{
+			uint nMaxGasCost = 50000;
+
+			if ((poEngineProps.RulesEngine != null) && (poEngineProps.RulesEngine.RuleTreeRoot != null))
+			{
+				// NOTE: Do work here
+				// 63200 gas per op, based on gas default price
+				// 12 ops for Validate, 18 ops Calculate
+
+				if (poEngineProps.RulesEngine.RuleTreeRoot.ChildRuleSets != null)
+				{
+					poEngineProps.RulesEngine.RuleTreeRoot.ChildRuleSets.ForEach(x => nMaxGasCost += (uint)(x.EvaluativeRules.Count * CONST_GAS_PER_READ_OP));
+					poEngineProps.RulesEngine.RuleTreeRoot.ChildRuleSets.ForEach(x => nMaxGasCost += (uint)(x.AssertiveRules.Count * CONST_GAS_PER_WRITE_OP));
+				}
+
+				if (poEngineProps.RulesEngine.AllRuleSets != null)
+				{
+					poEngineProps.RulesEngine.AllRuleSets.ForEach(x => nMaxGasCost += (uint)(x.EvaluativeRules.Count * CONST_GAS_PER_READ_OP));
+
+					foreach (WonkaBre.RuleTree.WonkaBreRuleSet TempRuleSet in poEngineProps.RulesEngine.AllRuleSets)
+					{
+						foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in TempRuleSet.AssertiveRules)
+						{
+							if (TempRule.RuleType == RULE_TYPE.RT_CUSTOM_OP)
+								nMaxGasCost += (uint)(3 * CONST_GAS_PER_WRITE_OP);
+							else
+								nMaxGasCost += (uint)(CONST_GAS_PER_WRITE_OP);
+						}
+					}
+				}
+			}
+
+			return nMaxGasCost;
+		}
+
 		/// <summary>
 		/// 
 		/// This method will initialize an instance of the Wonka.Net engine, using all the data provided.
