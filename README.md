@@ -15,7 +15,11 @@ A business rules engine (for both the .NET platform and the <a target="_blank" h
 * Registry and Grove functionality, helping users to discover/reuse existing RuleTree instances and group them into collections.
 * Export functionality, so that a RuleTree existing on the blockchain side can be extracted and then serialized into a legible form (like XML).
 
-# Quick Setup
+# Quick Run
+
+Though not yet quite available, the code from the [Test Online](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTest.cs) example will soon be incorporated into the [Nethereum Playground](http://playground.nethereum.com/) set of samples.  There, you will be able to deploy an instance of Wonka to an hosted Ethereum client, after which you can then create and invoke a RuleTree as separate transactions.
+
+# Quick Setup (i.e., for local use)
 
 1. Run your Ethereum node of choice, with the appropriate gas limit set (i.e., 8388609).
 2. Deploy the Solidity contracts to the Ethereum node by using the test script './Solidity/WonkaEngine/test/testdeploy.js'.
@@ -36,6 +40,7 @@ Project Source | Nuget_Package |  Description |
 
 |  Source Code |  Description |
 | ------------- |------------|
+[Online Test (Recommended)](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTest.cs)|This test provides the fastest and easiest example of using the engine, since it requires no setup.  It demonstrates all of the functionality available within Wonka, including the deployment and invocation of an instance of the Wonka engine onto the blockchain.|
 [Simple Test](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaSimpleTest.cs)| This is a simple test of the .NET implementation of the rules engine. |
 [Engine on Blockchain](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceNethereumTest.cs)| This is mainly a test of the Ethereum (i.e., Solidity) implementation of the rules engine, to validate a data record stored within the engine contract. |
 [CQS #1](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaCQSTest.cs)| This test is a demonstration of how to package the previous example into a CQS design. |
