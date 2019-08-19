@@ -40,7 +40,7 @@ Project Source | Nuget_Package |  Description |
 
 |  Source Code |  Description |
 | ------------- |------------|
-[Online Test (Recommended)](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTest.cs)|This test provides the fastest and easiest example of using the engine, since it requires no setup.  It demonstrates all of the functionality available within Wonka, including the deployment and invocation of an instance of the Wonka engine onto the blockchain.|
+[Online Test (Recommended)](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTest.cs)|This test provides the fastest and easiest example of using the engine, since it requires no setup.  Instead of relying on local files and a local Ethereum client, this example uses IPFS and an Ethereum client hosted online (via HTTP).  It demonstrates all of the functionality available within Wonka, including the deployment (and invocation) of an instance of the Wonka engine onto the blockchain.|
 [Simple Test](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaSimpleTest.cs)| This is a simple test of the .NET implementation of the rules engine. |
 [Engine on Blockchain](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceNethereumTest.cs)| This is mainly a test of the Ethereum (i.e., Solidity) implementation of the rules engine, to validate a data record stored within the engine contract. |
 [CQS #1](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaCQSTest.cs)| This test is a demonstration of how to package the previous example into a CQS design. |
