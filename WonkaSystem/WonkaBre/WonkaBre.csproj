@@ -75,6 +75,7 @@
     <Compile Include="Import\WonkaBreImportFactory.cs" />
     <Compile Include="Import\IRuleTreeRetrievable.cs" />
     <Compile Include="Import\IRuleTreeParser.cs" />
+    <Compile Include="Samples\WonkaMetadataTestSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj">
