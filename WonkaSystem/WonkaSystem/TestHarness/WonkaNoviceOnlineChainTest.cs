@@ -72,7 +72,7 @@ namespace WonkaSystem.TestHarness
 
             // Create an instance of the class that will provide us with PmdRefAttributes (i.e., the data domain)
             // that define our data record            
-            moMetadataSource = new WonkaMetadataTestSource();            
+            moMetadataSource = new WonkaBre.Samples.WonkaBreMetadataTestSource();            
             WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
             
 			// NOTE: As a reminder, you must have a IPFS daemon configured and running (perhaps on your machine)
