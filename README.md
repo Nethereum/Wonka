@@ -11,6 +11,7 @@ A business rules engine (for both the .NET platform and the <a target="_blank" h
 * .NET layer that can serialize a RuleTree data structure to the Ethereum rules engine.
 * Orchestration 'get' functionality in the Ethereum engine, where the engine can be directed to assemble a virtual record by pulling values from other contracts within the blockchain.
 * Orchestration 'set' functionality in the Ethereum engine, where the engine can be directed to set values on other contracts within the blockchain.
+* Standard Operator functionality in the Ethereum engine, where the engine can invoke normal operations (like 'addition' and 'greater than') and blockchain-specific operations (like 'now' and 'block.number' via Solidity).
 * Custom Operator functionality in the Ethereum engine, where the engine can execute an user-defined rule by calling a function on another contract within the blockchain.
 * Registry and Grove functionality, helping users to discover/reuse existing RuleTree instances and group them into collections.
 * Export functionality, so that a RuleTree existing on the blockchain side can be extracted and then serialized into a legible form (like XML).
@@ -22,9 +23,17 @@ Though not yet quite available, the code from the [Test Online](https://github.c
 # Quick Setup (i.e., for local use)
 
 1. Run your Ethereum node of choice, with the appropriate gas limit set (i.e., 8388609).
-2. Deploy the Solidity contracts to the Ethereum node by using the test script './Solidity/WonkaEngine/test/testdeploy.js'.
-3. Populate the required values (sender,password,contract addresses) in the right locations (Program.cs, *.init.xml, etc.).
+2. Deploy the Solidity contracts to the Ethereum node by using either the JavaScript file [testdeploy.js](https://github.com/Nethereum/Wonka/blob/master/Solidity/WonkaEngine/test/testdeploy.js) or by using [C# extension methods](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaEth/Extensions/WonkaAutogenExtensions.cs).
+3. Populate the required values (sender,password,contract addresses,etc.) in the right locations (Program.cs, *.init.xml, etc.).
 4. Run any test harness mentioned within the Code Samples section.
+
+# Advanced Setup (i.e., for remote use)
+
+1. Follow steps 1 and 2 specified in Quick Setup and ensure that the machine hosting the Ethereum client is accessible from the outside.
+2. Using the [Wonka Rest Service](https://github.com/jaerith/wonkarestservice) as a middle tier, populate the required values (sender, password,contract addresses,Web3 URL, etc.) for pointing the service at the Ethereum client.  Then, deploy the ASP.NET service to an IIS server.
+3. As a demonstration of a GUI client and perhaps as a template for something more advanced, run the [Wonka Blazor Web App](https://github.com/jaerith/WonkaBlazorWebApp) on a Windows desktop machine, after pointing the Blazor app at the Wonka REST service by making the necessary alterations to config files.  (Important note: Your selected browser must be WASM-compatible for the Blazor app to run correctly.)
+
+* Hopefully, in the future, the REST service and the Blazor Web App will be merged into one project.
 
 # Main Libraries
 
