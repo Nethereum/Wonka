@@ -145,6 +145,37 @@ namespace WonkaEth.Extensions
             return hasRuleTreeFunction.CallAsync<bool>(psTreeOwnerAddress, gas, null, psTreeOwnerAddress).Result;
         }
 
+        /// <summary>
+        /// 
+        /// This method will execute a RuleTree that exists within an instance of the Wonka engine on the chain.  Currently,
+        /// a RuleTree can only exist for one account, and the owner's account serves as the ID for the RuleTree.
+        /// 
+        /// <param name="poEngine">The instance of an engine which wraps around a RuleTree</param>
+        /// <param name="poEngineProps">The properties of the Wonka instance on the blockchain</param>
+        /// <returns>Receipt hash of transaction</returns>
+        /// </summary>
+        public static string ExecuteOnChain(this WonkaBreRulesEngine poEngine, WonkaEth.Init.WonkaEthEngineInitialization poEngineInitProps)
+        {
+            var account = new Account(poEngineInitProps.EthPassword);
+
+            var web3 = new Nethereum.Web3.Web3(account, poEngineInitProps.Web3HttpUrl);
+
+            var contractAddress = poEngineInitProps.RulesEngineContractAddress;
+
+            var wonkaContract = web3.Eth.GetContract(poEngineInitProps.RulesEngineABI, contractAddress);
+
+            var executeWithReportFunction = wonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC_RPT);
+
+            uint nMaxGas = poEngineInitProps.Engine.CalculateMaxGasEstimate();
+
+            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(nMaxGas);
+
+            var receiptRuleTreeInvocation = 
+                executeWithReportFunction.SendTransactionAsync(poEngineInitProps.EthSenderAddress, gas, null, poEngineInitProps.EthRuleTreeOwnerAddress).Result;
+
+            return receiptRuleTreeInvocation;
+        }
+
         ///
         /// <summary>
         /// 
