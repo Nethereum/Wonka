@@ -210,6 +210,26 @@ namespace WonkaEth.Extensions
             RuleSetFailMessages = new Dictionary<string, string>();
         }
 
+        public RuleTreeReport(RuleTreeReport poOriginal)
+        {
+            Copy(poOriginal);
+        }
+
+        public void Copy(RuleTreeReport poOriginal)
+        {
+            NumberOfRuleFailures = poOriginal.NumberOfRuleFailures;
+            TransactionHash      = poOriginal.TransactionHash;
+            InvokeTrxBlockNumber = poOriginal.InvokeTrxBlockNumber;
+
+            RuleSetIds = poOriginal.RuleSetIds;
+            RuleIds    = poOriginal.RuleIds;
+
+            RuleSetWarnings = poOriginal.RuleSetWarnings;
+            RuleSetFailures = poOriginal.RuleSetFailures;
+
+            RuleSetFailMessages = poOriginal.RuleSetFailMessages;
+        }
+
         [Parameter("uint", "fails", 1)]
         public uint NumberOfRuleFailures { get; set; }
 

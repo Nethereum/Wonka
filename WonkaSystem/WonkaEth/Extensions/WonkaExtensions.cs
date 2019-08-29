@@ -152,9 +152,10 @@ namespace WonkaEth.Extensions
         /// 
         /// <param name="poEngine">The instance of an engine which wraps around a RuleTree</param>
         /// <param name="poEngineProps">The properties of the Wonka instance on the blockchain</param>
+        /// <param name="poReport">If not null, we will fill the report with the results of the RuleTree's invocation on the blockchain</param>
         /// <returns>Receipt hash of transaction</returns>
         /// </summary>
-        public static string ExecuteOnChain(this WonkaBreRulesEngine poEngine, WonkaEth.Init.WonkaEthEngineInitialization poEngineInitProps)
+        public static string ExecuteOnChain(this WonkaBreRulesEngine poEngine, WonkaEth.Init.WonkaEthEngineInitialization poEngineInitProps, WonkaEth.Extensions.RuleTreeReport poReport = null)
         {
             var account = new Account(poEngineInitProps.EthPassword);
 
@@ -168,10 +169,24 @@ namespace WonkaEth.Extensions
 
             uint nMaxGas = poEngineInitProps.Engine.CalculateMaxGasEstimate();
 
-            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(nMaxGas);
+            string receiptRuleTreeInvocation = null;
 
-            var receiptRuleTreeInvocation = 
-                executeWithReportFunction.SendTransactionAsync(poEngineInitProps.EthSenderAddress, gas, null, poEngineInitProps.EthRuleTreeOwnerAddress).Result;
+            if (poEngineInitProps.EthRuleTreeOwnerAddress == poEngineInitProps.EthSenderAddress)
+            {
+                var RuleTreeReport = poEngine.InvokeOnChain(wonkaContract, poEngineInitProps.EthRuleTreeOwnerAddress, nMaxGas);
+
+                receiptRuleTreeInvocation = RuleTreeReport.TransactionHash;
+
+                if (poReport != null)
+                    poReport.Copy(RuleTreeReport);
+            }
+            else
+            {
+                var gas = new Nethereum.Hex.HexTypes.HexBigInteger(nMaxGas);
+
+                receiptRuleTreeInvocation =
+                    executeWithReportFunction.SendTransactionAsync(poEngineInitProps.EthSenderAddress, gas, null, poEngineInitProps.EthRuleTreeOwnerAddress).Result;
+            }
 
             return receiptRuleTreeInvocation;
         }
