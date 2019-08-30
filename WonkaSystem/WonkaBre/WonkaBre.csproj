@@ -51,6 +51,8 @@
     <Compile Include="Permissions\ITransactionState.cs" />
     <Compile Include="Permissions\WonkaBrePermissionsException.cs" />
     <Compile Include="Permissions\WonkaBreTransactionState.cs" />
+    <Compile Include="Triggers\IFailureTrigger.cs" />
+    <Compile Include="Triggers\ISuccessTrigger.cs" />
     <Compile Include="WonkaBreEnumerations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WonkaBreException.cs" />

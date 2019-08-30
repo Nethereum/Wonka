@@ -5,13 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using WonkaPrd;
+using WonkaRef;
+
 using WonkaBre.Permissions;
 using WonkaBre.Readers;
 using WonkaBre.Reporting;
 using WonkaBre.RuleTree;
 using WonkaBre.RuleTree.RuleTypes;
-using WonkaPrd;
-using WonkaRef;
+using WonkaBre.Triggers;
 
 namespace WonkaBre
 {
@@ -206,6 +208,9 @@ namespace WonkaBre
             CustomOpMap   = new Dictionary<string, WonkaBreSource>();
             DefaultSource = "";
 
+            OnSuccessTriggers = new List<ISuccessTrigger>();
+            OnFailureTriggers = new List<IFailureTrigger>();
+
             return RefEnv;
         }
 
@@ -374,6 +379,10 @@ namespace WonkaBre
         public ITransactionState TransactionState { get; set; }
 
         public List<WonkaBreRuleSet> AllRuleSets { get; set; }
+
+        public List<ISuccessTrigger> OnSuccessTriggers { get; set; }
+
+        public List<IFailureTrigger> OnFailureTriggers { get; set; }
 
         #endregion
 
