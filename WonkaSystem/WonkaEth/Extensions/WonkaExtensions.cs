@@ -151,7 +151,7 @@ namespace WonkaEth.Extensions
         /// a RuleTree can only exist for one account, and the owner's account serves as the ID for the RuleTree.
         /// 
         /// <param name="poEngine">The instance of an engine which wraps around a RuleTree</param>
-        /// <param name="poEngineProps">The properties of the Wonka instance on the blockchain</param>
+        /// <param name="poEngineInitProps">The properties of the Wonka instance on the blockchain</param>
         /// <param name="poReport">If not null, we will fill the report with the results of the RuleTree's invocation on the blockchain</param>
         /// <returns>Receipt hash of transaction</returns>
         /// </summary>
@@ -169,26 +169,26 @@ namespace WonkaEth.Extensions
 
             uint nMaxGas = poEngineInitProps.Engine.CalculateMaxGasEstimate();
 
-            string receiptRuleTreeInvocation = null;
+            string trxHashRuleTreeInvocation = null;
 
             if (poEngineInitProps.EthRuleTreeOwnerAddress == poEngineInitProps.EthSenderAddress)
             {
                 var RuleTreeReport = poEngine.InvokeOnChain(wonkaContract, poEngineInitProps.EthRuleTreeOwnerAddress, nMaxGas);
 
-                receiptRuleTreeInvocation = RuleTreeReport.TransactionHash;
+				trxHashRuleTreeInvocation = RuleTreeReport.TransactionHash;
 
-                if (poReport != null)
+				if (poReport != null)
                     poReport.Copy(RuleTreeReport);
             }
             else
             {
                 var gas = new Nethereum.Hex.HexTypes.HexBigInteger(nMaxGas);
 
-                receiptRuleTreeInvocation =
+				trxHashRuleTreeInvocation =
                     executeWithReportFunction.SendTransactionAsync(poEngineInitProps.EthSenderAddress, gas, null, poEngineInitProps.EthRuleTreeOwnerAddress).Result;
             }
 
-            return receiptRuleTreeInvocation;
+            return trxHashRuleTreeInvocation;
         }
 
         ///
@@ -473,17 +473,16 @@ namespace WonkaEth.Extensions
             if (nSendTrxGas > 0)
                 gas = new Nethereum.Hex.HexTypes.HexBigInteger(nSendTrxGas);
 
-            var trxHash = 
-                executeFunction.SendTransactionAsync(psRuleTreeOwnerAddress, gas, null, psRuleTreeOwnerAddress).Result;
+            var receipt = 
+                executeFunction.SendTransactionAndWaitForReceiptAsync(psRuleTreeOwnerAddress, gas, null, null, psRuleTreeOwnerAddress).Result;
 
             // ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>().Result;
 
             // Finally, we handle any events that have been issued during the execution of the rules engine
             if (InvocationReport != null)
-            {
-                var receipt = poWonkaContract.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(trxHash).Result;
+            {			
 
-                InvocationReport.TransactionHash      = trxHash;
+				InvocationReport.TransactionHash      = receipt.TransactionHash;
                 InvocationReport.InvokeTrxBlockNumber = receipt.BlockNumber;
 
                 WonkaEvents.HandleEvents(poRulesEngine, InvocationReport);
@@ -522,22 +521,43 @@ namespace WonkaEth.Extensions
             return isRegisteredFunction.CallAsync<bool>(poEngine.DetermineRuleTreeChainID()).Result;
         }
 
-        /// <summary>
-        /// 
-        /// This method will use Nethereum to call upon an instance of the Ethgine contract and 
-        /// to create a RuleTree that will be owned by the Sender.
-        /// 
-        /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
-        /// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
-        /// <param name="psPassword">The password for the psRuleMasterAddress</param>
-        /// <param name="psSenderAddress">The Ethereum address of the sender (i.e., owner) account</param>
-        /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
-        /// <param name="psAbi">The ABI interface for the Ethgine contract</param>
-        /// <param name="psTransStateContractAddress">The address of the instance of the transaction state</param>
-        /// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the RuleTree</param>
-        /// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
-        /// </summary>
-        public static bool Serialize(this WonkaBreRulesEngine poEngine, 
+		/// <summary>
+		/// 
+		/// This method will use Nethereum to ensure that a transaction has completed.
+		/// 
+		/// <param name="poWeb3">The instance of the Web3 we are using to communicate with an Ethereum client</param>
+		/// <param name="psTrxHash">The hash of the transaction that we are monitoring</param>
+		/// <returns>Contains the receipt of the transaction that has finally been mined on the blockchain</returns>
+		/// </summary>
+		public static Nethereum.RPC.Eth.DTOs.TransactionReceipt MineAndGetReceipt(this Nethereum.Web3.Web3 poWeb3, string psTrxHash)
+		{
+			var receipt = poWeb3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(psTrxHash).Result;
+
+			while (receipt == null)
+			{
+				System.Threading.Thread.Sleep(1000);
+				receipt = poWeb3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(psTrxHash).Result;
+			}
+
+			return receipt;
+		}
+
+		/// <summary>
+		/// 
+		/// This method will use Nethereum to call upon an instance of the Ethgine contract and 
+		/// to create a RuleTree that will be owned by the Sender.
+		/// 
+		/// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
+		/// <param name="psRuleMasterAddress">The Ethereum address of the RulesMaster account (i.e., the one who owns this instance of the Wonka contract)</param>
+		/// <param name="psPassword">The password for the psRuleMasterAddress</param>
+		/// <param name="psSenderAddress">The Ethereum address of the sender (i.e., owner) account</param>
+		/// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
+		/// <param name="psAbi">The ABI interface for the Ethgine contract</param>
+		/// <param name="psTransStateContractAddress">The address of the instance of the transaction state</param>
+		/// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the RuleTree</param>
+		/// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
+		/// </summary>
+		public static bool Serialize(this WonkaBreRulesEngine poEngine, 
                                                        string psRuleMasterAddress,
                                                        string psPassword, 
                                                        string psSenderAddress,
