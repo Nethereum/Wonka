@@ -212,9 +212,8 @@ namespace WonkaSystem.TestHarness
 
 			Dictionary<string, string> PrdKeys = new Dictionary<string, string>();
 
-            var contract         = GetContract();
-			var senderAddress    = moEthEngineInit.EthSenderAddress;
-			var treeOwnerAddress = moEthEngineInit.EthRuleTreeOwnerAddress;
+            var contract      = GetContract();
+			var senderAddress = moEthEngineInit.EthSenderAddress;
 
 			var executeWithReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC_RPT);
 
@@ -227,19 +226,13 @@ namespace WonkaSystem.TestHarness
 
                 var executeGetLastReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_GET_LAST_RPT);
 
-				uint nMaxGas = this.moEthEngineInit.Engine.CalculateMaxGasEstimate();
-
-				var gas = new Nethereum.Hex.HexTypes.HexBigInteger(nMaxGas);
-
                 WonkaProduct OrchContractCurrValues = poRulesEngine.AssembleCurrentProduct(new Dictionary<string, string>());
 
                 string sFlagBeforeOrchestrationAssignment  = RetrieveValueMethod(FlagSource, ReviewFlagAttr.AttrName);
                 string sValueBeforeOrchestrationAssignment = RetrieveValueMethod(CurrValSource, CurrValueAttr.AttrName);
 
-                var receiptAddAttribute = executeWithReportFunction.SendTransactionAsync(senderAddress, gas, null, treeOwnerAddress).Result;
-
-				// NOTE: Sleeping about 5 seconds should suffice, in order to ensure that the transaction has been mined
-				System.Threading.Thread.Sleep(5000);
+				var EthRuleTreeReport = new WonkaEth.Extensions.RuleTreeReport();
+				poRulesEngine.ExecuteOnChain(moEthEngineInit, EthRuleTreeReport);
 
                 string sFlagAfterOrchestrationAssignment  = RetrieveValueMethod(FlagSource, ReviewFlagAttr.AttrName);
                 string sValueAfterOrchestrationAssignment = RetrieveValueMethod(CurrValSource, CurrValueAttr.AttrName);
