@@ -179,7 +179,12 @@ namespace WonkaEth.Extensions
 
 				if (poReport != null)
                     poReport.Copy(RuleTreeReport);
-            }
+
+				if ( (poReport.RuleSetFailures.Count > 0) && (poEngine.OnFailureTriggers.Count > 0) )
+					poEngine.OnFailureTriggers.Where(x => (x != null)).ToList().ForEach(x => x.Execute());
+				else if ( (poReport.RuleSetFailures.Count == 0) && (poEngine.OnSuccessTriggers.Count > 0) )
+					poEngine.OnSuccessTriggers.Where(x => (x != null)).ToList().ForEach(x => x.Execute());
+			}
             else
             {
                 var gas = new Nethereum.Hex.HexTypes.HexBigInteger(nMaxGas);
