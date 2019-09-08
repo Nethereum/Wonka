@@ -87,6 +87,9 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Serialization" />
+    <Reference Include="Nethereum.StandardTokenEIP20">
+      <HintPath>..\packages\Nethereum.StandardTokenEIP20.3.4.0\lib\net451\Nethereum.StandardTokenEIP20.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\WonkaAutogenExtensions.cs" />
@@ -122,6 +125,7 @@
     <Compile Include="Autogen\WonkaTestContract\ContractDefinition.cs" />
     <Compile Include="Autogen\WonkaTestTrxState\ContractDefinition.cs" />
     <Compile Include="Init\WonkaEthInitException.cs" />
+    <Compile Include="Triggers\WonkaEthEIP20TransferTrigger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -148,6 +152,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Contracts\Ethereum\TransactionStateInterface.abi" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Triggers\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
