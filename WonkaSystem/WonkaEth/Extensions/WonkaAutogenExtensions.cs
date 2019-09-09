@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Nethereum.Contracts;
 using Nethereum.Web3;
@@ -58,6 +59,34 @@ namespace WonkaEth.Extensions
         /// <param name="poDeployMsg">The deployment message with the bytecodes that can create the target contract</param>
         /// <param name="psWonkaAbi">The ABI of the target contract</param>
         /// <param name="psSenderAddress">The ABI of the target contract</param>
+        /// <param name="psWeb3HttpUrl">The client node to which we will deploy the contract</param>
+        /// <returns>The address of the new instance of the target contract</returns>
+        /// </summary>
+        public static async Task<string> DeployContractAsync(this ContractDeploymentMessage poDeployMsg, Web3 poWeb3, string psWonkaAbi, string psSenderAddress, string psWeb3HttpUrl = "")
+        {
+            var transactionHash =
+                await poWeb3.Eth.DeployContract.SendRequestAsync(psWonkaAbi, poDeployMsg.ByteCode, psSenderAddress).ConfigureAwait(false);
+
+            var receipt = await poWeb3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash).ConfigureAwait(false);
+
+            while (receipt == null)
+            {
+                Thread.Sleep(5000);
+                receipt = await poWeb3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash).ConfigureAwait(false);
+            }
+
+            var contractAddress = receipt.ContractAddress;
+
+            return contractAddress;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to deploy a Wonka contract to the chain.
+        /// 
+        /// <param name="poDeployMsg">The deployment message with the bytecodes that can create the target contract</param>
+        /// <param name="psWonkaAbi">The ABI of the target contract</param>
+        /// <param name="psSenderAddress">The ABI of the target contract</param>
         /// <param name="pnGas">The amount of gas supplied for the deployment of the contract</param>
         /// <param name="psWeb3HttpUrl">The client node to which we will deploy the contract</param>
         /// <returns>The address of the new instance of the target contract</returns>
@@ -84,6 +113,36 @@ namespace WonkaEth.Extensions
             var contractAddress = receipt.ContractAddress;
 
             return contractAddress;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to deploy a Wonka contract to the chain.
+        /// 
+        /// <param name="poDeployMsg">The deployment message with the bytecodes that can create the target contract</param>
+        /// <param name="psWonkaAbi">The ABI of the target contract</param>
+        /// <param name="psSenderAddress">The ABI of the target contract</param>
+        /// <param name="pnGas">The amount of gas supplied for the deployment of the contract</param>
+        /// <param name="psWeb3HttpUrl">The client node to which we will deploy the contract</param>
+        /// <returns>The address of the new instance of the target contract</returns>
+        /// </summary>
+        public static async Task<string> DeployContractAsync(this ContractDeploymentMessage poDeployMsg, Web3 poWeb3, string psWonkaAbi, string psSenderAddress, Nethereum.Hex.HexTypes.HexBigInteger pnGas, string psWeb3HttpUrl = "")
+        {
+            var transactionHash =
+                await poWeb3.Eth.DeployContract.SendRequestAsync(psWonkaAbi, poDeployMsg.ByteCode, psSenderAddress, pnGas).ConfigureAwait(false);
+
+            var receipt = await poWeb3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash).ConfigureAwait(false);
+
+            while (receipt == null)
+            {
+                Thread.Sleep(5000);
+                receipt = await poWeb3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash).ConfigureAwait(false);
+            }
+
+            var contractAddress = receipt.ContractAddress;
+
+            return contractAddress;
+
         }
     }
 }
