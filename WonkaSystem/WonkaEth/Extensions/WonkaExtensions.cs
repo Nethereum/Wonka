@@ -467,6 +467,16 @@ namespace WonkaEth.Extensions
             return getRuleTreeIndexFunction.CallDeserializingToObjectAsync<RuleTreeRegistryIndex>(psRuleTreeId).Result;
         }
 
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to execute the sibling RuleTree of a Wonka.NET instance.  This sibling should already exist on the chain.
+        /// 
+        /// <param name="poRulesEngine">The instance of the Wonka.NET whose sibling should exist already on an Ethereum client</param>
+        /// <param name="poWonkaContract">The contract instance on the chain that should contain the sibling of 'poRulesEngine'</param>
+        /// <param name="psRuleTreeOwnerAddress">The owner of the RuleTree on an Ethereum client</param>
+        /// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
+        /// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
+        /// </summary>
         public static RuleTreeReport InvokeOnChain(this WonkaBreRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress, uint nSendTrxGas = 0)
         {
             var InvocationReport = new RuleTreeReport();
@@ -486,7 +496,6 @@ namespace WonkaEth.Extensions
             // Finally, we handle any events that have been issued during the execution of the rules engine
             if (InvocationReport != null)
             {			
-
 				InvocationReport.TransactionHash      = receipt.TransactionHash;
                 InvocationReport.InvokeTrxBlockNumber = receipt.BlockNumber;
 
