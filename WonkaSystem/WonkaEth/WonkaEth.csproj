@@ -96,6 +96,7 @@
     <Compile Include="Autogen\WonkaService.cs" />
     <Compile Include="Extensions\WonkaEthEngineExtensions.cs" />
     <Compile Include="Extensions\WonkaExtClasses.cs" />
+    <Compile Include="Extensions\WonkaExtensionsAsync.cs" />
     <Compile Include="Extensions\WonkaOpExtensions.cs" />
     <Compile Include="Init\WonkaEthEngineInitialization.cs" />
     <Compile Include="Orchestration\BlockchainEvents\RuleSetErrorEvent.cs" />
