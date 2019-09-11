@@ -179,8 +179,10 @@ namespace WonkaEth.Extensions
         /// 
         /// <returns>None</returns>
         /// </summary>
-        public static async void InitEngineAsync(this WonkaEthEngineInitialization poEngineInitData, bool pbRequireRetrieveValueMethod = true)
+        public static async Task<bool> InitEngineAsync(this WonkaEthEngineInitialization poEngineInitData, bool pbRequireRetrieveValueMethod = true)
         {
+			bool bResult = true;
+
             var EngineProps = poEngineInitData.Engine;
 
             if (EngineProps == null)
@@ -264,6 +266,8 @@ namespace WonkaEth.Extensions
 
                 EngineProps.RulesEngine.SetDefaultStdOps(poEngineInitData.EthPassword, poEngineInitData.Web3HttpUrl);
             }
+
+			return bResult;
         }
 
         /// <summary>

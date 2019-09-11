@@ -78,8 +78,10 @@ namespace WonkaEth.Extensions
         /// <param name="psSenderAddress">The Ethereum address of the sender (i.e., owner) account</param>
         /// <returns>None</returns>
         /// </summary>
-        public static async void CompareRuleTreesAsync(this WonkaBreRulesEngine poEngine, string psSenderAddress)
+        public static async Task<bool> CompareRuleTreesAsync(this WonkaBreRulesEngine poEngine, string psSenderAddress)
         {
+			bool bResult = true;
+
             var sRuleTreeID = poEngine.DetermineRuleTreeChainID();
 
             var RuleTreeInfo = await GetRuleTreeIndexAsync(sRuleTreeID).ConfigureAwait(false);
@@ -87,7 +89,7 @@ namespace WonkaEth.Extensions
             if (RuleTreeInfo.RuleTreeOwner != psSenderAddress)
                 throw new Exception("ERROR!  You are attempting to save a RuleTree with the ID(" + sRuleTreeID + "), which is already registered by a different owner.");
 
-            string sCreateDateTime = RuleTreeInfo.CreationTime.ToString();
+			return bResult;
         }
 
         /// <summary>
