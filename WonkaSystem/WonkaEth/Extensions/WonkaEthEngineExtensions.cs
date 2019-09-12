@@ -19,7 +19,7 @@ namespace WonkaEth.Extensions
     public static class WonkaEthEngineExtensions
     {
         private const int CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST  = 8388608;
-		private const int CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST = 1000000;
+		private const int CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST = 1500000;
 
 		private const int CONST_GAS_PER_READ_OP  = 80000;
 		private const int CONST_GAS_PER_WRITE_OP = 125000;
