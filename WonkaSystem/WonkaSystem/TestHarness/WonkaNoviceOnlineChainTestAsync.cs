@@ -35,7 +35,7 @@ namespace WonkaSystem.TestHarness
     /// </summary>
     public class WonkaNoviceOnlineChainTestAsync
     {
-        public const string CONST_ONLINE_TEST_CHAIN_URL   = "http://testchain.nethereum.com:8545";
+		public const string CONST_ONLINE_TEST_CHAIN_URL   = "http://testchain.nethereum.com:8545";
 		public const string CONST_INFURA_IPFS_GATEWAY_URL = "https://ipfs.infura.io/ipfs/";
 
 		public const string CONST_CONTRACT_FUNCTION_EXEC_RPT     = "executeWithReport";
@@ -300,13 +300,18 @@ namespace WonkaSystem.TestHarness
             return contract;
         }
 
-        public Nethereum.Web3.Web3 GetWeb3()
+        public Nethereum.Web3.Web3 GetWeb3(string psUrl = CONST_ONLINE_TEST_CHAIN_URL)
         {
             var account = new Account(msPassword);
 
-            var web3 = new Nethereum.Web3.Web3(account, CONST_ONLINE_TEST_CHAIN_URL);
+			Nethereum.Web3.Web3 web3 = null;
 
-            return web3;
+			if (!String.IsNullOrEmpty(psUrl))
+                web3 = new Nethereum.Web3.Web3(account, psUrl);
+			else
+				web3 = new Nethereum.Web3.Web3(account);
+
+			return web3;
         }
 
         private async Task<bool> InitEngineAsync(bool pbInitChainEnv)
