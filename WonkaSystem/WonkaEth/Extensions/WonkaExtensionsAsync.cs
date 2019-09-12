@@ -126,9 +126,14 @@ namespace WonkaEth.Extensions
         {
             var account = new Account(poEngineInitProps.EthPassword);
 
-            var web3 = new Nethereum.Web3.Web3(account, poEngineInitProps.Web3HttpUrl);
+			Nethereum.Web3.Web3 web3 = null;
 
-            var contractAddress = poEngineInitProps.RulesEngineContractAddress;
+			if (!String.IsNullOrEmpty(poEngineInitProps.Web3HttpUrl))
+			    web3 = new Nethereum.Web3.Web3(account, poEngineInitProps.Web3HttpUrl);
+			else
+				web3 = new Nethereum.Web3.Web3(account);
+
+			var contractAddress = poEngineInitProps.RulesEngineContractAddress;
 
             var wonkaContract = web3.Eth.GetContract(poEngineInitProps.RulesEngineABI, contractAddress);
 
