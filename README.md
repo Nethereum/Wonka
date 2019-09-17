@@ -1,6 +1,6 @@
 # Wonka
 
-A business rules engine (for both the .NET platform and the <a target="_blank" href="https://en.wikipedia.org/wiki/Ethereum">Ethereum</a> platform) that is inherently metadata-driven.  Once the rules are written into a markup language and are parsed/deserialized by the .NET form of the engine, these rules can then be serialized onto the blockchain using Nethereum, stored within a smart contract (i.e., the Ethereum version of the engine) built using the Solidity language.  Basically, after providing a number of rules and populating a record, a user can use Nethereum to submit the populated record for validation by the rules engine, whether it exists in .NET or the blockchain.
+A <a target="_blank" href="https://en.wikipedia.org/wiki/Business_rules_engine">business rules engine</a> (for both the .NET platform and the <a target="_blank" href="https://en.wikipedia.org/wiki/Ethereum">Ethereum</a> platform) that is inherently metadata-driven.  Once the rules are written into a markup language and are parsed/deserialized by the .NET form of the engine, these rules can then be serialized onto the blockchain using Nethereum, stored within a smart contract (i.e., the Ethereum version of the engine) built using the Solidity language.  Basically, after providing a number of rules and populating a record, a user can use Nethereum to submit the populated record for validation by the rules engine, whether it exists in .NET or the blockchain.
 
 ## Features
 
@@ -18,7 +18,9 @@ A business rules engine (for both the .NET platform and the <a target="_blank" h
 
 # Quick Run
 
-Though not yet quite available, the code from the [Test Online](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTest.cs) example will soon be incorporated into the [Nethereum Playground](http://playground.nethereum.com/) set of samples.  There, you will be able to deploy an instance of Wonka to an hosted Ethereum client, after which you can then create and invoke a RuleTree as separate transactions.
+Though not yet quite available, the code from the [Test Online (Async)](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTestAsync.cs) example will soon be incorporated into the [Nethereum Playground](http://playground.nethereum.com/) set of samples.  There, you will be able to deploy an instance of Wonka to an hosted Ethereum client, after which you can then create and invoke a RuleTree as separate transactions.
+
+You can also use the simple [Test Online](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTest.cs) example and step through it in order to gain a comprehensive understanding.  If you wish to test against a local Ethereum client on your development box, simply change the CONST_ONLINE_TEST_CHAIN_URL member to an empty value.
 
 # Quick Setup (i.e., for local use)
 
