@@ -1,4 +1,4 @@
-# Wonka
+# Wonka (The Introduction)
 
 A <a target="_blank" href="https://en.wikipedia.org/wiki/Business_rules_engine">business rules engine</a> (for both the .NET platform and the <a target="_blank" href="https://en.wikipedia.org/wiki/Ethereum">Ethereum</a> platform) that is inherently metadata-driven.  Once the rules are written into a markup language and are parsed/deserialized by the .NET form of the engine, these rules can then be serialized onto the blockchain using Nethereum, stored within a smart contract (i.e., the Ethereum version of the engine) built using the Solidity language.  Basically, after providing a number of rules and populating a record, a user can use Nethereum to submit the populated record for validation by the rules engine, whether it exists in .NET or the blockchain.
 
@@ -36,6 +36,16 @@ You can also use the simple [Test Online](https://github.com/Nethereum/Wonka/blo
 3. As a demonstration of a GUI client and perhaps as a template for something more advanced, run the [Wonka Blazor Web App](https://github.com/jaerith/WonkaBlazorWebApp) on a Windows desktop machine, after pointing the Blazor app at the Wonka REST service by making the necessary alterations to config files.  (Important note: Your selected browser must be WASM-compatible for the Blazor app to run correctly.)
 
 * Hopefully, in the future, the REST service and the Blazor Web App will be merged into one project.
+
+# Wonka (The ELI55 Explanation)
+
+So, what exactly is a rules engine, anyway?  Basically, it's a tool for developers of enterprise software, one which can be exposed to business users (likely through a GUI) and which can let the users "program" on their own.  If you've ever read of [BizTalk](https://en.wikipedia.org/wiki/Microsoft_BizTalk_Server) or even email automation (like with Marketo), then you're likely somewhat familiar with the general idea of a rules engine.  But, for better illustration, let's say that you're a business user who wants to automate the specific task of calculating the VAT (i.e., value-added tax) for a product and then store it.  In the end, you write the rules for such a calculation <a target="_blank" href="https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestData/VATCalculationExample.xml">in the form of XML</a>, and then you pass them along to the developer, who writes a program in turn to satisfy the requirements.  And then you're done.
+
+But what if some piece of software could automatically parse that XML and turn it into a mini-program that runs within a larger program that acts as its host?  This host that stores and runs the mini-programs, this is what we refer to as the rules engine.  (You can also refer to this mini-program as a RuleTree.)  Invoking the spirit of the classic <a target="_blank" href="https://en.wikipedia.org/wiki/Strategy_pattern">Strategy pattern</a>, this piece of software would create, store, and eventually execute the algorithm (i.e., the RuleTree) that was defined by the XML of the business user.  Of course, to understand the XML, certain preparations have to be made beforehand.  For example, the engine has to be able to identify the data points (like "NewSaleEAN") addressed in the XML before it can perform any action on them. This information (along with the XML rules) needs to be fed into the engine during initialization:
+
+![Diagram 1](https://github.com/Nethereum/Wonka/blob/master/docs/diagrams/RulesEngineOverview.png)
+
+Afterwards, you can provide a set of data, and with the invocation of the rules, you will get a report that indicates the status of the data (i.e., valid or not) and possibly a new set of values.  Which, in the case of our calculation, would include the value of the VAT for this product identified by "NewSaleEAN".  With a rules engine, all of these steps could be accomplished without the necessity of a developer creating a new program based on the specs.  It could be done automatically by creating a RuleTree with the call of a few functions.  And in the case of this project, you could create this RuleTree within .NET or within the Ethereum blockchain, without manually writing or deploying the code for .NET or Ethereum.  Now that can save you, the developer, a lot of time!
 
 # Main Libraries
 
