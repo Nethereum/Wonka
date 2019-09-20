@@ -1,18 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <AssemblyTitle>WonkaSystem</AssemblyTitle>
-    <Product>WonkaSystem</Product>
-    <Copyright>Copyright ©  2017</Copyright>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <TargetFramework>net452</TargetFramework>
+    <AssemblyTitle>WonkaEth</AssemblyTitle>
+    <Deterministic>false</Deterministic>
+    <AssemblyVersion>1.0.*</AssemblyVersion>
+    <FileVersion>1.0.*</FileVersion>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <OutputPath>bin\Release</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BouncyCastle" Version="1.8.5" />
@@ -31,38 +32,22 @@
     <PackageReference Include="Nethereum.RLP" Version="3.4.0" />
     <PackageReference Include="Nethereum.RPC" Version="3.4.0" />
     <PackageReference Include="Nethereum.Signer" Version="3.4.0" />
+    <PackageReference Include="Nethereum.StandardTokenEIP20" Version="3.4.0" />
     <PackageReference Include="Nethereum.Util" Version="3.4.0" />
     <PackageReference Include="Nethereum.Web3" Version="3.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
-    <PackageReference Include="xunit.analyzers" Version="0.10.0" />
-    <PackageReference Include="xunit.assert" Version="2.4.1" />
-    <PackageReference Include="xunit.core" Version="2.4.1" />
-    <PackageReference Include="xunit.extensibility.core" Version="2.4.1" />
-    <PackageReference Include="xunit.extensibility.execution" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj" />
-    <ProjectReference Include="..\WonkaRef\WonkaRef.csproj" />
     <ProjectReference Include="..\WonkaBre\WonkaBre.csproj" />
-    <ProjectReference Include="..\WonkaEth\WonkaEth.csproj" />
+    <ProjectReference Include="..\WonkaRef\WonkaRef.csproj" />
+    <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj" />
     <ProjectReference Include="..\WonkaIpfs\WonkaIpfs.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="TestData\SimpleAccountCheck.xml" />
-    <EmbeddedResource Include="TestData\WonkaEngine.abi" />
-    <EmbeddedResource Include="TestData\WonkaEngine.bin" />
-    <EmbeddedResource Include="TestData\OrchTest.abi" />
-    <EmbeddedResource Include="TestData\OrchTest.bin" />
-    <EmbeddedResource Include="TestData\VATCalculationExample.xml" />
-    <EmbeddedResource Include="TestData\VATCalculationExample.init.xml" />
-    <EmbeddedResource Include="TestData\WonkaRegistry.abi" />
-    <EmbeddedResource Include="TestData\WonkaRegistry.bin" />
-    <EmbeddedResource Include="TestData\WonkaRegistry.init.xml" />
+    <EmbeddedResource Include="Contracts\Ethereum\TransactionStateInterface.abi" />
   </ItemGroup>
 </Project>
