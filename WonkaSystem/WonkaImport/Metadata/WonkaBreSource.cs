@@ -2,7 +2,7 @@
 
 using WonkaRef;
 
-namespace WonkaBre.Import
+namespace WonkaImport.Metadata
 {
     public class WonkaBreImportSource : IMetadataRetrievable
     {

@@ -1,8 +1,6 @@
-﻿using System;
+﻿using WonkaBre.RuleTree;
 
-using WonkaBre.RuleTree;
-
-namespace WonkaBre.Import
+namespace WonkaImport.RuleTree
 {
     #region Delegates
 

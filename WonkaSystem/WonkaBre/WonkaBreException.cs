@@ -8,7 +8,7 @@ namespace WonkaBre
     /// the Business Rules Engine.
     /// 
     /// </summary>
-    class WonkaBreException : Exception
+    public class WonkaBreException : Exception
     {
         public WonkaBreException(string psErrorMessage)
         {

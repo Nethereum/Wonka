@@ -7,9 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using WonkaBre;
 using WonkaRef;
 
-namespace WonkaBre.Import
+namespace WonkaImport.Metadata
 {
     /// <summary>
     /// 

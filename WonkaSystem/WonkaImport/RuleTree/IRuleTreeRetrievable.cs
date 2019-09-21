@@ -1,8 +1,9 @@
 ﻿using System;
 
+using WonkaBre;
 using WonkaRef;
 
-namespace WonkaBre.Import
+namespace WonkaImport.RuleTree
 {
     public enum BRE_IMPORT_SOURCE
     {
