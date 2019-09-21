@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29025.244
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WonkaSystem", "WonkaSystem\WonkaSystem.csproj", "{054C2B2B-3263-4C28-AEB4-A32E0207D912}"
 EndProject
@@ -48,8 +48,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {4CB6CD77-C6BE-458F-B303-F49D8C628AFD}
 	EndGlobalSection
 EndGlobal
