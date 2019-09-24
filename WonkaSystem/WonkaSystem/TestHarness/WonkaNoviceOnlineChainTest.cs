@@ -228,12 +228,14 @@ namespace WonkaSystem.TestHarness
 
                 WonkaProduct OrchContractCurrValues = poRulesEngine.AssembleCurrentProduct(new Dictionary<string, string>());
 
+                // Before invoking the RuleTree, the storage contract should have Review Flag as "" and CurrVal as "999"
                 string sFlagBeforeOrchestrationAssignment  = RetrieveValueMethod(FlagSource, ReviewFlagAttr.AttrName);
                 string sValueBeforeOrchestrationAssignment = RetrieveValueMethod(CurrValSource, CurrValueAttr.AttrName);
 
 				var EthRuleTreeReport = new WonkaEth.Extensions.RuleTreeReport();
 				poRulesEngine.ExecuteOnChain(moEthEngineInit, EthRuleTreeReport);
 
+                // After invoking the RuleTree, the storage contract should have Review Flag as "???" and CurrVal as "1014"
                 string sFlagAfterOrchestrationAssignment  = RetrieveValueMethod(FlagSource, ReviewFlagAttr.AttrName);
                 string sValueAfterOrchestrationAssignment = RetrieveValueMethod(CurrValSource, CurrValueAttr.AttrName);
 

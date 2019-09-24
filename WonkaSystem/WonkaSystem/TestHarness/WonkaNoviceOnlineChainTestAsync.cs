@@ -235,13 +235,15 @@ namespace WonkaSystem.TestHarness
 
 				var executeGetLastReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_GET_LAST_RPT);
 
+                // Before invoking the RuleTree, the storage contract should have Review Flag as "" and CurrVal as "999"
 				string sFlagBeforeOrchestrationAssignment  = await RetrieveValueMethodAsync(FlagSource, ReviewFlagAttr.AttrName).ConfigureAwait(false);
 				string sValueBeforeOrchestrationAssignment = await RetrieveValueMethodAsync(CurrValSource, CurrValueAttr.AttrName).ConfigureAwait(false);
 
 				var EthRuleTreeReport = new WonkaEth.Extensions.RuleTreeReport();
 				await poRulesEngine.ExecuteOnChainAsync(moEthEngineInit, EthRuleTreeReport).ConfigureAwait(false);
 
-				string sFlagAfterOrchestrationAssignment  = await RetrieveValueMethodAsync(FlagSource, ReviewFlagAttr.AttrName).ConfigureAwait(false);
+                // After invoking the RuleTree, the storage contract should have Review Flag as "???" and CurrVal as "1014"
+                string sFlagAfterOrchestrationAssignment  = await RetrieveValueMethodAsync(FlagSource, ReviewFlagAttr.AttrName).ConfigureAwait(false);
 				string sValueAfterOrchestrationAssignment = await RetrieveValueMethodAsync(CurrValSource, CurrValueAttr.AttrName).ConfigureAwait(false);
 
 				ruleTreeReport =
