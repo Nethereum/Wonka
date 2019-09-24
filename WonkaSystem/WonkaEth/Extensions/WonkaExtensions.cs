@@ -45,6 +45,7 @@ namespace WonkaEth.Extensions
         private const int CONST_CONTRACT_BYTE32_MAX        = 32;
         private const int CONST_CUSTOM_OP_ARG_COUNT        = 4;
         private const int CONST_MIN_GAS_COST_DEFAULT       = 100000;
+        private const int CONST_MID_GAS_COST_DEFAULT       = 1000000;
         private const int CONST_MAX_GAS_COST_DEFAULT       = 2000000;
         private const int CONST_MAX_RULE_TREE_ID_LEN       = 16;
 
@@ -1028,7 +1029,7 @@ namespace WonkaEth.Extensions
 
 			// NOTE: EstimateGasAsync() throws an exception
 			// var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeName", "SomeDesc", true, true, true).Result;
-			var gas = new Nethereum.Hex.HexTypes.HexBigInteger(CONST_MIN_GAS_COST_DEFAULT);
+			var gas = new Nethereum.Hex.HexTypes.HexBigInteger(CONST_MID_GAS_COST_DEFAULT);
 
 			//
 			// base fee exceeds gas limit?
