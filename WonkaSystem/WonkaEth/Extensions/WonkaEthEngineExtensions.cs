@@ -264,10 +264,11 @@ namespace WonkaEth.Extensions
 
                 EngineProps.RulesEngine.DefaultSource = poEngineInitData.StorageDefaultSourceId;
 
-                EngineProps.RulesEngine.SetDefaultStdOps(poEngineInitData.EthPassword, poEngineInitData.Web3HttpUrl);
+                //NOTE: These Ethereum ops will not currently execute correctly within .NET during Async mode, since the Wonka.NET must then also be refactored to execute in Async
+                //EngineProps.RulesEngine.SetDefaultStdOps(poEngineInitData.EthPassword, poEngineInitData.Web3HttpUrl);
             }
 
-			return bResult;
+            return bResult;
         }
 
         /// <summary>
