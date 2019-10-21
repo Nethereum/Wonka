@@ -9,33 +9,8 @@ namespace WonkaBre.Permissions
     /// the Business Rules Engine.
     /// 
     /// </summary>
-    class WonkaBrePermissionsException : Exception
+    public class WonkaBrePermissionsException : Exception
     {
-        public WonkaBrePermissionsException(string psErrorMessage) : base(psErrorMessage)
-        {
-            CurrentScoreForApproval = MinReqScoreForApproval = 0;
-
-            OwnersConfirmed   = new HashSet<string>();
-            OwnersUnconfirmed = new HashSet<string>();
-        }
-
-        public WonkaBrePermissionsException(string psErrorMessage, ITransactionState poTransactionState) : base(psErrorMessage)
-        {
-            CurrentScoreForApproval = MinReqScoreForApproval = 0;
-
-            OwnersConfirmed   = new HashSet<string>();
-            OwnersUnconfirmed = new HashSet<string>();
-
-            if (poTransactionState != null)
-            {
-                CurrentScoreForApproval = poTransactionState.GetCurrentScore();
-                MinReqScoreForApproval  = poTransactionState.GetMinScoreRequirement();
-
-                OwnersConfirmed   = poTransactionState.GetOwnersConfirmed();
-                OwnersUnconfirmed = poTransactionState.GetOwnersUnconfirmed();
-            }
-        }
-
         #region Properties
 
         public readonly uint CurrentScoreForApproval;
@@ -47,5 +22,32 @@ namespace WonkaBre.Permissions
         public readonly HashSet<string> OwnersUnconfirmed;
 
         #endregion
+
+        public WonkaBrePermissionsException(string psErrorMessage) 
+            : base(psErrorMessage)
+        {
+            this.CurrentScoreForApproval = this.MinReqScoreForApproval = 0;
+
+            this.OwnersConfirmed   = new HashSet<string>();
+            this.OwnersUnconfirmed = new HashSet<string>();
+        }
+
+        public WonkaBrePermissionsException(string psErrorMessage, ITransactionState poTransactionState) 
+            : base(psErrorMessage)
+        {
+            this.CurrentScoreForApproval = this.MinReqScoreForApproval = 0;
+
+            this.OwnersConfirmed   = new HashSet<string>();
+            this.OwnersUnconfirmed = new HashSet<string>();
+
+            if (poTransactionState != null)
+            {
+                this.CurrentScoreForApproval = poTransactionState.GetCurrentScore();
+                this.MinReqScoreForApproval  = poTransactionState.GetMinScoreRequirement();
+
+                this.OwnersConfirmed   = poTransactionState.GetOwnersConfirmed();
+                this.OwnersUnconfirmed = poTransactionState.GetOwnersUnconfirmed();
+            }
+        }
     }
 }

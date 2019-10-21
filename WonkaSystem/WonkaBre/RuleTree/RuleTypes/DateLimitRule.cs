@@ -271,7 +271,6 @@ namespace WonkaBre.RuleTree.RuleTypes
                 // NOTE: Currently, if more than one value has been provided, we will only 
                 //       take the first value into account
                 bool   bLiteralValue = false;
-                double dValue        = 0.0;
                 string sTempValue    = paValueSet[0];
 
                 DateTime               DateTimeValue       = DateTime.Now;
