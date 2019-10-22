@@ -38,6 +38,8 @@ namespace WonkaSystem
 
                 // NoviceTest(sSenderAddress, sPassword, sContractAddress);
 
+                NoviceOnlineChainTest();
+
                 // CQSDemoTest(sSenderAddress, sPassword, sContractAddress);
 
                 // string sOrchTestContractAddress = "0x5f2d3b580e45ea133d368c66fff30cdd211a9372";
@@ -95,6 +97,13 @@ namespace WonkaSystem
         {
             WonkaSimpleNethereumTest SimpleNethTest = new WonkaSimpleNethereumTest(psSenderAddress, psPassword, psContractAddress);
             SimpleNethTest.Execute();
+        }
+
+        static void NoviceOnlineChainTest()
+        {
+            var OnlineChainTest = new WonkaNoviceOnlineChainTest("", false, true);
+
+            OnlineChainTest.Execute();
         }
 
         static void NoviceTest(string psSenderAddress, string psPassword, string psContractAddress)
