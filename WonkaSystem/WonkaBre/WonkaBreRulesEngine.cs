@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 using WonkaPrd;
 using WonkaRef;
 
-using WonkaBre.Permissions;
-using WonkaBre.Readers;
-using WonkaBre.Reporting;
-using WonkaBre.RuleTree;
-using WonkaBre.RuleTree.RuleTypes;
-using WonkaBre.Triggers;
+using Wonka.BizRulesEngine.Permissions;
+using Wonka.BizRulesEngine.Readers;
+using Wonka.BizRulesEngine.Reporting;
+using Wonka.BizRulesEngine.RuleTree;
+using Wonka.BizRulesEngine.RuleTree.RuleTypes;
+using Wonka.BizRulesEngine.Triggers;
 
-namespace WonkaBre
+namespace Wonka.BizRulesEngine
 {
     /// <summary>
     /// 

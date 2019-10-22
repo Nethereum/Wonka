@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace WonkaBre.Permissions
+namespace Wonka.BizRulesEngine.Permissions
 {
     /// <summary>
     /// 

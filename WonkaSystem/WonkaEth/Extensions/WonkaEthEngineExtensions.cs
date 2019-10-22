@@ -8,8 +8,8 @@ using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Web3.Accounts;
 
-using WonkaBre;
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
 using WonkaEth.Contracts;
 using WonkaEth.Init;
 using WonkaRef;
@@ -64,9 +64,9 @@ namespace WonkaEth.Extensions
 				{
 					poEngineProps.RulesEngine.AllRuleSets.ForEach(x => nMaxGasCost += (uint)(x.EvaluativeRules.Count * CONST_GAS_PER_READ_OP));
 
-					foreach (WonkaBre.RuleTree.WonkaBreRuleSet TempRuleSet in poEngineProps.RulesEngine.AllRuleSets)
+					foreach (WonkaBreRuleSet TempRuleSet in poEngineProps.RulesEngine.AllRuleSets)
 					{
-						foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in TempRuleSet.AssertiveRules)
+						foreach (WonkaBreRule TempRule in TempRuleSet.AssertiveRules)
 						{
 							if (TempRule.RuleType == RULE_TYPE.RT_CUSTOM_OP)
 								nMaxGasCost += (uint)(3 * pnWriteOpGasCost);
@@ -144,7 +144,7 @@ namespace WonkaEth.Extensions
 
 				if ((EngineProps.SourceMap == null) || (EngineProps.SourceMap.Count == 0))
 				{
-					EngineProps.SourceMap = new Dictionary<string, WonkaBre.RuleTree.WonkaBreSource>();
+					EngineProps.SourceMap = new Dictionary<string, WonkaBreSource>();
 
 					// Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
 					// - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
@@ -239,7 +239,7 @@ namespace WonkaEth.Extensions
 
                 if ((EngineProps.SourceMap == null) || (EngineProps.SourceMap.Count == 0))
                 {
-                    EngineProps.SourceMap = new Dictionary<string, WonkaBre.RuleTree.WonkaBreSource>();
+                    EngineProps.SourceMap = new Dictionary<string, WonkaBreSource>();
 
                     // Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
                     // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type

@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-using WonkaBre;
+using Wonka.BizRulesEngine;
 using WonkaPrd;
 using WonkaRef;
 
@@ -69,7 +69,7 @@ namespace WonkaSystem.TestHarness
             RulesEngine.GetCurrentProductDelegate = GetOldProduct;
     
 	        // Validate the new record using our rules engine and its initialized RuleTree
-            WonkaBre.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
+            Wonka.BizRulesEngine.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
 	        // Now retrieve the AccountStatus value and see if the rules have altered it (which should
             // not be the case)

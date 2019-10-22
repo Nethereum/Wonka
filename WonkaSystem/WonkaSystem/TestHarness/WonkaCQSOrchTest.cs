@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 using Nethereum.Web3.Accounts;
 
-using WonkaBre;
+using Wonka.BizRulesEngine;
 using WonkaEth.Extensions;
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine.RuleTree;
 using WonkaPrd;
 using WonkaRef;
 
@@ -542,7 +542,7 @@ namespace WonkaSystem.TestHarness
             return InitData;
         }
 
-        public Nethereum.Contracts.Contract GetContract(WonkaBre.RuleTree.WonkaBreSource TargetSource)
+        public Nethereum.Contracts.Contract GetContract(WonkaBreSource TargetSource)
         {
             var account  = new Account(TargetSource.Password);
 
@@ -565,7 +565,7 @@ namespace WonkaSystem.TestHarness
                 return "1";
         }
 
-        public string RetrieveValueMethod(WonkaBre.RuleTree.WonkaBreSource poTargetSource, string psAttrName)
+        public string RetrieveValueMethod(WonkaBreSource poTargetSource, string psAttrName)
         {
             var contract = GetContract(poTargetSource);
 

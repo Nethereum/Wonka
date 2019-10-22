@@ -1,6 +1,6 @@
-﻿using WonkaBre.RuleTree;
+﻿using Wonka.BizRulesEngine.RuleTree;
 
-namespace WonkaBre.Reporting
+namespace Wonka.BizRulesEngine.Reporting
 {
     /// <summary>
     /// 

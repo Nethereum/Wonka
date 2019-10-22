@@ -1,6 +1,6 @@
 ﻿using System;
 
-using WonkaBre;
+using Wonka.BizRulesEngine;
 using WonkaRef;
 
 namespace WonkaImport.RuleTree

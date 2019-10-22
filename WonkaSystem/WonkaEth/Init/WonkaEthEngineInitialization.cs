@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using WonkaBre;
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
 using WonkaRef;
 
 namespace WonkaEth.Init

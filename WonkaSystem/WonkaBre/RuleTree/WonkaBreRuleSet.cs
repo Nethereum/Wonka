@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WonkaBre.RuleTree
+namespace Wonka.BizRulesEngine.RuleTree
 {
 	/// <summary>
 	/// 

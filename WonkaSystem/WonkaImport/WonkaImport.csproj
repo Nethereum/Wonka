@@ -5,7 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WonkaBre\WonkaBre.csproj" />
+    <PackageReference Include="EntityFramework" Version="6.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WonkaBre\Wonka.BizRulesEngine.csproj" />
   </ItemGroup>
 
 </Project>

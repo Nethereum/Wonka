@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using WonkaBre.Readers;
+using Wonka.BizRulesEngine.Readers;
 using WonkaPrd;
 
-namespace WonkaBre.RuleTree
+namespace Wonka.BizRulesEngine.RuleTree
 {
     /// <summary>
     /// 

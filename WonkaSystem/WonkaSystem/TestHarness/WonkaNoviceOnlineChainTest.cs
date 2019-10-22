@@ -7,8 +7,8 @@ using Nethereum.Web3.Accounts;
 
 using Xunit;
 
-using WonkaBre;
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
 using WonkaPrd;
 using WonkaRef;
 
@@ -72,7 +72,7 @@ namespace WonkaSystem.TestHarness
 
             // Create an instance of the class that will provide us with PmdRefAttributes (i.e., the data domain)
             // that define our data record            
-            moMetadataSource = new WonkaBre.Samples.WonkaBreMetadataTestSource();            
+            moMetadataSource = new Wonka.BizRulesEngine.Samples.WonkaBreMetadataTestSource();            
             WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
             
 			// NOTE: As a reminder, you must have a IPFS daemon configured and running (perhaps on your machine)
@@ -160,7 +160,7 @@ namespace WonkaSystem.TestHarness
             // SerializeProductToBlockchain(NewProduct);
 
             // Validate that the .NET implementation and the rules markup are both working properly
-            WonkaBre.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
+            Wonka.BizRulesEngine.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
             string sStatusValueAfter = NewProduct.GetAttributeValue(AccountStsAttr);
             string sFlagValueAfter   = NewProduct.GetAttributeValue(RvwFlagAttr);
@@ -283,7 +283,7 @@ namespace WonkaSystem.TestHarness
             return contract;
         }
 
-        public Nethereum.Contracts.Contract GetContract(WonkaBre.RuleTree.WonkaBreSource TargetSource)
+        public Nethereum.Contracts.Contract GetContract(WonkaBreSource TargetSource)
         {
             var web3     = GetWeb3();
             var contract = web3.Eth.GetContract(TargetSource.ContractABI, TargetSource.ContractAddress);
@@ -337,7 +337,7 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        public string RetrieveValueMethod(WonkaBre.RuleTree.WonkaBreSource poTargetSource, string psAttrName)
+        public string RetrieveValueMethod(WonkaBreSource poTargetSource, string psAttrName)
         {
             var contract = GetContract(poTargetSource);
 

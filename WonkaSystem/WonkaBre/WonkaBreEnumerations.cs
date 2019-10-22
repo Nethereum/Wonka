@@ -1,4 +1,4 @@
-﻿namespace WonkaBre
+﻿namespace Wonka.BizRulesEngine
 {
     public enum RULE_ERR_LVL
     {

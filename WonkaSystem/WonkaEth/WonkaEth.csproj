@@ -42,7 +42,7 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WonkaBre\WonkaBre.csproj" />
+    <ProjectReference Include="..\WonkaBre\Wonka.BizRulesEngine.csproj" />
     <ProjectReference Include="..\WonkaRef\WonkaRef.csproj" />
     <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj" />
     <ProjectReference Include="..\WonkaIpfs\WonkaIpfs.csproj" />

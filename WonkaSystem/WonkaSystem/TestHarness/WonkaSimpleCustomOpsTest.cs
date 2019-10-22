@@ -15,9 +15,9 @@ using Nethereum.RPC.Eth.DTOs;
 
 using Xunit;
 
-using WonkaBre;
-using WonkaBre.Readers;
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.Readers;
+using Wonka.BizRulesEngine.RuleTree;
 using WonkaPrd;
 using WonkaRef;
 
@@ -147,8 +147,7 @@ namespace WonkaSystem.TestHarness
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
-            Dictionary<string, WonkaBre.RuleTree.WonkaBreSource> SourceMap =
-                new Dictionary<string, WonkaBre.RuleTree.WonkaBreSource>();
+            Dictionary<string, WonkaBreSource> SourceMap = new Dictionary<string, WonkaBreSource>();
 
             string sDefaultSourceId    = "S";
             string sContractSourceId   = sDefaultSourceId;
@@ -221,7 +220,7 @@ namespace WonkaSystem.TestHarness
             /**
              ** Test the .NET side
              */
-            WonkaBre.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
+            Wonka.BizRulesEngine.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
             string sSellAmtAfter = GetAttributeValue(NewProduct, NewSellTaxAmountAttr);
             string sVATAmtAfter  = GetAttributeValue(NewProduct, NewVATAmountForHMRCAttr);
@@ -395,7 +394,7 @@ namespace WonkaSystem.TestHarness
             return contract;
         }
 
-        public Nethereum.Contracts.Contract GetContract(WonkaBre.RuleTree.WonkaBreSource TargetSource)
+        public Nethereum.Contracts.Contract GetContract(WonkaBreSource TargetSource)
         {
             var account  = new Account(TargetSource.Password);
             var web3     = new Nethereum.Web3.Web3(account);
@@ -444,7 +443,7 @@ namespace WonkaSystem.TestHarness
                 setValueFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress, psAttrName, psAttrValue).Result;
         }
 
-        public string RetrieveValueMethod(WonkaBre.RuleTree.WonkaBreSource poTargetSource, string psAttrName)
+        public string RetrieveValueMethod(WonkaBreSource poTargetSource, string psAttrName)
         {
             var contract = GetContract(poTargetSource);
 

@@ -10,7 +10,7 @@ using Nethereum.ABI.Model;
 using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 
-using WonkaBre;
+using Wonka.BizRulesEngine;
 using WonkaEth.Orchestration.BlockchainEvents;
 
 namespace WonkaEth.Extensions

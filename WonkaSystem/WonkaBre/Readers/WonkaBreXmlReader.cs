@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
-using WonkaBre.RuleTree;
-using WonkaBre.RuleTree.RuleTypes;
+using Wonka.BizRulesEngine.RuleTree;
+using Wonka.BizRulesEngine.RuleTree.RuleTypes;
 using WonkaRef;
 
-namespace WonkaBre.Readers
+namespace Wonka.BizRulesEngine.Readers
 {
     /// <summary>
     /// 
@@ -91,92 +91,109 @@ namespace WonkaBre.Readers
         #endregion
 
         #region Constructors
+
         public WonkaBreXmlReader(string psBreXmlFilepath, IMetadataRetrievable piMetadataSource = null, WonkaBreRulesEngine poRulesHostEngine = null)
         {
-            if (String.IsNullOrEmpty(psBreXmlFilepath))
+            if (string.IsNullOrEmpty(psBreXmlFilepath))
+            {
                 throw new WonkaBreException(-1, -1, "ERROR!  The rules file provided is null.");
+            }
 
             if (!File.Exists(psBreXmlFilepath))
+            {
                 throw new WonkaBreException(-1, -1, "ERROR!  The rules file(" + psBreXmlFilepath + ") does not exist.");
+            }
 
-            BreXmlFilepath  = psBreXmlFilepath;
-            BreXmlContents  = null;
-            RulesHostEngine = poRulesHostEngine;
+            this.BreXmlFilepath  = psBreXmlFilepath;
+            this.BreXmlContents  = null;
+            this.RulesHostEngine = poRulesHostEngine;
 
-            Init(piMetadataSource);
+            this.Init(piMetadataSource);
         }
 
         public WonkaBreXmlReader(StringBuilder psBreXml, IMetadataRetrievable piMetadataSource = null, WonkaBreRulesEngine poRulesHostEngine = null)
         {
             if ((psBreXml == null) || (psBreXml.Length <= 0))
+            {
                 throw new WonkaBreException(-1, -1, "ERROR!  The rules file provided is null.");
+            }
 
-            BreXmlFilepath  = null;
-            BreXmlContents  = psBreXml.ToString();
-            RulesHostEngine = poRulesHostEngine;
+            this.BreXmlFilepath  = null;
+            this.BreXmlContents  = psBreXml.ToString();
+            this.RulesHostEngine = poRulesHostEngine;
 
-            Init(piMetadataSource);
+            this.Init(piMetadataSource);
         }
 
         // NOTE: That says "po-Op-Source", but if you want to look at it as "poOp-Source", well, that's up to you,
         // and try not laugh yourself silly
         public void AddCustomOperator(string psCustomOpName, WonkaBreSource poOpSource = null)
         {
-            if (BasicOps.Contains(psCustomOpName))
+            if (this.BasicOps.Contains(psCustomOpName))
+            {
                 throw new Exception("ERROR!  Provided operator is already a basic operator within the rules engine.");
-            
-            if (ArithmeticLimitOps.Contains(psCustomOpName))
+            }
+
+            if (this.ArithmeticLimitOps.Contains(psCustomOpName))
+            {
                 throw new Exception("ERROR!  Provided operator is already an arithmetic limit operator within the rules engine.");
-            
-            if (DateLimitOps.Contains(psCustomOpName))
+            }
+
+            if (this.DateLimitOps.Contains(psCustomOpName))
+            {
                 throw new Exception("ERROR!  Provided operator is already a date limit operator within the rules engine.");
+            }
 
             if (poOpSource != null)
-                CustomOpSources[psCustomOpName] = poOpSource;
+            {
+                this.CustomOpSources[psCustomOpName] = poOpSource;
+            }
             else
-                CustomOpSources[psCustomOpName] = new WonkaBreSource("", "", "", "", "", "", "", null);
+            {
+                this.CustomOpSources[psCustomOpName] = new WonkaBreSource("", "", "", "", "", "", "", null);
+            }
         }
 
         private void Init(IMetadataRetrievable piMetadataSource)
         {
-            RuleSetIdCounter  = 0;
-            RuleIdCounter     = 0;
-            ValSeqIdCounter   = 0;
-            CustomOpSources   = new Dictionary<string, WonkaBreSource>();
-            AllParsedRuleSets = new List<WonkaBreRuleSet>();
+            this.RuleSetIdCounter  = 0;
+            this.RuleIdCounter     = 0;
+            this.ValSeqIdCounter   = 0;
+            this.CustomOpSources   = new Dictionary<string, WonkaBreSource>();
+            this.AllParsedRuleSets = new List<WonkaBreRuleSet>();
 
-            BasicOps = new HashSet<string>();
-            BasicOps.Add(CONST_BASIC_OP_NOT_POP);
-            BasicOps.Add(CONST_BASIC_OP_POP);
-            BasicOps.Add(CONST_BASIC_OP_NOT_EQ);
-            BasicOps.Add(CONST_BASIC_OP_EQ);
-            BasicOps.Add(CONST_BASIC_OP_NOT_IN);
-            BasicOps.Add(CONST_BASIC_OP_IN);
-            BasicOps.Add(CONST_BASIC_OP_EXISTS_AS);
-            BasicOps.Add(CONST_BASIC_OP_DEFAULT);
-            BasicOps.Add(CONST_BASIC_OP_ASSIGN_SUM);
-            BasicOps.Add(CONST_BASIC_OP_ASSIGN_DIFF);
-            BasicOps.Add(CONST_BASIC_OP_ASSIGN_PROD);
-            BasicOps.Add(CONST_BASIC_OP_ASSIGN);
+            this.BasicOps = new HashSet<string>();
+            this.BasicOps.Add(CONST_BASIC_OP_NOT_POP);
+            this.BasicOps.Add(CONST_BASIC_OP_POP);
+            this.BasicOps.Add(CONST_BASIC_OP_NOT_EQ);
+            this.BasicOps.Add(CONST_BASIC_OP_EQ);
+            this.BasicOps.Add(CONST_BASIC_OP_NOT_IN);
+            this.BasicOps.Add(CONST_BASIC_OP_IN);
+            this.BasicOps.Add(CONST_BASIC_OP_EXISTS_AS);
+            this.BasicOps.Add(CONST_BASIC_OP_DEFAULT);
+            this.BasicOps.Add(CONST_BASIC_OP_ASSIGN_SUM);
+            this.BasicOps.Add(CONST_BASIC_OP_ASSIGN_DIFF);
+            this.BasicOps.Add(CONST_BASIC_OP_ASSIGN_PROD);
+            this.BasicOps.Add(CONST_BASIC_OP_ASSIGN);
 
-            ArithmeticLimitOps = new HashSet<string>();
-            ArithmeticLimitOps.Add(CONST_AL_GT);
-            ArithmeticLimitOps.Add(CONST_AL_NOT_GT);
-            ArithmeticLimitOps.Add(CONST_AL_LT);
-            ArithmeticLimitOps.Add(CONST_AL_NOT_LT);
-            ArithmeticLimitOps.Add(CONST_AL_GE);
-            ArithmeticLimitOps.Add(CONST_AL_NOT_GE);
-            ArithmeticLimitOps.Add(CONST_AL_LE);
-            ArithmeticLimitOps.Add(CONST_AL_NOT_LE);
-            ArithmeticLimitOps.Add(CONST_AL_EQ);
-            ArithmeticLimitOps.Add(CONST_AL_NOT_EQ);
+            this.ArithmeticLimitOps = new HashSet<string>();
+            this.ArithmeticLimitOps.Add(CONST_AL_GT);
+            this.ArithmeticLimitOps.Add(CONST_AL_NOT_GT);
+            this.ArithmeticLimitOps.Add(CONST_AL_LT);
+            this.ArithmeticLimitOps.Add(CONST_AL_NOT_LT);
+            this.ArithmeticLimitOps.Add(CONST_AL_GE);
+            this.ArithmeticLimitOps.Add(CONST_AL_NOT_GE);
+            this.ArithmeticLimitOps.Add(CONST_AL_LE);
+            this.ArithmeticLimitOps.Add(CONST_AL_NOT_LE);
+            this.ArithmeticLimitOps.Add(CONST_AL_EQ);
+            this.ArithmeticLimitOps.Add(CONST_AL_NOT_EQ);
 
-            DateLimitOps = new HashSet<string>();
-            DateLimitOps.Add(CONST_DL_IB);
-            DateLimitOps.Add(CONST_DL_NOT_IB);
-            DateLimitOps.Add(CONST_DL_IA);
-            DateLimitOps.Add(CONST_DL_NOT_IA);            
-            DateLimitOps.Add(CONST_DL_ALMOST);
+            this.DateLimitOps = new HashSet<string>();
+            this.DateLimitOps.Add(CONST_DL_IB);
+            this.DateLimitOps.Add(CONST_DL_NOT_IB);
+            this.DateLimitOps.Add(CONST_DL_IA);
+            this.DateLimitOps.Add(CONST_DL_NOT_IA);
+            this.DateLimitOps.Add(CONST_DL_ALMOST);
 
             // NOTE: Will be implemented later, with a defined plan
             // DateLimitOps.Add(CONST_DL_AROUND);
@@ -191,7 +208,7 @@ namespace WonkaBre.Readers
                 {
                     WonkaRefEnvironment.CreateInstance(false, piMetadataSource);
                 }
-            }            
+            }
         }
 
         #endregion
@@ -200,54 +217,56 @@ namespace WonkaBre.Readers
 
         public WonkaBreRuleSet ParseRuleTree()
         {
-            WonkaBreRuleSet NewRootRuleSet = new WonkaBreRuleSet();
+            WonkaBreRuleSet newRootRuleSet = new WonkaBreRuleSet();
 
-            NewRootRuleSet.RuleSetId   = ++(this.RuleSetIdCounter);
-            NewRootRuleSet.Description = "Root";
+            newRootRuleSet.RuleSetId   = ++this.RuleSetIdCounter;
+            newRootRuleSet.Description = "Root";
 
-            this.RootRuleSet = NewRootRuleSet;
-            AllParsedRuleSets.Add(NewRootRuleSet);
+            this.RootRuleSet = newRootRuleSet;
+            this.AllParsedRuleSets.Add(newRootRuleSet);
 
-            XmlDocument XmlDoc = new XmlDocument();
-            if (BreXmlFilepath != null)
-                XmlDoc.Load(this.BreXmlFilepath);
+            XmlDocument xmlDoc = new XmlDocument();
+            if (this.BreXmlFilepath != null)
+            {
+                xmlDoc.Load(this.BreXmlFilepath);
+            }
             else
             {
-                using (var RuleReader = new StringReader(this.BreXmlContents))
+                using (var ruleReader = new StringReader(this.BreXmlContents))
                 {
-                    XmlDoc.Load(RuleReader);
+                    xmlDoc.Load(ruleReader);
                 }
             }
 
-            XmlNode RootNode = XmlDoc.LastChild;
+            XmlNode rootNode = xmlDoc.LastChild;
 
-            XmlNodeList FirstTierList = RootNode.ChildNodes;
-            foreach (XmlNode FirstTierNode in FirstTierList)
+            XmlNodeList firstTierList = rootNode.ChildNodes;
+            foreach (XmlNode firstTierNode in firstTierList)
             {
-                if (FirstTierNode.LocalName == CONST_RS_FLOW_TAG)
+                if (firstTierNode.LocalName == CONST_RS_FLOW_TAG)
                 {
-                    WonkaBreRuleSet NewChildRuleSet = ParseRuleSet(FirstTierNode);
+                    WonkaBreRuleSet newChildRuleSet = this.ParseRuleSet(firstTierNode);
 
-                    NewChildRuleSet.ParentRuleSetId = NewRootRuleSet.RuleSetId;
+                    newChildRuleSet.ParentRuleSetId = newRootRuleSet.RuleSetId;
 
-                    NewRootRuleSet.AddChildRuleSet(NewChildRuleSet);
+                    newRootRuleSet.AddChildRuleSet(newChildRuleSet);
                 }
             }
 
-            return NewRootRuleSet;
+            return newRootRuleSet;
         }
 
-        private WonkaBreRuleSet ParseRuleSet(XmlNode RuleSetXmlNode, bool pbLeafNode = false)
+        private WonkaBreRuleSet ParseRuleSet(XmlNode poRuleSetXmlNode, bool pbLeafNode = false)
         {
-            WonkaBreRuleSet CurrentRuleSet = new WonkaBreRuleSet(++(this.RuleSetIdCounter));
+            WonkaBreRuleSet currentRuleSet = new WonkaBreRuleSet(++(this.RuleSetIdCounter));
 
-            AllParsedRuleSets.Add(CurrentRuleSet);
+            AllParsedRuleSets.Add(currentRuleSet);
 
-            var AttrDesc = RuleSetXmlNode.Attributes.GetNamedItem(CONST_RS_FLOW_DESC_ATTR);
+            var AttrDesc = poRuleSetXmlNode.Attributes.GetNamedItem(CONST_RS_FLOW_DESC_ATTR);
             if (AttrDesc != null)
-                CurrentRuleSet.Description = AttrDesc.Value;
+                currentRuleSet.Description = AttrDesc.Value;
 
-            XmlNodeList ChildNodeList = RuleSetXmlNode.ChildNodes;
+            XmlNodeList ChildNodeList = poRuleSetXmlNode.ChildNodes;
             foreach (XmlNode TempChildXmlNode in ChildNodeList)
             {
                 if ( (TempChildXmlNode.LocalName == CONST_RS_FLOW_TAG) || 
@@ -269,25 +288,25 @@ namespace WonkaBre.Readers
                         }
                     }
 
-                    NewChildRuleSet.ParentRuleSetId = CurrentRuleSet.RuleSetId;
+                    NewChildRuleSet.ParentRuleSetId = currentRuleSet.RuleSetId;
 
-                    CurrentRuleSet.AddChildRuleSet(NewChildRuleSet);
+                    currentRuleSet.AddChildRuleSet(NewChildRuleSet);
                 }
                 else if (TempChildXmlNode.LocalName == CONST_RULES_TAG)
                 {
-                    ParseRules(TempChildXmlNode, CurrentRuleSet);
+                    ParseRules(TempChildXmlNode, currentRuleSet);
                 }
                 else if (pbLeafNode && (TempChildXmlNode.LocalName == CONST_RS_FAIL_MSG_TAG))
                 {
-                    CurrentRuleSet.CustomFailureMsg = TempChildXmlNode.InnerText;
+                    currentRuleSet.CustomFailureMsg = TempChildXmlNode.InnerText;
                 }
                 else if (pbLeafNode && (TempChildXmlNode.LocalName == CONST_RS_CUSTOM_ID_TAG))
                 {
-                    CurrentRuleSet.CustomId = TempChildXmlNode.InnerText;
+                    currentRuleSet.CustomId = TempChildXmlNode.InnerText;
                 }
             }
 
-            return CurrentRuleSet;
+            return currentRuleSet;
         }
 
         private void ParseRules(XmlNode poTargetXmlNode, WonkaBreRuleSet poTargetRuleSet)

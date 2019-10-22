@@ -6,9 +6,9 @@ using System.Text;
 using WonkaPrd;
 using WonkaRef;
 
-using WonkaBre.Readers;
+using Wonka.BizRulesEngine.Readers;
 
-namespace WonkaBre.RuleTree.RuleTypes
+namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 {
     /// <summary>
     /// 

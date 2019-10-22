@@ -3,7 +3,7 @@ using System.Text;
 
 using WonkaPrd;
 
-namespace WonkaBre.RuleTree
+namespace Wonka.BizRulesEngine.RuleTree
 {
 	/// <summary>
 	/// 

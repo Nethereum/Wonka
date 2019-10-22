@@ -2,9 +2,9 @@
 using System.IO;
 using System.Text;
 
-using WonkaBre;
+using Wonka.BizRulesEngine;
 using WonkaEth.Validation;
-using WonkaBre.Reporting;
+using Wonka.BizRulesEngine.Reporting;
 using WonkaPrd;
 using WonkaRef;
 

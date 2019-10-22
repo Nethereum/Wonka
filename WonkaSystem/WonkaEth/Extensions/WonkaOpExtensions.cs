@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Web3.Accounts;
 
-using WonkaBre;
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
 
 namespace WonkaEth.Extensions
 {

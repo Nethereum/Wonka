@@ -7,8 +7,8 @@ using Nethereum.StandardTokenEIP20;
 using Nethereum.StandardTokenEIP20.ContractDefinition;
 using Nethereum.Web3;
 
-using WonkaBre;
-using WonkaBre.Triggers;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.Triggers;
 
 namespace WonkaEth.Triggers
 {

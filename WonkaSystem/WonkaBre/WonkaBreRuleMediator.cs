@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Text;
 
-using WonkaBre.Reporting;
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine.Reporting;
+using Wonka.BizRulesEngine.RuleTree;
 using WonkaPrd;
 
-namespace WonkaBre
+namespace Wonka.BizRulesEngine
 {
     /// <summary>
     /// 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using WonkaRef;
 
-namespace WonkaBre.Samples
+namespace Wonka.BizRulesEngine.Samples
 {
     public class WonkaBreMetadataTestSource : IMetadataRetrievable
     {

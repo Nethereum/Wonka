@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WonkaBre.Permissions
+namespace Wonka.BizRulesEngine.Permissions
 {
     /// <summary>
     /// 

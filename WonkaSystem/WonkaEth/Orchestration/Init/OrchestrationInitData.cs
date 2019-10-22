@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-using WonkaBre;
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
 using WonkaRef;
 
 namespace WonkaEth.Orchestration.Init

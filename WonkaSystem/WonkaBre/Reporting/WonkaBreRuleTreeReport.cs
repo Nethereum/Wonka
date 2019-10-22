@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine.RuleTree;
 using WonkaPrd;
 using WonkaRef;
 
-namespace WonkaBre.Reporting
+namespace Wonka.BizRulesEngine.Reporting
 {
     /// <summary>
     /// 

@@ -15,8 +15,8 @@ using Nethereum.RPC.Eth.DTOs;
 using Nethereum.RPC.Eth.Filters;
 using Nethereum.Hex.HexConvertors.Extensions;
 
-using WonkaBre;
-using WonkaBre.Reporting;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.Reporting;
 using WonkaRef;
 using WonkaPrd;
 
