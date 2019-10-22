@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+/*
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Core.Metadata.Edm;
+*/
 using System.IO;
 using System.Linq;
 using System.Text;
 
-using WonkaBre;
+using Wonka.BizRulesEngine;
 using WonkaRef;
 
 namespace WonkaImport.Metadata
@@ -119,6 +121,7 @@ namespace WonkaImport.Metadata
             }
         }
 
+        /*
         #region Instance Methods
 
         private void CacheImport(string psDatabaseTable, IMetadataRetrievable poSource)
@@ -399,6 +402,7 @@ namespace WonkaImport.Metadata
         }
 
         #endregion
+        */
 
     }
 }
