@@ -109,7 +109,7 @@ namespace WonkaEth.Validation
         public readonly StringBuilder msRulesContents;
 
         public readonly string              msWeb3HttpUrl;
-        public readonly WonkaBreRulesEngine moRulesEngine;
+        public readonly WonkaBizRulesEngine moRulesEngine;
 
         public AbstractWonkaValidator(T poCommand, string psRulesFilepath, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
          {
@@ -122,7 +122,7 @@ namespace WonkaEth.Validation
 
             Init();
 
-            moRulesEngine = new WonkaBreRulesEngine(msRulesFilepath);
+            moRulesEngine = new WonkaBizRulesEngine(msRulesFilepath);
         }
 
         public AbstractWonkaValidator(T poCommand, StringBuilder psRules, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
@@ -136,7 +136,7 @@ namespace WonkaEth.Validation
 
             Init();
 
-            moRulesEngine = new WonkaBreRulesEngine(msRulesContents);
+            moRulesEngine = new WonkaBizRulesEngine(msRulesContents);
         }
 
         public static void AssignPropertiesViaReflection(T poCommand, Hashtable poDataValues)
@@ -402,7 +402,7 @@ namespace WonkaEth.Validation
             poTargetProduct.GetProductGroup(poTargetAttr.GroupId)[0][poTargetAttr.AttrId] = psTargetValue;
         }
 
-        public virtual WonkaBreRuleTreeReport SimulateValidate(T instance) { return null; }
+        public virtual WonkaBizRuleTreeReport SimulateValidate(T instance) { return null; }
 
         public virtual bool Validate(T instance) 
         {

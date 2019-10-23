@@ -31,7 +31,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 	/// NOTE: If the Attribute has neither a 'O' or 'N' preceding it, it will be assumed to be 'N'.
 	///  
 	/// </summary>
-	public class AssignmentRule : WonkaBreRule
+	public class AssignmentRule : WonkaBizRule
     {
         #region Constructors
 
@@ -51,7 +51,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             Init(peTargetRecord, pnTargetAttrId, psAssignValue);
 
             this.AssignValueProps =
-                new WonkaBreRuleValueProps()
+                new WonkaBizRuleValueProps()
                 {
                     IsLiteralValue = true,
                     TargetRecord   = TARGET_RECORD.TRID_NONE,
@@ -65,7 +65,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             Init(peTargetRecord, pnTargetAttrId, psAssignAttrName);
 
             this.AssignValueProps =
-                new WonkaBreRuleValueProps()
+                new WonkaBizRuleValueProps()
                 {
                     IsLiteralValue = false,
                     TargetRecord   = peAssignRecord,
@@ -173,7 +173,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                 this.TargetAttribute  = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
 
             this.AssignValue      = psAssignValue;
-            this.AssignValueProps = new WonkaBreRuleValueProps();
+            this.AssignValueProps = new WonkaBizRuleValueProps();
         }
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 
         public string AssignValue { get; set; }
 
-        public WonkaBreRuleValueProps AssignValueProps { get; set; }
+        public WonkaBizRuleValueProps AssignValueProps { get; set; }
 
         public bool DefaultAssignment = false;
 

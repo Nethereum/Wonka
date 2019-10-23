@@ -8,9 +8,9 @@ namespace Wonka.BizRulesEngine.Reporting
     /// (i.e., instances of WonkaBreRuleReportNode) within a RuleSet.
     /// 
     /// </summary>
-    public class WonkaBreRuleSetReportNode
+    public class WonkaBizRuleSetReportNode
     {
-        public WonkaBreRuleSetReportNode()
+        public WonkaBizRuleSetReportNode()
         {
             this.RuleSetID = -1;
 
@@ -25,7 +25,7 @@ namespace Wonka.BizRulesEngine.Reporting
             this.WarningFailureCount = 0;
             this.SevereFailureCount  = 0;
 
-            this.RuleResults = new List<WonkaBreRuleReportNode>();
+            this.RuleResults = new List<WonkaBizRuleReportNode>();
         }
 
         public int RuleSetID { get; set; }
@@ -44,7 +44,7 @@ namespace Wonka.BizRulesEngine.Reporting
 
         public int SevereFailureCount { get; set; }
 
-        public List<WonkaBreRuleReportNode> RuleResults { get; set; }
+        public List<WonkaBizRuleReportNode> RuleResults { get; set; }
     }
 }
 

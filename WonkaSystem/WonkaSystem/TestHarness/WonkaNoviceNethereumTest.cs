@@ -88,7 +88,7 @@ namespace WonkaSystem.TestHarness
 
         private List<WonkaRefAttr> moTargetAttrList = null;
 
-        private WonkaBreRulesEngine moRulesEngine = null;
+        private WonkaBizRulesEngine moRulesEngine = null;
 
         public WonkaNoviceNethereumTest(string psSenderAddress, string psPassword, string psContractAddress = null, bool bSerializeMetadataAndEngine = true)
         {                       
@@ -445,7 +445,7 @@ namespace WonkaSystem.TestHarness
 
             // Creating an instance of the rules engine using our rules and the metadata
             moRulesEngine =
-                new WonkaBreRulesEngine(new StringBuilder(msRulesContents), moMetadataSource);
+                new WonkaBizRulesEngine(new StringBuilder(msRulesContents), moMetadataSource);
 
             moRulesEngine.SetDefaultStdOps(this.msPassword);
 

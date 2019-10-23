@@ -142,7 +142,7 @@ namespace WonkaEth.Extensions
 
         public HexBigInteger RuleSetErrorEventFilter { get; set; }
 
-        public void HandleEvents(WonkaBreRulesEngine poRulesEngine, RuleTreeReport poRuleTreeReport)
+        public void HandleEvents(WonkaBizRulesEngine poRulesEngine, RuleTreeReport poRuleTreeReport)
         {
             var ruleTreeLog   = RuleTreeEvents.GetFilterChanges<CallRuleTreeEvent>(RuleTreeEventFilter).Result;
             var ruleSetLog    = RuleSetEvents.GetFilterChanges<CallRuleSetEvent>(RuleSetEventFilter).Result;

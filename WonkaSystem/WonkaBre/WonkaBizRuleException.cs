@@ -8,16 +8,16 @@ namespace Wonka.BizRulesEngine
     /// the Business Rules Engine.
     /// 
     /// </summary>
-    public class WonkaBreException : Exception
+    public class WonkaBizRuleException : Exception
     {
-        public WonkaBreException(string psErrorMessage)
+        public WonkaBizRuleException(string psErrorMessage)
         {
             RuleSetId = RuleId = 0;
 
             Msg = psErrorMessage;
         }
 
-        public WonkaBreException(int pnRuleSetId, int pnRuleId, string psErrorMessage)
+        public WonkaBizRuleException(int pnRuleSetId, int pnRuleId, string psErrorMessage)
         {
             RuleSetId = pnRuleSetId;
             RuleId    = pnRuleId;

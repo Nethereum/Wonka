@@ -20,7 +20,7 @@ namespace WonkaImport.RuleTree
     /// </summary>
     public interface IRuleTreeRetrievable
     {
-        WonkaBreRulesEngine CreateRulesEngine();
+        WonkaBizRulesEngine CreateRulesEngine();
 
         BRE_IMPORT_SOURCE GetImportSourceType();
 

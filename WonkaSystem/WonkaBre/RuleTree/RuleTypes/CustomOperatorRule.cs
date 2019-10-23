@@ -35,7 +35,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
     /// NOTE: If the Attribute has neither a 'O' or 'N' preceding it, it will be assumed to be 'N'.
     ///  
     /// </summary>
-    public class CustomOperatorRule : WonkaBreRule
+    public class CustomOperatorRule : WonkaBizRule
     {
         #region Constructors
 
@@ -53,8 +53,8 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                                   TARGET_RECORD                           peTargetRecord, 
                                   int                                     pnTargetAttrId, 
                                   string                                  psCustomOpName,
-                                  WonkaBreXmlReader.ExecuteCustomOperator poCustomOpDelegate,
-                                  WonkaBreSource                          poCustomOpContractSource) :
+                                  WonkaBizRulesXmlReader.ExecuteCustomOperator poCustomOpDelegate,
+                                  WonkaBizSource                          poCustomOpContractSource) :
             base(pnRuleID, RULE_TYPE.RT_CUSTOM_OP)
         {
             Init(peTargetRecord, pnTargetAttrId, null);
@@ -80,8 +80,8 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
         /// </summary>
         public void AddDomainValue(string psDomainVal, bool pbIsLiteral, TARGET_RECORD peTargetRecord)
         {
-            WonkaBreRuleValueProps oValueProps =
-                new WonkaBreRuleValueProps() { IsLiteralValue = pbIsLiteral };
+            WonkaBizRuleValueProps oValueProps =
+                new WonkaBizRuleValueProps() { IsLiteralValue = pbIsLiteral };
 
             if (pbIsLiteral)
             {
@@ -110,9 +110,9 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             DomainValueProps[psDomainVal] = oValueProps;
         }
 
-        public WonkaBreRuleValueProps GetDomainValueProps(string psValue)
+        public WonkaBizRuleValueProps GetDomainValueProps(string psValue)
         {
-            WonkaBreRuleValueProps oValueProps = null;
+            WonkaBizRuleValueProps oValueProps = null;
 
             if (!String.IsNullOrEmpty(psValue) && DomainValueProps.ContainsKey(psValue))
                 oValueProps = DomainValueProps[psValue];
@@ -235,7 +235,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             this.HasAttrIdTargets = false;
 
             DomainCache      = new List<string>();
-            DomainValueProps = new Dictionary<string, WonkaBreRuleValueProps>();
+            DomainValueProps = new Dictionary<string, WonkaBizRuleValueProps>();
             CustomOpPropArgs = new List<string>();
 
             this.RecordOfInterest = peTargetRecord;
@@ -272,7 +272,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             int  nAttrId  = 0;
             int  nGroupId = 0;
 
-            WonkaBreRuleValueProps RuleValueProps = null;
+            WonkaBizRuleValueProps RuleValueProps = null;
 
             if (HasAttrIdTargets)
             {
@@ -383,13 +383,13 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 
         public string CustomOpName { get; set; }
 
-        public WonkaBreXmlReader.ExecuteCustomOperator CustomOpDelegate { get; set; }
+        public WonkaBizRulesXmlReader.ExecuteCustomOperator CustomOpDelegate { get; set; }
 
-        public WonkaBreSource CustomOpContractSource { get; set; }
+        public WonkaBizSource CustomOpContractSource { get; set; }
 
         public List<string> DomainCache { get; set; }
 
-        public Dictionary<string, WonkaBreRuleValueProps> DomainValueProps { get; set; }
+        public Dictionary<string, WonkaBizRuleValueProps> DomainValueProps { get; set; }
 
         public List<string> CustomOpPropArgs { get; set; }
 

@@ -22,7 +22,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 	/// It evaluates whether the value is before 01/01/1900.
 	///  
 	/// </summary>
-	public class DateLimitRule : WonkaBreRule
+	public class DateLimitRule : WonkaBizRule
     {
         #region CONSTANTS
         private const string CONST_WONKA_DATETIME_FORMAT = "MM/dd/yyyy";
@@ -164,10 +164,10 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             this.TodayIndicator = false;
 
             this.MinValue      = DateTime.MinValue;
-            this.MinValueProps = new WonkaBreRuleValueProps() { IsLiteralValue = true };
+            this.MinValueProps = new WonkaBizRuleValueProps() { IsLiteralValue = true };
 
             this.MaxValue      = DateTime.MaxValue;
-            this.MaxValueProps = new WonkaBreRuleValueProps() { IsLiteralValue = true };
+            this.MaxValueProps = new WonkaBizRuleValueProps() { IsLiteralValue = true };
 
             this.IsPassive        = true;
             this.RecordOfInterest = peTargetRecord;
@@ -274,7 +274,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                 string sTempValue    = paValueSet[0];
 
                 DateTime               DateTimeValue       = DateTime.Now;
-                WonkaBreRuleValueProps AttributeValueProps = new WonkaBreRuleValueProps() { IsLiteralValue = false };
+                WonkaBizRuleValueProps AttributeValueProps = new WonkaBizRuleValueProps() { IsLiteralValue = false };
 
                 try
                 {
@@ -294,8 +294,8 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                         AttributeValueProps = this.GetAttributeValueProps(sTempValue);
                 }
 
-                if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_DL_IB) ||
-                    psRuleExpression.Contains(WonkaBreXmlReader.CONST_DL_NOT_IB))
+                if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_IB) ||
+                    psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_NOT_IB))
                 {
                     this.MinValue = DateTime.MinValue;
                     this.MaxValue = DateTimeValue;
@@ -303,11 +303,11 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     if (!bLiteralValue)
                         this.MaxValueProps = AttributeValueProps;
 
-                    if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_DL_NOT_IB))
+                    if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_NOT_IB))
                         this.NotOperator = true;
                 }
-                else if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_DL_IA) ||
-                         psRuleExpression.Contains(WonkaBreXmlReader.CONST_DL_NOT_IA))
+                else if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_IA) ||
+                         psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_NOT_IA))
                 {
                     this.MinValue = DateTimeValue;
                     this.MaxValue = DateTime.MaxValue;
@@ -315,10 +315,10 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     if (!bLiteralValue)
                         this.MinValueProps = AttributeValueProps;
 
-                    if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_DL_NOT_IA))
+                    if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_NOT_IA))
                         this.NotOperator = true;
                 }
-                else if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_DL_ALMOST))
+                else if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_ALMOST))
                 {
                     if (!this.TodayIndicator)
                         throw new Exception("ERROR!  Cannot use ALMOST operator without using the TODAY keyword.");
@@ -356,11 +356,11 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 
         public DateTime MinValue { get; set; }
 
-        public WonkaBreRuleValueProps MinValueProps { get; set; }
+        public WonkaBizRuleValueProps MinValueProps { get; set; }
 
         public DateTime MaxValue { get; set; }
 
-        public WonkaBreRuleValueProps MaxValueProps { get; set; }
+        public WonkaBizRuleValueProps MaxValueProps { get; set; }
 
         #endregion
     }

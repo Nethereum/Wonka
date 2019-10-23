@@ -138,8 +138,8 @@ namespace WonkaSystem.TestHarness
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
-            Dictionary<string, WonkaBreSource> SourceMap =
-                new Dictionary<string, WonkaBreSource>();
+            Dictionary<string, WonkaBizSource> SourceMap =
+                new Dictionary<string, WonkaBizSource>();
 
             string sDefaultSource      = "S";
             string sContractSourceId   = sDefaultSource;
@@ -171,20 +171,20 @@ namespace WonkaSystem.TestHarness
             // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
             foreach (WonkaRefAttr TempAttr in moTargetAttrList)
             {                
-                WonkaBreSource TempSource =
-                    new WonkaBreSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchGetterMethod, sOrchSetterMethod, RetrieveValueMethod);
+                WonkaBizSource TempSource =
+                    new WonkaBizSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchGetterMethod, sOrchSetterMethod, RetrieveValueMethod);
 
                 SourceMap[TempAttr.AttrName] = TempSource;
             }
 
             // Creating an instance of the rules engine using our rules and the metadata
-            WonkaBreRulesEngine RulesEngine = null;
+            WonkaBizRulesEngine RulesEngine = null;
 
             if (psOrchestrationTestAddress == null)
-                RulesEngine = new WonkaBreRulesEngine(new StringBuilder(msRulesContents), moMetadataSource);
+                RulesEngine = new WonkaBizRulesEngine(new StringBuilder(msRulesContents), moMetadataSource);
             else
             {
-                RulesEngine = new WonkaBreRulesEngine(new StringBuilder(msRulesContents), SourceMap, moMetadataSource);
+                RulesEngine = new WonkaBizRulesEngine(new StringBuilder(msRulesContents), SourceMap, moMetadataSource);
                 RulesEngine.DefaultSource = sDefaultSource;
             }
 
@@ -207,7 +207,7 @@ namespace WonkaSystem.TestHarness
             // SerializeProductToBlockchain(NewProduct);
 
             // Validate that the .NET implementation and the rules markup are both working properly
-            Wonka.BizRulesEngine.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
+            Wonka.BizRulesEngine.Reporting.WonkaBizRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
             string sStatusValueAfter = GetAttributeValue(NewProduct, AccountStsAttr);
             string sFlagValueAfter   = GetAttributeValue(NewProduct, RvwFlagAttr);
@@ -258,7 +258,7 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        public RuleTreeReport ExecuteWithReport(WonkaBreRulesEngine poRulesEngine, bool pbValidateWithinTransaction, WonkaBreSource poFlagSource)
+        public RuleTreeReport ExecuteWithReport(WonkaBizRulesEngine poRulesEngine, bool pbValidateWithinTransaction, WonkaBizSource poFlagSource)
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
@@ -394,7 +394,7 @@ namespace WonkaSystem.TestHarness
             return contract;
         }
 
-        public Nethereum.Contracts.Contract GetContract(WonkaBreSource TargetSource)
+        public Nethereum.Contracts.Contract GetContract(WonkaBizSource TargetSource)
         {
             var account  = new Account(TargetSource.Password);
             var web3     = new Nethereum.Web3.Web3(account);
@@ -403,7 +403,7 @@ namespace WonkaSystem.TestHarness
             return contract;
         }
 
-        public string RetrieveValueMethod(WonkaBreSource poTargetSource, string psAttrName)
+        public string RetrieveValueMethod(WonkaBizSource poTargetSource, string psAttrName)
         {
             var contract = GetContract(poTargetSource);
 
@@ -482,7 +482,7 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        private void SerializeRulesEngineToBlockchain(WonkaBreRulesEngine poEngine)
+        private void SerializeRulesEngineToBlockchain(WonkaBizRulesEngine poEngine)
         {
             var contract = GetContract();
 

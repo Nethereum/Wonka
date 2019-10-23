@@ -30,7 +30,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
     /// NOTE: If the Attribute has neither a 'O' or 'N' preceding it, it will be assumed to be 'N'.
     ///  
     /// </summary>
-    public class ArithmeticRule : WonkaBreRule
+    public class ArithmeticRule : WonkaBizRule
     {
         #region Constructors
 
@@ -67,8 +67,8 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
         /// </summary>
         public void AddDomainValue(string psDomainVal, bool pbIsLiteral, TARGET_RECORD peTargetRecord)
         {
-            WonkaBreRuleValueProps oValueProps =
-                new WonkaBreRuleValueProps() { IsLiteralValue = pbIsLiteral };
+            WonkaBizRuleValueProps oValueProps =
+                new WonkaBizRuleValueProps() { IsLiteralValue = pbIsLiteral };
 
             if (pbIsLiteral)
             {
@@ -87,9 +87,9 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             DomainValueProps[psDomainVal] = oValueProps;
         }
 
-        public WonkaBreRuleValueProps GetDomainValueProps(string psValue)
+        public WonkaBizRuleValueProps GetDomainValueProps(string psValue)
         {
-            WonkaBreRuleValueProps oValueProps = null;
+            WonkaBizRuleValueProps oValueProps = null;
 
             if (!String.IsNullOrEmpty(psValue) && DomainValueProps.ContainsKey(psValue))
                 oValueProps = DomainValueProps[psValue];
@@ -248,7 +248,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             this.SearchAllDataRows = false;
 
             DomainCache      = new HashSet<string>();
-            DomainValueProps = new Dictionary<string, WonkaBreRuleValueProps>();
+            DomainValueProps = new Dictionary<string, WonkaBizRuleValueProps>();
         }
 
         /// <summary>
@@ -279,7 +279,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             int  nAttrId  = 0;
             int  nGroupId = 0;
 
-            WonkaBreRuleValueProps RuleValueProps = null;
+            WonkaBizRuleValueProps RuleValueProps = null;
 
             if (HasAttrIdTargets)
             {
@@ -394,7 +394,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 
         public HashSet<string> DomainCache { get; set; }
 
-        public Dictionary<string, WonkaBreRuleValueProps> DomainValueProps { get; set; }
+        public Dictionary<string, WonkaBizRuleValueProps> DomainValueProps { get; set; }
 
         #endregion
     }

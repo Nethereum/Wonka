@@ -33,12 +33,12 @@ namespace Wonka.BizRulesEngine
     /// (especially in terms of saving gas).
     /// 
     /// </summary>
-    public class WonkaBreRulesEngine
+    public class WonkaBizRulesEngine
     {
         #region Delegates
         //public delegate bool ComplexEditsDelegate(WonkaProduct poNewProduct, WonkaProduct poOldProduct);
         public delegate WonkaProduct RetrieveOldRecordDelegate(Dictionary<string, string> KeyValues);
-        public delegate string       RetrieveStdOpValDelegate(WonkaBreRulesEngine EngineId, string OptionalKeyVal);
+        public delegate string       RetrieveStdOpValDelegate(WonkaBizRulesEngine EngineId, string OptionalKeyVal);
         #endregion
 
         #region CONSTANTS
@@ -61,55 +61,55 @@ namespace Wonka.BizRulesEngine
         #endregion
 
         #region Constructors
-        public WonkaBreRulesEngine(string psRulesFilepath, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
+        public WonkaBizRulesEngine(string psRulesFilepath, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
         {
             if (String.IsNullOrEmpty(psRulesFilepath))
-                throw new WonkaBreException("ERROR!  Provided rules file is null or empty!");
+                throw new WonkaBizRuleException("ERROR!  Provided rules file is null or empty!");
 
             if (!File.Exists(psRulesFilepath))
-                throw new WonkaBreException("ERROR!  Provided rules file(" + psRulesFilepath + ") does not exist on the filesystem.");
+                throw new WonkaBizRuleException("ERROR!  Provided rules file(" + psRulesFilepath + ") does not exist on the filesystem.");
 
             UsingOrchestrationMode = false;
             AddToRegistry          = pbAddToRegistry;
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRulesFilepath, piMetadataSource, this);
+            WonkaBizRulesXmlReader BreXmlReader = new WonkaBizRulesXmlReader(psRulesFilepath, piMetadataSource, this);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             AllRuleSets  = BreXmlReader.AllParsedRuleSets;
         }
 
-        public WonkaBreRulesEngine(StringBuilder psRules, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
+        public WonkaBizRulesEngine(StringBuilder psRules, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
         {
             if ((psRules == null) || (psRules.Length <= 0))
-                throw new WonkaBreException("ERROR!  Provided rules are null or empty!");
+                throw new WonkaBizRuleException("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = false;
             AddToRegistry          = pbAddToRegistry;
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules, piMetadataSource, this);
+            WonkaBizRulesXmlReader BreXmlReader = new WonkaBizRulesXmlReader(psRules, piMetadataSource, this);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             AllRuleSets  = BreXmlReader.AllParsedRuleSets;
         }
 
-        public WonkaBreRulesEngine(StringBuilder                      psRules, 
-                                   Dictionary<string, WonkaBreSource> poSourceMap, 
+        public WonkaBizRulesEngine(StringBuilder                      psRules, 
+                                   Dictionary<string, WonkaBizSource> poSourceMap, 
                                    IMetadataRetrievable               piMetadataSource = null,
                                    bool                               pbAddToRegistry = false)
         {
             if ((psRules == null) || (psRules.Length <= 0))
-                throw new WonkaBreException("ERROR!  Provided rules are null or empty!");
+                throw new WonkaBizRuleException("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = true;
             AddToRegistry          = pbAddToRegistry;
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules, piMetadataSource, this);
+            WonkaBizRulesXmlReader BreXmlReader = new WonkaBizRulesXmlReader(psRules, piMetadataSource, this);
 
             RuleTreeRoot = BreXmlReader.ParseRuleTree();
             SourceMap    = poSourceMap;
@@ -118,25 +118,25 @@ namespace Wonka.BizRulesEngine
             this.RetrieveCurrRecord = AssembleCurrentProduct;
         }
 
-        public WonkaBreRulesEngine(StringBuilder                      psRules, 
-                                   Dictionary<string, WonkaBreSource> poSourceMap, 
-                                   Dictionary<string, WonkaBreSource> poCustomOpBlockchainSources,
+        public WonkaBizRulesEngine(StringBuilder                      psRules, 
+                                   Dictionary<string, WonkaBizSource> poSourceMap, 
+                                   Dictionary<string, WonkaBizSource> poCustomOpBlockchainSources,
                                    IMetadataRetrievable               piMetadataSource = null,
                                    bool                               pbAddToRegistry = true)
         {
             if ((psRules == null) || (psRules.Length <= 0))
-                throw new WonkaBreException("ERROR!  Provided rules are null or empty!");
+                throw new WonkaBizRuleException("ERROR!  Provided rules are null or empty!");
 
             UsingOrchestrationMode = true;
             AddToRegistry          = pbAddToRegistry;
 
             RefEnvHandle = Init(piMetadataSource);
 
-            WonkaBreXmlReader BreXmlReader = new WonkaBreXmlReader(psRules, piMetadataSource, this);
+            WonkaBizRulesXmlReader BreXmlReader = new WonkaBizRulesXmlReader(psRules, piMetadataSource, this);
 
             foreach (string sKey in poCustomOpBlockchainSources.Keys)
             {
-                WonkaBreSource oTargetSource = poCustomOpBlockchainSources[sKey];
+                WonkaBizSource oTargetSource = poCustomOpBlockchainSources[sKey];
 
                 BreXmlReader.AddCustomOperator(sKey, oTargetSource);
             }
@@ -170,7 +170,7 @@ namespace Wonka.BizRulesEngine
             {
                 foreach (string sTmpAttName in SourceMap.Keys)
                 {
-                    WonkaBreSource TmpSource  = SourceMap[sTmpAttName];
+                    WonkaBizSource TmpSource  = SourceMap[sTmpAttName];
                     WonkaRefAttr   TargetAttr = RefEnvHandle.GetAttributeByAttrName(sTmpAttName);
 
                     string sTmpValue = TmpSource.RetrievalDelegate.Invoke(TmpSource, TargetAttr.AttrName);
@@ -204,8 +204,8 @@ namespace Wonka.BizRulesEngine
             GroveId       = RegistrationId = "";
             GroveIndex    = 0;
             StdOpMap      = new Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate>();
-            SourceMap     = new Dictionary<string, WonkaBreSource>();
-            CustomOpMap   = new Dictionary<string, WonkaBreSource>();
+            SourceMap     = new Dictionary<string, WonkaBizSource>();
+            CustomOpMap   = new Dictionary<string, WonkaBizSource>();
             DefaultSource = "";
 
             OnSuccessTriggers = new List<ISuccessTrigger>();
@@ -233,12 +233,12 @@ namespace Wonka.BizRulesEngine
 				if (TempAttrKey.GroupId == 1)
 				{
 					if (poTargetProduct.GetProductGroup(TempAttrKey.GroupId).GetRowCount() <= 0)
-						throw new WonkaBreException("ERROR!  Provided incoming product has empty group for needed key (" + TempAttrKey.AttrName + ").");
+						throw new WonkaBizRuleException("ERROR!  Provided incoming product has empty group for needed key (" + TempAttrKey.AttrName + ").");
 
 					string sTempKeyValue = poTargetProduct.GetProductGroup(TempAttrKey.GroupId)[0][TempAttrKey.AttrId];
 
 					if (String.IsNullOrEmpty(sTempKeyValue))
-						throw new WonkaBreException("ERROR!  Provided incoming product has no value for needed key(" + TempAttrKey.AttrName + ").");
+						throw new WonkaBizRuleException("ERROR!  Provided incoming product has no value for needed key(" + TempAttrKey.AttrName + ").");
 
 					ProductKeys[TempAttrKey.AttrName] = sTempKeyValue;
 				}
@@ -257,18 +257,18 @@ namespace Wonka.BizRulesEngine
         /// <param name="poIncomingProduct">The product that we are attempting to validate</param>
         /// <returns>Contains a detailed report of the RuleTree's application to the provided product</returns>
         /// </summary>
-        public WonkaBreRuleTreeReport Validate(WonkaProduct poIncomingProduct)
+        public WonkaBizRuleTreeReport Validate(WonkaProduct poIncomingProduct)
         {
             WonkaRefEnvironment        WonkaRefEnv = WonkaRefEnvironment.GetInstance();
             Dictionary<string, string> ProductKeys = GetProductKeys(poIncomingProduct);
 
             if (poIncomingProduct == null)
-                throw new WonkaBreException("ERROR!  Provided incoming product is null!");
+                throw new WonkaBizRuleException("ERROR!  Provided incoming product is null!");
 
             if ((TransactionState != null) && !TransactionState.IsTransactionConfirmed())
-                throw new WonkaBrePermissionsException("ERROR!  Pending transaction has not yet been confirmed!", TransactionState);
+                throw new WonkaBizPermissionsException("ERROR!  Pending transaction has not yet been confirmed!", TransactionState);
 
-            WonkaBreRuleTreeReport RuleTreeReport = new WonkaBreRuleTreeReport();
+            WonkaBizRuleTreeReport RuleTreeReport = new WonkaBizRuleTreeReport();
 
             try
             {
@@ -278,7 +278,7 @@ namespace Wonka.BizRulesEngine
                 else
                     CurrentProductOnDB = new WonkaProduct();
 
-                WonkaBreRuleMediator.MediateRuleTreeExecution(RuleTreeRoot, poIncomingProduct, CurrentProductOnDB, RuleTreeReport);
+                WonkaBizRuleMediator.MediateRuleTreeExecution(RuleTreeRoot, poIncomingProduct, CurrentProductOnDB, RuleTreeReport);
 
                 /*
                  * NOTE: Do we need anything like this method
@@ -322,7 +322,7 @@ namespace Wonka.BizRulesEngine
 
         public uint GroveIndex { get; set; }
 
-        public WonkaBreRuleSet RuleTreeRoot { get; set; }
+        public WonkaBizRuleSet RuleTreeRoot { get; set; }
 
         public WonkaProduct CurrentProductOnDB { get; set; }
 
@@ -338,7 +338,7 @@ namespace Wonka.BizRulesEngine
                 if (!UsingOrchestrationMode)
                     RetrieveCurrRecord = value;
                 else
-                    throw new WonkaBreException("ERROR!  Cannot reassign the delegate when running in orchestration mode.");
+                    throw new WonkaBizRuleException("ERROR!  Cannot reassign the delegate when running in orchestration mode.");
             }
 		}
 
@@ -355,9 +355,9 @@ namespace Wonka.BizRulesEngine
 
 				if (AllRuleSets != null)
 				{
-					foreach (WonkaBreRuleSet TempRuleSet in AllRuleSets)
+					foreach (WonkaBizRuleSet TempRuleSet in AllRuleSets)
 					{
-						foreach (WonkaBreRule TempRule in TempRuleSet.EvaluativeRules)
+						foreach (WonkaBizRule TempRule in TempRuleSet.EvaluativeRules)
 						{
 							if (StandardOps != null)
 							{
@@ -370,15 +370,15 @@ namespace Wonka.BizRulesEngine
 			}
 		}
 
-        public Dictionary<string, WonkaBreSource> SourceMap { get; set; }
+        public Dictionary<string, WonkaBizSource> SourceMap { get; set; }
 
-        public Dictionary<string, WonkaBreSource> CustomOpMap { get; set; }
+        public Dictionary<string, WonkaBizSource> CustomOpMap { get; set; }
 
         public string DefaultSource { get; set; }
 
         public ITransactionState TransactionState { get; set; }
 
-        public List<WonkaBreRuleSet> AllRuleSets { get; set; }
+        public List<WonkaBizRuleSet> AllRuleSets { get; set; }
 
         public List<ISuccessTrigger> OnSuccessTriggers { get; set; }
 

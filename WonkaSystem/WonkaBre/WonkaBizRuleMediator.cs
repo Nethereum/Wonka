@@ -15,9 +15,9 @@ namespace Wonka.BizRulesEngine
     /// applying the various RuleSets and Rules against the Product(s) in order to evaluate them as valid or not.
     /// 
     /// </summary>
-    public class WonkaBreRuleMediator
+    public class WonkaBizRuleMediator
     {
-        private WonkaBreRuleMediator()
+        private WonkaBizRuleMediator()
         {}
 
         /// <summary>
@@ -33,10 +33,10 @@ namespace Wonka.BizRulesEngine
         /// <param name="poRuleSetErrorMessage">The buffer that will contain an error message if the 'poTargetRuleSet' fails</param>
         /// <returns>Indicates whether or not the RuleSet evaluated to a success</returns>
         /// </summary>
-        private static bool MediateRulesExecution(WonkaBreRuleSet        poTargetRuleSet, 
+        private static bool MediateRulesExecution(WonkaBizRuleSet        poTargetRuleSet, 
                                                   WonkaProduct           poIncomingProduct,
                                                   WonkaProduct           poCurrentProduct,
-                                                  WonkaBreRuleTreeReport poRuleTreeReport,
+                                                  WonkaBizRuleTreeReport poRuleTreeReport,
                                                   StringBuilder          poRuleSetErrorMessage)
         {
             bool bRuleSetResult = true;
@@ -44,7 +44,7 @@ namespace Wonka.BizRulesEngine
             StringBuilder RuleErrorMsgBuilder = new StringBuilder();
             List<bool>    RuleResultList      = new List<bool>();
 
-            foreach (WonkaBreRule TempRule in poTargetRuleSet.EvaluativeRules)
+            foreach (WonkaBizRule TempRule in poTargetRuleSet.EvaluativeRules)
             {
                 bool   bRuleResult      = true;
                 string sRuleResult      = "";
@@ -110,7 +110,7 @@ namespace Wonka.BizRulesEngine
             // Only apply the assertive rules if the evaluative rules are applied successfully
             if (bRuleSetResult && (poTargetRuleSet.AssertiveRules.Count() > 0))
             {
-                foreach (WonkaBreRule TempRule in poTargetRuleSet.AssertiveRules)
+                foreach (WonkaBizRule TempRule in poTargetRuleSet.AssertiveRules)
                 {
                     bool bRuleResult = true;
 
@@ -147,10 +147,10 @@ namespace Wonka.BizRulesEngine
         /// <param name="poRuleTreeReport">The report that will contain all evaluations of RuleSets in the RuleTree</param>
         /// <returns>Indicates whether or not the RuleSet evaluated to a success</returns>
         /// </summary>
-        private static bool MediateRuleSetExecution(WonkaBreRuleSet        poTargetRuleSet,
+        private static bool MediateRuleSetExecution(WonkaBizRuleSet        poTargetRuleSet,
                                                     WonkaProduct           poIncomingProduct,
                                                     WonkaProduct           poCurrentProduct,
-                                                    WonkaBreRuleTreeReport poRuleTreeReport)
+                                                    WonkaBizRuleTreeReport poRuleTreeReport)
         {
             bool   bTotalRuleSetResult  = true;
             bool   bTempRulesResult     = true;
@@ -209,7 +209,7 @@ namespace Wonka.BizRulesEngine
                 return bTotalRuleSetResult;
             }
 
-            foreach (WonkaBreRuleSet ChildRuleSet in poTargetRuleSet.ChildRuleSets)
+            foreach (WonkaBizRuleSet ChildRuleSet in poTargetRuleSet.ChildRuleSets)
             {
                 bTempRuleSetResult =
                     MediateRuleSetExecution(ChildRuleSet, poIncomingProduct, poCurrentProduct, poRuleTreeReport);
@@ -234,10 +234,10 @@ namespace Wonka.BizRulesEngine
         /// <param name="poRuleTreeReport">The report that will contain all evaluations of RuleSets in the RuleTree</param>
         /// <returns>Indicates whether or not the RuleSet evaluated to a success</returns>
         /// </summary>
-        public static bool MediateRuleTreeExecution(WonkaBreRuleSet        poRootRuleSet,
+        public static bool MediateRuleTreeExecution(WonkaBizRuleSet        poRootRuleSet,
                                                     WonkaProduct           poIncomingProduct,
                                                     WonkaProduct           poCurrentProduct,
-                                                    WonkaBreRuleTreeReport poRuleTreeReport)
+                                                    WonkaBizRuleTreeReport poRuleTreeReport)
         {
             bool bRuleTreeResult = true;
 

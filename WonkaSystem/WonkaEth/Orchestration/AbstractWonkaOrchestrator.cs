@@ -52,7 +52,7 @@ namespace WonkaEth.Orchestration
         public readonly StringBuilder msRulesContents;
 
         public readonly OrchestrationInitData moInitData;
-        public readonly WonkaBreRulesEngine   moRulesEngine;
+        public readonly WonkaBizRulesEngine   moRulesEngine;
 
         public AbstractWonkaOrchestrator(T poCommand, StringBuilder psRules, OrchestrationInitData poOrchInitData, string psGroveId = "", uint pnGroveIndex = 0)
         {
@@ -62,7 +62,7 @@ namespace WonkaEth.Orchestration
 
             moInitData = poOrchInitData;
 
-            moRulesEngine = new WonkaBreRulesEngine(msRulesContents, 
+            moRulesEngine = new WonkaBizRulesEngine(msRulesContents, 
                                                     poOrchInitData.BlockchainDataSources, 
                                                     poOrchInitData.BlockchainCustomOpFunctions, 
                                                     poOrchInitData.AttributesMetadataSource,
@@ -129,7 +129,7 @@ namespace WonkaEth.Orchestration
 
             foreach (String sTempAttrName in moRulesEngine.SourceMap.Keys)
             {
-                WonkaBreSource TempSource = moRulesEngine.SourceMap[sTempAttrName];
+                WonkaBizSource TempSource = moRulesEngine.SourceMap[sTempAttrName];
 
                 string sSenderAddr = TempSource.SenderAddress;
 
@@ -146,7 +146,7 @@ namespace WonkaEth.Orchestration
             AssignPropertiesViaReflection(poCommand, DataValues);
         }
 
-        public Nethereum.Contracts.Contract GetContract(WonkaBreSource poBlockchainSource)
+        public Nethereum.Contracts.Contract GetContract(WonkaBizSource poBlockchainSource)
         {
             var account = new Account(poBlockchainSource.Password);
 
@@ -261,7 +261,7 @@ namespace WonkaEth.Orchestration
             {
                 if (poOrchInitData.DefaultBlockchainDataSource != null) 
                 {
-                    Dictionary<string, WonkaBreSource> BlockchainDataSources = new Dictionary<string, WonkaBreSource>();
+                    Dictionary<string, WonkaBizSource> BlockchainDataSources = new Dictionary<string, WonkaBizSource>();
 
                     Dictionary<PropertyInfo, WonkaRefAttr> PropMap = poCommand.GetPropertyMap();
 
@@ -374,7 +374,7 @@ namespace WonkaEth.Orchestration
 
             foreach (String sTempAttrName in DataValues.Keys)
             {
-                WonkaBreSource TempSource = moRulesEngine.SourceMap[sTempAttrName];
+                WonkaBizSource TempSource = moRulesEngine.SourceMap[sTempAttrName];
 
                 string sSenderAddr = TempSource.SenderAddress;
                 string sAttrValue  = (string)DataValues[sTempAttrName];

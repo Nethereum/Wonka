@@ -32,7 +32,7 @@ namespace WonkaSystem.CQS.Validation
         {
         }
 
-        public override WonkaBreRuleTreeReport SimulateValidate(AccountUpdateCommand poCommand) 
+        public override WonkaBizRuleTreeReport SimulateValidate(AccountUpdateCommand poCommand) 
         {
             /**
              ** NOTE: Since the Ethereum engine does not currently support record notation as specified in the markup 
@@ -43,7 +43,7 @@ namespace WonkaSystem.CQS.Validation
 
             WonkaProduct NewProduct = GetWonkaProductViaReflection(poCommand);
 
-            WonkaBreRuleTreeReport Report = moRulesEngine.Validate(NewProduct);
+            WonkaBizRuleTreeReport Report = moRulesEngine.Validate(NewProduct);
 
             return Report;
         }

@@ -22,7 +22,7 @@ namespace Wonka.BizRulesEngine.Readers
     /// robust, especially with the case of parsing the rule expressions.
     /// 
     /// </summary>
-    public class WonkaBreXmlReader
+    public class WonkaBizRulesXmlReader
     {
         #region Delegates
 
@@ -92,16 +92,16 @@ namespace Wonka.BizRulesEngine.Readers
 
         #region Constructors
 
-        public WonkaBreXmlReader(string psBreXmlFilepath, IMetadataRetrievable piMetadataSource = null, WonkaBreRulesEngine poRulesHostEngine = null)
+        public WonkaBizRulesXmlReader(string psBreXmlFilepath, IMetadataRetrievable piMetadataSource = null, WonkaBizRulesEngine poRulesHostEngine = null)
         {
             if (string.IsNullOrEmpty(psBreXmlFilepath))
             {
-                throw new WonkaBreException(-1, -1, "ERROR!  The rules file provided is null.");
+                throw new WonkaBizRuleException(-1, -1, "ERROR!  The rules file provided is null.");
             }
 
             if (!File.Exists(psBreXmlFilepath))
             {
-                throw new WonkaBreException(-1, -1, "ERROR!  The rules file(" + psBreXmlFilepath + ") does not exist.");
+                throw new WonkaBizRuleException(-1, -1, "ERROR!  The rules file(" + psBreXmlFilepath + ") does not exist.");
             }
 
             this.BreXmlFilepath  = psBreXmlFilepath;
@@ -111,11 +111,11 @@ namespace Wonka.BizRulesEngine.Readers
             this.Init(piMetadataSource);
         }
 
-        public WonkaBreXmlReader(StringBuilder psBreXml, IMetadataRetrievable piMetadataSource = null, WonkaBreRulesEngine poRulesHostEngine = null)
+        public WonkaBizRulesXmlReader(StringBuilder psBreXml, IMetadataRetrievable piMetadataSource = null, WonkaBizRulesEngine poRulesHostEngine = null)
         {
             if ((psBreXml == null) || (psBreXml.Length <= 0))
             {
-                throw new WonkaBreException(-1, -1, "ERROR!  The rules file provided is null.");
+                throw new WonkaBizRuleException(-1, -1, "ERROR!  The rules file provided is null.");
             }
 
             this.BreXmlFilepath  = null;
@@ -127,7 +127,7 @@ namespace Wonka.BizRulesEngine.Readers
 
         // NOTE: That says "po-Op-Source", but if you want to look at it as "poOp-Source", well, that's up to you,
         // and try not laugh yourself silly
-        public void AddCustomOperator(string psCustomOpName, WonkaBreSource poOpSource = null)
+        public void AddCustomOperator(string psCustomOpName, WonkaBizSource poOpSource = null)
         {
             if (this.BasicOps.Contains(psCustomOpName))
             {
@@ -150,7 +150,7 @@ namespace Wonka.BizRulesEngine.Readers
             }
             else
             {
-                this.CustomOpSources[psCustomOpName] = new WonkaBreSource("", "", "", "", "", "", "", null);
+                this.CustomOpSources[psCustomOpName] = new WonkaBizSource("", "", "", "", "", "", "", null);
             }
         }
 
@@ -159,8 +159,8 @@ namespace Wonka.BizRulesEngine.Readers
             this.RuleSetIdCounter  = 0;
             this.RuleIdCounter     = 0;
             this.ValSeqIdCounter   = 0;
-            this.CustomOpSources   = new Dictionary<string, WonkaBreSource>();
-            this.AllParsedRuleSets = new List<WonkaBreRuleSet>();
+            this.CustomOpSources   = new Dictionary<string, WonkaBizSource>();
+            this.AllParsedRuleSets = new List<WonkaBizRuleSet>();
 
             this.BasicOps = new HashSet<string>();
             this.BasicOps.Add(CONST_BASIC_OP_NOT_POP);
@@ -215,9 +215,9 @@ namespace Wonka.BizRulesEngine.Readers
 
         #region Methods
 
-        public WonkaBreRuleSet ParseRuleTree()
+        public WonkaBizRuleSet ParseRuleTree()
         {
-            WonkaBreRuleSet newRootRuleSet = new WonkaBreRuleSet();
+            WonkaBizRuleSet newRootRuleSet = new WonkaBizRuleSet();
 
             newRootRuleSet.RuleSetId   = ++this.RuleSetIdCounter;
             newRootRuleSet.Description = "Root";
@@ -245,7 +245,7 @@ namespace Wonka.BizRulesEngine.Readers
             {
                 if (firstTierNode.LocalName == CONST_RS_FLOW_TAG)
                 {
-                    WonkaBreRuleSet newChildRuleSet = this.ParseRuleSet(firstTierNode);
+                    WonkaBizRuleSet newChildRuleSet = this.ParseRuleSet(firstTierNode);
 
                     newChildRuleSet.ParentRuleSetId = newRootRuleSet.RuleSetId;
 
@@ -256,9 +256,9 @@ namespace Wonka.BizRulesEngine.Readers
             return newRootRuleSet;
         }
 
-        private WonkaBreRuleSet ParseRuleSet(XmlNode poRuleSetXmlNode, bool pbLeafNode = false)
+        private WonkaBizRuleSet ParseRuleSet(XmlNode poRuleSetXmlNode, bool pbLeafNode = false)
         {
-            WonkaBreRuleSet currentRuleSet = new WonkaBreRuleSet(++(this.RuleSetIdCounter));
+            WonkaBizRuleSet currentRuleSet = new WonkaBizRuleSet(++(this.RuleSetIdCounter));
 
             AllParsedRuleSets.Add(currentRuleSet);
 
@@ -274,7 +274,7 @@ namespace Wonka.BizRulesEngine.Readers
                 {
                     bool bIsLeafNode = (TempChildXmlNode.LocalName == CONST_RS_VALID_TAG);
 
-                    WonkaBreRuleSet NewChildRuleSet = ParseRuleSet(TempChildXmlNode, bIsLeafNode);
+                    WonkaBizRuleSet NewChildRuleSet = ParseRuleSet(TempChildXmlNode, bIsLeafNode);
 
                     if (bIsLeafNode)
                     {
@@ -309,7 +309,7 @@ namespace Wonka.BizRulesEngine.Readers
             return currentRuleSet;
         }
 
-        private void ParseRules(XmlNode poTargetXmlNode, WonkaBreRuleSet poTargetRuleSet)
+        private void ParseRules(XmlNode poTargetXmlNode, WonkaBizRuleSet poTargetRuleSet)
         {
             var OpDesc = poTargetXmlNode.Attributes.GetNamedItem(CONST_RULES_OP_ATTR);
             if (OpDesc != null)
@@ -328,11 +328,11 @@ namespace Wonka.BizRulesEngine.Readers
             }
         }
 
-        private void ParseSingleRule(XmlNode poRuleXmlNode, WonkaBreRuleSet poTargetRuleSet)
+        private void ParseSingleRule(XmlNode poRuleXmlNode, WonkaBizRuleSet poTargetRuleSet)
         {
             int        nNewRuleId      = ++(this.RuleIdCounter);
             string     sRuleExpression = poRuleXmlNode.InnerText;
-            WonkaBreRule NewRule         = null;
+            WonkaBizRule NewRule         = null;
 
             if (this.CustomOpSources.Keys.Any(s => sRuleExpression.Contains(s)))
                 NewRule = new CustomOperatorRule() { RuleId = nNewRuleId };
@@ -396,7 +396,7 @@ namespace Wonka.BizRulesEngine.Readers
                 poTargetRuleSet.AddRule(NewRule);
         }
 
-        private void SetRuleValues(WonkaBreRule poTargetRule, string psRuleExpression)
+        private void SetRuleValues(WonkaBizRule poTargetRule, string psRuleExpression)
         {
             char[] acRuleValuesDelim = new char[1] { ',' };
 
@@ -461,7 +461,7 @@ namespace Wonka.BizRulesEngine.Readers
             }
         }
 
-        private void SetTargetAttribute(WonkaBreRule poTargetRule, string psRuleExpression)
+        private void SetTargetAttribute(WonkaBizRule poTargetRule, string psRuleExpression)
         {
             char[] acTargetAttributeDelim = new char[1] { '.' };
 
@@ -500,7 +500,7 @@ namespace Wonka.BizRulesEngine.Readers
                             WonkaRefEnvironment.GetInstance().GetAttributeByAttrName(sAttrName);
                     }
                     else
-                        throw new WonkaBreException(-1, -1, "ERROR!  Attribute (" + sAttrName + ") does not exist.");
+                        throw new WonkaBizRuleException(-1, -1, "ERROR!  Attribute (" + sAttrName + ") does not exist.");
                 }
             }
         }
@@ -527,13 +527,13 @@ namespace Wonka.BizRulesEngine.Readers
 
         private HashSet<string> DateLimitOps { get; set; }
 
-        private Dictionary<string, WonkaBreSource> CustomOpSources { get; set; }
+        private Dictionary<string, WonkaBizSource> CustomOpSources { get; set; }
 
-        public WonkaBreRuleSet RootRuleSet { get; set; }
+        public WonkaBizRuleSet RootRuleSet { get; set; }
 
-        public List<WonkaBreRuleSet> AllParsedRuleSets { get; set; }
+        public List<WonkaBizRuleSet> AllParsedRuleSets { get; set; }
 
-        public WonkaBreRulesEngine RulesHostEngine { get; set; }
+        public WonkaBizRulesEngine RulesHostEngine { get; set; }
 
         #endregion
     }

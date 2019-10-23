@@ -8,9 +8,9 @@ namespace Wonka.BizRulesEngine.Reporting
     /// with a particular rule.
     /// 
     /// </summary>
-    public class WonkaBreRuleReportNode
+    public class WonkaBizRuleReportNode
     {
-        public WonkaBreRuleReportNode()
+        public WonkaBizRuleReportNode()
         {
             RuleID        = -1;
             TriggerAttrId = -1;
@@ -20,7 +20,7 @@ namespace Wonka.BizRulesEngine.Reporting
             ErrorDescription = VerboseError = "";
         }
 
-        public WonkaBreRuleReportNode(WonkaBreRule poRule) : this()
+        public WonkaBizRuleReportNode(WonkaBizRule poRule) : this()
         {
             RuleID        = poRule.RuleId;
             TriggerAttrId = poRule.TargetAttribute.AttrId;

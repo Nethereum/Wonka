@@ -160,7 +160,7 @@ namespace WonkaSystem.TestHarness
             // SerializeProductToBlockchain(NewProduct);
 
             // Validate that the .NET implementation and the rules markup are both working properly
-            Wonka.BizRulesEngine.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
+            Wonka.BizRulesEngine.Reporting.WonkaBizRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
             string sStatusValueAfter = NewProduct.GetAttributeValue(AccountStsAttr);
             string sFlagValueAfter   = NewProduct.GetAttributeValue(RvwFlagAttr);
@@ -203,7 +203,7 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        public RuleTreeReport ExecuteWithReport(WonkaBreRulesEngine poRulesEngine, bool pbValidateWithinTransaction)
+        public RuleTreeReport ExecuteWithReport(WonkaBizRulesEngine poRulesEngine, bool pbValidateWithinTransaction)
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
@@ -283,7 +283,7 @@ namespace WonkaSystem.TestHarness
             return contract;
         }
 
-        public Nethereum.Contracts.Contract GetContract(WonkaBreSource TargetSource)
+        public Nethereum.Contracts.Contract GetContract(WonkaBizSource TargetSource)
         {
             var web3     = GetWeb3();
             var contract = web3.Eth.GetContract(TargetSource.ContractABI, TargetSource.ContractAddress);
@@ -337,7 +337,7 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        public string RetrieveValueMethod(WonkaBreSource poTargetSource, string psAttrName)
+        public string RetrieveValueMethod(WonkaBizSource poTargetSource, string psAttrName)
         {
             var contract = GetContract(poTargetSource);
 

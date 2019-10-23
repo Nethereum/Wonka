@@ -15,18 +15,18 @@ namespace Wonka.BizRulesEngine.Reporting
     /// (i.e., instances of WonkaBreRuleSetReportNode) within a RuleTree.
     /// 
     /// </summary>
-    public class WonkaBreRuleTreeReport
+    public class WonkaBizRuleTreeReport
     {
         #region CONSTANTS
         private const string CONST_ERROR_MSG_PREFACE = "BUSINESS RULE: ";
         #endregion
 
-        public WonkaBreRuleTreeReport()
+        public WonkaBizRuleTreeReport()
         {
             this.OverallRuleTreeResult = ERR_CD.CD_SUCCESS;            
 
-            this.RuleSetResults  = new List<WonkaBreRuleSetReportNode>();
-            this.RuleSetFailures = new List<WonkaBreRuleSetReportNode>();
+            this.RuleSetResults  = new List<WonkaBizRuleSetReportNode>();
+            this.RuleSetFailures = new List<WonkaBizRuleSetReportNode>();
         }
 
         #region Simple Accessors
@@ -36,9 +36,9 @@ namespace Wonka.BizRulesEngine.Reporting
             return RuleSetFailures.Count;
         }
 
-        public WonkaBreRuleSetReportNode GetRuleSetFailure(int pnIndex = 0)
+        public WonkaBizRuleSetReportNode GetRuleSetFailure(int pnIndex = 0)
         {
-            WonkaBreRuleSetReportNode FailureReportNode = null;
+            WonkaBizRuleSetReportNode FailureReportNode = null;
 
             if (pnIndex < RuleSetFailures.Count)
                 FailureReportNode = RuleSetFailures[pnIndex];
@@ -63,11 +63,11 @@ namespace Wonka.BizRulesEngine.Reporting
         /// <param name="psRuleSetErrMsg">The error message that will provide details about the RuleSet's failure</param>
         /// <returns>The list of RuleReports that describes the execution of a specific RuleSet</returns>
         /// </summary>
-        public bool AddResultSetFailure(WonkaBreRuleSet poTargetRuleSet, ERR_CD peRuleSetErrCd, string psRuleSetErrMsg)
+        public bool AddResultSetFailure(WonkaBizRuleSet poTargetRuleSet, ERR_CD peRuleSetErrCd, string psRuleSetErrMsg)
         {
             bool bResult = true;
 
-            WonkaBreRuleSetReportNode RuleSetReportNode = FindRuleSetReport(poTargetRuleSet.RuleSetId, false);
+            WonkaBizRuleSetReportNode RuleSetReportNode = FindRuleSetReport(poTargetRuleSet.RuleSetId, false);
             if (RuleSetReportNode != null)
             {
                 RuleSetReportNode.ErrorSeverity    = poTargetRuleSet.ErrorSeverity;
@@ -97,14 +97,14 @@ namespace Wonka.BizRulesEngine.Reporting
         /// <param name="psVerboseError">The verbose description of the rule's error (if there is one)</param>
         /// <returns>The indicator for whether or not the rule's execution results were successfully archived</returns>
         /// </summary>
-        public bool ArchiveRuleExecution(WonkaBreRule poRule, ERR_CD peRuleErrCd, string psRuleErrorDesc, string psVerboseError)
+        public bool ArchiveRuleExecution(WonkaBizRule poRule, ERR_CD peRuleErrCd, string psRuleErrorDesc, string psVerboseError)
         {
             bool bResult = true;
 
-            WonkaBreRuleSetReportNode RuleSetReportNode = FindRuleSetReport(poRule.ParentRuleSetId, true);
+            WonkaBizRuleSetReportNode RuleSetReportNode = FindRuleSetReport(poRule.ParentRuleSetId, true);
             if (RuleSetReportNode != null)
             {
-                WonkaBreRuleReportNode RuleReportNode = new WonkaBreRuleReportNode(poRule);
+                WonkaBizRuleReportNode RuleReportNode = new WonkaBizRuleReportNode(poRule);
 
                 RuleReportNode.ErrorCode        = peRuleErrCd;
                 RuleReportNode.ErrorDescription = psRuleErrorDesc;
@@ -137,18 +137,18 @@ namespace Wonka.BizRulesEngine.Reporting
         {
             StringBuilder AllErrorsBody = new StringBuilder();
 
-            foreach (WonkaBreRuleSetReportNode WarningRuleSetReport in GetRuleSetWarningFailures())
+            foreach (WonkaBizRuleSetReportNode WarningRuleSetReport in GetRuleSetWarningFailures())
             {
-                foreach (WonkaBreRuleReportNode WarningRuleReport in WarningRuleSetReport.RuleResults)
+                foreach (WonkaBizRuleReportNode WarningRuleReport in WarningRuleSetReport.RuleResults)
                 {
                     if (WarningRuleReport.ErrorCode == ERR_CD.CD_FAILURE)
                         AllErrorsBody.Append("WARNING!  (" + WarningRuleReport.VerboseError + ").");
                 }
             }
 
-            foreach (WonkaBreRuleSetReportNode SevereRuleSetReport in GetRuleSetWarningFailures())
+            foreach (WonkaBizRuleSetReportNode SevereRuleSetReport in GetRuleSetWarningFailures())
             {
-                foreach (WonkaBreRuleReportNode SevereRuleReport in SevereRuleSetReport.RuleResults)
+                foreach (WonkaBizRuleReportNode SevereRuleReport in SevereRuleSetReport.RuleResults)
                 {
                     if (SevereRuleReport.ErrorCode == ERR_CD.CD_FAILURE)
                         AllErrorsBody.Append("ERROR!  (" + SevereRuleReport.VerboseError + ").");
@@ -165,7 +165,7 @@ namespace Wonka.BizRulesEngine.Reporting
         /// 
         /// <returns>The list of failed RuleSetReports whose respective RuleSets are set as SEVERE</returns>
         /// </summary>
-        public List<WonkaBreRuleSetReportNode> GetRuleSetSevereFailures()
+        public List<WonkaBizRuleSetReportNode> GetRuleSetSevereFailures()
         {
             return RuleSetResults.Where(x => x.ErrorSeverity == RULE_SET_ERR_LVL.ERR_LVL_SEVERE).ToList();
         }
@@ -177,7 +177,7 @@ namespace Wonka.BizRulesEngine.Reporting
         /// 
         /// <returns>The list of failed RuleSetReports whose respective RuleSets are set as WARNING</returns>
         /// </summary>
-        public List<WonkaBreRuleSetReportNode> GetRuleSetWarningFailures()
+        public List<WonkaBizRuleSetReportNode> GetRuleSetWarningFailures()
         {
             return RuleSetResults.Where(x => x.ErrorSeverity == RULE_SET_ERR_LVL.ERR_LVL_WARNING).ToList();
         }
@@ -193,7 +193,7 @@ namespace Wonka.BizRulesEngine.Reporting
         /// </summary>
         public List<WonkaProductError> GetProductErrors(string psProductId, RULE_SET_ERR_LVL peRuleSetErrLvl = RULE_SET_ERR_LVL.ERR_LVL_SEVERE)
         {
-            List<WonkaBreRuleSetReportNode> RuleSetErrors    = new List<WonkaBreRuleSetReportNode>();
+            List<WonkaBizRuleSetReportNode> RuleSetErrors    = new List<WonkaBizRuleSetReportNode>();
             List<WonkaProductError>         ProductErrorList = new List<WonkaProductError>();
 
             WonkaRefEnvironment WonkaRefEnv = WonkaRefEnvironment.GetInstance();
@@ -202,9 +202,9 @@ namespace Wonka.BizRulesEngine.Reporting
             else if (peRuleSetErrLvl == RULE_SET_ERR_LVL.ERR_LVL_SEVERE)
                 RuleSetErrors = GetRuleSetSevereFailures();
 
-            foreach (WonkaBreRuleSetReportNode RuleSetReport in RuleSetErrors)
+            foreach (WonkaBizRuleSetReportNode RuleSetReport in RuleSetErrors)
             {
-                foreach (WonkaBreRuleReportNode RuleReport in RuleSetReport.RuleResults)
+                foreach (WonkaBizRuleReportNode RuleReport in RuleSetReport.RuleResults)
                 {
                     if (RuleReport.ErrorCode == ERR_CD.CD_FAILURE)
                     {
@@ -235,11 +235,11 @@ namespace Wonka.BizRulesEngine.Reporting
         /// <param name="pnRuleId">The ID of the Rule of interest</param>
         /// <returns>The RuleReport that describes the execution of a specific Rule</returns>
         /// </summary>
-        public WonkaBreRuleReportNode FindRuleReport(int pnRuleSetId, int pnRuleId)
+        public WonkaBizRuleReportNode FindRuleReport(int pnRuleSetId, int pnRuleId)
         {
-            WonkaBreRuleReportNode RuleReportNode = null;
+            WonkaBizRuleReportNode RuleReportNode = null;
 
-            WonkaBreRuleSetReportNode RuleSetReportNode = FindRuleSetReport(pnRuleSetId, false);
+            WonkaBizRuleSetReportNode RuleSetReportNode = FindRuleSetReport(pnRuleSetId, false);
             if (RuleSetReportNode != null)
                 RuleReportNode = RuleSetReportNode.RuleResults.Where(x => x.RuleID == pnRuleId).FirstOrDefault();
 
@@ -256,11 +256,11 @@ namespace Wonka.BizRulesEngine.Reporting
         /// <param name="pbCreateNew">Indicator for whether or not we should create a new RuleSetReport if one is not found</param>
         /// <returns>The list of RuleReports that describes the execution of a specific RuleSet</returns>
         /// </summary>
-        public List<WonkaBreRuleReportNode> FindRuleReports(int pnRuleSetId, bool pbCreateNew)
+        public List<WonkaBizRuleReportNode> FindRuleReports(int pnRuleSetId, bool pbCreateNew)
         {
-            List<WonkaBreRuleReportNode> RuleReportNodes = null;
+            List<WonkaBizRuleReportNode> RuleReportNodes = null;
 
-            WonkaBreRuleSetReportNode SoughtRuleSetReport = FindRuleSetReport(pnRuleSetId, pbCreateNew);
+            WonkaBizRuleSetReportNode SoughtRuleSetReport = FindRuleSetReport(pnRuleSetId, pbCreateNew);
             if (SoughtRuleSetReport != null)
                 RuleReportNodes = SoughtRuleSetReport.RuleResults;
 
@@ -277,19 +277,19 @@ namespace Wonka.BizRulesEngine.Reporting
         /// <param name="pbCreateNew">Indicator for whether or not we should create a new RuleSetReport if one is not found</param>
         /// <returns>The RuleSetReport that describes the execution of a specific RuleSet</returns>
         /// </summary>
-        public WonkaBreRuleSetReportNode FindRuleSetReport(int pnRuleSetId, bool pbCreateNew = false)
+        public WonkaBizRuleSetReportNode FindRuleSetReport(int pnRuleSetId, bool pbCreateNew = false)
         {
-            WonkaBreRuleSetReportNode RuleSetReportNode = null;
+            WonkaBizRuleSetReportNode RuleSetReportNode = null;
 
             if (RuleSetResults.Where(x => x.RuleSetID == pnRuleSetId).Count() > 0)
                 RuleSetReportNode = RuleSetResults.Where(x => x.RuleSetID == pnRuleSetId).FirstOrDefault();
             else if (pbCreateNew)
             {
-                RuleSetReportNode = new WonkaBreRuleSetReportNode() { RuleSetID = pnRuleSetId };
+                RuleSetReportNode = new WonkaBizRuleSetReportNode() { RuleSetID = pnRuleSetId };
                 RuleSetResults.Add(RuleSetReportNode);
             }
             else
-                throw new WonkaBreException(pnRuleSetId, -1, "ERROR!  This RuleSetReport does not exist!");
+                throw new WonkaBizRuleException(pnRuleSetId, -1, "ERROR!  This RuleSetReport does not exist!");
 
             return RuleSetReportNode;
         }
@@ -309,7 +309,7 @@ namespace Wonka.BizRulesEngine.Reporting
         {
             bool bResult = true;
 
-            WonkaBreRuleSetReportNode RuleSetReport = FindRuleSetReport(pnRuleSetId, true);
+            WonkaBizRuleSetReportNode RuleSetReport = FindRuleSetReport(pnRuleSetId, true);
             if (RuleSetReport != null)
             {
                 RuleSetReport.RuleSetDescription = psRuleSetDesc;
@@ -323,15 +323,15 @@ namespace Wonka.BizRulesEngine.Reporting
         #endregion
 
         #region Properties
-        public WonkaBreRuleSet LastRuleSetExecuted { get; set; }
+        public WonkaBizRuleSet LastRuleSetExecuted { get; set; }
 
         public ERR_CD OverallRuleTreeResult { get; set; }        
 
         private Dictionary<long, ERR_CD> OverallRulesetResults { get; set; }
 
-        private List<WonkaBreRuleSetReportNode> RuleSetResults { get; set; }
+        private List<WonkaBizRuleSetReportNode> RuleSetResults { get; set; }
 
-        private List<WonkaBreRuleSetReportNode> RuleSetFailures { get; set; }
+        private List<WonkaBizRuleSetReportNode> RuleSetFailures { get; set; }
         #endregion
     }
 }

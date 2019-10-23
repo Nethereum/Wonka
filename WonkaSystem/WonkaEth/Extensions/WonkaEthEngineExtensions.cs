@@ -64,9 +64,9 @@ namespace WonkaEth.Extensions
 				{
 					poEngineProps.RulesEngine.AllRuleSets.ForEach(x => nMaxGasCost += (uint)(x.EvaluativeRules.Count * CONST_GAS_PER_READ_OP));
 
-					foreach (WonkaBreRuleSet TempRuleSet in poEngineProps.RulesEngine.AllRuleSets)
+					foreach (WonkaBizRuleSet TempRuleSet in poEngineProps.RulesEngine.AllRuleSets)
 					{
-						foreach (WonkaBreRule TempRule in TempRuleSet.AssertiveRules)
+						foreach (WonkaBizRule TempRule in TempRuleSet.AssertiveRules)
 						{
 							if (TempRule.RuleType == RULE_TYPE.RT_CUSTOM_OP)
 								nMaxGasCost += (uint)(3 * pnWriteOpGasCost);
@@ -144,14 +144,14 @@ namespace WonkaEth.Extensions
 
 				if ((EngineProps.SourceMap == null) || (EngineProps.SourceMap.Count == 0))
 				{
-					EngineProps.SourceMap = new Dictionary<string, WonkaBreSource>();
+					EngineProps.SourceMap = new Dictionary<string, WonkaBizSource>();
 
 					// Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
 					// - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
 					foreach (WonkaRefAttr TempAttr in WonkaRefEnv.AttrCache)
 					{
-						WonkaBreSource TempSource =
-							new WonkaBreSource(poEngineInitData.StorageDefaultSourceId,
+						WonkaBizSource TempSource =
+							new WonkaBizSource(poEngineInitData.StorageDefaultSourceId,
 											   poEngineInitData.EthSenderAddress, 
 											   poEngineInitData.EthPassword, 
 											   poEngineInitData.StorageContractAddress, 
@@ -165,7 +165,7 @@ namespace WonkaEth.Extensions
 				}
 
 				EngineProps.RulesEngine = 
-					new WonkaBreRulesEngine(new StringBuilder(EngineProps.RulesMarkupXml), EngineProps.SourceMap, EngineProps.MetadataSource);
+					new WonkaBizRulesEngine(new StringBuilder(EngineProps.RulesMarkupXml), EngineProps.SourceMap, EngineProps.MetadataSource);
 
 				EngineProps.RulesEngine.DefaultSource = poEngineInitData.StorageDefaultSourceId;
 
@@ -239,14 +239,14 @@ namespace WonkaEth.Extensions
 
                 if ((EngineProps.SourceMap == null) || (EngineProps.SourceMap.Count == 0))
                 {
-                    EngineProps.SourceMap = new Dictionary<string, WonkaBreSource>();
+                    EngineProps.SourceMap = new Dictionary<string, WonkaBizSource>();
 
                     // Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
                     // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
                     foreach (WonkaRefAttr TempAttr in WonkaRefEnv.AttrCache)
                     {
-                        WonkaBreSource TempSource =
-                            new WonkaBreSource(poEngineInitData.StorageDefaultSourceId,
+                        WonkaBizSource TempSource =
+                            new WonkaBizSource(poEngineInitData.StorageDefaultSourceId,
                                                poEngineInitData.EthSenderAddress,
                                                poEngineInitData.EthPassword,
                                                poEngineInitData.StorageContractAddress,
@@ -260,7 +260,7 @@ namespace WonkaEth.Extensions
                 }
 
                 EngineProps.RulesEngine =
-                    new WonkaBreRulesEngine(new StringBuilder(EngineProps.RulesMarkupXml), EngineProps.SourceMap, EngineProps.MetadataSource);
+                    new WonkaBizRulesEngine(new StringBuilder(EngineProps.RulesMarkupXml), EngineProps.SourceMap, EngineProps.MetadataSource);
 
                 EngineProps.RulesEngine.DefaultSource = poEngineInitData.StorageDefaultSourceId;
 

@@ -27,14 +27,14 @@ namespace WonkaEth.Orchestration.Init
 
         public string BlockchainEngineOwner;
 
-        public WonkaBreSource BlockchainEngine;
+        public WonkaBizSource BlockchainEngine;
 
         public string TrxStateContractAddress;
 
-        public WonkaBreSource DefaultBlockchainDataSource;
+        public WonkaBizSource DefaultBlockchainDataSource;
 
-        public Dictionary<string, WonkaBreSource> BlockchainDataSources;
+        public Dictionary<string, WonkaBizSource> BlockchainDataSources;
 
-        public Dictionary<string, WonkaBreSource> BlockchainCustomOpFunctions;
+        public Dictionary<string, WonkaBizSource> BlockchainCustomOpFunctions;
     }
 }

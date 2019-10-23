@@ -17,7 +17,7 @@ namespace Wonka.BizRulesEngine.RuleTree
 	/// an instance of WonkaBreRule.
 	/// 
 	/// </summary>
-	public abstract class WonkaBreRule
+	public abstract class WonkaBizRule
 	{
 		#region CONSTANTS
 
@@ -57,7 +57,7 @@ namespace Wonka.BizRulesEngine.RuleTree
 
 		#endregion
 
-		public WonkaBreRule(int pnRuleId, RULE_TYPE peRuleType)
+		public WonkaBizRule(int pnRuleId, RULE_TYPE peRuleType)
 		{
 			RuleId   = pnRuleId;
 			RuleType = peRuleType;
@@ -98,9 +98,9 @@ namespace Wonka.BizRulesEngine.RuleTree
 		/// <param name="psAttrName">The name (and possible record prefix) for the Attribute</param>
 		/// <returns>The RuleValueProps that represents the provided Attribute name</returns>
 		/// </summary>
-		public WonkaBreRuleValueProps GetAttributeValueProps(string psAttrName)
+		public WonkaBizRuleValueProps GetAttributeValueProps(string psAttrName)
 		{
-			WonkaBreRuleValueProps AttributeValueProps = new WonkaBreRuleValueProps() { IsLiteralValue = false };
+			WonkaBizRuleValueProps AttributeValueProps = new WonkaBizRuleValueProps() { IsLiteralValue = false };
 
 			string sRecordOfInterest = "N";
 
@@ -145,7 +145,7 @@ namespace Wonka.BizRulesEngine.RuleTree
 
 		public bool IsPassive { get; set; }
 
-        public WonkaBreRulesEngine RulesHostEngine { get; set; }
+        public WonkaBizRulesEngine RulesHostEngine { get; set; }
 
         #endregion
     }

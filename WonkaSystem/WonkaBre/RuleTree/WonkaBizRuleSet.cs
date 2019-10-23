@@ -40,15 +40,15 @@ namespace Wonka.BizRulesEngine.RuleTree
 	/// have children and whose evaluation is vital and worthy of being reported.
 	/// 
 	/// </summary>
-	public class WonkaBreRuleSet
+	public class WonkaBizRuleSet
     {
         #region Constructors
-        public WonkaBreRuleSet()
+        public WonkaBizRuleSet()
         {
             Init();
         }
 
-        public WonkaBreRuleSet(int pnRuleSetId)
+        public WonkaBizRuleSet(int pnRuleSetId)
         {
             Init();
 
@@ -59,14 +59,14 @@ namespace Wonka.BizRulesEngine.RuleTree
 
         #region Methods
 
-        public void AddChildRuleSet(WonkaBreRuleSet poChildRuleSet)
+        public void AddChildRuleSet(WonkaBizRuleSet poChildRuleSet)
         {
             poChildRuleSet.ParentRuleSetId = this.RuleSetId;
 
             ChildRuleSets.Add(poChildRuleSet);
         }
 
-        public void AddRule(WonkaBreRule poNewRule)
+        public void AddRule(WonkaBizRule poNewRule)
         {
             if (poNewRule.IsPassive)
                 EvaluativeRules.Add(poNewRule);
@@ -85,9 +85,9 @@ namespace Wonka.BizRulesEngine.RuleTree
             ErrorSeverity     = RULE_SET_ERR_LVL.ERR_LVL_NONE;
             RulesEvalOperator = RULE_OP.OP_AND;
 
-            EvaluativeRules = new List<WonkaBreRule>();
-            AssertiveRules  = new List<WonkaBreRule>();
-            ChildRuleSets   = new List<WonkaBreRuleSet>();
+            EvaluativeRules = new List<WonkaBizRule>();
+            AssertiveRules  = new List<WonkaBizRule>();
+            ChildRuleSets   = new List<WonkaBizRuleSet>();
         }
 
         #endregion
@@ -108,11 +108,11 @@ namespace Wonka.BizRulesEngine.RuleTree
 
         public string CustomFailureMsg { get; set; }
 
-        public List<WonkaBreRule> EvaluativeRules { get; set; }
+        public List<WonkaBizRule> EvaluativeRules { get; set; }
 
-        public List<WonkaBreRule> AssertiveRules { get; set; }
+        public List<WonkaBizRule> AssertiveRules { get; set; }
 
-        public List<WonkaBreRuleSet> ChildRuleSets { get; set; }
+        public List<WonkaBizRuleSet> ChildRuleSets { get; set; }
 
         #endregion
     }

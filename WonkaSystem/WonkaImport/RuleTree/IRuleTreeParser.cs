@@ -4,7 +4,7 @@ namespace WonkaImport.RuleTree
 {
     #region Delegates
 
-    public delegate bool ProvideRuleSet(WonkaBreRuleSet poNewRuleSet);
+    public delegate bool ProvideRuleSet(WonkaBizRuleSet poNewRuleSet);
 
     #endregion
 

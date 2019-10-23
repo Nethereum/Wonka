@@ -8,9 +8,9 @@
 	/// validation ones.
 	/// 
 	/// </summary>
-	public class WonkaBreRuleValueProps
+	public class WonkaBizRuleValueProps
 	{
-		public WonkaBreRuleValueProps()
+		public WonkaBizRuleValueProps()
 		{
 			IsLiteralValue = true;
 

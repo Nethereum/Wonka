@@ -28,7 +28,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 	/// NOTE: All numeric values are represented as doubles.
 	///  
 	/// </summary>
-	public class ArithmeticLimitRule : WonkaBreRule
+	public class ArithmeticLimitRule : WonkaBizRule
     {
         #region CONSTANTS
         private const string CONST_BLOCKNUM_IND  = "BLOCKNUM";
@@ -180,10 +180,10 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             this.BlockNumDelegate = null;
 
             this.MinValue      = pnMinValue;
-            this.MinValueProps = new WonkaBreRuleValueProps() { IsLiteralValue = true };
+            this.MinValueProps = new WonkaBizRuleValueProps() { IsLiteralValue = true };
 
             this.MaxValue      = pnMaxValue;
-            this.MaxValueProps = new WonkaBreRuleValueProps() { IsLiteralValue = true };
+            this.MaxValueProps = new WonkaBizRuleValueProps() { IsLiteralValue = true };
         }
 
 		/// <summary>
@@ -275,7 +275,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                 double dValue        = 0.0;
                 string sTempValue    = paValueSet[0];
 
-                WonkaBreRuleValueProps AttributeValueProps = new WonkaBreRuleValueProps();
+                WonkaBizRuleValueProps AttributeValueProps = new WonkaBizRuleValueProps();
 
                 try
                 {
@@ -296,8 +296,8 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                         AttributeValueProps = this.GetAttributeValueProps(sTempValue);
                 }
 
-                if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_LT) ||
-                    psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_LT))
+                if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_LT) ||
+                    psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_NOT_LT))
                 {
                     this.MinValue = Double.MinValue;
                     this.MaxValue = dValue - 0.001;
@@ -305,11 +305,11 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     if (!bLiteralValue)
                         this.MaxValueProps = AttributeValueProps;
 
-                    if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_LT))
+                    if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_NOT_LT))
                         this.NotOperator = true;
                 }
-                else if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_GT) ||
-                         psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_GT))
+                else if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_GT) ||
+                         psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_NOT_GT))
                 {
                     this.MinValue = dValue + 0.001;
                     this.MaxValue = Double.MaxValue;
@@ -317,11 +317,11 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     if (!bLiteralValue)
                         this.MinValueProps = AttributeValueProps;
 
-                    if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_GT))
+                    if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_NOT_GT))
                         this.NotOperator = true;
                 }
-                else if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_LE) ||
-                         psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_LE))
+                else if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_LE) ||
+                         psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_NOT_LE))
                 {
                     this.MinValue = Double.MinValue;
                     this.MaxValue = dValue;
@@ -329,11 +329,11 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     if (!bLiteralValue)
                         this.MaxValueProps = AttributeValueProps;
 
-                    if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_LE))
+                    if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_NOT_LE))
                         this.NotOperator = true;
                 }
-                else if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_GE) ||
-                         psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_GE))
+                else if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_GE) ||
+                         psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_NOT_GE))
                 {
                     this.MinValue = dValue;
                     this.MaxValue = Double.MaxValue;
@@ -341,11 +341,11 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     if (!bLiteralValue)
                         this.MinValueProps = AttributeValueProps;
 
-                    if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_GE))
+                    if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_NOT_GE))
                         this.NotOperator = true;
                 }
-                else if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_EQ) ||
-                         psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_EQ))
+                else if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_EQ) ||
+                         psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_NOT_EQ))
                 {
                     this.MinValue = dValue;
                     this.MaxValue = dValue;
@@ -356,7 +356,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                         this.MaxValueProps = AttributeValueProps;
                     }
 
-                    if (psRuleExpression.Contains(WonkaBreXmlReader.CONST_AL_NOT_EQ))
+                    if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_AL_NOT_EQ))
                         this.NotOperator = true;
                 }
             }
@@ -367,15 +367,15 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 
         public bool BlockNumOperator { get; protected set; }
 
-        public WonkaBreRulesEngine.RetrieveStdOpValDelegate BlockNumDelegate { get; set; }
+        public WonkaBizRulesEngine.RetrieveStdOpValDelegate BlockNumDelegate { get; set; }
 
         public double MinValue { get; set; }
 
-        public WonkaBreRuleValueProps MinValueProps { get; set; }
+        public WonkaBizRuleValueProps MinValueProps { get; set; }
 
         public double MaxValue { get; set; }
 
-        public WonkaBreRuleValueProps MaxValueProps { get; set; }
+        public WonkaBizRuleValueProps MaxValueProps { get; set; }
 
         #endregion
     }

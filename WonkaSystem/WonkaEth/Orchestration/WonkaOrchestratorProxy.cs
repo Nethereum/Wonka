@@ -98,7 +98,7 @@ namespace WonkaEth.Orchestration
 
             foreach (String sTempAttrName in moInitData.BlockchainDataSources.Keys)
             {
-                WonkaBreSource TempSource = moInitData.BlockchainDataSources[sTempAttrName];
+                WonkaBizSource TempSource = moInitData.BlockchainDataSources[sTempAttrName];
 
                 string sSenderAddr = TempSource.SenderAddress;
 
@@ -115,7 +115,7 @@ namespace WonkaEth.Orchestration
             AssignPropertiesViaReflection(poCommand, DataValues);
         }
 
-        public Nethereum.Contracts.Contract GetContract(WonkaBreSource poBlockchainSource)
+        public Nethereum.Contracts.Contract GetContract(WonkaBizSource poBlockchainSource)
         {
             var account = new Account(poBlockchainSource.Password);
 
@@ -204,7 +204,7 @@ namespace WonkaEth.Orchestration
             {
                 if (poOrchInitData.DefaultBlockchainDataSource != null)
                 {
-                    Dictionary<string, WonkaBreSource> BlockchainDataSources = new Dictionary<string, WonkaBreSource>();
+                    Dictionary<string, WonkaBizSource> BlockchainDataSources = new Dictionary<string, WonkaBizSource>();
 
                     Dictionary<PropertyInfo, WonkaRefAttr> PropMap = poCommand.GetPropertyMap();
 
@@ -317,7 +317,7 @@ namespace WonkaEth.Orchestration
 
             foreach (String sTempAttrName in DataValues.Keys)
             {
-                WonkaBreSource TempSource = moInitData.BlockchainDataSources[sTempAttrName];
+                WonkaBizSource TempSource = moInitData.BlockchainDataSources[sTempAttrName];
 
                 string sSenderAddr = TempSource.SenderAddress;
                 string sAttrValue = (string)DataValues[sTempAttrName];

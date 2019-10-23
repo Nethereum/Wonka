@@ -9,7 +9,7 @@ namespace WonkaEth.Contracts
     {
         void DeserializeRecordFromBlockchain(ICommand poCommand);
 
-        Nethereum.Contracts.Contract GetContract(WonkaBreSource poBlockchainSource);
+        Nethereum.Contracts.Contract GetContract(WonkaBizSource poBlockchainSource);
 
         void SerializeRecordToBlockchain(ICommand poCommand);
     }

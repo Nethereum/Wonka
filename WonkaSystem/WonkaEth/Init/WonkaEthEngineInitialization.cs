@@ -26,11 +26,11 @@ namespace WonkaEth.Init
 
 		public string RulesMarkupXml { get; set; }
 
-		public WonkaBreRulesEngine RulesEngine { get; set; }
+		public WonkaBizRulesEngine RulesEngine { get; set; }
 
-		public Dictionary<string, WonkaBreSource> SourceMap { get; set; }
+		public Dictionary<string, WonkaBizSource> SourceMap { get; set; }
 
-		public WonkaBreSource.RetrieveDataMethod DotNetRetrieveMethod { get; set; }
+		public WonkaBizSource.RetrieveDataMethod DotNetRetrieveMethod { get; set; }
 	}
 
 	public class WonkaEthEngineInitialization

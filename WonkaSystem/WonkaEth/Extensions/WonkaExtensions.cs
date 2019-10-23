@@ -78,7 +78,7 @@ namespace WonkaEth.Extensions
         /// <param name="psSenderAddress">The Ethereum address of the sender (i.e., owner) account</param>
         /// <returns>None</returns>
         /// </summary>
-        public static void CompareRuleTrees(this WonkaBreRulesEngine poEngine, string psSenderAddress)
+        public static void CompareRuleTrees(this WonkaBizRulesEngine poEngine, string psSenderAddress)
         {
             var sRuleTreeID = poEngine.DetermineRuleTreeChainID();
 
@@ -97,7 +97,7 @@ namespace WonkaEth.Extensions
         /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
         /// <returns>Provides the ID of the RuleTree contained by the engine</returns>
         /// </summary>
-        public static string DetermineRuleTreeChainID(this WonkaBreRulesEngine poEngine)
+        public static string DetermineRuleTreeChainID(this WonkaBizRulesEngine poEngine)
         {
             return poEngine.RuleTreeRoot.DetermineRuleSetID(poEngine.RegistrationId);
         }
@@ -110,7 +110,7 @@ namespace WonkaEth.Extensions
         /// <param name="psRegistrationId">The Registration ID for the Registry on the blockchain</param>
         /// <returns>Provides the ID of the RuleTree for the blockchain</returns>
         /// </summary>
-        public static string DetermineRuleSetID(this WonkaBreRuleSet poRootRuleSet, string psRegistrationId)
+        public static string DetermineRuleSetID(this WonkaBizRuleSet poRootRuleSet, string psRegistrationId)
         {
             string sRuleTreeChainId = "";
 
@@ -137,7 +137,7 @@ namespace WonkaEth.Extensions
         /// <param name="psTreeOwnerAddress">Address of the owner of the RuleTree in this engine instance on the chain</param>
         /// <returns>Indicates whether or not the RuleTree exists</returns>
         /// </summary>
-        public static bool DoesTreeExistOnChain(this WonkaBreRulesEngine poEngine, Contract poWonkaContract, string psTreeOwnerAddress)
+        public static bool DoesTreeExistOnChain(this WonkaBizRulesEngine poEngine, Contract poWonkaContract, string psTreeOwnerAddress)
         {
             var hasRuleTreeFunction = poWonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_HAS_RT);
 
@@ -156,7 +156,7 @@ namespace WonkaEth.Extensions
         /// <param name="poReport">If not null, we will fill the report with the results of the RuleTree's invocation on the blockchain</param>
         /// <returns>Receipt hash of transaction</returns>
         /// </summary>
-        public static string ExecuteOnChain(this WonkaBreRulesEngine poEngine, WonkaEth.Init.WonkaEthEngineInitialization poEngineInitProps, WonkaEth.Extensions.RuleTreeReport poReport = null)
+        public static string ExecuteOnChain(this WonkaBizRulesEngine poEngine, WonkaEth.Init.WonkaEthEngineInitialization poEngineInitProps, WonkaEth.Extensions.RuleTreeReport poReport = null)
         {
             var account = new Account(poEngineInitProps.EthPassword);
 
@@ -254,12 +254,12 @@ namespace WonkaEth.Extensions
         /// </summary>
         private static string ExportXmlString(Contract poEngineContract, string psOwnerId, string psRuleSetName, uint pnStepLevel)
         {
-            var RSNodeTag   = WonkaBreXmlReader.CONST_RS_FLOW_TAG;
-            var RSNodeDesc  = WonkaBreXmlReader.CONST_RS_FLOW_DESC_ATTR;
-            var RSLeafTag   = WonkaBreXmlReader.CONST_RS_VALID_TAG;
-            var RSLeafMode  = WonkaBreXmlReader.CONST_RS_VALID_ERR_ATTR;
-            var RuleCollTag = WonkaBreXmlReader.CONST_RULES_TAG;
-            var LogicOp     = WonkaBreXmlReader.CONST_RULES_OP_ATTR;
+            var RSNodeTag   = WonkaBizRulesXmlReader.CONST_RS_FLOW_TAG;
+            var RSNodeDesc  = WonkaBizRulesXmlReader.CONST_RS_FLOW_DESC_ATTR;
+            var RSLeafTag   = WonkaBizRulesXmlReader.CONST_RS_VALID_TAG;
+            var RSLeafMode  = WonkaBizRulesXmlReader.CONST_RS_VALID_ERR_ATTR;
+            var RuleCollTag = WonkaBizRulesXmlReader.CONST_RULES_TAG;
+            var LogicOp     = WonkaBizRulesXmlReader.CONST_RULES_OP_ATTR;
 
             StringBuilder sbExportXmlString = new StringBuilder();
             StringBuilder sbTabSpaces       = new StringBuilder();
@@ -286,7 +286,7 @@ namespace WonkaEth.Extensions
                 else
                 {
                     string sMode = 
-                        SetProps.SevereFailureFlag ? WonkaBreXmlReader.CONST_RS_VALID_ERR_SEVERE : WonkaBreXmlReader.CONST_RS_VALID_ERR_WARNING;
+                        SetProps.SevereFailureFlag ? WonkaBizRulesXmlReader.CONST_RS_VALID_ERR_SEVERE : WonkaBizRulesXmlReader.CONST_RS_VALID_ERR_WARNING;
                     
                     sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<" + RSLeafTag + " " + RSLeafMode + "=\"" + sMode + "\" >\n");
                 }
@@ -361,36 +361,36 @@ namespace WonkaEth.Extensions
             bool   bEvalRule      = true;
             string sOpName        = "";
             string sRuleValue     = poRuleProps.RuleValue;
-            string sDelim         = WonkaBreXmlReader.CONST_RULE_TOKEN_VAL_DELIM;
+            string sDelim         = WonkaBizRulesXmlReader.CONST_RULE_TOKEN_VAL_DELIM;
             string sSingleQuote   = "'";
 
             string sRuleTagFormat = 
-                "{0}<" + WonkaBreXmlReader.CONST_RULE_TAG + " " + WonkaBreXmlReader.CONST_RULE_ID_ATTR + "=\"{1}\">(N.{2}) {3} {4}</eval>\n";
+                "{0}<" + WonkaBizRulesXmlReader.CONST_RULE_TAG + " " + WonkaBizRulesXmlReader.CONST_RULE_ID_ATTR + "=\"{1}\">(N.{2}) {3} {4}</eval>\n";
 
             if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.LESS_THAN_RULE)
-                sOpName = WonkaBreXmlReader.CONST_AL_LT;
+                sOpName = WonkaBizRulesXmlReader.CONST_AL_LT;
             else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.EQUAL_TO_RULE)
-                sOpName = WonkaBreXmlReader.CONST_AL_EQ;
+                sOpName = WonkaBizRulesXmlReader.CONST_AL_EQ;
             else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.GREATER_THAN_RULE)
-                sOpName = WonkaBreXmlReader.CONST_AL_GT;
+                sOpName = WonkaBizRulesXmlReader.CONST_AL_GT;
             else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.POPULATED_RULE)
-                sOpName = WonkaBreXmlReader.CONST_BASIC_OP_POP;
+                sOpName = WonkaBizRulesXmlReader.CONST_BASIC_OP_POP;
             else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.IN_DOMAIN_RULE)
-                sOpName = WonkaBreXmlReader.CONST_BASIC_OP_IN;
+                sOpName = WonkaBizRulesXmlReader.CONST_BASIC_OP_IN;
             else
             {
                 bEvalRule = false;
 
                 if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ASSIGN_RULE)
-                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN;
+                    sOpName = WonkaBizRulesXmlReader.CONST_BASIC_OP_ASSIGN;
                 else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_SUM)
-                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_SUM;
+                    sOpName = WonkaBizRulesXmlReader.CONST_BASIC_OP_ASSIGN_SUM;
                 else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_DIFF)
-                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_DIFF;
+                    sOpName = WonkaBizRulesXmlReader.CONST_BASIC_OP_ASSIGN_DIFF;
                 else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_PROD)
-                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_PROD;
+                    sOpName = WonkaBizRulesXmlReader.CONST_BASIC_OP_ASSIGN_PROD;
                 else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.ARITH_OP_QUOT)
-                    sOpName = WonkaBreXmlReader.CONST_BASIC_OP_ASSIGN_QUOT;
+                    sOpName = WonkaBizRulesXmlReader.CONST_BASIC_OP_ASSIGN_QUOT;
                 else if (poRuleProps.RuleType == (uint) CONTRACT_RULE_TYPES.CUSTOM_OP_RULE)
                 {
                     List<string> CustomOpArgs = new List<string>(poRuleProps.CustomOpArgs);
@@ -483,7 +483,7 @@ namespace WonkaEth.Extensions
         /// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
         /// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
         /// </summary>
-        public static RuleTreeReport InvokeOnChain(this WonkaBreRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress, uint nSendTrxGas = 0)
+        public static RuleTreeReport InvokeOnChain(this WonkaBizRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress, uint nSendTrxGas = 0)
         {
             var InvocationReport = new RuleTreeReport();
             var WonkaEvents      = new WonkaInvocationEvents(poWonkaContract);
@@ -511,7 +511,7 @@ namespace WonkaEth.Extensions
                 {
                     foreach (string sTmpCustomId in InvocationReport.RuleSetFailures)
                     {
-                        WonkaBreRuleSet FoundRuleSet =
+                        WonkaBizRuleSet FoundRuleSet =
                             poRulesEngine.AllRuleSets.Where(x => x.CustomId == sTmpCustomId).FirstOrDefault();
 
                         if (!String.IsNullOrEmpty(FoundRuleSet.CustomId))
@@ -531,7 +531,7 @@ namespace WonkaEth.Extensions
         /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
         /// <returns>Indicates whether or not the RuleTree has already been registered on the blockchain</returns>
         /// </summary>
-        public static bool IsRuleTreeRegistered(this WonkaBreRulesEngine poEngine)
+        public static bool IsRuleTreeRegistered(this WonkaBizRulesEngine poEngine)
         {
             var contract   = GetRegistryContract();
             var ruleTreeID = poEngine.DetermineRuleTreeChainID();
@@ -577,7 +577,7 @@ namespace WonkaEth.Extensions
 		/// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the RuleTree</param>
 		/// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
 		/// </summary>
-		public static bool Serialize(this WonkaBreRulesEngine poEngine, 
+		public static bool Serialize(this WonkaBizRulesEngine poEngine, 
                                                        string psRuleMasterAddress,
                                                        string psPassword, 
                                                        string psSenderAddress,
@@ -588,7 +588,7 @@ namespace WonkaEth.Extensions
         {
             bool bResult = true;
 
-            WonkaBreRuleSet treeRoot = poEngine.RuleTreeRoot;
+            WonkaBizRuleSet treeRoot = poEngine.RuleTreeRoot;
             
             var account = new Account(psPassword);
 
@@ -885,7 +885,7 @@ namespace WonkaEth.Extensions
         /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
         /// <returns>Indicates whether or not the Orchestration info was submitted to the blockchain</returns>
         /// </summary>
-        private static bool SerializeOrchestrationInfo(this WonkaBreRulesEngine poEngine, Nethereum.Contracts.Contract poContract, string psRuleMasterAddress, string psSenderAddress)
+        private static bool SerializeOrchestrationInfo(this WonkaBizRulesEngine poEngine, Nethereum.Contracts.Contract poContract, string psRuleMasterAddress, string psSenderAddress)
         {
             var addSourceFunction   = poContract.GetFunction("addSource");
             var addCustomOpFunction = poContract.GetFunction("addCustomOp");
@@ -908,7 +908,7 @@ namespace WonkaEth.Extensions
 
                 foreach (string sTmpAttrId in poEngine.SourceMap.Keys)
                 {
-                    WonkaBreSource TmpSource = poEngine.SourceMap[sTmpAttrId];
+                    WonkaBizSource TmpSource = poEngine.SourceMap[sTmpAttrId];
 
                     // NOTE: Causes "out of gas" exception to be thrown?
                     // var gas = addSourceFunction.EstimateGasAsync("Something", "Something", "Something", "Something", "Something").Result;
@@ -932,7 +932,7 @@ namespace WonkaEth.Extensions
 
                 foreach (string sCustomOpName in poEngine.CustomOpMap.Keys)
                 {
-                    WonkaBreSource TmpSource = poEngine.CustomOpMap[sCustomOpName];
+                    WonkaBizSource TmpSource = poEngine.CustomOpMap[sCustomOpName];
 
                     // NOTE: Causes "out of gas" exception to be thrown?
                     // var gas = addSourceFunction.EstimateGasAsync("Something", "Something", "Something", "Something", "Something").Result;
@@ -968,7 +968,7 @@ namespace WonkaEth.Extensions
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <returns>Indicates whether or not the Attributes were submitted to the blockchain</returns>
         /// </summary>
-        private static bool SerializeRegistryInfo(this WonkaBreRulesEngine poEngine, string psSenderAddress, string psContractAddress)
+        private static bool SerializeRegistryInfo(this WonkaBizRulesEngine poEngine, string psSenderAddress, string psContractAddress)
         {
             string sRuleTreeId = poEngine.DetermineRuleTreeChainID();
 
@@ -1019,7 +1019,7 @@ namespace WonkaEth.Extensions
         /// <param name="psRegistrationId">The alternate ID for the RuleTree to use when registering it within the Registry</param>
         /// <returns>Indicates whether or not all of the RuleTree's nodes were submitted to the blockchain</returns>
         /// </summary>
-        private static bool SerializeTreeRoot(this WonkaBreRuleSet poRuleSet, 
+        private static bool SerializeTreeRoot(this WonkaBizRuleSet poRuleSet, 
                                       Nethereum.Contracts.Contract poContract, 
                                                             string psRuleMasterAddress,
                                                             string psSenderAddress, 
@@ -1049,7 +1049,7 @@ namespace WonkaEth.Extensions
 
             poRuleSet.SerializeRules(poContract, psRuleMasterAddress, psSenderAddress, sRootName);
 
-            foreach (WonkaBreRuleSet TempChildRuleSet in poRuleSet.ChildRuleSets)
+            foreach (WonkaBizRuleSet TempChildRuleSet in poRuleSet.ChildRuleSets)
             {
                 TempChildRuleSet.SerializeRuleSet(poContract, psRuleMasterAddress, psSenderAddress, sRootName);
             }
@@ -1069,7 +1069,7 @@ namespace WonkaEth.Extensions
         /// <param name="psRSParentName">The parent node of the current node that we are adding to the RuleTree</param>
         /// <returns>Indicates whether or not the current node was submitted to the blockchain</returns>
         /// </summary>
-        private static bool SerializeRuleSet(this WonkaBreRuleSet poRuleSet,
+        private static bool SerializeRuleSet(this WonkaBizRuleSet poRuleSet,
                                      Nethereum.Contracts.Contract poContract,
                                                            string psRuleMasterAddress,
                                                            string psSenderAddress, 
@@ -1130,7 +1130,7 @@ namespace WonkaEth.Extensions
 
             poRuleSet.SerializeRules(poContract, psRuleMasterAddress, psSenderAddress,  sResultSetID);
 
-            foreach (WonkaBreRuleSet TempChildRuleSet in poRuleSet.ChildRuleSets)
+            foreach (WonkaBizRuleSet TempChildRuleSet in poRuleSet.ChildRuleSets)
             {
                 TempChildRuleSet.SerializeRuleSet(poContract, psRuleMasterAddress, psSenderAddress, sResultSetID);
             }
@@ -1150,7 +1150,7 @@ namespace WonkaEth.Extensions
         /// <param name="psRuleSetId">The name of the current node in the blockchain whose rules we are adding to the RuleTree</param>
         /// <returns>Indicates whether or not the rules of the current node were submitted to the blockchain</returns>
         /// </summary>
-        private static bool SerializeRules(this WonkaBreRuleSet poRuleSet, 
+        private static bool SerializeRules(this WonkaBizRuleSet poRuleSet, 
                                    Nethereum.Contracts.Contract poContract, 
                                                          string psRuleMasterAddress, 
                                                          string psSenderAddress, 
@@ -1163,7 +1163,7 @@ namespace WonkaEth.Extensions
             // var gas = addRuleFunction.EstimateGasAsync(psSenderAddress, "SomeRSID", "SomeRuleName", "SomeAttrName", 0, "SomeVal", false, false).Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1500000);
 
-            foreach (WonkaBreRule TempRule in poRuleSet.EvaluativeRules)
+            foreach (WonkaBizRule TempRule in poRuleSet.EvaluativeRules)
             {
                 var    sRuleName    = "";
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
@@ -1286,7 +1286,7 @@ namespace WonkaEth.Extensions
                 }
             }
 
-            foreach (WonkaBreRule TempRule in poRuleSet.AssertiveRules)
+            foreach (WonkaBizRule TempRule in poRuleSet.AssertiveRules)
             {
                 var    sRuleName    = "";
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
@@ -1412,7 +1412,7 @@ namespace WonkaEth.Extensions
         public static WonkaEth.Orchestration.Init.OrchestrationInitData 
             TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, 
                                                                 IMetadataRetrievable piMetadataSource = null,
-                         Dictionary<string, WonkaBreXmlReader.ExecuteCustomOperator> poDelegateMap = null)
+                         Dictionary<string, WonkaBizRulesXmlReader.ExecuteCustomOperator> poDelegateMap = null)
 
         {
             WonkaEth.Orchestration.Init.OrchestrationInitData OrchInitData = new WonkaEth.Orchestration.Init.OrchestrationInitData();
@@ -1422,7 +1422,7 @@ namespace WonkaEth.Extensions
             OrchInitData.BlockchainEngineOwner    = poEthInitData.BlockchainEngine.ContractOwner;
 
             OrchInitData.BlockchainEngine =
-                new WonkaBreSource(poEthInitData.BlockchainEngine.ContractMarkupId,
+                new WonkaBizSource(poEthInitData.BlockchainEngine.ContractMarkupId,
                                    poEthInitData.BlockchainEngine.ContractSender,
                                    poEthInitData.BlockchainEngine.ContractPassword,
                                    poEthInitData.BlockchainEngine.ContractAddress,
@@ -1432,7 +1432,7 @@ namespace WonkaEth.Extensions
             OrchInitData.TrxStateContractAddress = poEthInitData.BlockchainEngine.TrxStateContractAddress;
 
             OrchInitData.DefaultBlockchainDataSource =
-                new WonkaBreSource(poEthInitData.DefaultValueRetrieval.ContractMarkupId,
+                new WonkaBizSource(poEthInitData.DefaultValueRetrieval.ContractMarkupId,
                                    poEthInitData.DefaultValueRetrieval.ContractSender,
                                    poEthInitData.DefaultValueRetrieval.ContractPassword,
                                    poEthInitData.DefaultValueRetrieval.ContractAddress,
@@ -1445,8 +1445,8 @@ namespace WonkaEth.Extensions
             {
                 foreach (Init.WonkaEthSource TmpSource in poEthInitData.AttributeSourceList)
                 {
-                    WonkaBreSource TmpBreSource =
-                        new WonkaBreSource(TmpSource.ContractMarkupId,
+                    WonkaBizSource TmpBreSource =
+                        new WonkaBizSource(TmpSource.ContractMarkupId,
                                            TmpSource.ContractSender,
                                            TmpSource.ContractPassword,
                                            TmpSource.ContractAddress,
@@ -1456,7 +1456,7 @@ namespace WonkaEth.Extensions
                                            null);
 
                     if (OrchInitData.BlockchainDataSources == null)
-                        OrchInitData.BlockchainDataSources = new Dictionary<string, WonkaBreSource>();
+                        OrchInitData.BlockchainDataSources = new Dictionary<string, WonkaBizSource>();
 
                     OrchInitData.BlockchainDataSources[TmpSource.TargetAttrName] = TmpBreSource;              
                 }
@@ -1466,13 +1466,13 @@ namespace WonkaEth.Extensions
             {
                 foreach (Init.WonkaEthSource TmpSource in poEthInitData.CustomOperatorList)
                 {
-                    WonkaBreXmlReader.ExecuteCustomOperator poCustomOpDelegate = null;
+                    WonkaBizRulesXmlReader.ExecuteCustomOperator poCustomOpDelegate = null;
 
                     if ((poDelegateMap != null) && poDelegateMap.ContainsKey(TmpSource.CustomOpContractMethod))
                         poCustomOpDelegate = poDelegateMap[TmpSource.CustomOpContractMethod];
 
-                    WonkaBreSource TmpBreSource =
-                        new WonkaBreSource(TmpSource.CustomOpMarkupId,
+                    WonkaBizSource TmpBreSource =
+                        new WonkaBizSource(TmpSource.CustomOpMarkupId,
                                            TmpSource.ContractSender,
                                            TmpSource.ContractPassword,
                                            TmpSource.ContractAddress,
@@ -1481,7 +1481,7 @@ namespace WonkaEth.Extensions
                                            TmpSource.CustomOpContractMethod);
 
                     if (OrchInitData.BlockchainCustomOpFunctions == null)
-                        OrchInitData.BlockchainCustomOpFunctions = new Dictionary<string, WonkaBreSource>();
+                        OrchInitData.BlockchainCustomOpFunctions = new Dictionary<string, WonkaBizSource>();
 
                     OrchInitData.BlockchainCustomOpFunctions[TmpSource.CustomOpMarkupId] = TmpBreSource;
                 }

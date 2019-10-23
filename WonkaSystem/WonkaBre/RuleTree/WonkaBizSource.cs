@@ -17,15 +17,15 @@ namespace Wonka.BizRulesEngine.RuleTree
     /// work within a .NET instance of the engine).  However, future versions of Ethereum might create exceptions for such use cases (via IPFS, etc.).
     /// 
     /// </summary>
-    public class WonkaBreSource
+    public class WonkaBizSource
     {
         #region Delegates
 
-        public delegate string RetrieveDataMethod(WonkaBreSource TargetSource, string psAttrName);
+        public delegate string RetrieveDataMethod(WonkaBizSource TargetSource, string psAttrName);
 
         #endregion
 
-        public WonkaBreSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, string psMethodName, string psSetterMethodName, RetrieveDataMethod poRetrievalDelegate)
+        public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, string psMethodName, string psSetterMethodName, RetrieveDataMethod poRetrievalDelegate)
         {
             SourceId     = psSourceId;
             TypeOfSource = SOURCE_TYPE.SRC_TYPE_CONTRACT;
@@ -43,7 +43,7 @@ namespace Wonka.BizRulesEngine.RuleTree
             RetrievalDelegate = poRetrievalDelegate;
         }
 
-        public WonkaBreSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, WonkaBreXmlReader.ExecuteCustomOperator poCustomOpDelegate, string psCustomOpMethodName)
+        public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, WonkaBizRulesXmlReader.ExecuteCustomOperator poCustomOpDelegate, string psCustomOpMethodName)
         {
             SourceId     = psSourceId;
             TypeOfSource = SOURCE_TYPE.SRC_TYPE_CONTRACT;
@@ -60,7 +60,7 @@ namespace Wonka.BizRulesEngine.RuleTree
             CustomOpMethodName = psCustomOpMethodName; 
         }
 
-        public WonkaBreSource(string psSourceId, string psAPISrvrAddr, int pnAPISrvrPort, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
+        public WonkaBizSource(string psSourceId, string psAPISrvrAddr, int pnAPISrvrPort, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
         {
             SourceId     = psSourceId;
             TypeOfSource = SOURCE_TYPE.SRC_TYPE_API;
@@ -95,7 +95,7 @@ namespace Wonka.BizRulesEngine.RuleTree
 
         #region Properties for Custom Orchestration (i.e., custom operators)
 
-        public readonly WonkaBreXmlReader.ExecuteCustomOperator CustomOpDelegate;
+        public readonly WonkaBizRulesXmlReader.ExecuteCustomOperator CustomOpDelegate;
 
         public readonly string CustomOpMethodName;
 

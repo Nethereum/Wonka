@@ -13,7 +13,7 @@ namespace Wonka.BizRulesEngine.Permissions
     /// in relation to the pending transaction of a RuleTree, which will be invoked within the rules engine.
     /// 
     /// </summary>
-    public class WonkaBreTransactionState : ITransactionState
+    public class WonkaBizTransactionState : ITransactionState
     {
         #region CONSTANTS
 
@@ -35,7 +35,7 @@ namespace Wonka.BizRulesEngine.Permissions
 
         #endregion
 
-        public WonkaBreTransactionState(IEnumerable<string> poOwners, uint pnMinReqScoreForApproval = 0, string psContractAddress = null)
+        public WonkaBizTransactionState(IEnumerable<string> poOwners, uint pnMinReqScoreForApproval = 0, string psContractAddress = null)
         {
             this.ContractAddress = psContractAddress;
 
@@ -52,12 +52,12 @@ namespace Wonka.BizRulesEngine.Permissions
 
             if (this.OwnerWeights.Keys.Count >= CONST_MAX_OWNERS)
             {
-                throw new WonkaBrePermissionsException("ERROR!  Too many owners were provided.  Maximum limit is [" + CONST_MAX_OWNERS + "].");
+                throw new WonkaBizPermissionsException("ERROR!  Too many owners were provided.  Maximum limit is [" + CONST_MAX_OWNERS + "].");
             }
 
             if (this.OwnerWeights.Keys.Count == 0)
             {
-                throw new WonkaBrePermissionsException("ERROR!  No owners were provided.");
+                throw new WonkaBizPermissionsException("ERROR!  No owners were provided.");
             }
 
             this.MinReqScoreForApproval = (pnMinReqScoreForApproval > 0) ? pnMinReqScoreForApproval : (uint)this.OwnerWeights.Count / 2;
@@ -69,7 +69,7 @@ namespace Wonka.BizRulesEngine.Permissions
         {
             if (!this.IsOwner(psOwner))
             {
-                throw new WonkaBrePermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
+                throw new WonkaBizPermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
             }
 
             this.OwnerConfirmations[psOwner] = true;
@@ -156,7 +156,7 @@ namespace Wonka.BizRulesEngine.Permissions
         {
             if (!this.IsOwner(psOwner))
             {
-                throw new WonkaBrePermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
+                throw new WonkaBizPermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
             }
 
             return this.OwnerConfirmations[psOwner];
@@ -166,7 +166,7 @@ namespace Wonka.BizRulesEngine.Permissions
         {
             if (String.IsNullOrEmpty(psOwner))
             {
-                throw new WonkaBrePermissionsException("ERROR!  Provided owner cannot be null or blank.");
+                throw new WonkaBizPermissionsException("ERROR!  Provided owner cannot be null or blank.");
             }
 
             return this.OwnerWeights.ContainsKey(psOwner);
@@ -189,7 +189,7 @@ namespace Wonka.BizRulesEngine.Permissions
         {
             if (!this.IsOwner(psOwner))
             {
-                throw new WonkaBrePermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
+                throw new WonkaBizPermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
             }
 
             this.OwnerWeights.Remove(psOwner);
@@ -212,7 +212,7 @@ namespace Wonka.BizRulesEngine.Permissions
         {
             if (!this.IsOwner(psOwner))
             {
-                throw new WonkaBrePermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
+                throw new WonkaBizPermissionsException("ERROR!  Account(" + psOwner + ") is not a registered owner that is associated with this RuleTree.");
             }
 
             this.OwnerConfirmations[psOwner] = false;
@@ -224,7 +224,7 @@ namespace Wonka.BizRulesEngine.Permissions
         {
             if (pnMinReq == 0)
             {
-                throw new WonkaBrePermissionsException("Minimum requirement has to be greater than 0.");
+                throw new WonkaBizPermissionsException("Minimum requirement has to be greater than 0.");
             }
 
             this.MinReqScoreForApproval = pnMinReq;
@@ -234,12 +234,12 @@ namespace Wonka.BizRulesEngine.Permissions
         {
             if (this.OwnerConfirmations.Count >= CONST_MAX_OWNERS)
             {
-                throw new WonkaBrePermissionsException("ERROR!  Max count of owners [" + CONST_MAX_OWNERS + "] has already been reached.");
+                throw new WonkaBizPermissionsException("ERROR!  Max count of owners [" + CONST_MAX_OWNERS + "] has already been reached.");
             }
 
             if (String.IsNullOrEmpty(psOwner))
             {
-                throw new WonkaBrePermissionsException("ERROR!  Provided owner cannot be null or blank.");
+                throw new WonkaBizPermissionsException("ERROR!  Provided owner cannot be null or blank.");
             }
 
             this.OwnerWeights[psOwner] = pnWeight;

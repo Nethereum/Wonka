@@ -22,7 +22,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
     /// of the incoming record are populated: AccountCurrValue, AccountStatus, and AccountType. 
 	/// 
 	/// </summary>
-	public class PopulatedRule : WonkaBreRule
+	public class PopulatedRule : WonkaBizRule
     {
         #region Constructors
 

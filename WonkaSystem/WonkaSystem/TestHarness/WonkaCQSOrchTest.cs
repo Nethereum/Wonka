@@ -63,7 +63,7 @@ namespace WonkaSystem.TestHarness
         private readonly string         msRulesContents;
         private readonly string         msAbiWonka;
         private readonly string         msAbiOrchContract;
-        private readonly WonkaBreSource moDefaultSource;
+        private readonly WonkaBizSource moDefaultSource;
 
         private IMetadataRetrievable moMetadataSource = new WonkaMetadataVATSource();
 
@@ -72,8 +72,8 @@ namespace WonkaSystem.TestHarness
         private readonly string msWonkaContractAddress = "";
         private readonly string msOrchContractAddress  = "";
 
-        private Dictionary<string, WonkaBreSource> moAttrSourceMap = null;
-        private Dictionary<string, WonkaBreSource> moCustomOpMap   = null;
+        private Dictionary<string, WonkaBizSource> moAttrSourceMap = null;
+        private Dictionary<string, WonkaBizSource> moCustomOpMap   = null;
 
         private WonkaEth.Orchestration.Init.OrchestrationInitData moOrchInitData      = null; 
         private WonkaEth.Init.WonkaEthRegistryInitialization      moWonkaRegistryInit = null;
@@ -82,8 +82,8 @@ namespace WonkaSystem.TestHarness
         // with configuration files locally (embedded resources, local filesystem, etc.)
         public WonkaCQSOrchTest()
         {
-            moAttrSourceMap = new Dictionary<string, WonkaBreSource>();
-            moCustomOpMap   = new Dictionary<string, WonkaBreSource>();
+            moAttrSourceMap = new Dictionary<string, WonkaBizSource>();
+            moCustomOpMap   = new Dictionary<string, WonkaBizSource>();
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
@@ -160,7 +160,7 @@ namespace WonkaSystem.TestHarness
             msAbiOrchContract = moOrchInitData.DefaultBlockchainDataSource.ContractABI;
 
             moDefaultSource =
-                new WonkaBreSource(moOrchInitData.DefaultBlockchainDataSource.SourceId,
+                new WonkaBizSource(moOrchInitData.DefaultBlockchainDataSource.SourceId,
                                    moOrchInitData.DefaultBlockchainDataSource.SenderAddress,
                                    moOrchInitData.DefaultBlockchainDataSource.Password,
                                    moOrchInitData.DefaultBlockchainDataSource.ContractAddress,
@@ -195,8 +195,8 @@ namespace WonkaSystem.TestHarness
         {
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
-            moAttrSourceMap = new Dictionary<string, WonkaBreSource>();
-            moCustomOpMap   = new Dictionary<string, WonkaBreSource>();
+            moAttrSourceMap = new Dictionary<string, WonkaBizSource>();
+            moCustomOpMap   = new Dictionary<string, WonkaBizSource>();
 
             // Read the ABI of the Ethereum contract for the Wonka rules engine
             using (var AbiReader = new StreamReader(TmpAssembly.GetManifestResourceStream("WonkaSystem.TestData.WonkaEngine.abi")))
@@ -239,7 +239,7 @@ namespace WonkaSystem.TestHarness
             RefEnv.Serialize(msSenderAddress, msPassword, msSenderAddress, msWonkaContractAddress, msAbiWonka);
 
             moDefaultSource =
-                new WonkaBreSource(CONST_ORCH_CONTRACT_MARKUP_ID,
+                new WonkaBizSource(CONST_ORCH_CONTRACT_MARKUP_ID,
                                    msSenderAddress,
                                    msPassword,
                                    psOrchContractAddress,
@@ -255,12 +255,12 @@ namespace WonkaSystem.TestHarness
                 moAttrSourceMap[TempAttr.AttrName] = moDefaultSource;
             }
 
-            Dictionary<string, WonkaBreSource> CustomOpSourceMap = new Dictionary<string, WonkaBreSource>();
+            Dictionary<string, WonkaBizSource> CustomOpSourceMap = new Dictionary<string, WonkaBizSource>();
 
             // Here a mapping is created, where each Custom Operator points to a specific contract and its "implementation" method
             // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type            
-            WonkaBreSource CustomOpSource =
-                new WonkaBreSource(CONST_CUSTOM_OP_MARKUP_ID,
+            WonkaBizSource CustomOpSource =
+                new WonkaBizSource(CONST_CUSTOM_OP_MARKUP_ID,
                                    msSenderAddress,
                                    msPassword,
                                    psOrchContractAddress,
@@ -275,8 +275,8 @@ namespace WonkaSystem.TestHarness
         // with configuration files that will be accessed through IPFS
         public WonkaCQSOrchTest(StringBuilder psPeerKeyId, string psRulesMarkupFile, string psRulesInitFile, string psRegistryInitFile)
         {
-            moAttrSourceMap = new Dictionary<string, WonkaBreSource>();
-            moCustomOpMap   = new Dictionary<string, WonkaBreSource>();
+            moAttrSourceMap = new Dictionary<string, WonkaBizSource>();
+            moCustomOpMap   = new Dictionary<string, WonkaBizSource>();
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
@@ -338,7 +338,7 @@ namespace WonkaSystem.TestHarness
             msAbiOrchContract = moOrchInitData.DefaultBlockchainDataSource.ContractABI;
 
             moDefaultSource =
-                new WonkaBreSource(moOrchInitData.DefaultBlockchainDataSource.SourceId,
+                new WonkaBizSource(moOrchInitData.DefaultBlockchainDataSource.SourceId,
                                    moOrchInitData.DefaultBlockchainDataSource.SenderAddress,
                                    moOrchInitData.DefaultBlockchainDataSource.Password,
                                    moOrchInitData.DefaultBlockchainDataSource.ContractAddress,
@@ -527,7 +527,7 @@ namespace WonkaSystem.TestHarness
             {
                 InitData = new WonkaEth.Orchestration.Init.OrchestrationInitData();
 
-                InitData.BlockchainEngine = new WonkaBreSource("N", msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka, null, null, null);
+                InitData.BlockchainEngine = new WonkaBizSource("N", msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka, null, null, null);
 
                 InitData.AttributesMetadataSource = new WonkaMetadataVATSource();
 
@@ -542,7 +542,7 @@ namespace WonkaSystem.TestHarness
             return InitData;
         }
 
-        public Nethereum.Contracts.Contract GetContract(WonkaBreSource TargetSource)
+        public Nethereum.Contracts.Contract GetContract(WonkaBizSource TargetSource)
         {
             var account  = new Account(TargetSource.Password);
 
@@ -565,7 +565,7 @@ namespace WonkaSystem.TestHarness
                 return "1";
         }
 
-        public string RetrieveValueMethod(WonkaBreSource poTargetSource, string psAttrName)
+        public string RetrieveValueMethod(WonkaBizSource poTargetSource, string psAttrName)
         {
             var contract = GetContract(poTargetSource);
 

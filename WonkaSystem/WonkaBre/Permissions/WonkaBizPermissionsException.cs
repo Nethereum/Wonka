@@ -9,7 +9,7 @@ namespace Wonka.BizRulesEngine.Permissions
     /// the Business Rules Engine.
     /// 
     /// </summary>
-    public class WonkaBrePermissionsException : Exception
+    public class WonkaBizPermissionsException : Exception
     {
         #region Properties
 
@@ -23,7 +23,7 @@ namespace Wonka.BizRulesEngine.Permissions
 
         #endregion
 
-        public WonkaBrePermissionsException(string psErrorMessage) 
+        public WonkaBizPermissionsException(string psErrorMessage) 
             : base(psErrorMessage)
         {
             this.CurrentScoreForApproval = this.MinReqScoreForApproval = 0;
@@ -32,7 +32,7 @@ namespace Wonka.BizRulesEngine.Permissions
             this.OwnersUnconfirmed = new HashSet<string>();
         }
 
-        public WonkaBrePermissionsException(string psErrorMessage, ITransactionState poTransactionState) 
+        public WonkaBizPermissionsException(string psErrorMessage, ITransactionState poTransactionState) 
             : base(psErrorMessage)
         {
             this.CurrentScoreForApproval = this.MinReqScoreForApproval = 0;
