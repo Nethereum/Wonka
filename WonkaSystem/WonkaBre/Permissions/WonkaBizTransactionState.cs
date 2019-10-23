@@ -77,7 +77,7 @@ namespace Wonka.BizRulesEngine.Permissions
 
         public void AddExecutor(string psExecutor)
         {
-            if (!String.IsNullOrEmpty(psExecutor))
+            if (!string.IsNullOrEmpty(psExecutor))
             {
                 this.ApprovedExecutors.Add(psExecutor);
             }
@@ -135,7 +135,7 @@ namespace Wonka.BizRulesEngine.Permissions
 
         public uint GetOwnerWeight(string psOwner)
         {
-            if (!String.IsNullOrEmpty(psOwner))
+            if (!string.IsNullOrEmpty(psOwner))
             {
                 if (this.OwnerWeights.ContainsKey(psOwner))
                 {
@@ -164,7 +164,7 @@ namespace Wonka.BizRulesEngine.Permissions
 
         public bool IsOwner(string psOwner)
         {
-            if (String.IsNullOrEmpty(psOwner))
+            if (string.IsNullOrEmpty(psOwner))
             {
                 throw new WonkaBizPermissionsException("ERROR!  Provided owner cannot be null or blank.");
             }
@@ -179,7 +179,7 @@ namespace Wonka.BizRulesEngine.Permissions
 
         public void RemoveExecutor(string psExecutor)
         {
-            if (!String.IsNullOrEmpty(psExecutor))
+            if (!string.IsNullOrEmpty(psExecutor))
             {
                 this.ApprovedExecutors.Remove(psExecutor);
             }
@@ -237,7 +237,7 @@ namespace Wonka.BizRulesEngine.Permissions
                 throw new WonkaBizPermissionsException("ERROR!  Max count of owners [" + CONST_MAX_OWNERS + "] has already been reached.");
             }
 
-            if (String.IsNullOrEmpty(psOwner))
+            if (string.IsNullOrEmpty(psOwner))
             {
                 throw new WonkaBizPermissionsException("ERROR!  Provided owner cannot be null or blank.");
             }

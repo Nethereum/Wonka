@@ -150,7 +150,10 @@ namespace Wonka.BizRulesEngine.Readers
             }
             else
             {
-                this.CustomOpSources[psCustomOpName] = new WonkaBizSource("", "", "", "", "", "", "", null);
+                string sEmpty = string.Empty;
+
+                this.CustomOpSources[psCustomOpName] = 
+                    new WonkaBizSource(sEmpty, sEmpty, sEmpty, sEmpty, sEmpty, sEmpty, sEmpty, null);
             }
         }
 
@@ -264,7 +267,9 @@ namespace Wonka.BizRulesEngine.Readers
 
             var AttrDesc = poRuleSetXmlNode.Attributes.GetNamedItem(CONST_RS_FLOW_DESC_ATTR);
             if (AttrDesc != null)
+            {
                 currentRuleSet.Description = AttrDesc.Value;
+            }
 
             XmlNodeList ChildNodeList = poRuleSetXmlNode.ChildNodes;
             foreach (XmlNode TempChildXmlNode in ChildNodeList)
@@ -282,9 +287,13 @@ namespace Wonka.BizRulesEngine.Readers
                         if (AttrErrLevel != null)
                         {
                             if (AttrErrLevel.Value.ToLower() == CONST_RS_VALID_ERR_WARNING)
+                            {
                                 NewChildRuleSet.ErrorSeverity = RULE_SET_ERR_LVL.ERR_LVL_WARNING;
+                            }
                             else if (AttrErrLevel.Value.ToLower() == CONST_RS_VALID_ERR_SEVERE)
+                            {
                                 NewChildRuleSet.ErrorSeverity = RULE_SET_ERR_LVL.ERR_LVL_SEVERE;
+                            }
                         }
                     }
 
@@ -315,16 +324,22 @@ namespace Wonka.BizRulesEngine.Readers
             if (OpDesc != null)
             {
                 if (OpDesc.Value.ToLower() == "and")
+                {
                     poTargetRuleSet.RulesEvalOperator = RULE_OP.OP_AND;
+                }
                 else if (OpDesc.Value.ToLower() == "or")
+                {
                     poTargetRuleSet.RulesEvalOperator = RULE_OP.OP_OR;
+                }
             }
 
             XmlNodeList ChildNodeList = poTargetXmlNode.ChildNodes;
             foreach (XmlNode TempChildXmlNode in ChildNodeList)
             {
                 if (TempChildXmlNode.LocalName == CONST_RULE_TAG)
+                {
                     ParseSingleRule(TempChildXmlNode, poTargetRuleSet);
+                }
             }
         }
 
@@ -335,50 +350,86 @@ namespace Wonka.BizRulesEngine.Readers
             WonkaBizRule NewRule         = null;
 
             if (this.CustomOpSources.Keys.Any(s => sRuleExpression.Contains(s)))
+            {
                 NewRule = new CustomOperatorRule() { RuleId = nNewRuleId };
+            }
             else if (this.ArithmeticLimitOps.Any(s => sRuleExpression.Contains(s)))
+            {
                 NewRule = new ArithmeticLimitRule() { RuleId = nNewRuleId };
+            }
             else if (this.DateLimitOps.Any(s => sRuleExpression.Contains(s)))
+            {
                 NewRule = new DateLimitRule() { RuleId = nNewRuleId };
+            }
             else if (sRuleExpression.Contains("NOT POPULATED"))
+            {
                 NewRule = new PopulatedRule() { RuleId = nNewRuleId, NotOperator = true };
+            }
             else if (sRuleExpression.Contains("POPULATED"))
+            {
                 NewRule = new PopulatedRule() { RuleId = nNewRuleId, NotOperator = false };
+            }
             else if (sRuleExpression.Contains("!="))
+            {
                 NewRule = new DomainRule() { RuleId = nNewRuleId, NotOperator = true };
+            }
             else if (sRuleExpression.Contains("=="))
+            {
                 NewRule = new DomainRule() { RuleId = nNewRuleId, NotOperator = false };
+            }
             else if (sRuleExpression.Contains("NOT IN"))
+            {
                 NewRule = new DomainRule() { RuleId = nNewRuleId, NotOperator = true };
+            }
             else if (sRuleExpression.Contains("IN"))
+            {
                 NewRule = new DomainRule() { RuleId = nNewRuleId, NotOperator = false };
+            }
             else if (sRuleExpression.Contains("EXISTS AS"))
+            {
                 NewRule = new DomainRule() { RuleId = nNewRuleId, NotOperator = false, SearchAllDataRows = true };
+            }
             else if (sRuleExpression.Contains("DEFAULT"))
+            {
                 NewRule = new AssignmentRule() { RuleId = nNewRuleId, NotOperator = false, DefaultAssignment = true };
+            }
             else if (sRuleExpression.Contains("ASSIGN_SUM"))
+            {
                 NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_SUM };
+            }
             else if (sRuleExpression.Contains("ASSIGN_DIFF"))
+            {
                 NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_DIFF };
+            }
             else if (sRuleExpression.Contains("ASSIGN_PROD"))
+            {
                 NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_PROD };
+            }
             else if (sRuleExpression.Contains("ASSIGN_QUOT"))
+            {
                 NewRule = new ArithmeticRule() { RuleId = nNewRuleId, NotOperator = false, OpType = ARITH_OP_TYPE.AOT_QUOT };
+            }
             else if (sRuleExpression.Contains("ASSIGN"))
+            {
                 NewRule = new AssignmentRule() { RuleId = nNewRuleId, NotOperator = false };
+            }
 
             if (NewRule != null)
             {
                 var RuleId = poRuleXmlNode.Attributes.GetNamedItem(CONST_RULE_ID_ATTR);
                 if (RuleId != null)
+                {
                     NewRule.DescRuleId = RuleId.Value;
+                }
 
                 NewRule.ParentRuleSetId = poTargetRuleSet.RuleSetId;
 
                 SetTargetAttribute(NewRule, sRuleExpression);
 
                 if (NewRule.RuleType != RULE_TYPE.RT_POPULATED)
+                {
                     SetRuleValues(NewRule, sRuleExpression);
+                }
 
                 if (RulesHostEngine != null)
                 {
@@ -387,13 +438,17 @@ namespace Wonka.BizRulesEngine.Readers
                     if (RulesHostEngine.StdOpMap != null)
                     {
                         if ((NewRule is ArithmeticLimitRule) && RulesHostEngine.StdOpMap.ContainsKey(STD_OP_TYPE.STD_OP_BLOCK_NUM))
+                        {
                             ((ArithmeticLimitRule)NewRule).BlockNumDelegate = RulesHostEngine.StdOpMap[STD_OP_TYPE.STD_OP_BLOCK_NUM];
+                        }
                     }
                 }
             }
 
             if (NewRule != null)
+            {
                 poTargetRuleSet.AddRule(NewRule);
+            }
         }
 
         private void SetRuleValues(WonkaBizRule poTargetRule, string psRuleExpression)
@@ -449,7 +504,7 @@ namespace Wonka.BizRulesEngine.Readers
 
                         string sCustomOpKey = CustomOpSources.Keys.Where(s => psRuleExpression.Contains(s)).FirstOrDefault();
 
-                        if (!String.IsNullOrEmpty(sCustomOpKey))
+                        if (!string.IsNullOrEmpty(sCustomOpKey))
                         {                            
                             Rule.SetDomain(asValueSet);
 
@@ -490,9 +545,13 @@ namespace Wonka.BizRulesEngine.Readers
                     }
 
                     if (sRecordOfInterest == "N")
+                    {
                         poTargetRule.RecordOfInterest = TARGET_RECORD.TRID_NEW_RECORD;
+                    }
                     else
+                    {
                         poTargetRule.RecordOfInterest = TARGET_RECORD.TRID_OLD_RECORD;
+                    }
 
                     if (WonkaRefEnvironment.GetInstance().IsAttribute(sAttrName))
                     {
@@ -500,7 +559,9 @@ namespace Wonka.BizRulesEngine.Readers
                             WonkaRefEnvironment.GetInstance().GetAttributeByAttrName(sAttrName);
                     }
                     else
+                    {
                         throw new WonkaBizRuleException(-1, -1, "ERROR!  Attribute (" + sAttrName + ") does not exist.");
+                    }
                 }
             }
         }

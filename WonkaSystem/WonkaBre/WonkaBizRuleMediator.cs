@@ -47,8 +47,8 @@ namespace Wonka.BizRulesEngine
             foreach (WonkaBizRule TempRule in poTargetRuleSet.EvaluativeRules)
             {
                 bool   bRuleResult      = true;
-                string sRuleResult      = "";
-                string sFinalRuleErrMsg = "";
+                string sRuleResult      = string.Empty;
+                string sFinalRuleErrMsg = string.Empty;
 
                 RuleErrorMsgBuilder.Clear();
                 bRuleResult = TempRule.Execute(poIncomingProduct, poCurrentProduct, RuleErrorMsgBuilder);
@@ -56,13 +56,17 @@ namespace Wonka.BizRulesEngine
                 if (TempRule.IsPassive)
                 {
                     if (TempRule.NotOperator)
+                    {
                         bRuleResult = !bRuleResult;
+                    }
                 }
 
                 RuleResultList.Add(bRuleResult);
 
-                if (bRuleResult)                    
+                if (bRuleResult)
+                {
                     poRuleSetErrorMessage.Append("SUCCESS");
+                }
                 else
                 {
                     var RuleSetReport =
@@ -99,11 +103,17 @@ namespace Wonka.BizRulesEngine
                 foreach (bool bTempRuleResult in RuleResultList)
                 {
                     if (poTargetRuleSet.RulesEvalOperator == RULE_OP.OP_AND)
+                    {
                         bRuleSetResult = bRuleSetResult && bTempRuleResult;
+                    }
                     else if (poTargetRuleSet.RulesEvalOperator == RULE_OP.OP_OR)
+                    {
                         bRuleSetResult = bRuleSetResult || bTempRuleResult;
+                    }
                     else
+                    {
                         bRuleSetResult = bRuleSetResult && bTempRuleResult;
+                    }
                 }
             }
 
@@ -114,8 +124,8 @@ namespace Wonka.BizRulesEngine
                 {
                     bool bRuleResult = true;
 
-                    string sRuleResult      = "";
-                    string sFinalRuleErrMsg = "";
+                    string sRuleResult      = string.Empty;
+                    string sFinalRuleErrMsg = string.Empty;
 
                     RuleErrorMsgBuilder.Clear();
                     bRuleResult = TempRule.Execute(poIncomingProduct, poCurrentProduct, RuleErrorMsgBuilder);
@@ -197,12 +207,14 @@ namespace Wonka.BizRulesEngine
 
                 var TargetRuleSetReport = poRuleTreeReport.FindRuleSetReport(poTargetRuleSet.RuleSetId);
 
-                if ( (TargetRuleSetReport.SevereFailureCount > 0) || (TargetRuleSetReport.WarningFailureCount > 0) )
+                if ((TargetRuleSetReport.SevereFailureCount > 0) || (TargetRuleSetReport.WarningFailureCount > 0))
+                {
                     poRuleTreeReport.AddResultSetFailure(poTargetRuleSet, ERR_CD.CD_FAILURE, sGeneralRuleSetError);
+                }
 
                 bTraverseChildren = false;
             }
-            
+
             if (!bTraverseChildren)
             {
                 // We should return here, preventing the recursion that will further traverse the branches of the RuleTree

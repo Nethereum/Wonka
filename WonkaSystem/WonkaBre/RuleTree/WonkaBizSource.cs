@@ -25,56 +25,6 @@ namespace Wonka.BizRulesEngine.RuleTree
 
         #endregion
 
-        public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, string psMethodName, string psSetterMethodName, RetrieveDataMethod poRetrievalDelegate)
-        {
-            SourceId     = psSourceId;
-            TypeOfSource = SOURCE_TYPE.SRC_TYPE_CONTRACT;
-
-            SenderAddress   = psSenderAddr;
-            Password        = psPwd;
-            ContractAddress = psContractAddr;
-            ContractABI     = psABI;
-
-            APIServerAddress = "";
-            APIServerPort    = -1;
-
-            MethodName        = psMethodName;
-            SetterMethodName  = psSetterMethodName;
-            RetrievalDelegate = poRetrievalDelegate;
-        }
-
-        public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, WonkaBizRulesXmlReader.ExecuteCustomOperator poCustomOpDelegate, string psCustomOpMethodName)
-        {
-            SourceId     = psSourceId;
-            TypeOfSource = SOURCE_TYPE.SRC_TYPE_CONTRACT;
-
-            SenderAddress   = psSenderAddr;
-            Password        = psPwd;
-            ContractAddress = psContractAddr;
-            ContractABI     = psABI;
-
-            APIServerAddress = "";
-            APIServerPort    = -1;
-
-            CustomOpDelegate   = poCustomOpDelegate;
-            CustomOpMethodName = psCustomOpMethodName; 
-        }
-
-        public WonkaBizSource(string psSourceId, string psAPISrvrAddr, int pnAPISrvrPort, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
-        {
-            SourceId     = psSourceId;
-            TypeOfSource = SOURCE_TYPE.SRC_TYPE_API;
-
-            SenderAddress = Password = ContractAddress = ContractABI = "";
-
-            APIServerAddress = psAPISrvrAddr;
-            APIServerPort    = pnAPISrvrPort;
-
-            MethodName        = psMethodName;
-            SetterMethodName  = "";
-            RetrievalDelegate = poRetrievalDelegate;
-        }
-
         #region Properties for all scenarios
 
         public readonly string SourceId;
@@ -120,6 +70,56 @@ namespace Wonka.BizRulesEngine.RuleTree
         public readonly int APIServerPort;
 
         #endregion
+
+        public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, string psMethodName, string psSetterMethodName, RetrieveDataMethod poRetrievalDelegate)
+        {
+            this.SourceId     = psSourceId;
+            this.TypeOfSource = SOURCE_TYPE.SRC_TYPE_CONTRACT;
+
+            this.SenderAddress   = psSenderAddr;
+            this.Password        = psPwd;
+            this.ContractAddress = psContractAddr;
+            this.ContractABI     = psABI;
+
+            this.APIServerAddress = string.Empty;
+            this.APIServerPort    = -1;
+
+            this.MethodName        = psMethodName;
+            this.SetterMethodName  = psSetterMethodName;
+            this.RetrievalDelegate = poRetrievalDelegate;
+        }
+
+        public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, WonkaBizRulesXmlReader.ExecuteCustomOperator poCustomOpDelegate, string psCustomOpMethodName)
+        {
+            this.SourceId     = psSourceId;
+            this.TypeOfSource = SOURCE_TYPE.SRC_TYPE_CONTRACT;
+
+            this.SenderAddress   = psSenderAddr;
+            this.Password        = psPwd;
+            this.ContractAddress = psContractAddr;
+            this.ContractABI     = psABI;
+
+            this.APIServerAddress = string.Empty;
+            this.APIServerPort    = -1;
+
+            this.CustomOpDelegate   = poCustomOpDelegate;
+            this.CustomOpMethodName = psCustomOpMethodName; 
+        }
+
+        public WonkaBizSource(string psSourceId, string psAPISrvrAddr, int pnAPISrvrPort, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
+        {
+            this.SourceId     = psSourceId;
+            this.TypeOfSource = SOURCE_TYPE.SRC_TYPE_API;
+
+            this.SenderAddress = this.Password = this.ContractAddress = this.ContractABI = string.Empty;
+
+            this.APIServerAddress = psAPISrvrAddr;
+            this.APIServerPort    = pnAPISrvrPort;
+
+            this.MethodName        = psMethodName;
+            this.SetterMethodName  = string.Empty;
+            this.RetrievalDelegate = poRetrievalDelegate;
+        }
     }
 }
 

@@ -14,12 +14,12 @@ namespace Wonka.BizRulesEngine.Reporting
         {
             this.RuleSetID = -1;
 
-            this.RuleSetDescription = "";
+            this.RuleSetDescription = string.Empty;
 
-            this.CustomId  = "";
+            this.CustomId  = string.Empty;
             this.ErrorCode = ERR_CD.CD_SUCCESS;
 
-            this.ErrorDescription = "";
+            this.ErrorDescription = string.Empty;
             this.ErrorSeverity    = RULE_SET_ERR_LVL.ERR_LVL_NONE;
 
             this.WarningFailureCount = 0;

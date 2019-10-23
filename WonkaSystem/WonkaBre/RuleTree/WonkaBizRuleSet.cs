@@ -69,9 +69,13 @@ namespace Wonka.BizRulesEngine.RuleTree
         public void AddRule(WonkaBizRule poNewRule)
         {
             if (poNewRule.IsPassive)
+            {
                 EvaluativeRules.Add(poNewRule);
+            }
             else
+            {
                 AssertiveRules.Add(poNewRule);
+            }
         }
 
         private void Init()

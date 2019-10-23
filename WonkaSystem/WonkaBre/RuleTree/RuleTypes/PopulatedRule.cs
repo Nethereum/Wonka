@@ -60,19 +60,29 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             WonkaRefEnvironment WonkaRefEnv  = WonkaRefEnvironment.GetInstance();
 
             if (RecordOfInterest == TARGET_RECORD.TRID_NEW_RECORD)
+            {
                 TargetRecord = poTransactionRecord;
+            }
             else if (RecordOfInterest == TARGET_RECORD.TRID_OLD_RECORD)
+            {
                 TargetRecord = poCurrentRecord;
+            }
             else
+            {
                 throw new Exception("ERROR!  The target record is none!");
+            }
 
             string sTargetData =
                 TargetRecord.GetPrimaryAttributeData(TargetAttribute.GroupId, TargetAttribute.AttrId);
 
             if (!String.IsNullOrEmpty(sTargetData))
+            {
                 bResult = true;
+            }
             else
+            {
                 bResult = false;
+            }
 
             if (poErrorMessage != null)
             {
@@ -92,7 +102,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
         /// </summary>
         public override string GetVerboseError(WonkaProduct poTargetProduct)
         {
-            string sAttrName = this.TargetAttribute.AttrName;                
+            string sAttrName = this.TargetAttribute.AttrName;
 
             StringBuilder VerboseErrorBuilder = new StringBuilder();
 
@@ -116,7 +126,9 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             this.RecordOfInterest = peTargetRecord;
 
             if (pnTargetAttrId > 0)
-                this.TargetAttribute  = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
+            {
+                this.TargetAttribute = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
+            }
         }
 
         #endregion

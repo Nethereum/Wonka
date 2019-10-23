@@ -64,10 +64,14 @@ namespace Wonka.BizRulesEngine
         public WonkaBizRulesEngine(string psRulesFilepath, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
         {
             if (String.IsNullOrEmpty(psRulesFilepath))
+            {
                 throw new WonkaBizRuleException("ERROR!  Provided rules file is null or empty!");
+            }
 
             if (!File.Exists(psRulesFilepath))
+            {
                 throw new WonkaBizRuleException("ERROR!  Provided rules file(" + psRulesFilepath + ") does not exist on the filesystem.");
+            }
 
             UsingOrchestrationMode = false;
             AddToRegistry          = pbAddToRegistry;
@@ -83,7 +87,9 @@ namespace Wonka.BizRulesEngine
         public WonkaBizRulesEngine(StringBuilder psRules, IMetadataRetrievable piMetadataSource = null, bool pbAddToRegistry = false)
         {
             if ((psRules == null) || (psRules.Length <= 0))
+            {
                 throw new WonkaBizRuleException("ERROR!  Provided rules are null or empty!");
+            }
 
             UsingOrchestrationMode = false;
             AddToRegistry          = pbAddToRegistry;
@@ -102,7 +108,9 @@ namespace Wonka.BizRulesEngine
                                    bool                               pbAddToRegistry = false)
         {
             if ((psRules == null) || (psRules.Length <= 0))
+            {
                 throw new WonkaBizRuleException("ERROR!  Provided rules are null or empty!");
+            }
 
             UsingOrchestrationMode = true;
             AddToRegistry          = pbAddToRegistry;
@@ -125,7 +133,9 @@ namespace Wonka.BizRulesEngine
                                    bool                               pbAddToRegistry = true)
         {
             if ((psRules == null) || (psRules.Length <= 0))
+            {
                 throw new WonkaBizRuleException("ERROR!  Provided rules are null or empty!");
+            }
 
             UsingOrchestrationMode = true;
             AddToRegistry          = pbAddToRegistry;
@@ -184,7 +194,6 @@ namespace Wonka.BizRulesEngine
 
         private WonkaRefEnvironment Init(IMetadataRetrievable piMetadataSource)
         {
-
             WonkaRefEnvironment RefEnv = null;
 
             try
@@ -201,12 +210,12 @@ namespace Wonka.BizRulesEngine
             this.RetrieveCurrRecord = null;
             this.TransactionState   = null;
 
-            GroveId       = RegistrationId = "";
+            GroveId       = RegistrationId = string.Empty;
             GroveIndex    = 0;
             StdOpMap      = new Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate>();
             SourceMap     = new Dictionary<string, WonkaBizSource>();
             CustomOpMap   = new Dictionary<string, WonkaBizSource>();
-            DefaultSource = "";
+            DefaultSource = string.Empty;
 
             OnSuccessTriggers = new List<ISuccessTrigger>();
             OnFailureTriggers = new List<IFailureTrigger>();
@@ -229,19 +238,23 @@ namespace Wonka.BizRulesEngine
 
             foreach (WonkaRefAttr TempAttrKey in WonkaRefEnv.AttrKeys)
             {
-				// NOTE: 1 is the primary group and has the keys that identify the product as a whole
-				if (TempAttrKey.GroupId == 1)
-				{
-					if (poTargetProduct.GetProductGroup(TempAttrKey.GroupId).GetRowCount() <= 0)
-						throw new WonkaBizRuleException("ERROR!  Provided incoming product has empty group for needed key (" + TempAttrKey.AttrName + ").");
+                // NOTE: 1 is the primary group and has the keys that identify the product as a whole
+                if (TempAttrKey.GroupId == 1)
+                {
+                    if (poTargetProduct.GetProductGroup(TempAttrKey.GroupId).GetRowCount() <= 0)
+                    {
+                        throw new WonkaBizRuleException("ERROR!  Provided incoming product has empty group for needed key (" + TempAttrKey.AttrName + ").");
+                    }
 
-					string sTempKeyValue = poTargetProduct.GetProductGroup(TempAttrKey.GroupId)[0][TempAttrKey.AttrId];
+                    string sTempKeyValue = poTargetProduct.GetProductGroup(TempAttrKey.GroupId)[0][TempAttrKey.AttrId];
 
-					if (String.IsNullOrEmpty(sTempKeyValue))
-						throw new WonkaBizRuleException("ERROR!  Provided incoming product has no value for needed key(" + TempAttrKey.AttrName + ").");
+                    if (String.IsNullOrEmpty(sTempKeyValue))
+                    {
+                        throw new WonkaBizRuleException("ERROR!  Provided incoming product has no value for needed key(" + TempAttrKey.AttrName + ").");
+                    }
 
-					ProductKeys[TempAttrKey.AttrName] = sTempKeyValue;
-				}
+                    ProductKeys[TempAttrKey.AttrName] = sTempKeyValue;
+                }
             }
 
             return ProductKeys;
@@ -263,20 +276,27 @@ namespace Wonka.BizRulesEngine
             Dictionary<string, string> ProductKeys = GetProductKeys(poIncomingProduct);
 
             if (poIncomingProduct == null)
+            {
                 throw new WonkaBizRuleException("ERROR!  Provided incoming product is null!");
+            }
 
             if ((TransactionState != null) && !TransactionState.IsTransactionConfirmed())
+            {
                 throw new WonkaBizPermissionsException("ERROR!  Pending transaction has not yet been confirmed!", TransactionState);
+            }
 
             WonkaBizRuleTreeReport RuleTreeReport = new WonkaBizRuleTreeReport();
 
             try
             {
-
                 if (GetCurrentProductDelegate != null)
+                {
                     CurrentProductOnDB = GetCurrentProductDelegate.Invoke(ProductKeys);
+                }
                 else
+                {
                     CurrentProductOnDB = new WonkaProduct();
+                }
 
                 WonkaBizRuleMediator.MediateRuleTreeExecution(RuleTreeRoot, poIncomingProduct, CurrentProductOnDB, RuleTreeReport);
 
@@ -290,26 +310,28 @@ namespace Wonka.BizRulesEngine
             finally
             {
                 if (TransactionState != null)
+                {
                     TransactionState.ClearPendingTransaction();
+                }
             }
 
             return RuleTreeReport;
         }
 
-		#endregion
+        #endregion
 
-		#region Members
+        #region Members
 
-		private RetrieveOldRecordDelegate RetrieveCurrRecord;
+        private RetrieveOldRecordDelegate RetrieveCurrRecord;
 
-		private Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate> StandardOps;
+        private Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate> StandardOps;
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		private string TempDirectory { get; set; }
-			
+        private string TempDirectory { get; set; }
+            
         public readonly bool AddToRegistry;
 
         public readonly bool UsingOrchestrationMode;
@@ -336,39 +358,45 @@ namespace Wonka.BizRulesEngine
             set
             {
                 if (!UsingOrchestrationMode)
+                {
                     RetrieveCurrRecord = value;
+                }
                 else
+                {
                     throw new WonkaBizRuleException("ERROR!  Cannot reassign the delegate when running in orchestration mode.");
+                }
             }
-		}
+        }
 
-	    public Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate> StdOpMap
-		{   
-		    get
-			{
-				return new Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate>(StandardOps);
-			}
+        public Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate> StdOpMap
+        {   
+            get
+            {
+                return new Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate>(StandardOps);
+            }
 
-			set
-			{
-				StandardOps = value;
+            set
+            {
+                StandardOps = value;
 
-				if (AllRuleSets != null)
-				{
-					foreach (WonkaBizRuleSet TempRuleSet in AllRuleSets)
-					{
-						foreach (WonkaBizRule TempRule in TempRuleSet.EvaluativeRules)
-						{
-							if (StandardOps != null)
-							{
-								if ((TempRule is ArithmeticLimitRule) && StandardOps.ContainsKey(STD_OP_TYPE.STD_OP_BLOCK_NUM))
-									((ArithmeticLimitRule)TempRule).BlockNumDelegate = StandardOps[STD_OP_TYPE.STD_OP_BLOCK_NUM];
-							}
-						}
-					}
-				}
-			}
-		}
+                if (AllRuleSets != null)
+                {
+                    foreach (WonkaBizRuleSet TempRuleSet in AllRuleSets)
+                    {
+                        foreach (WonkaBizRule TempRule in TempRuleSet.EvaluativeRules)
+                        {
+                            if (StandardOps != null)
+                            {
+                                if ((TempRule is ArithmeticLimitRule) && StandardOps.ContainsKey(STD_OP_TYPE.STD_OP_BLOCK_NUM))
+                                {
+                                    ((ArithmeticLimitRule)TempRule).BlockNumDelegate = StandardOps[STD_OP_TYPE.STD_OP_BLOCK_NUM];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         public Dictionary<string, WonkaBizSource> SourceMap { get; set; }
 

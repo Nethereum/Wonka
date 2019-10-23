@@ -41,7 +41,9 @@ namespace Wonka.BizRulesEngine.Reporting
             WonkaBizRuleSetReportNode FailureReportNode = null;
 
             if (pnIndex < RuleSetFailures.Count)
+            {
                 FailureReportNode = RuleSetFailures[pnIndex];
+            }
 
             return FailureReportNode;
         }
@@ -142,7 +144,9 @@ namespace Wonka.BizRulesEngine.Reporting
                 foreach (WonkaBizRuleReportNode WarningRuleReport in WarningRuleSetReport.RuleResults)
                 {
                     if (WarningRuleReport.ErrorCode == ERR_CD.CD_FAILURE)
+                    {
                         AllErrorsBody.Append("WARNING!  (" + WarningRuleReport.VerboseError + ").");
+                    }
                 }
             }
 
@@ -151,7 +155,9 @@ namespace Wonka.BizRulesEngine.Reporting
                 foreach (WonkaBizRuleReportNode SevereRuleReport in SevereRuleSetReport.RuleResults)
                 {
                     if (SevereRuleReport.ErrorCode == ERR_CD.CD_FAILURE)
+                    {
                         AllErrorsBody.Append("ERROR!  (" + SevereRuleReport.VerboseError + ").");
+                    }
                 }
             }
 
@@ -198,9 +204,13 @@ namespace Wonka.BizRulesEngine.Reporting
 
             WonkaRefEnvironment WonkaRefEnv = WonkaRefEnvironment.GetInstance();
             if (peRuleSetErrLvl == RULE_SET_ERR_LVL.ERR_LVL_WARNING)
+            {
                 RuleSetErrors = GetRuleSetWarningFailures();
+            }
             else if (peRuleSetErrLvl == RULE_SET_ERR_LVL.ERR_LVL_SEVERE)
+            {
                 RuleSetErrors = GetRuleSetSevereFailures();
+            }
 
             foreach (WonkaBizRuleSetReportNode RuleSetReport in RuleSetErrors)
             {
@@ -216,8 +226,10 @@ namespace Wonka.BizRulesEngine.Reporting
                         ProductError.ErrorMessage =
                             CONST_ERROR_MSG_PREFACE + RuleReport.VerboseError;
 
-                        if (!String.IsNullOrEmpty(RuleSetReport.CustomId))
+                        if (!string.IsNullOrEmpty(RuleSetReport.CustomId))
+                        {
                             ProductError.ErrorMessage = "[" + RuleSetReport.CustomId + "] " + ProductError.ErrorMessage;
+                        }
 
                         ProductErrorList.Add(ProductError);
                     }
@@ -241,7 +253,9 @@ namespace Wonka.BizRulesEngine.Reporting
 
             WonkaBizRuleSetReportNode RuleSetReportNode = FindRuleSetReport(pnRuleSetId, false);
             if (RuleSetReportNode != null)
+            {
                 RuleReportNode = RuleSetReportNode.RuleResults.Where(x => x.RuleID == pnRuleId).FirstOrDefault();
+            }
 
             return RuleReportNode;
         }
@@ -262,7 +276,9 @@ namespace Wonka.BizRulesEngine.Reporting
 
             WonkaBizRuleSetReportNode SoughtRuleSetReport = FindRuleSetReport(pnRuleSetId, pbCreateNew);
             if (SoughtRuleSetReport != null)
+            {
                 RuleReportNodes = SoughtRuleSetReport.RuleResults;
+            }
 
             return RuleReportNodes;
         }
@@ -282,14 +298,18 @@ namespace Wonka.BizRulesEngine.Reporting
             WonkaBizRuleSetReportNode RuleSetReportNode = null;
 
             if (RuleSetResults.Where(x => x.RuleSetID == pnRuleSetId).Count() > 0)
+            {
                 RuleSetReportNode = RuleSetResults.Where(x => x.RuleSetID == pnRuleSetId).FirstOrDefault();
+            }
             else if (pbCreateNew)
             {
                 RuleSetReportNode = new WonkaBizRuleSetReportNode() { RuleSetID = pnRuleSetId };
                 RuleSetResults.Add(RuleSetReportNode);
             }
             else
+            {
                 throw new WonkaBizRuleException(pnRuleSetId, -1, "ERROR!  This RuleSetReport does not exist!");
+            }
 
             return RuleSetReportNode;
         }

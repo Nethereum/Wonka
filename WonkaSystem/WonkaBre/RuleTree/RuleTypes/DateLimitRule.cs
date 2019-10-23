@@ -64,11 +64,17 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             WonkaRefEnvironment WonkaRefEnv  = WonkaRefEnvironment.GetInstance();
 
             if (RecordOfInterest == TARGET_RECORD.TRID_NEW_RECORD)
+            {
                 TargetRecord = poTransactionRecord;
+            }
             else if (RecordOfInterest == TARGET_RECORD.TRID_OLD_RECORD)
+            {
                 TargetRecord = poCurrentRecord;
+            }
             else
+            {
                 throw new Exception("ERROR!  The target record is none!");
+            }
 
             string sTargetData =
                 TargetRecord.GetPrimaryAttributeData(TargetAttribute.GroupId, TargetAttribute.AttrId);
@@ -85,9 +91,13 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     int nMaxResult = DateTime.Compare(TargetDate, this.MaxValue);
 
                     if ((nMinResult > 0) && (nMaxResult < 0))
+                    {
                         bResult = true;
+                    }
                     else
+                    {
                         bResult = false;
+                    }
 
                     if (poErrorMessage != null)
                     {
@@ -119,7 +129,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
         /// </summary>
         public override string GetVerboseError(WonkaProduct poTargetProduct)
         {
-            string sVerboseError = "";
+            string sVerboseError = string.Empty;
             string sAttrName     = TargetAttribute.AttrName;
 
             if (MinValue == MaxValue)
@@ -173,7 +183,9 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             this.RecordOfInterest = peTargetRecord;
 
             if (pnTargetAttrId > 0)
+            {
                 this.TargetAttribute = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
+            }
         }
 
         /// <summary>
@@ -204,9 +216,13 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                 else
                 {
                     if (this.MinValue != DateTime.MinValue)
+                    {
                         this.MinValue = DateTimeNow;
+                    }
                     else
+                    {
                         this.MaxValue = DateTimeNow;
+                    }
                 }
             }
             else
@@ -219,16 +235,24 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     WonkaPrdGroup TempProductGroup = null;
 
                     if (this.MinValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
+                    {
                         TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
+                    }
                     else
+                    {
                         TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
+                    }
 
                     sTempAttrValue = TempProductGroup[0][nAttrId];
 
-                    if (!String.IsNullOrEmpty(sTempAttrValue))
+                    if (!string.IsNullOrEmpty(sTempAttrValue))
+                    {
                         this.MinValue = DateTime.ParseExact(sTempAttrValue, CONST_WONKA_DATETIME_FORMAT, null);
+                    }
                     else
+                    {
                         this.MinValue = DateTime.MinValue;
+                    }
                 }
 
                 if (!this.MaxValueProps.IsLiteralValue)
@@ -239,16 +263,24 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     WonkaPrdGroup TempProductGroup = null;
 
                     if (this.MaxValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
+                    {
                         TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
+                    }
                     else
+                    {
                         TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
+                    }
 
                     sTempAttrValue = TempProductGroup[0][nAttrId];
 
-                    if (!String.IsNullOrEmpty(sTempAttrValue))
+                    if (!string.IsNullOrEmpty(sTempAttrValue))
+                    {
                         this.MaxValue = DateTime.ParseExact(sTempAttrValue, CONST_WONKA_DATETIME_FORMAT, null);
+                    }
                     else
+                    {
                         this.MaxValue = DateTime.MaxValue;
+                    }
                 }
             }
         }
@@ -301,10 +333,14 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     this.MaxValue = DateTimeValue;
 
                     if (!bLiteralValue)
+                    {
                         this.MaxValueProps = AttributeValueProps;
+                    }
 
                     if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_NOT_IB))
+                    {
                         this.NotOperator = true;
+                    }
                 }
                 else if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_IA) ||
                          psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_NOT_IA))
@@ -313,20 +349,26 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     this.MaxValue = DateTime.MaxValue;
 
                     if (!bLiteralValue)
+                    {
                         this.MinValueProps = AttributeValueProps;
+                    }
 
                     if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_NOT_IA))
+                    {
                         this.NotOperator = true;
+                    }
                 }
                 else if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_ALMOST))
                 {
                     if (!this.TodayIndicator)
+                    {
                         throw new Exception("ERROR!  Cannot use ALMOST operator without using the TODAY keyword.");
+                    }
 
                     System.TimeSpan WindowSpan = new System.TimeSpan(1, 0, 0, 0);
 
                     this.MinValue = DateTimeValue;
-                    this.MaxValue = DateTimeValue.Add(WindowSpan); ;
+                    this.MaxValue = DateTimeValue.Add(WindowSpan);
 
                     this.AlmostOperator = true;
                 }

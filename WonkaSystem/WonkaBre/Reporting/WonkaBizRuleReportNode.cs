@@ -17,7 +17,7 @@ namespace Wonka.BizRulesEngine.Reporting
 
             ErrorCode = ERR_CD.CD_SUCCESS;
 
-            ErrorDescription = VerboseError = "";
+            ErrorDescription = VerboseError = string.Empty;
         }
 
         public WonkaBizRuleReportNode(WonkaBizRule poRule) : this()
