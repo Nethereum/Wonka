@@ -101,9 +101,9 @@ namespace WonkaSystem
 
         static void NoviceOnlineChainTest()
         {
-            var OnlineChainTest = new WonkaNoviceOnlineChainTest("", false, true);
+            var OnlineChainTest = new WonkaNoviceOnlineChainTest(null, true, true);
 
-            OnlineChainTest.Execute();
+            OnlineChainTest.Execute(true);
         }
 
         static void NoviceTest(string psSenderAddress, string psPassword, string psContractAddress)
