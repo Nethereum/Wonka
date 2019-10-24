@@ -161,7 +161,7 @@ namespace Wonka.BizRulesEngine
 
         #endregion
 
-        #region Methods
+        #region Public Methods
 
         /// <summary>
         /// 
@@ -190,37 +190,6 @@ namespace Wonka.BizRulesEngine
             }
 
             return CurrentProduct;
-        }
-
-        private WonkaRefEnvironment Init(IMetadataRetrievable piMetadataSource)
-        {
-            WonkaRefEnvironment RefEnv = null;
-
-            try
-            {
-                RefEnv = WonkaRefEnvironment.GetInstance();
-            }
-            catch (Exception ex)
-            {
-                RefEnv = WonkaRefEnvironment.CreateInstance(false, piMetadataSource);
-            }
-
-            this.CurrentProductOnDB = null;
-            this.TempDirectory      = "C:\tmp";
-            this.RetrieveCurrRecord = null;
-            this.TransactionState   = null;
-
-            GroveId       = RegistrationId = string.Empty;
-            GroveIndex    = 0;
-            StdOpMap      = new Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate>();
-            SourceMap     = new Dictionary<string, WonkaBizSource>();
-            CustomOpMap   = new Dictionary<string, WonkaBizSource>();
-            DefaultSource = string.Empty;
-
-            OnSuccessTriggers = new List<ISuccessTrigger>();
-            OnFailureTriggers = new List<IFailureTrigger>();
-
-            return RefEnv;
         }
 
         /// <summary>
@@ -318,11 +287,46 @@ namespace Wonka.BizRulesEngine
             return RuleTreeReport;
         }
 
-        #endregion
+		#endregion
 
-        #region Members
+		#region Private Methods
 
-        private RetrieveOldRecordDelegate RetrieveCurrRecord;
+        private WonkaRefEnvironment Init(IMetadataRetrievable piMetadataSource)
+        {
+            WonkaRefEnvironment RefEnv = null;
+
+            try
+            {
+                RefEnv = WonkaRefEnvironment.GetInstance();
+            }
+            catch (Exception ex)
+            {
+                RefEnv = WonkaRefEnvironment.CreateInstance(false, piMetadataSource);
+            }
+
+            this.CurrentProductOnDB = null;
+            this.TempDirectory      = "C:\tmp";
+            this.RetrieveCurrRecord = null;
+            this.TransactionState   = null;
+
+            GroveId       = RegistrationId = string.Empty;
+            GroveIndex    = 0;
+            StdOpMap      = new Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate>();
+            SourceMap     = new Dictionary<string, WonkaBizSource>();
+            CustomOpMap   = new Dictionary<string, WonkaBizSource>();
+            DefaultSource = string.Empty;
+
+            OnSuccessTriggers = new List<ISuccessTrigger>();
+            OnFailureTriggers = new List<IFailureTrigger>();
+
+            return RefEnv;
+        }
+
+		#endregion
+
+		#region Members
+
+		private RetrieveOldRecordDelegate RetrieveCurrRecord;
 
         private Dictionary<STD_OP_TYPE, RetrieveStdOpValDelegate> StandardOps;
 

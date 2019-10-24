@@ -125,9 +125,39 @@ namespace Wonka.BizRulesEngine.Readers
             this.Init(piMetadataSource);
         }
 
-        // NOTE: That says "po-Op-Source", but if you want to look at it as "poOp-Source", well, that's up to you,
-        // and try not laugh yourself silly
-        public void AddCustomOperator(string psCustomOpName, WonkaBizSource poOpSource = null)
+		#endregion
+
+		#region Public Methods
+
+		/// <summary>
+		/// 
+		/// This method will allow you to extend the functionality of the parser for Wonka's markup language.
+		/// By default, there is a common set of operators that can be used in the Wonka markup for certain
+		/// Rule types (like "ASSIGN_SUM" will trigger the creation of an Arithmetic rule).  By adding a
+		/// custom operator, the user can extend the language of Wonka's markup language, where an operator name
+		/// can now lead to the remote execution of code elsewhere (Web method, Ethereum contract method, etc.).
+		/// So, for example, there could be a new operator used in a markup file:
+		///
+		///     <validate err="severe">
+		///         <criteria op="AND" >
+		///            <eval>(N.PrimaryValue) GET_ETH_METHOD_VALUE('SomeValue')</eval>
+		///         </criteria>
+		///     </validate>
+		///
+		/// Where the operator 'CALL_ETH_METHOD' is defined before parsing through the use of this method.
+		/// When parsing the markup, the parser will know how to create and add an instance of CustomOperatorRule
+		/// to the RuleTree, one which knows how to execute the right codepath defined by 'GET_ETH_METHOD_VALUE'.
+		/// When executing, the rule of GET_ETH_METHOD_VALUE will be be invoked and its result
+		/// will be assigned to 'N.PrimaryValue'.
+		/// 
+		/// NOTE: That says "po-Op-Source", but if you want to look at it as "poOp-Source", well, that's up to you,
+		/// and try not to laugh yourself silly
+		/// 
+		/// <param name="psCustomOpName">The name of the new custom operator</param>
+		/// <param name="poOpSource">The data that defines how to execute this new custom operator</param>
+		/// <returns>None</returns>
+		/// </summary>
+		public void AddCustomOperator(string psCustomOpName, WonkaBizSource poOpSource = null)
         {
             if (this.BasicOps.Contains(psCustomOpName))
             {
@@ -156,6 +186,58 @@ namespace Wonka.BizRulesEngine.Readers
                     new WonkaBizSource(sEmpty, sEmpty, sEmpty, sEmpty, sEmpty, sEmpty, sEmpty, null);
             }
         }
+
+		/// <summary>
+		/// 
+		/// This method will parse the XML contents (provided via the constructor) and create a RuleTree
+		/// based on the parsed data.
+		/// 
+		/// <returns>The RuleTree that is represented via the provided XML markup</returns>
+		/// </summary>
+		public WonkaBizRuleSet ParseRuleTree()
+        {
+            WonkaBizRuleSet newRootRuleSet = new WonkaBizRuleSet();
+
+            newRootRuleSet.RuleSetId   = ++this.RuleSetIdCounter;
+            newRootRuleSet.Description = "Root";
+
+            this.RootRuleSet = newRootRuleSet;
+            this.AllParsedRuleSets.Add(newRootRuleSet);
+
+            XmlDocument xmlDoc = new XmlDocument();
+            if (this.BreXmlFilepath != null)
+            {
+                xmlDoc.Load(this.BreXmlFilepath);
+            }
+            else
+            {
+                using (var ruleReader = new StringReader(this.BreXmlContents))
+                {
+                    xmlDoc.Load(ruleReader);
+                }
+            }
+
+            XmlNode rootNode = xmlDoc.LastChild;
+
+            XmlNodeList firstTierList = rootNode.ChildNodes;
+            foreach (XmlNode firstTierNode in firstTierList)
+            {
+                if (firstTierNode.LocalName == CONST_RS_FLOW_TAG)
+                {
+                    WonkaBizRuleSet newChildRuleSet = this.ParseRuleSet(firstTierNode);
+
+                    newChildRuleSet.ParentRuleSetId = newRootRuleSet.RuleSetId;
+
+                    newRootRuleSet.AddChildRuleSet(newChildRuleSet);
+                }
+            }
+
+            return newRootRuleSet;
+        }
+
+        #endregion
+
+        #region Private Methods
 
         private void Init(IMetadataRetrievable piMetadataSource)
         {
@@ -212,51 +294,6 @@ namespace Wonka.BizRulesEngine.Readers
                     WonkaRefEnvironment.CreateInstance(false, piMetadataSource);
                 }
             }
-        }
-
-        #endregion
-
-        #region Methods
-
-        public WonkaBizRuleSet ParseRuleTree()
-        {
-            WonkaBizRuleSet newRootRuleSet = new WonkaBizRuleSet();
-
-            newRootRuleSet.RuleSetId   = ++this.RuleSetIdCounter;
-            newRootRuleSet.Description = "Root";
-
-            this.RootRuleSet = newRootRuleSet;
-            this.AllParsedRuleSets.Add(newRootRuleSet);
-
-            XmlDocument xmlDoc = new XmlDocument();
-            if (this.BreXmlFilepath != null)
-            {
-                xmlDoc.Load(this.BreXmlFilepath);
-            }
-            else
-            {
-                using (var ruleReader = new StringReader(this.BreXmlContents))
-                {
-                    xmlDoc.Load(ruleReader);
-                }
-            }
-
-            XmlNode rootNode = xmlDoc.LastChild;
-
-            XmlNodeList firstTierList = rootNode.ChildNodes;
-            foreach (XmlNode firstTierNode in firstTierList)
-            {
-                if (firstTierNode.LocalName == CONST_RS_FLOW_TAG)
-                {
-                    WonkaBizRuleSet newChildRuleSet = this.ParseRuleSet(firstTierNode);
-
-                    newChildRuleSet.ParentRuleSetId = newRootRuleSet.RuleSetId;
-
-                    newRootRuleSet.AddChildRuleSet(newChildRuleSet);
-                }
-            }
-
-            return newRootRuleSet;
         }
 
         private WonkaBizRuleSet ParseRuleSet(XmlNode poRuleSetXmlNode, bool pbLeafNode = false)

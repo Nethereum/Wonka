@@ -55,18 +55,38 @@ namespace Wonka.BizRulesEngine.RuleTree
             this.RuleSetId = pnRuleSetId;
         }
 
-        #endregion
+		#endregion
 
-        #region Methods
+		#region Public Methods
 
-        public void AddChildRuleSet(WonkaBizRuleSet poChildRuleSet)
+		/// <summary>
+		/// 
+		/// This method will append a child RuleSet to this node in the RuleTree, which will help form the tier
+		/// below the one occupied by this RuleSet.  All children of this RuleSet will be invoked if its
+		/// Rule collection executes with a return result of success.
+		/// 
+		/// <param name="poChildRuleSet">The new RuleSet to be added to its collection of children</param>
+		/// <returns>None</returns>
+		/// </summary>
+		public void AddChildRuleSet(WonkaBizRuleSet poChildRuleSet)
         {
             poChildRuleSet.ParentRuleSetId = this.RuleSetId;
 
             ChildRuleSets.Add(poChildRuleSet);
         }
 
-        public void AddRule(WonkaBizRule poNewRule)
+		/// <summary>
+		/// 
+		/// This method will append a Rule to the collection of this RuleSet.  The invocation of
+		/// the Rule collection and its result will determine the next path of action in the RuleTree.
+		///
+		/// NOTE: In .NET Wonka, rules are indexed based on whether they're evaluative or assertive.  In
+		/// the Ethereum Wonka space, rules are not yet indexed based on this trait.
+		/// 
+		/// <param name="poNewRule">The new Rule to be added to its collection</param>
+		/// <returns>None</returns>
+		/// </summary>
+		public void AddRule(WonkaBizRule poNewRule)
         {
             if (poNewRule.IsPassive)
             {
@@ -78,7 +98,11 @@ namespace Wonka.BizRulesEngine.RuleTree
             }
         }
 
-        private void Init()
+		#endregion
+
+		#region Private Methods
+
+		private void Init()
         {
             RuleSetId       = -1;
             ParentRuleSetId = -1;
@@ -94,11 +118,11 @@ namespace Wonka.BizRulesEngine.RuleTree
             ChildRuleSets   = new List<WonkaBizRuleSet>();
         }
 
-        #endregion
+		#endregion
 
-        #region Properties
+		#region Properties
 
-        public int RuleSetId { get; set; }
+		public int RuleSetId { get; set; }
 
         public string Description { get; set; }
 
