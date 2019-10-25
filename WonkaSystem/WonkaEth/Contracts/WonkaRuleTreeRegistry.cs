@@ -40,7 +40,7 @@ namespace WonkaEth.Contracts
 
         public void Init()
         {
-            RuleTreeId = Description = HostContractAddress = OwnerId = HostContractABI = "";
+            RuleTreeId = Description = HostContractAddress = OwnerId = HostContractABI = string.Empty;
 
             MinGasCost = MaxGasCost = 0;
 
@@ -97,7 +97,7 @@ namespace WonkaEth.Contracts
 
         private static WonkaRuleTreeRegistry mInstance = null;
 
-        Dictionary<string, WonkaRegistryItem> moRegisteredRuleTrees;
+        private Dictionary<string, WonkaRegistryItem> moRegisteredRuleTrees;
 
         private WonkaRuleTreeRegistry(string psSenderAddress, string psPassword, string psContractAddress, string psAbi, string psWeb3HttpUrl)
         {

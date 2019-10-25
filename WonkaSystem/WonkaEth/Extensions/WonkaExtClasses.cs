@@ -198,7 +198,7 @@ namespace WonkaEth.Extensions
         public RuleTreeReport()
         {
             NumberOfRuleFailures = 0;
-            TransactionHash      = "";
+            TransactionHash      = string.Empty;
             InvokeTrxBlockNumber = null;
 
             RuleSetIds = new List<string>();

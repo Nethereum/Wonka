@@ -61,7 +61,7 @@ namespace WonkaEth.Orchestration
                 object oPropAttrValue = null;
 
                 Type oAttrType = TmpProperty.PropertyType;
-                string sAttrName = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : "";
+                string sAttrName = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : string.Empty;
 
                 if (poDataValues.ContainsKey(sAttrName))
                 {
@@ -140,7 +140,7 @@ namespace WonkaEth.Orchestration
             foreach (PropertyInfo TmpProperty in Props)
             {
                 Type   oAttrType  = TmpProperty.PropertyType;
-                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : "";
+                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : string.Empty;
                 string sAttrValue = Convert.ToString(TmpProperty.GetValue(poCommand));
 
                 if (!String.IsNullOrEmpty(sAttrValue))

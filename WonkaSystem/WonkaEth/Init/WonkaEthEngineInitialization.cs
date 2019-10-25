@@ -38,20 +38,20 @@ namespace WonkaEth.Init
         public WonkaEthEngineInitialization()
         {
             Engine      = new WonkaEthEngineProps();
-            Web3HttpUrl = "";
+            Web3HttpUrl = string.Empty;
 
-            EthSenderAddress = EthPassword = EthRuleTreeOwnerAddress = "";
+            EthSenderAddress = EthPassword = EthRuleTreeOwnerAddress = string.Empty;
 
             RulesEngineABI      = WonkaEth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
             RegistryContractABI = WonkaEth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
             StorageContractABI  = WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
 
-            RulesEngineContractAddress = "";
-            RegistryContractAddress    = "";
+            RulesEngineContractAddress = string.Empty;
+            RegistryContractAddress    = string.Empty;
 
             UsingStorageContract   = true;
-            StorageContractAddress = "";
-			StorageDefaultSourceId = StorageGetterMethod = StorageSetterMethod = "";
+            StorageContractAddress = string.Empty;
+			StorageDefaultSourceId = StorageGetterMethod = StorageSetterMethod = string.Empty;
 
             UsingTrxStateContract   = false;
             TrxStateContractAddress = null;

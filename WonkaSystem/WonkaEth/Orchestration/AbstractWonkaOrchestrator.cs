@@ -38,7 +38,8 @@ namespace WonkaEth.Orchestration
     /// the RuleTree to the blockchain during its construction. 
     /// 
     /// </summary>
-    public abstract class AbstractWonkaOrchestrator<T> : IOrchestrate where T : ICommand
+    public abstract class AbstractWonkaOrchestrator<T> : IOrchestrate
+		where T : ICommand
     {
         public const string CONST_EVENT_CALL_RULE_TREE        = "CallRuleTree";
         public const string CONST_EVENT_CALL_RULE_SET         = "CallRuleSet";

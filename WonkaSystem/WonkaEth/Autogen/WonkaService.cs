@@ -9,7 +9,6 @@ using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Contracts.CQS;
 using Nethereum.Contracts.ContractHandlers;
 using Nethereum.Contracts;
-using System.Threading;
 
 namespace WonkaEth.Autogen
 {

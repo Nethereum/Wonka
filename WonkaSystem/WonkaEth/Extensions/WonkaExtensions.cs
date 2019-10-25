@@ -112,7 +112,7 @@ namespace WonkaEth.Extensions
         /// </summary>
         public static string DetermineRuleSetID(this WonkaBizRuleSet poRootRuleSet, string psRegistrationId)
         {
-            string sRuleTreeChainId = "";
+            string sRuleTreeChainId = string.Empty;
 
             if (!String.IsNullOrEmpty(psRegistrationId))
                 sRuleTreeChainId = psRegistrationId;
@@ -120,9 +120,9 @@ namespace WonkaEth.Extensions
                 sRuleTreeChainId = poRootRuleSet.Description;
 
             if (sRuleTreeChainId.Length >= (CONST_CONTRACT_BYTE32_MAX - 4))
-                sRuleTreeChainId = "Root" + sRuleTreeChainId.Replace(" ", "").Trim().Substring(0, 27);
+                sRuleTreeChainId = "Root" + sRuleTreeChainId.Replace(" ", string.Empty).Trim().Substring(0, 27);
             else
-                sRuleTreeChainId = "Root" + sRuleTreeChainId.Replace(" ", "").Trim();
+                sRuleTreeChainId = "Root" + sRuleTreeChainId.Replace(" ", string.Empty).Trim();
 
             return sRuleTreeChainId;
         }
@@ -359,7 +359,7 @@ namespace WonkaEth.Extensions
         public static string ExportXmlString(Contract poEngineContract, ExportRuleProps poRuleProps, StringBuilder poSpaces)
         {
             bool   bEvalRule      = true;
-            string sOpName        = "";
+            string sOpName        = string.Empty;
             string sRuleValue     = poRuleProps.RuleValue;
             string sDelim         = WonkaBizRulesXmlReader.CONST_RULE_TOKEN_VAL_DELIM;
             string sSingleQuote   = "'";
@@ -669,16 +669,16 @@ namespace WonkaEth.Extensions
             {
                 foreach (WonkaRefAttr TempAttr in poInstance.AttrCache)
                 {
-                    var sAttrName = "";
+                    var sAttrName = string.Empty;
 
                     if (TempAttr.AttrName.Length > CONST_CONTRACT_BYTE32_MAX)
-                        sAttrName = TempAttr.AttrName.Trim().Replace(" ", "").Substring(0, 31);
+                        sAttrName = TempAttr.AttrName.Trim().Replace(" ", string.Empty).Substring(0, 31);
                     else
-                        sAttrName = TempAttr.AttrName.Trim().Replace(" ", "");
+                        sAttrName = TempAttr.AttrName.Trim().Replace(" ", string.Empty);
 
                     uint   MaxLen    = (uint)TempAttr.MaxLength;
                     uint   MaxNumVal = 999999; // TempAttr.MaxValue;
-                    string DefVal    = !String.IsNullOrEmpty(TempAttr.DefaultValue) ? TempAttr.DefaultValue : "";
+                    string DefVal    = !String.IsNullOrEmpty(TempAttr.DefaultValue) ? TempAttr.DefaultValue : string.Empty;
                     bool   IsString  = !TempAttr.IsNumeric;
                     bool   IsNumeric = TempAttr.IsNumeric;
 
@@ -711,7 +711,7 @@ namespace WonkaEth.Extensions
             HashSet<string> SourcesAdded   = new HashSet<string>();
             HashSet<string> CustomOpsAdded = new HashSet<string>();
 
-            string sGroveId  = "";
+            string sGroveId  = string.Empty;
             int    nGroveIdx = 0;
 
             foreach (string TmpGroveId in poRegistryItem.RuleTreeGroveIds.Keys)
@@ -799,7 +799,7 @@ namespace WonkaEth.Extensions
             var TmpAssembly  = System.Reflection.Assembly.GetExecutingAssembly();
             var TmpResStream = TmpAssembly.GetManifestResourceStream("WonkaEth.Contracts.Ethereum.TransactionStateInterface.abi");
 
-            string sTrxStateABI = "";
+            string sTrxStateABI = string.Empty;
             using (var AbiReader = new System.IO.StreamReader(TmpResStream))
             {
                 sTrxStateABI = AbiReader.ReadToEnd();
@@ -896,8 +896,8 @@ namespace WonkaEth.Extensions
 
             if (poEngine.UsingOrchestrationMode)
             {
-                string result = "";
-                string defSrc = (!String.IsNullOrEmpty(poEngine.DefaultSource)) ? poEngine.DefaultSource : "";
+                string result = string.Empty;
+                string defSrc = (!String.IsNullOrEmpty(poEngine.DefaultSource)) ? poEngine.DefaultSource : string.Empty;
 
                 // NOTE: Causes "out of gas" exception to be thrown?
                 // var gas = setOrchModeFunction.EstimateGasAsync(true).Result;
@@ -1037,7 +1037,7 @@ namespace WonkaEth.Extensions
 			//    setValueOnRecordFunction.SendTransactionAndWaitForReceiptAsync(sSenderAddress, null, sSenderAddress, TempAttr.AttrName, sAttrValue).Result;
 			//
 
-			var sRootName      = "";
+			var sRootName      = string.Empty;
             var sDesc          = "Root Node of the Tree";
             var severeFailFlag = (poRuleSet.ErrorSeverity == RULE_SET_ERR_LVL.ERR_LVL_SEVERE);
             var andOpFlag      = (poRuleSet.RulesEvalOperator == RULE_OP.OP_AND);
@@ -1081,8 +1081,8 @@ namespace WonkaEth.Extensions
             // var gas = addRuleSetFunction.EstimateGasAsync(psSenderAddress, "SomeName", "SomeDesc", "SomeParentName", true, true, true).Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
-            var sResultSetID   = "";
-            var sDescription   = "";
+            var sResultSetID   = string.Empty;
+            var sDescription   = string.Empty;
             var severeFailFlag = (poRuleSet.ErrorSeverity == RULE_SET_ERR_LVL.ERR_LVL_SEVERE);
             var andOpFlag      = (poRuleSet.RulesEvalOperator == RULE_OP.OP_AND);
 
@@ -1113,12 +1113,12 @@ namespace WonkaEth.Extensions
             }
             else if (poRuleSet.Description.Length > CONST_CONTRACT_BYTE32_MAX)
             {
-                sResultSetID = poRuleSet.Description.Replace(" ", "").Trim().Substring(0, 31);
+                sResultSetID = poRuleSet.Description.Replace(" ", string.Empty).Trim().Substring(0, 31);
                 sDescription = poRuleSet.Description;
             }
             else
             {
-                sResultSetID = poRuleSet.Description.Replace(" ", "").Trim();
+                sResultSetID = poRuleSet.Description.Replace(" ", string.Empty).Trim();
                 sDescription = poRuleSet.Description;
             }
 
@@ -1165,11 +1165,11 @@ namespace WonkaEth.Extensions
 
             foreach (WonkaBizRule TempRule in poRuleSet.EvaluativeRules)
             {
-                var    sRuleName    = "";
+                var    sRuleName    = string.Empty;
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
                 var    sAttrName    = TempRule.TargetAttribute.AttrName;
                 uint   nRuleType    = (uint) CONTRACT_RULE_TYPES.MODE_MAX;
-                string sValue       = "";
+                string sValue       = string.Empty;
                 var    passFlag     = TempRule.IsPassive;
                 var    notFlag      = TempRule.NotOperator;
 
@@ -1288,11 +1288,11 @@ namespace WonkaEth.Extensions
 
             foreach (WonkaBizRule TempRule in poRuleSet.AssertiveRules)
             {
-                var    sRuleName    = "";
+                var    sRuleName    = string.Empty;
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
                 var    sAttrName    = TempRule.TargetAttribute.AttrName;
                 uint   nRuleType    = (uint) CONTRACT_RULE_TYPES.MODE_MAX;
-                string sValue       = "";
+                string sValue       = string.Empty;
                 var    notFlag      = TempRule.NotOperator;
 
                 List<string> CustomOpArgs = new List<string>();
@@ -1427,7 +1427,7 @@ namespace WonkaEth.Extensions
                                    poEthInitData.BlockchainEngine.ContractPassword,
                                    poEthInitData.BlockchainEngine.ContractAddress,
                                    poEthInitData.BlockchainEngine.ContractABI,
-                                   "", "", null);
+                                   string.Empty, string.Empty, null);
 
             OrchInitData.TrxStateContractAddress = poEthInitData.BlockchainEngine.TrxStateContractAddress;
 

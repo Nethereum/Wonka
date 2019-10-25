@@ -30,7 +30,7 @@ namespace WonkaEth.Contracts
         {
             GroveId = psGroveId;
 
-            GroveDescription = OwnerId = "";
+            GroveDescription = OwnerId = string.Empty;
 
             OrderedRuleTrees = new List<WonkaRegistryItem>();
         }

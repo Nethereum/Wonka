@@ -54,7 +54,7 @@ namespace WonkaEth.Extensions
 
         private static string GetCurrentBlockNum(WonkaBizRulesEngine poEngine, string psUnusedVal)
         {
-            string sCurrBlockNum = "";
+            string sCurrBlockNum = string.Empty;
 
             if (EngineWeb3Accounts.ContainsKey(poEngine))
             {
