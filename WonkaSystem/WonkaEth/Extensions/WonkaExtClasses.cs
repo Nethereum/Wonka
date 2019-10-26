@@ -11,9 +11,9 @@ using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 
 using Wonka.BizRulesEngine;
-using WonkaEth.Orchestration.BlockchainEvents;
+using Wonka.Eth.Orchestration.BlockchainEvents;
 
-namespace WonkaEth.Extensions
+namespace Wonka.Eth.Extensions
 {
     [FunctionOutput]
     public class ExportRuleTreeProps

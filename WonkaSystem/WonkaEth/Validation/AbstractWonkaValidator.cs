@@ -20,11 +20,11 @@ using Wonka.BizRulesEngine.Reporting;
 using WonkaRef;
 using WonkaPrd;
 
-using WonkaEth.Contracts;
-using WonkaEth.Extensions;
-using WonkaEth.Misc;
+using Wonka.Eth.Contracts;
+using Wonka.Eth.Extensions;
+using Wonka.Eth.Misc;
 
-namespace WonkaEth.Validation
+namespace Wonka.Eth.Validation
 {
 
     /// <summary>
@@ -173,9 +173,9 @@ namespace WonkaEth.Validation
 
         protected void HandleEvents(Event poRuleTreeEvent, Event poRuleSetEvent, Event poRuleEvent, HexBigInteger rtFilter, HexBigInteger rsFilter, HexBigInteger rlFilter)
         {            
-            var ruleTreeLog = poRuleTreeEvent.GetFilterChanges<WonkaEth.Validation.CallRuleTreeEvent>(rtFilter).Result;
-            var ruleSetLog  = poRuleSetEvent.GetFilterChanges<WonkaEth.Validation.CallRuleSetEvent>(rsFilter).Result;
-            var ruleLog     = poRuleEvent.GetFilterChanges<WonkaEth.Validation.CallRuleEvent>(rlFilter).Result;
+            var ruleTreeLog = poRuleTreeEvent.GetFilterChanges<Wonka.Eth.Validation.CallRuleTreeEvent>(rtFilter).Result;
+            var ruleSetLog  = poRuleSetEvent.GetFilterChanges<Wonka.Eth.Validation.CallRuleSetEvent>(rsFilter).Result;
+            var ruleLog     = poRuleEvent.GetFilterChanges<Wonka.Eth.Validation.CallRuleEvent>(rlFilter).Result;
 
             // Assert.Equal(1, ruleTreeLog.Count);
 

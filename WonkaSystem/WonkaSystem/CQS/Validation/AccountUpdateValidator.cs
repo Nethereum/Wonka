@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 
 using Wonka.BizRulesEngine;
-using WonkaEth.Validation;
+using Wonka.Eth.Validation;
 using Wonka.BizRulesEngine.Reporting;
 using WonkaPrd;
 using WonkaRef;

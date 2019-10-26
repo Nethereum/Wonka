@@ -5,7 +5,7 @@ using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
 using WonkaRef;
 
-namespace WonkaEth.Orchestration.Init
+namespace Wonka.Eth.Orchestration.Init
 {
     public class OrchestrationInitData
     {

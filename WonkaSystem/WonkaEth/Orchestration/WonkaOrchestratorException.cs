@@ -1,8 +1,8 @@
 ﻿using System;
 
-using WonkaEth.Orchestration.BlockchainOutput;
+using Wonka.Eth.Orchestration.BlockchainOutput;
 
-namespace WonkaEth.Orchestration
+namespace Wonka.Eth.Orchestration
 {
     public class WonkaOrchestratorException : Exception
     {

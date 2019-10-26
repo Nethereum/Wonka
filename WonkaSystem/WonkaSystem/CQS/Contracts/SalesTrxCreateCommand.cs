@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 
 using Wonka.BizRulesEngine.RuleTree;
-using WonkaEth.Contracts;
+using Wonka.Eth.Contracts;
 using WonkaRef;
 
 namespace WonkaSystem.CQS.Contracts

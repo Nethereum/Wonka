@@ -15,10 +15,10 @@ using Nethereum.Hex.HexTypes;
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.Readers;
 using Wonka.BizRulesEngine.RuleTree;
-using WonkaEth.Contracts;
+using Wonka.Eth.Contracts;
 using WonkaRef;
 
-namespace WonkaEth.Extensions
+namespace Wonka.Eth.Extensions
 {
     /// <summary>
     /// 
@@ -123,7 +123,7 @@ namespace WonkaEth.Extensions
         /// <param name="poReport">If not null, we will fill the report with the results of the RuleTree's invocation on the blockchain</param>
         /// <returns>Receipt hash of transaction</returns>
         /// </summary>
-        public static async Task<string> ExecuteOnChainAsync(this WonkaBizRulesEngine poEngine, WonkaEth.Init.WonkaEthEngineInitialization poEngineInitProps, WonkaEth.Extensions.RuleTreeReport poReport = null)
+        public static async Task<string> ExecuteOnChainAsync(this WonkaBizRulesEngine poEngine, Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps, Wonka.Eth.Extensions.RuleTreeReport poReport = null)
         {
             var account = new Account(poEngineInitProps.EthPassword);
 

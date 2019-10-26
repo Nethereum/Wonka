@@ -12,7 +12,7 @@ using Wonka.BizRulesEngine.RuleTree;
 using WonkaPrd;
 using WonkaRef;
 
-using WonkaEth.Extensions;
+using Wonka.Eth.Extensions;
 
 namespace WonkaSystem.TestHarness
 {
@@ -56,19 +56,19 @@ namespace WonkaSystem.TestHarness
         private string msRegistryContractAddress = "";
         private string msTestContractAddress     = "";
 
-		WonkaEth.Init.WonkaEthEngineInitialization moEthEngineInit = null;
+		Wonka.Eth.Init.WonkaEthEngineInitialization moEthEngineInit = null;
 
 		public WonkaNoviceOnlineChainTest(string psContractAddress, bool pbInitChainEnv = true, bool pbRetrieveMarkupFromIpfs = false)
         {                       
             msSenderAddress = "0x12890D2cce102216644c59daE5baed380d84830c";
             msPassword      = "0xb5b1870957d373ef0eeffecc6e4812c0fd08f554b37b233526acc331bf1544f7";
 
-            msAbiWonka         = WonkaEth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
-            msByteCodeWonka    = WonkaEth.Autogen.WonkaEngine.WonkaEngineDeployment.BYTECODE;
-            msAbiRegistry      = WonkaEth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
-            msByteCodeRegistry = WonkaEth.Autogen.WonkaRegistry.WonkaRegistryDeployment.BYTECODE;
-            msAbiOrchTest      = WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
-            msByteCodeOrchTest = WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment.BYTECODE;
+            msAbiWonka         = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
+            msByteCodeWonka    = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.BYTECODE;
+            msAbiRegistry      = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
+            msByteCodeRegistry = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.BYTECODE;
+            msAbiOrchTest      = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
+            msByteCodeOrchTest = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.BYTECODE;
 
             // Create an instance of the class that will provide us with PmdRefAttributes (i.e., the data domain)
             // that define our data record            
@@ -127,9 +127,9 @@ namespace WonkaSystem.TestHarness
 		public string DeployWonka()
         {
             var web3               = GetWeb3();
-            var EngineDeployment   = new WonkaEth.Autogen.WonkaEngine.WonkaEngineDeployment();
-            var RegistryDeployment = new WonkaEth.Autogen.WonkaRegistry.WonkaRegistryDeployment();
-            var TestCntDeployment  = new WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment();
+            var EngineDeployment   = new Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment();
+            var RegistryDeployment = new Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment();
+            var TestCntDeployment  = new Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment();
 
 			Nethereum.Hex.HexTypes.HexBigInteger nEngineGas  = new Nethereum.Hex.HexTypes.HexBigInteger(8388608);
 			Nethereum.Hex.HexTypes.HexBigInteger nDefaultGas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
@@ -232,7 +232,7 @@ namespace WonkaSystem.TestHarness
                 string sFlagBeforeOrchestrationAssignment  = RetrieveValueMethod(FlagSource, ReviewFlagAttr.AttrName);
                 string sValueBeforeOrchestrationAssignment = RetrieveValueMethod(CurrValSource, CurrValueAttr.AttrName);
 
-				var EthRuleTreeReport = new WonkaEth.Extensions.RuleTreeReport();
+				var EthRuleTreeReport = new Wonka.Eth.Extensions.RuleTreeReport();
 				poRulesEngine.ExecuteOnChain(moEthEngineInit, EthRuleTreeReport);
 
                 // After invoking the RuleTree, the storage contract should have Review Flag as "???" and CurrVal as "1014"
@@ -304,7 +304,7 @@ namespace WonkaSystem.TestHarness
         {
 			string sDefaultSource = "S";
 
-			moEthEngineInit = new WonkaEth.Init.WonkaEthEngineInitialization();
+			moEthEngineInit = new Wonka.Eth.Init.WonkaEthEngineInitialization();
 
 			// EthEngineInit.Engine.RulesEngine         = moRulesEngine;
 			moEthEngineInit.Engine.MetadataSource       = moMetadataSource;

@@ -10,7 +10,7 @@ using Nethereum.Contracts.CQS;
 using Nethereum.Contracts.ContractHandlers;
 using Nethereum.Contracts;
 
-namespace WonkaEth.Autogen
+namespace Wonka.Eth.Autogen
 {
     public partial class WonkaEngineService
     {

@@ -24,7 +24,7 @@ using Wonka.BizRulesEngine;
 using WonkaPrd;
 using WonkaRef;
 
-using WonkaEth.Extensions;
+using Wonka.Eth.Extensions;
 
 namespace WonkaSystem.TestHarness
 {

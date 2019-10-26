@@ -1,6 +1,6 @@
 using System;
 
-namespace WonkaEth.Init
+namespace Wonka.Eth.Init
 {
 	public class WonkaEthInitException : Exception
 	{

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Nethereum.Contracts;
 using Nethereum.Web3;
 
-namespace WonkaEth.Extensions
+namespace Wonka.Eth.Extensions
 {
     /// <summary>
     /// 

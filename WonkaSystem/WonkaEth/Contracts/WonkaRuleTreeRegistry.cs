@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-using WonkaEth.Extensions;
+using Wonka.Eth.Extensions;
 
-namespace WonkaEth.Contracts
+namespace Wonka.Eth.Contracts
 {
     /// <summary>
     /// 
@@ -20,7 +20,7 @@ namespace WonkaEth.Contracts
             Init();
         }
 
-        public WonkaRegistryItem(WonkaEth.Extensions.RuleTreeRegistryIndex poIndex, string psHostContractABI)
+        public WonkaRegistryItem(Wonka.Eth.Extensions.RuleTreeRegistryIndex poIndex, string psHostContractABI)
         {
             Init();
 

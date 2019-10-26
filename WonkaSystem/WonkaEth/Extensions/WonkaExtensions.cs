@@ -14,10 +14,10 @@ using Nethereum.Hex.HexTypes;
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.Readers;
 using Wonka.BizRulesEngine.RuleTree;
-using WonkaEth.Contracts;
+using Wonka.Eth.Contracts;
 using WonkaRef;
 
-namespace WonkaEth.Extensions
+namespace Wonka.Eth.Extensions
 {
     /// <summary>
     /// 
@@ -156,7 +156,7 @@ namespace WonkaEth.Extensions
         /// <param name="poReport">If not null, we will fill the report with the results of the RuleTree's invocation on the blockchain</param>
         /// <returns>Receipt hash of transaction</returns>
         /// </summary>
-        public static string ExecuteOnChain(this WonkaBizRulesEngine poEngine, WonkaEth.Init.WonkaEthEngineInitialization poEngineInitProps, WonkaEth.Extensions.RuleTreeReport poReport = null)
+        public static string ExecuteOnChain(this WonkaBizRulesEngine poEngine, Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps, Wonka.Eth.Extensions.RuleTreeReport poReport = null)
         {
             var account = new Account(poEngineInitProps.EthPassword);
 
@@ -1409,13 +1409,13 @@ namespace WonkaEth.Extensions
         /// <param name="poEthInitData">The initialization info that will be repackaged</param>
         /// <returns>The transformation of 'poEthInitData' into an instance of OrchestrationInitData</returns>
         /// </summary>
-        public static WonkaEth.Orchestration.Init.OrchestrationInitData 
-            TransformIntoOrchestrationInit(this WonkaEth.Init.WonkaEthInitialization poEthInitData, 
-                                                                IMetadataRetrievable piMetadataSource = null,
+        public static Wonka.Eth.Orchestration.Init.OrchestrationInitData 
+            TransformIntoOrchestrationInit(this Wonka.Eth.Init.WonkaEthInitialization     poEthInitData, 
+                                                                IMetadataRetrievable      piMetadataSource = null,
                          Dictionary<string, WonkaBizRulesXmlReader.ExecuteCustomOperator> poDelegateMap = null)
 
         {
-            WonkaEth.Orchestration.Init.OrchestrationInitData OrchInitData = new WonkaEth.Orchestration.Init.OrchestrationInitData();
+            Wonka.Eth.Orchestration.Init.OrchestrationInitData OrchInitData = new Wonka.Eth.Orchestration.Init.OrchestrationInitData();
 
             OrchInitData.Web3HttpUrl              = poEthInitData.Web3HttpUrl;
             OrchInitData.AttributesMetadataSource = piMetadataSource;

@@ -11,12 +11,12 @@ using Wonka.BizRulesEngine.RuleTree;
 using WonkaRef;
 using WonkaPrd;
 
-using WonkaEth.Contracts;
-using WonkaEth.Orchestration.BlockchainEvents;
-using WonkaEth.Orchestration.BlockchainOutput;
-using WonkaEth.Orchestration.Init;
+using Wonka.Eth.Contracts;
+using Wonka.Eth.Orchestration.BlockchainEvents;
+using Wonka.Eth.Orchestration.BlockchainOutput;
+using Wonka.Eth.Orchestration.Init;
 
-namespace WonkaEth.Orchestration
+namespace Wonka.Eth.Orchestration
 {
     /// <summary>
     /// 

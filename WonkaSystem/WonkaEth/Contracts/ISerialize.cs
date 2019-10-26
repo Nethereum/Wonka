@@ -3,7 +3,7 @@ using System.Collections;
 
 using Wonka.BizRulesEngine.RuleTree;
 
-namespace WonkaEth.Contracts
+namespace Wonka.Eth.Contracts
 {
     public interface ISerialize
     {

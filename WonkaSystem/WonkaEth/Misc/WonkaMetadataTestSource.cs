@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using WonkaRef;
 
-namespace WonkaEth.Misc
+namespace Wonka.Eth.Misc
 {
     public class WonkaMetadataTestSource : IMetadataRetrievable
     {

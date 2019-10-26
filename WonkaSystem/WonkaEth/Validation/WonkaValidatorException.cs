@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WonkaEth.Validation
+namespace Wonka.Eth.Validation
 {
     public class WonkaValidatorException : Exception
     {

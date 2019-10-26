@@ -2,7 +2,7 @@ using System;
 
 using Nethereum.Contracts;
 
-namespace WonkaEth.Autogen.WonkaRegistry
+namespace Wonka.Eth.Autogen.WonkaRegistry
 {
     public partial class WonkaRegistryDeployment : WonkaRegistryDeploymentBase
     {

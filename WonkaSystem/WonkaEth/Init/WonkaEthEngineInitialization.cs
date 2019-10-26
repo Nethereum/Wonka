@@ -8,7 +8,7 @@ using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
 using WonkaRef;
 
-namespace WonkaEth.Init
+namespace Wonka.Eth.Init
 {
 	public class WonkaEthEngineProps
 	{
@@ -42,9 +42,9 @@ namespace WonkaEth.Init
 
             EthSenderAddress = EthPassword = EthRuleTreeOwnerAddress = string.Empty;
 
-            RulesEngineABI      = WonkaEth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
-            RegistryContractABI = WonkaEth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
-            StorageContractABI  = WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
+            RulesEngineABI      = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
+            RegistryContractABI = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
+            StorageContractABI  = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
 
             RulesEngineContractAddress = string.Empty;
             RegistryContractAddress    = string.Empty;

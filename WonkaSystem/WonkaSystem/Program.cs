@@ -51,7 +51,7 @@ namespace WonkaSystem
                 string sOrchTestContractAddress = "0x3edf86c3ee590f9693393b8289c533e6cb0d6efa";
                 CQSOrchestrationDemoTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
             }
-            catch (WonkaEth.Validation.WonkaValidatorException ex)
+            catch (Wonka.Eth.Validation.WonkaValidatorException ex)
             {
                 string sErrMsg = ex.ToString();
 

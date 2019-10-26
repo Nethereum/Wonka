@@ -1,5 +1,5 @@
 using System;
-namespace WonkaEth.Autogen.WonkaTestTrxState
+namespace Wonka.Eth.Autogen.WonkaTestTrxState
 {
 	public class ContractDefinition
 	{

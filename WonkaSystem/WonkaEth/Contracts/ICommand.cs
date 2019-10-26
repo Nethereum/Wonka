@@ -4,7 +4,7 @@ using System.Reflection;
 
 using WonkaRef;
 
-namespace WonkaEth.Contracts
+namespace Wonka.Eth.Contracts
 {
     public interface ICommand
     {

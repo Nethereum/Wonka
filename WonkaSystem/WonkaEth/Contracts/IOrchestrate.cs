@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WonkaEth.Contracts
+namespace Wonka.Eth.Contracts
 {
     public interface IOrchestrate : ISerialize
     {

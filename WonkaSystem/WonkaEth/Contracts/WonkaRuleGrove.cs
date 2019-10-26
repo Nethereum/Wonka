@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace WonkaEth.Contracts
+namespace Wonka.Eth.Contracts
 {
     /// <summary>
     /// 
@@ -17,7 +17,7 @@ namespace WonkaEth.Contracts
             Init(psGroveId);
         }
 
-        public WonkaRuleGrove(WonkaEth.Extensions.RuleGroveRegistryData poGroveData)
+        public WonkaRuleGrove(Wonka.Eth.Extensions.RuleGroveRegistryData poGroveData)
         {
             Init();
 
@@ -35,7 +35,7 @@ namespace WonkaEth.Contracts
             OrderedRuleTrees = new List<WonkaRegistryItem>();
         }
 
-        public void Ingest(WonkaEth.Extensions.RuleGroveRegistryData poGroveData)
+        public void Ingest(Wonka.Eth.Extensions.RuleGroveRegistryData poGroveData)
         {
             GroveId = poGroveData.RuleGroveId;
             

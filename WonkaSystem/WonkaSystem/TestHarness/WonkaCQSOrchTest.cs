@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Nethereum.Web3.Accounts;
 
 using Wonka.BizRulesEngine;
-using WonkaEth.Extensions;
+using Wonka.Eth.Extensions;
 using Wonka.BizRulesEngine.RuleTree;
 using WonkaPrd;
 using WonkaRef;
@@ -75,8 +75,8 @@ namespace WonkaSystem.TestHarness
         private Dictionary<string, WonkaBizSource> moAttrSourceMap = null;
         private Dictionary<string, WonkaBizSource> moCustomOpMap   = null;
 
-        private WonkaEth.Orchestration.Init.OrchestrationInitData moOrchInitData      = null; 
-        private WonkaEth.Init.WonkaEthRegistryInitialization      moWonkaRegistryInit = null;
+        private Wonka.Eth.Orchestration.Init.OrchestrationInitData moOrchInitData      = null; 
+        private Wonka.Eth.Init.WonkaEthRegistryInitialization      moWonkaRegistryInit = null;
 
         // This constructor will be called in the case that we wish to initialize the framework
         // with configuration files locally (embedded resources, local filesystem, etc.)
@@ -105,16 +105,16 @@ namespace WonkaSystem.TestHarness
 
                 // We deserialize/parse the contents of the config file
                 System.Xml.Serialization.XmlSerializer WonkaEthSerializer =
-                    new System.Xml.Serialization.XmlSerializer(typeof(WonkaEth.Init.WonkaEthInitialization),
-                                                               new System.Xml.Serialization.XmlRootAttribute("WonkaEthInitialization"));
+                    new System.Xml.Serialization.XmlSerializer(typeof(Wonka.Eth.Init.WonkaEthInitialization),
+                                                               new System.Xml.Serialization.XmlRootAttribute("Wonka.EthInitialization"));
 
-                WonkaEth.Init.WonkaEthInitialization WonkaInit =
-                    WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitXml)) as WonkaEth.Init.WonkaEthInitialization;
+                Wonka.Eth.Init.WonkaEthInitialization WonkaInit =
+                    WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitXml)) as Wonka.Eth.Init.WonkaEthInitialization;
 
                 // Here, any embeddeded resources mentioned in the config file (instead of simple file URLs) are accessed here
                 WonkaInit.RetrieveEmbeddedResources(TmpAssembly);
 
-                // The initialization data is transformed into a structure used by the WonkaEth namespace
+                // The initialization data is transformed into a structure used by the Wonka.Eth namespace
                 moOrchInitData = WonkaInit.TransformIntoOrchestrationInit(moMetadataSource);
 
                 System.Console.WriteLine("Number of custom operators: (" + WonkaInit.CustomOperatorList.Length + ").");
@@ -130,11 +130,11 @@ namespace WonkaSystem.TestHarness
 
                 // We deserialize/parse the contents of the config file
                 System.Xml.Serialization.XmlSerializer WonkaEthSerializer =
-                    new System.Xml.Serialization.XmlSerializer(typeof(WonkaEth.Init.WonkaEthRegistryInitialization),
-                                                               new System.Xml.Serialization.XmlRootAttribute("WonkaEthRegistryInitialization"));
+                    new System.Xml.Serialization.XmlSerializer(typeof(Wonka.Eth.Init.WonkaEthRegistryInitialization),
+                                                               new System.Xml.Serialization.XmlRootAttribute("Wonka.EthRegistryInitialization"));
 
                 moWonkaRegistryInit =
-                    WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitRegistryXml)) as WonkaEth.Init.WonkaEthRegistryInitialization;
+                    WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitRegistryXml)) as Wonka.Eth.Init.WonkaEthRegistryInitialization;
 
                 // Here, any embeddeded resources mentioned in the config file (instead of simple file URLs) are accessed here                
                 moWonkaRegistryInit.RetrieveEmbeddedResources(TmpAssembly);
@@ -178,8 +178,8 @@ namespace WonkaSystem.TestHarness
             #endregion
 
             // We initialize the proxy that will be used to communicate with the Registry on the blockchain
-            WonkaEth.Contracts.WonkaRuleTreeRegistry WonkaRegistry =
-                WonkaEth.Contracts.WonkaRuleTreeRegistry.CreateInstance(moWonkaRegistryInit.BlockchainRegistry.ContractSender, 
+            Wonka.Eth.Contracts.WonkaRuleTreeRegistry WonkaRegistry =
+                Wonka.Eth.Contracts.WonkaRuleTreeRegistry.CreateInstance(moWonkaRegistryInit.BlockchainRegistry.ContractSender, 
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractPassword,
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractAddress, 
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractABI,
@@ -292,11 +292,11 @@ namespace WonkaSystem.TestHarness
             if (!String.IsNullOrEmpty(sInitXml))
             {
                 System.Xml.Serialization.XmlSerializer WonkaEthSerializer =
-                    new System.Xml.Serialization.XmlSerializer(typeof(WonkaEth.Init.WonkaEthInitialization),
-                                                               new System.Xml.Serialization.XmlRootAttribute("WonkaEthInitialization"));
+                    new System.Xml.Serialization.XmlSerializer(typeof(Wonka.Eth.Init.WonkaEthInitialization),
+                                                               new System.Xml.Serialization.XmlRootAttribute("Wonka.EthInitialization"));
 
-                WonkaEth.Init.WonkaEthInitialization WonkaInit =
-                    WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitXml)) as WonkaEth.Init.WonkaEthInitialization;
+                Wonka.Eth.Init.WonkaEthInitialization WonkaInit =
+                    WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitXml)) as Wonka.Eth.Init.WonkaEthInitialization;
 
                 WonkaInit.RetrieveEmbeddedResources(TmpAssembly);
 
@@ -311,11 +311,11 @@ namespace WonkaSystem.TestHarness
             if (!String.IsNullOrEmpty(sInitRegistryXml))
             {
                 System.Xml.Serialization.XmlSerializer WonkaEthSerializer =
-                    new System.Xml.Serialization.XmlSerializer(typeof(WonkaEth.Init.WonkaEthRegistryInitialization),
-                                                               new System.Xml.Serialization.XmlRootAttribute("WonkaEthRegistryInitialization"));
+                    new System.Xml.Serialization.XmlSerializer(typeof(Wonka.Eth.Init.WonkaEthRegistryInitialization),
+                                                               new System.Xml.Serialization.XmlRootAttribute("Wonka.EthRegistryInitialization"));
 
                 moWonkaRegistryInit =
-                    WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitRegistryXml)) as WonkaEth.Init.WonkaEthRegistryInitialization;
+                    WonkaEthSerializer.Deserialize(new System.IO.StringReader(sInitRegistryXml)) as Wonka.Eth.Init.WonkaEthRegistryInitialization;
 
                 moWonkaRegistryInit.RetrieveEmbeddedResources(TmpAssembly);
             }
@@ -360,8 +360,8 @@ namespace WonkaSystem.TestHarness
             
             #endregion
 
-            WonkaEth.Contracts.WonkaRuleTreeRegistry WonkaRegistry =
-                WonkaEth.Contracts.WonkaRuleTreeRegistry.CreateInstance(moWonkaRegistryInit.BlockchainRegistry.ContractSender, 
+            Wonka.Eth.Contracts.WonkaRuleTreeRegistry WonkaRegistry =
+                Wonka.Eth.Contracts.WonkaRuleTreeRegistry.CreateInstance(moWonkaRegistryInit.BlockchainRegistry.ContractSender, 
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractPassword,
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractAddress, 
                                                                         moWonkaRegistryInit.BlockchainRegistry.ContractABI,
@@ -450,7 +450,7 @@ namespace WonkaSystem.TestHarness
             SalesTrxCommand.NewSaleItemType = "Widget";
             SalesTrxCommand.CountryOfSale   = "UK";
 
-            WonkaEth.Orchestration.Init.OrchestrationInitData InitData = GenerateInitData();
+            Wonka.Eth.Orchestration.Init.OrchestrationInitData InitData = GenerateInitData();
 
             #region Invoking the RuleTree for the first time as a single entity
 
@@ -479,12 +479,12 @@ namespace WonkaSystem.TestHarness
             // its Grove "NewSaleGroup" - since it is the sole member of the Grove, it will still be the only RuleTree
             // applied to the record - in this scenario, we pretend that we know nothing about the RuleTree or the Grove, 
             // effectively treating it as a black box and only looking to retrieve the VAT
-            WonkaEth.Contracts.WonkaRuleGrove NewSaleGrove = new WonkaEth.Contracts.WonkaRuleGrove("NewSaleGroup");
+            Wonka.Eth.Contracts.WonkaRuleGrove NewSaleGrove = new Wonka.Eth.Contracts.WonkaRuleGrove("NewSaleGroup");
             NewSaleGrove.PopulateFromRegistry(this.msAbiWonka);
 
             // The engine's lightweight proxy for the blockchain is instantiated here
-            WonkaEth.Orchestration.WonkaOrchestratorProxy<CQS.Contracts.SalesTrxCreateCommand> TrxGeneratorProxy = 
-                new WonkaEth.Orchestration.WonkaOrchestratorProxy<CQS.Contracts.SalesTrxCreateCommand>(SalesTrxCommand, InitData);
+            Wonka.Eth.Orchestration.WonkaOrchestratorProxy<CQS.Contracts.SalesTrxCreateCommand> TrxGeneratorProxy = 
+                new Wonka.Eth.Orchestration.WonkaOrchestratorProxy<CQS.Contracts.SalesTrxCreateCommand>(SalesTrxCommand, InitData);
 
             // We reset the values here and in the blockchain (by serializing)
             SalesTrxCommand.NewSellTaxAmt    = 0;
@@ -495,7 +495,7 @@ namespace WonkaSystem.TestHarness
             // NOTE: Only useful when debugging
             // TrxGeneratorProxy.DeserializeRecordFromBlockchain(SalesTrxCommand);
 
-            Dictionary<string, WonkaEth.Contracts.IOrchestrate> GroveMembers = new Dictionary<string, WonkaEth.Contracts.IOrchestrate>();
+            Dictionary<string, Wonka.Eth.Contracts.IOrchestrate> GroveMembers = new Dictionary<string, Wonka.Eth.Contracts.IOrchestrate>();
             GroveMembers[NewSaleGrove.OrderedRuleTrees[0].RuleTreeId] = TrxGeneratorProxy;
 
             // With their provided proxies for each RuleTree, we can now execute the Grove (or, in this case, our sole RuleTree)
@@ -517,15 +517,15 @@ namespace WonkaSystem.TestHarness
 
         #region Methods Only Used for .NET Execution of the Rules Engine
 
-        public WonkaEth.Orchestration.Init.OrchestrationInitData GenerateInitData()
+        public Wonka.Eth.Orchestration.Init.OrchestrationInitData GenerateInitData()
         {
-            WonkaEth.Orchestration.Init.OrchestrationInitData InitData = null;
+            Wonka.Eth.Orchestration.Init.OrchestrationInitData InitData = null;
 
             if (moOrchInitData != null)
                 InitData = moOrchInitData;
             else
             {
-                InitData = new WonkaEth.Orchestration.Init.OrchestrationInitData();
+                InitData = new Wonka.Eth.Orchestration.Init.OrchestrationInitData();
 
                 InitData.BlockchainEngine = new WonkaBizSource("N", msSenderAddress, msPassword, msWonkaContractAddress, msAbiWonka, null, null, null);
 

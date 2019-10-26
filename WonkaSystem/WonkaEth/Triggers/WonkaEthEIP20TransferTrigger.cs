@@ -10,7 +10,7 @@ using Nethereum.Web3;
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.Triggers;
 
-namespace WonkaEth.Triggers
+namespace Wonka.Eth.Triggers
 {
 	public class WonkaEthEIP20TransferTrigger : WonkaEthContractTriggerBase, ISuccessTrigger
 	{

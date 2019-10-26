@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-using WonkaEth.Contracts;
+using Wonka.Eth.Contracts;
 using WonkaRef;
 
 namespace WonkaSystem.CQS.Contracts

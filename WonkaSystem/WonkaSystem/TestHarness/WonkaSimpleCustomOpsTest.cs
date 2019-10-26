@@ -21,8 +21,8 @@ using Wonka.BizRulesEngine.RuleTree;
 using WonkaPrd;
 using WonkaRef;
 
-using WonkaEth.Extensions;
-using WonkaEth.Validation;
+using Wonka.Eth.Extensions;
+using Wonka.Eth.Validation;
 
 namespace WonkaSystem.TestHarness
 {

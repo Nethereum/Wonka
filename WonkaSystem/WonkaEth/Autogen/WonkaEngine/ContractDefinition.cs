@@ -9,7 +9,7 @@ using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Contracts.CQS;
 using Nethereum.Contracts;
 
-namespace WonkaEth.Autogen.WonkaEngine
+namespace Wonka.Eth.Autogen.WonkaEngine
 {
 
     public partial class WonkaEngineDeployment : WonkaEngineDeploymentBase

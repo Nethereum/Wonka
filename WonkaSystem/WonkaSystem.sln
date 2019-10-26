@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WonkaPrd", "WonkaPrd\WonkaP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wonka.BizRulesEngine", "WonkaBre\Wonka.BizRulesEngine.csproj", "{D3F26FB8-89AC-44A5-96C3-6A785AF0DE51}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WonkaEth", "WonkaEth\WonkaEth.csproj", "{A45CE3D8-9F1B-4401-8561-A5A7F79BB57C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wonka.Eth", "WonkaEth\Wonka.Eth.csproj", "{A45CE3D8-9F1B-4401-8561-A5A7F79BB57C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WonkaIpfs", "WonkaIpfs\WonkaIpfs.csproj", "{CDE8B010-2F96-4801-8DEE-BB110FC709A9}"
 EndProject

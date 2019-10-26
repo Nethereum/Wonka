@@ -10,11 +10,11 @@ using Nethereum.Web3.Accounts;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
-using WonkaEth.Contracts;
-using WonkaEth.Init;
+using Wonka.Eth.Contracts;
+using Wonka.Eth.Init;
 using WonkaRef;
 
-namespace WonkaEth.Extensions
+namespace Wonka.Eth.Extensions
 {
     public static class WonkaEthEngineExtensions
     {

@@ -2,7 +2,7 @@
 
 using Nethereum.ABI.FunctionEncoding.Attributes;
 
-namespace WonkaEth.Orchestration.BlockchainEvents
+namespace Wonka.Eth.Orchestration.BlockchainEvents
 {
     [Event("RuleSetError")]
     public class RuleSetErrorEvent

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Nethereum.ABI.FunctionEncoding.Attributes;
 
-namespace WonkaEth.Orchestration.BlockchainOutput
+namespace Wonka.Eth.Orchestration.BlockchainOutput
 {
     [FunctionOutput]
     public class WonkaRuleTreeReport
