@@ -1098,15 +1098,17 @@ namespace Wonka.Eth.Extensions
                         ((TempRule.TargetAttribute.AttrName.Length > 13) ? TempRule.TargetAttribute.AttrName.Substring(0, 13) : TempRule.TargetAttribute.AttrName);
                 }
 
-                if (!String.IsNullOrEmpty(TempRule.DescRuleId))
-                    sRuleName = TempRule.DescRuleId;
-                else
-                {
-                    if (sAltRuleName.Length > CONST_CONTRACT_BYTE32_MAX)
-                        sAltRuleName = sAltRuleName.Substring(0, CONST_CONTRACT_BYTE32_MAX - 1);
+				if (!String.IsNullOrEmpty(TempRule.DescRuleId))
+				{
+					sRuleName = TempRule.DescRuleId;
+				}
+				else
+				{
+					if (sAltRuleName.Length > CONST_CONTRACT_BYTE32_MAX)
+						sAltRuleName = sAltRuleName.Substring(0, CONST_CONTRACT_BYTE32_MAX - 1);
 
-                    sRuleName = sAltRuleName;
-                }
+					sRuleName = sAltRuleName;
+				}
 
                 // if ((nRuleType > 0) && !TempRule.NotOperator)
                 if (nRuleType < (uint) CONTRACT_RULE_TYPES.MODE_MAX)
@@ -1164,7 +1166,7 @@ namespace Wonka.Eth.Extensions
                     {
                         foreach (string sTempVal in AssignArithmeticRule.DomainValueProps.Keys)
                         {
-                            if (!String.IsNullOrEmpty(sValue)) sValue += ",";
+                            if (!string.IsNullOrEmpty(sValue)) sValue += ",";
 
                             sValue += sTempVal;
                         }
