@@ -12,7 +12,7 @@ using System.Text;
 using Wonka.BizRulesEngine;
 using WonkaRef;
 
-namespace WonkaImport.Metadata
+namespace Wonka.Import.Metadata
 {
     /// <summary>
     /// 

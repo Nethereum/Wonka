@@ -1,6 +1,6 @@
 ﻿using Wonka.BizRulesEngine.RuleTree;
 
-namespace WonkaImport.RuleTree
+namespace Wonka.Import.RuleTree
 {
     #region Delegates
 

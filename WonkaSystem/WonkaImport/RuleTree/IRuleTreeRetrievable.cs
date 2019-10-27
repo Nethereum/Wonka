@@ -3,7 +3,7 @@
 using Wonka.BizRulesEngine;
 using WonkaRef;
 
-namespace WonkaImport.RuleTree
+namespace Wonka.Import.RuleTree
 {
     public enum BRE_IMPORT_SOURCE
     {

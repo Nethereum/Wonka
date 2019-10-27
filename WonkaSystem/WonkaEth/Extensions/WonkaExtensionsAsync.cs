@@ -1124,7 +1124,7 @@ namespace Wonka.Eth.Extensions
 
             foreach (WonkaBizRule TempRule in poRuleSet.AssertiveRules)
             {
-                var    sRuleName    = "";
+                var    sRuleName    = string.Empty;
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
                 var    sAttrName    = TempRule.TargetAttribute.AttrName;
                 uint   nRuleType    = (uint) CONTRACT_RULE_TYPES.MODE_MAX;

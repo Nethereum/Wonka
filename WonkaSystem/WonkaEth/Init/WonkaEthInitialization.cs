@@ -100,7 +100,7 @@ namespace Wonka.Eth.Init
 
                 if (!String.IsNullOrEmpty(msContractABIIpfsResource) && String.IsNullOrEmpty(ContractABI))
                 {
-                    ContractABI = WonkaIpfs.WonkaIpfsEnvironment.GetInstance().GetFile(msContractABIIpfsResource);
+                    ContractABI = Wonka.IpfsW.WonkaIpfsEnvironment.GetInstance().GetFile(msContractABIIpfsResource);
                 }
             }
         }
@@ -139,7 +139,7 @@ namespace Wonka.Eth.Init
 
                 if (!String.IsNullOrEmpty(msBusinessRulesIpfsResource) && String.IsNullOrEmpty(BusinessRules))
                 {
-                    BusinessRules = WonkaIpfs.WonkaIpfsEnvironment.GetInstance().GetFile(msBusinessRulesIpfsResource);
+                    BusinessRules = Wonka.IpfsW.WonkaIpfsEnvironment.GetInstance().GetFile(msBusinessRulesIpfsResource);
                 }
             }
         }

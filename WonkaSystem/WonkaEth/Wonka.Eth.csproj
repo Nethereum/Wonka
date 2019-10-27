@@ -49,7 +49,7 @@
     <ProjectReference Include="..\WonkaBre\Wonka.BizRulesEngine.csproj" />
     <ProjectReference Include="..\WonkaRef\WonkaRef.csproj" />
     <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj" />
-    <ProjectReference Include="..\WonkaIpfs\WonkaIpfs.csproj" />
+    <ProjectReference Include="..\WonkaIpfs\Wonka.IpfsW.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Contracts\Ethereum\TransactionStateInterface.abi" />

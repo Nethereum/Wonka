@@ -280,8 +280,8 @@ namespace WonkaSystem.TestHarness
 
             var TmpAssembly = Assembly.GetExecutingAssembly();
 
-            WonkaRefEnvironment            RefEnv  = WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
-            WonkaIpfs.WonkaIpfsEnvironment IpfsEnv = WonkaIpfs.WonkaIpfsEnvironment.CreateInstance();
+            WonkaRefEnvironment              RefEnv  = WonkaRefEnvironment.CreateInstance(false, moMetadataSource);
+            Wonka.IpfsW.WonkaIpfsEnvironment IpfsEnv = Wonka.IpfsW.WonkaIpfsEnvironment.CreateInstance();
 
             // Read the XML markup that lists the business rules
             msRulesContents = IpfsEnv.GetFile(psPeerKeyId.ToString(), psRulesMarkupFile);
