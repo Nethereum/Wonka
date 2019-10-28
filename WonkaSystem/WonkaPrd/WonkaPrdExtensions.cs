@@ -2,7 +2,7 @@
 
 using WonkaRef;
 
-namespace WonkaPrd
+namespace Wonka.Product
 {
     public static class WonkaPrdExtensions
     {

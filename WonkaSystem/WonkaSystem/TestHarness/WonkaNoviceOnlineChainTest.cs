@@ -9,7 +9,7 @@ using Xunit;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
-using WonkaPrd;
+using Wonka.Product;
 using WonkaRef;
 
 using Wonka.Eth.Extensions;

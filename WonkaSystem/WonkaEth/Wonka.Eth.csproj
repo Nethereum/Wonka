@@ -47,8 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaBre\Wonka.BizRulesEngine.csproj" />
+    <ProjectReference Include="..\WonkaPrd\Wonka.Product.csproj" />
     <ProjectReference Include="..\WonkaRef\WonkaRef.csproj" />
-    <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj" />
     <ProjectReference Include="..\WonkaIpfs\Wonka.IpfsW.csproj" />
   </ItemGroup>
   <ItemGroup>

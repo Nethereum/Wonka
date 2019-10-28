@@ -18,7 +18,7 @@ using Nethereum.Hex.HexConvertors.Extensions;
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.Reporting;
 using WonkaRef;
-using WonkaPrd;
+using Wonka.Product;
 
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Extensions;

@@ -5,7 +5,7 @@ using System.Text;
 using Wonka.BizRulesEngine;
 using Wonka.Eth.Validation;
 using Wonka.BizRulesEngine.Reporting;
-using WonkaPrd;
+using Wonka.Product;
 using WonkaRef;
 
 using WonkaSystem.CQS.Contracts;

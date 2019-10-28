@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using WonkaRef;
 
-namespace WonkaPrd
+namespace Wonka.Product
 {
     /// <summary>
     /// 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using Wonka.BizRulesEngine.Readers;
-using WonkaPrd;
+using Wonka.Product;
 
 namespace Wonka.BizRulesEngine.RuleTree
 {

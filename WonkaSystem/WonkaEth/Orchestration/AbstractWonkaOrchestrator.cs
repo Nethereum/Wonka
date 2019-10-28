@@ -19,7 +19,7 @@ using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.Reporting;
 using Wonka.BizRulesEngine.RuleTree;
 using WonkaRef;
-using WonkaPrd;
+using Wonka.Product;
 
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Extensions;

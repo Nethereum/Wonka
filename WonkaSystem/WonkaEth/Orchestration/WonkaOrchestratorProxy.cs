@@ -9,7 +9,7 @@ using Nethereum.Web3.Accounts;
 
 using Wonka.BizRulesEngine.RuleTree;
 using WonkaRef;
-using WonkaPrd;
+using Wonka.Product;
 
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Orchestration.BlockchainEvents;

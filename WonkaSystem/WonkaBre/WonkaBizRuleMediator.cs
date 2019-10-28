@@ -4,7 +4,7 @@ using System.Text;
 
 using Wonka.BizRulesEngine.Reporting;
 using Wonka.BizRulesEngine.RuleTree;
-using WonkaPrd;
+using Wonka.Product;
 
 namespace Wonka.BizRulesEngine
 {

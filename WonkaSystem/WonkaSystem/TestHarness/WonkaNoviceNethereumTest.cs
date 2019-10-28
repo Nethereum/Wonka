@@ -21,7 +21,7 @@ using Nethereum.Geth.RPC.Miner;
 using Xunit;
 
 using Wonka.BizRulesEngine;
-using WonkaPrd;
+using Wonka.Product;
 using WonkaRef;
 
 using Wonka.Eth.Extensions;

@@ -16,7 +16,7 @@ using Nethereum.RPC.Eth.DTOs;
 using Xunit;
 
 using Wonka.BizRulesEngine;
-using WonkaPrd;
+using Wonka.Product;
 using WonkaRef;
 
 namespace WonkaSystem.TestHarness

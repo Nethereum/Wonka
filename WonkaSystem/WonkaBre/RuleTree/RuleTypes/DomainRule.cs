@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using WonkaPrd;
+using Wonka.Product;
 using WonkaRef;
 
 namespace Wonka.BizRulesEngine.RuleTree.RuleTypes

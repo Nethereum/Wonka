@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 using WonkaRef;
 
-namespace WonkaPrd
+namespace Wonka.Product
 {
     /// <summary>
     /// 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 using WonkaRef;
 
-namespace WonkaPrd
+namespace Wonka.Product
 {
     /// <summary>
     /// 

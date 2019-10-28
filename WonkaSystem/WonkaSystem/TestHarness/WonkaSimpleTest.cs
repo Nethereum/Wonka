@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Wonka.BizRulesEngine;
-using WonkaPrd;
+using Wonka.Product;
 using WonkaRef;
 
 namespace WonkaSystem.TestHarness

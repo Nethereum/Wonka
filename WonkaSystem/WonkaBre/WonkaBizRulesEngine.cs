@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using WonkaPrd;
+using Wonka.Product;
 using WonkaRef;
 
 using Wonka.BizRulesEngine.Permissions;

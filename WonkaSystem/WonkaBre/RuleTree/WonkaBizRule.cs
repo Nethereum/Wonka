@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 
-using WonkaPrd;
+using Wonka.Product;
 
 namespace Wonka.BizRulesEngine.RuleTree
 {

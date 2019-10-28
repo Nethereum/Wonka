@@ -26,7 +26,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WonkaPrd\WonkaPrd.csproj" />
+    <ProjectReference Include="..\WonkaPrd\Wonka.Product.csproj" />
     <ProjectReference Include="..\WonkaRef\WonkaRef.csproj" />
   </ItemGroup>
   <ItemGroup>

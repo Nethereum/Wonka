@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 using WonkaRef;
 
-namespace WonkaPrd
+namespace Wonka.Product
 {
     /// <summary>
     /// 
