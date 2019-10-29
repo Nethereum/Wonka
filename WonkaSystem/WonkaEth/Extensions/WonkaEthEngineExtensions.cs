@@ -12,7 +12,7 @@ using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Init;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.Eth.Extensions
 {

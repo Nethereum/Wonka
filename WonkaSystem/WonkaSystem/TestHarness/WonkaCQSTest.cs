@@ -11,7 +11,7 @@ using Nethereum.Web3.Accounts;
 using Wonka.BizRulesEngine;
 using Wonka.Eth.Extensions;
 using Wonka.Product;
-using WonkaRef;
+using Wonka.MetaData;
 
 using WonkaSystem.CQS;
 using WonkaSystem.TestHarness;

@@ -5,7 +5,7 @@ using System.Text;
 
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Product;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.BizRulesEngine.Reporting
 {

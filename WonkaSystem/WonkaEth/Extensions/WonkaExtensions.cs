@@ -15,7 +15,7 @@ using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.Readers;
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Eth.Contracts;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.Eth.Extensions
 {

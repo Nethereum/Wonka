@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.Import.Metadata
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 
 using Wonka.Eth.Contracts;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace WonkaSystem.CQS.Contracts
 {

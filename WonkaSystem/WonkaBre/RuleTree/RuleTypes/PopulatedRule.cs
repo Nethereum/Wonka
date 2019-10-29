@@ -2,7 +2,7 @@
 using System.Text;
 
 using Wonka.Product;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 {

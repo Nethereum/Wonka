@@ -11,7 +11,7 @@ using Xunit;
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Product;
-using WonkaRef;
+using Wonka.MetaData;
 
 using Wonka.Eth.Extensions;
 

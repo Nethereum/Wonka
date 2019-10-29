@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.BizRulesEngine.RuleTree.RuleTypes;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.BizRulesEngine.Readers
 {

@@ -62,7 +62,7 @@ namespace Wonka.BizRulesEngine.RuleTree
             RuleId   = pnRuleId;
             RuleType = peRuleType;
 
-            TargetAttribute = new WonkaRef.WonkaRefAttr();
+            TargetAttribute = new Wonka.MetaData.WonkaRefAttr();
             ParentRuleSetId = -1;
 
             NotOperator = false;
@@ -125,7 +125,7 @@ namespace Wonka.BizRulesEngine.RuleTree
             }
 
             AttributeValueProps.AttributeInfo =
-                WonkaRef.WonkaRefEnvironment.GetInstance().GetAttributeByAttrName(psAttrName);
+                Wonka.MetaData.WonkaRefEnvironment.GetInstance().GetAttributeByAttrName(psAttrName);
 
             return AttributeValueProps;
         }
@@ -141,7 +141,7 @@ namespace Wonka.BizRulesEngine.RuleTree
 
         public TARGET_RECORD RecordOfInterest { get; set; }
 
-        public WonkaRef.WonkaRefAttr TargetAttribute { get; set; }
+        public Wonka.MetaData.WonkaRefAttr TargetAttribute { get; set; }
 
         public RULE_TYPE RuleType { get; set; }
 

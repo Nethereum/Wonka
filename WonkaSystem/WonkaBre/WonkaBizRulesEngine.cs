@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Wonka.Product;
-using WonkaRef;
+using Wonka.MetaData;
 
 using Wonka.BizRulesEngine.Permissions;
 using Wonka.BizRulesEngine.Readers;

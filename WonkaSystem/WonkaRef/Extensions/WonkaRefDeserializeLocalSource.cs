@@ -6,9 +6,9 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-using WonkaRef;
+using Wonka.MetaData;
 
-namespace WonkaRef.Extensions
+namespace Wonka.MetaData.Extensions
 {
     /// <summary>
     /// 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WonkaRef.Extensions
+namespace Wonka.MetaData.Extensions
 {
     /// <summary>
     /// 

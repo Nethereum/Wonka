@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.Product
 {

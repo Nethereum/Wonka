@@ -17,7 +17,7 @@ using Xunit;
 
 using Wonka.BizRulesEngine;
 using Wonka.Product;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace WonkaSystem.TestHarness
 {

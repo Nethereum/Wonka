@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 
 using Wonka.BizRulesEngine;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.Import.Metadata
 {

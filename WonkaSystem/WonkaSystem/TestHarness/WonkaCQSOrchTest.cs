@@ -12,7 +12,7 @@ using Wonka.BizRulesEngine;
 using Wonka.Eth.Extensions;
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Product;
-using WonkaRef;
+using Wonka.MetaData;
 
 using WonkaSystem.CQS;
 using WonkaSystem.TestHarness;

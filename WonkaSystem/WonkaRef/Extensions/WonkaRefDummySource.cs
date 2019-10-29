@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using WonkaRef;
+using Wonka.MetaData;
 
-namespace WonkaRef.Extensions
+namespace Wonka.MetaData.Extensions
 {
     public class WonkaRefDummySource : IMetadataRetrievable
     {

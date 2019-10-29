@@ -1,6 +1,6 @@
 ﻿using System;
 
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.Product
 {

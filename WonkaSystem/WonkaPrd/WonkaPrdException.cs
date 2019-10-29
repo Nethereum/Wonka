@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.Product
 {

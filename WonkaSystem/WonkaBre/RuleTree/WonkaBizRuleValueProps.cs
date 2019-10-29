@@ -18,7 +18,7 @@
 
             OpType = STD_OP_TYPE.STD_OP_NONE;
 
-            AttributeInfo = new WonkaRef.WonkaRefAttr();
+            AttributeInfo = new Wonka.MetaData.WonkaRefAttr();
 		}
 
 		public bool IsLiteralValue { get; set; }
@@ -27,6 +27,6 @@
 
         public TARGET_RECORD TargetRecord { get; set; }
 
-		public WonkaRef.WonkaRefAttr AttributeInfo { get; set; }
+		public Wonka.MetaData.WonkaRefAttr AttributeInfo { get; set; }
 	}
 }

@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.852
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WonkaSystem", "WonkaSystem\WonkaSystem.csproj", "{054C2B2B-3263-4C28-AEB4-A32E0207D912}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WonkaRef", "WonkaRef\WonkaRef.csproj", "{F1813200-E062-4D82-A63D-4C9CD3BC73F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wonka.MetaData", "WonkaRef\Wonka.MetaData.csproj", "{F1813200-E062-4D82-A63D-4C9CD3BC73F4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wonka.Product", "WonkaPrd\Wonka.Product.csproj", "{3C3F0446-5FBF-4AED-B4C0-A6D96C905445}"
 EndProject

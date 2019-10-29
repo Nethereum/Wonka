@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.Eth.Orchestration.Init
 {

@@ -27,7 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaPrd\Wonka.Product.csproj" />
-    <ProjectReference Include="..\WonkaRef\WonkaRef.csproj" />
+    <ProjectReference Include="..\WonkaRef\Wonka.MetaData.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Samples\SimpleAccountCheck.xml" />

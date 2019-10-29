@@ -7,7 +7,7 @@ using Nethereum.Web3.Accounts;
 
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Orchestration;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.Eth.Extensions
 {

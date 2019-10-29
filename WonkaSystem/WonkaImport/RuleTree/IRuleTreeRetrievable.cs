@@ -1,7 +1,7 @@
 ﻿using System;
 
 using Wonka.BizRulesEngine;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace Wonka.Import.RuleTree
 {

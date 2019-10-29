@@ -4,7 +4,7 @@ using System.Reflection;
 
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Eth.Contracts;
-using WonkaRef;
+using Wonka.MetaData;
 
 namespace WonkaSystem.CQS.Contracts
 {

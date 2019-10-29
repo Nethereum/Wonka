@@ -8,7 +8,7 @@ using Nethereum.Hex.HexTypes;
 using Nethereum.Web3.Accounts;
 
 using Wonka.BizRulesEngine.RuleTree;
-using WonkaRef;
+using Wonka.MetaData;
 using Wonka.Product;
 
 using Wonka.Eth.Contracts;
