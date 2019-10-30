@@ -26,12 +26,14 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
     {
         #region Constructors
 
-        public PopulatedRule() : base(-1, RULE_TYPE.RT_POPULATED)
+        public PopulatedRule() 
+            : base(-1, RULE_TYPE.RT_POPULATED)
         {
             Init(TARGET_RECORD.TRID_NONE, -1);
         }
 
-        public PopulatedRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId) : base(pnRuleID, RULE_TYPE.RT_DOMAIN)
+        public PopulatedRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId) 
+            : base(pnRuleID, RULE_TYPE.RT_DOMAIN)
         {
             Init(peTargetRecord, pnTargetAttrId);
         }

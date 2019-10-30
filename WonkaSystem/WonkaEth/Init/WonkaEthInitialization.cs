@@ -24,9 +24,9 @@ namespace Wonka.Eth.Init
 
             ContractABI = BusinessRules = null;
 
-            msBusinessRulesEmbeddedResource = msBusinessRulesFileResource = msBusinessRulesIpfsResource = "";
+            msBusinessRulesEmbeddedResource = msBusinessRulesFileResource = msBusinessRulesIpfsResource = string.Empty;
 
-            msContractABIEmbeddedResource = msContractABIFileResource = msContractABIIpfsResource = "";
+            msContractABIEmbeddedResource = msContractABIFileResource = msContractABIIpfsResource = string.Empty;
         }
 
         public string ContractMarkupId { get; set; }
@@ -159,7 +159,7 @@ namespace Wonka.Eth.Init
     {
         public WonkaEthInitialization()
         {
-            Web3HttpUrl = "";
+            Web3HttpUrl = string.Empty;
 
             BlockchainEngine      = new WonkaEthSource();
             DefaultValueRetrieval = new WonkaEthSource();

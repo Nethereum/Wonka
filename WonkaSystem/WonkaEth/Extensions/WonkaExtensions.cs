@@ -282,12 +282,14 @@ namespace Wonka.Eth.Extensions
             if (!psRuleSetName.StartsWith("Root", StringComparison.CurrentCultureIgnoreCase))
             {
                 if (SetProps.ChildRuleSetCount > 0)
+                {
                     sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<" + RSNodeTag + " " + RSNodeDesc + "=\"" + SetProps.RuleSetDesc + "\" >\n");
+                }
                 else
                 {
-                    string sMode = 
+                    string sMode =
                         SetProps.SevereFailureFlag ? WonkaBizRulesXmlReader.CONST_RS_VALID_ERR_SEVERE : WonkaBizRulesXmlReader.CONST_RS_VALID_ERR_WARNING;
-                    
+
                     sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<" + RSLeafTag + " " + RSLeafMode + "=\"" + sMode + "\" >\n");
                 }
 
@@ -422,7 +424,9 @@ namespace Wonka.Eth.Extensions
                     sRuleValue = sbNewValue.ToString();
                 }
                 else
+                {
                     sRuleValue = "'" + poRuleProps.RuleValue + "'";
+                }
             }
 
             if (!String.IsNullOrEmpty(sRuleValue))
@@ -733,7 +737,9 @@ namespace Wonka.Eth.Extensions
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
             if (poRegistryItem.creationTime > 0)
+            {
                 nSecondsSinceEpoch = poRegistryItem.creationTime;
+            }
             else
             {
                 TimeSpan span = DateTime.UtcNow - new DateTime(1970, 1, 1);
@@ -1364,7 +1370,9 @@ namespace Wonka.Eth.Extensions
                 }
 
                 if (!String.IsNullOrEmpty(TempRule.DescRuleId))
+                {
                     sRuleName = TempRule.DescRuleId;
+                }
                 else
                 {
                     if (sAltRuleName.Length > CONST_CONTRACT_BYTE32_MAX)

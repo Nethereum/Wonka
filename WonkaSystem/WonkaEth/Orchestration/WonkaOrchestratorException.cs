@@ -8,7 +8,8 @@ namespace Wonka.Eth.Orchestration
     {
         public readonly WonkaRuleTreeReport RuleTreeReport = null;
 
-        public WonkaOrchestratorException(string psErrorMessage) : base(psErrorMessage)
+        public WonkaOrchestratorException(string psErrorMessage) 
+            : base(psErrorMessage)
         { }
 
         public WonkaOrchestratorException(WonkaRuleTreeReport poReport)

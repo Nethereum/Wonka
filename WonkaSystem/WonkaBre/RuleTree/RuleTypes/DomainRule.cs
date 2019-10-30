@@ -37,17 +37,20 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
     {
         #region Constructors
 
-        public DomainRule() : base(-1, RULE_TYPE.RT_DOMAIN)
+        public DomainRule() 
+            : base(-1, RULE_TYPE.RT_DOMAIN)
         {
             Init(TARGET_RECORD.TRID_NONE, -1);
         }
 
-        public DomainRule(int pnRuleID) : base(pnRuleID, RULE_TYPE.RT_DOMAIN)
+        public DomainRule(int pnRuleID) 
+            : base(pnRuleID, RULE_TYPE.RT_DOMAIN)
         {
             Init(TARGET_RECORD.TRID_NONE, -1);
         }
 
-        public DomainRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, bool bSearchAllRows) : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
+        public DomainRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, bool bSearchAllRows) 
+            : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
         {
             Init(peTargetRecord, pnTargetAttrId);
 

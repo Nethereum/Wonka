@@ -56,7 +56,7 @@ namespace Wonka.Eth.Validation
         public AbstractWonkaValidator(T poCommand, string psRulesFilepath, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
          {
             BlockchainEngine      = new WonkaBlockchainEngine();
-            BlockchainEngineOwner = "";
+            BlockchainEngineOwner = string.Empty;
 
             msRulesFilepath = psRulesFilepath;
             msRulesContents = null;
@@ -70,7 +70,7 @@ namespace Wonka.Eth.Validation
         public AbstractWonkaValidator(T poCommand, StringBuilder psRules, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
         {
             BlockchainEngine      = new WonkaBlockchainEngine();
-            BlockchainEngineOwner = "";
+            BlockchainEngineOwner = string.Empty;
 
             msRulesFilepath = null;
             msRulesContents = psRules;
@@ -93,7 +93,7 @@ namespace Wonka.Eth.Validation
                 object oPropAttrValue = null;
 
                 Type   oAttrType = TmpProperty.PropertyType;
-                string sAttrName = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : "";
+                string sAttrName = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : string.Empty;
 
                 if (poDataValues.ContainsKey(sAttrName))
                 {
@@ -141,7 +141,7 @@ namespace Wonka.Eth.Validation
             foreach (PropertyInfo TmpProperty in Props)
             {
                 Type   oAttrType  = TmpProperty.PropertyType;
-                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : "";
+                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : string.Empty;
                 string sAttrValue = Convert.ToString(TmpProperty.GetValue(poCommand));
 
                 if (!String.IsNullOrEmpty(sAttrValue))
@@ -161,7 +161,7 @@ namespace Wonka.Eth.Validation
             foreach (PropertyInfo TmpProperty in Props)
             {
                 Type   oAttrType  = TmpProperty.PropertyType;
-                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : "";
+                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : string.Empty;
                 string sAttrValue = Convert.ToString(TmpProperty.GetValue(poCommand));
 
                 if (!String.IsNullOrEmpty(sAttrValue))

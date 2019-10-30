@@ -6,7 +6,8 @@ namespace Wonka.Eth.Init
 	{
 		public readonly WonkaEthEngineInitialization InitData = null;
 
-		public WonkaEthInitException(string psErroMessage, WonkaEthEngineInitialization poInitData) : base(psErroMessage)
+		public WonkaEthInitException(string psErroMessage, WonkaEthEngineInitialization poInitData) 
+            : base(psErroMessage)
 		{
 			InitData = poInitData;
 		}

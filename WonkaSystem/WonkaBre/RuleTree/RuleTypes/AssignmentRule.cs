@@ -35,12 +35,14 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
     {
         #region Constructors
 
-        public AssignmentRule() : base(-1, RULE_TYPE.RT_ASSIGNMENT)
+        public AssignmentRule() 
+            : base(-1, RULE_TYPE.RT_ASSIGNMENT)
         {
             Init(TARGET_RECORD.TRID_NONE, -1, null);
         }
 
-        public AssignmentRule(int pnRuleID) : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
+        public AssignmentRule(int pnRuleID) 
+            : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
         {
             Init(TARGET_RECORD.TRID_NONE, -1, null);
         }

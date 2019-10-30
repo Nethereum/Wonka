@@ -39,12 +39,14 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
     {
         #region Constructors
 
-        public CustomOperatorRule() : base(-1, RULE_TYPE.RT_CUSTOM_OP)
+        public CustomOperatorRule() 
+            : base(-1, RULE_TYPE.RT_CUSTOM_OP)
         {
             Init(TARGET_RECORD.TRID_NONE, -1, null);
         }
 
-        public CustomOperatorRule(int pnRuleID) : base(pnRuleID, RULE_TYPE.RT_CUSTOM_OP)
+        public CustomOperatorRule(int pnRuleID) 
+            : base(pnRuleID, RULE_TYPE.RT_CUSTOM_OP)
         {
             Init(TARGET_RECORD.TRID_NONE, -1, null);
         }

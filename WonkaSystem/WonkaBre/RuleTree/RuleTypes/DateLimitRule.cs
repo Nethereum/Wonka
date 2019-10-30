@@ -30,12 +30,14 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
         #endregion
 
         #region Constructors
-        public DateLimitRule() : base(-1, RULE_TYPE.RT_DATE_LIMIT)
+        public DateLimitRule() 
+            : base(-1, RULE_TYPE.RT_DATE_LIMIT)
         {
             Init(TARGET_RECORD.TRID_NONE, -1);
         }
 
-        public DateLimitRule(int pnRuleId) : base(pnRuleId, RULE_TYPE.RT_ARITH_LIMIT)
+        public DateLimitRule(int pnRuleId) 
+            : base(pnRuleId, RULE_TYPE.RT_ARITH_LIMIT)
         {
             Init(TARGET_RECORD.TRID_NONE, -1);
         }
@@ -323,7 +325,9 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                         this.TodayIndicator = true;
                     }
                     else
+                    {
                         AttributeValueProps = this.GetAttributeValueProps(sTempValue);
+                    }
                 }
 
                 if (psRuleExpression.Contains(WonkaBizRulesXmlReader.CONST_DL_IB) ||

@@ -20,7 +20,8 @@ namespace Wonka.BizRulesEngine.Reporting
             ErrorDescription = VerboseError = string.Empty;
         }
 
-        public WonkaBizRuleReportNode(WonkaBizRule poRule) : this()
+        public WonkaBizRuleReportNode(WonkaBizRule poRule) 
+            : this()
         {
             RuleID        = poRule.RuleId;
             TriggerAttrId = poRule.TargetAttribute.AttrId;

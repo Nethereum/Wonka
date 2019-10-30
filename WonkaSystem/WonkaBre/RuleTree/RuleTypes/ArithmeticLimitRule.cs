@@ -35,12 +35,14 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
         #endregion
 
         #region Constructors
-        public ArithmeticLimitRule() : base(-1, RULE_TYPE.RT_ARITH_LIMIT)
+        public ArithmeticLimitRule() 
+            : base(-1, RULE_TYPE.RT_ARITH_LIMIT)
         {
             Init(0.0, 0.0, TARGET_RECORD.TRID_NONE, -1);
         }
 
-        public ArithmeticLimitRule(int pnRuleId) : base(pnRuleId, RULE_TYPE.RT_ARITH_LIMIT)
+        public ArithmeticLimitRule(int pnRuleId) 
+            : base(pnRuleId, RULE_TYPE.RT_ARITH_LIMIT)
         {
             Init(0.0, 0.0, TARGET_RECORD.TRID_NONE, -1);
         }           

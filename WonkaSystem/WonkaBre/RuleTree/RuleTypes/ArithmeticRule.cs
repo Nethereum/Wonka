@@ -34,17 +34,20 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
     {
         #region Constructors
 
-        public ArithmeticRule() : base(-1, RULE_TYPE.RT_ARITHMETIC)
+        public ArithmeticRule() 
+            : base(-1, RULE_TYPE.RT_ARITHMETIC)
         {
             Init(TARGET_RECORD.TRID_NONE, -1, ARITH_OP_TYPE.AOT_NONE);
         }
 
-        public ArithmeticRule(int pnRuleID, ARITH_OP_TYPE poArithOpType) : base(pnRuleID, RULE_TYPE.RT_ARITHMETIC)
+        public ArithmeticRule(int pnRuleID, ARITH_OP_TYPE poArithOpType) 
+            : base(pnRuleID, RULE_TYPE.RT_ARITHMETIC)
         {
             Init(TARGET_RECORD.TRID_NONE, -1, poArithOpType);
         }
 
-        public ArithmeticRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, ARITH_OP_TYPE poArithOpType, bool bSearchAllRows) : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
+        public ArithmeticRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, ARITH_OP_TYPE poArithOpType, bool bSearchAllRows) 
+            : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
         {
             Init(peTargetRecord, pnTargetAttrId, poArithOpType);
 
