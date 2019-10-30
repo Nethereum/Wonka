@@ -24,9 +24,9 @@ namespace Wonka.MetaData.Extensions
             return new List<WonkaRefCurrency>();
         }
 
-        public List<WonkaRefField> GetFieldCache()
+        public List<WonkaRefCadre> GetCadreCache()
         {
-            return new List<WonkaRefField>();
+            return new List<WonkaRefCadre>();
         }
 
         public List<WonkaRefGroup> GetGroupCache()
@@ -39,9 +39,9 @@ namespace Wonka.MetaData.Extensions
             return new List<WonkaRefSource>();
         }
 
-        public List<WonkaRefSourceField> GetSourceFieldCache()
+        public List<WonkaRefSourceCadre> GetSourceCadreCache()
         {
-            return new List<WonkaRefSourceField>();
+            return new List<WonkaRefSourceCadre>();
         }
 
         public List<WonkaRefStandard> GetStandardCache()

@@ -138,7 +138,7 @@ namespace Wonka.Product
         /// </summary>
         /// <param name="poThatDataRow">The data row that this one is being compared to</param>
         /// <returns>Bool that indicates whether or not the two DataRows are equal</returns>
-        public bool Equals(WonkaPrdGroupDataRow poThatDataRow, WonkaRefField poField)
+        public bool Equals(WonkaPrdGroupDataRow poThatDataRow, WonkaRefCadre poField)
         {
             foreach (int nAttrId in poField.AttrIds)
             {
@@ -197,7 +197,7 @@ namespace Wonka.Product
         /// </summary>
         /// <param name="poField">The Field whose Attributes are being inspected</param>
         /// <returns>Bool whether the row is empty (i.e., null) in terms of the Attributes for the Field</returns>
-        public bool IsNull(WonkaRefField poField)
+        public bool IsNull(WonkaRefCadre poField)
         {
             foreach (int nAttrId in poField.AttrIds)
             {
@@ -264,7 +264,7 @@ namespace Wonka.Product
         /// <param name="poOriginal">The DataRow that we are copying all of the Attribute values from</param>
         /// <param name="poField">The subset of Attributes that we are targeting for the copy</param>
         /// <returns>None</returns>
-        public void SetData(WonkaPrdGroupDataRow poOriginal, WonkaRefField poField)
+        public void SetData(WonkaPrdGroupDataRow poOriginal, WonkaRefCadre poField)
         {
             foreach (int TmpAttrId in poField.AttrIds)
                 this[TmpAttrId] = poOriginal[TmpAttrId];

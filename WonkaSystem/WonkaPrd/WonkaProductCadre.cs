@@ -5,25 +5,25 @@ namespace Wonka.Product
 {
     /// <summary>
     /// 
-    /// This class represents the current state and history of a Field within 
+    /// This class represents the current state and history of a Cadre within 
     /// a specific product.
     /// 
-    /// For example, a product could have its Price field locked by a specific user, 
+    /// For example, a product could have its Price cadre locked by a specific user, 
     /// and this data would be contained within an instance of this class.
     ///     
     /// </summary>
     [DataContract(Namespace = "http://sample.wonkasystem.com")]
-    [XmlType(TypeName = "ProductField")]
-    public class WonkaProductField
+    [XmlType(TypeName = "ProductCadre")]
+    public class WonkaProductCadre
     {
 
-        public WonkaProductField()
+        public WonkaProductCadre()
         {
             ProductId = "";
 
-            FieldId = -1;
+            CadreId = -1;
 
-            FieldName = "";
+            CadreName = "";
 
             LockCd = NullInd = "N";
 
@@ -40,10 +40,10 @@ namespace Wonka.Product
         public string ProductId { get; set; }
 
         [XmlIgnore]
-        public int FieldId { get; set; }
+        public int CadreId { get; set; }
 
         [DataMember]
-        public string FieldName { get; set; }
+        public string CadreName { get; set; }
 
         [DataMember]
         public string LockCd { get; set; }

@@ -5,25 +5,25 @@ namespace Wonka.MetaData
     /// <summary>
     /// 
     /// This class represents permissions that an user has in regard 
-    /// to a specific Field (for example, the Price field).
+    /// to a specific Cadre (for example, the Price cadre).
     /// 
     /// </summary>
     [DataContract(Namespace = "http://sample.wonkasystem.com")]
-    public class WonkaRefSourceField
+    public class WonkaRefSourceCadre
     {
-        public WonkaRefSourceField()
+        public WonkaRefSourceCadre()
         {
             AutoLock = false;
 
-            SourceFieldId = SourceId = FieldId = -1;
+            SourceCadreId = SourceId = CadreId = -1;
             SecurityLevel = SecurityWeight = -1;
         }
 
-        public int SourceFieldId { get; set; }
+        public int SourceCadreId { get; set; }
 
         public int SourceId { get; set; }
 
-        public int FieldId { get; set; }
+        public int CadreId { get; set; }
 
         public int SecurityLevel { get; set; }
 

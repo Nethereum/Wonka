@@ -75,15 +75,15 @@ namespace Wonka.MetaData.Extensions
             return CurrencyCache;
         }
 
-        public List<WonkaRefField> GetFieldCache()
+        public List<WonkaRefCadre> GetCadreCache()
         {
-            List<WonkaRefField> FieldCache      = new List<WonkaRefField>();
-            XmlSerializer       FieldSerializer = new XmlSerializer(typeof(WonkaRefField));
+            List<WonkaRefCadre> FieldCache      = new List<WonkaRefCadre>();
+            XmlSerializer       FieldSerializer = new XmlSerializer(typeof(WonkaRefCadre));
 
             XmlNodeList FieldNodeList = moXmlDoc.GetElementsByTagName("Field");
             foreach (XmlNode FieldNode in FieldNodeList)
             {
-                WonkaRefField TempField = (WonkaRefField) FieldSerializer.Deserialize(new StringReader(FieldNode.OuterXml));
+                WonkaRefCadre TempField = (WonkaRefCadre) FieldSerializer.Deserialize(new StringReader(FieldNode.OuterXml));
 
                 FieldCache.Add(TempField);
             }
@@ -123,16 +123,16 @@ namespace Wonka.MetaData.Extensions
             return SourceCache;
         }
 
-        public List<WonkaRefSourceField> GetSourceFieldCache()
+        public List<WonkaRefSourceCadre> GetSourceCadreCache()
         {
-            List<WonkaRefSourceField> SrcFldCache      = new List<WonkaRefSourceField>();
-            XmlSerializer             SrcFldSerializer = new XmlSerializer(typeof(WonkaRefSourceField));
+            List<WonkaRefSourceCadre> SrcFldCache      = new List<WonkaRefSourceCadre>();
+            XmlSerializer             SrcFldSerializer = new XmlSerializer(typeof(WonkaRefSourceCadre));
 
             XmlNodeList SrcFldNodeList = moXmlDoc.GetElementsByTagName("WonkaRefSourceField");
             foreach (XmlNode SourceFieldNode in SrcFldNodeList)
             {
-                WonkaRefSourceField TempSourceField = 
-                    (WonkaRefSourceField) SrcFldSerializer.Deserialize(new StringReader(SourceFieldNode.OuterXml));
+                WonkaRefSourceCadre TempSourceField = 
+                    (WonkaRefSourceCadre) SrcFldSerializer.Deserialize(new StringReader(SourceFieldNode.OuterXml));
 
                 SrcFldCache.Add(TempSourceField);
             }

@@ -40,7 +40,7 @@ namespace Wonka.MetaData
         public WonkaRefAttrCollection()
         {
             AttrCollectionId = -1;
-            Items            = new List<WonkaRefAttrCollectionItem>();
+            Items            = new HashSet<WonkaRefAttrCollectionItem>();
         }
 
         [XmlIgnore]
@@ -48,7 +48,7 @@ namespace Wonka.MetaData
 
         [DataMember]
         [XmlElement("AttrCollectionItem")]
-        public List<WonkaRefAttrCollectionItem> Items { get; set; }
+        public HashSet<WonkaRefAttrCollectionItem> Items { get; set; }
     }
 }
 

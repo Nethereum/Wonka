@@ -6,9 +6,9 @@ namespace Wonka.MetaData
     /// <summary>
     /// 
     /// This class represents specific criteria for querying. 
-    /// In particular, this class would be used for queries against the product field metadata.  
+    /// In particular, this class would be used for queries against the product cadre metadata.  
     /// For example, it would be employed to find all products where a certain user has locked its
-    /// Price field.
+    /// Price cadre.
     /// 
     /// It is usually used when users issue a dynamic request, asking for
     /// data that fits the specific criteria provided.  (This class can be used in conjunction
@@ -16,18 +16,18 @@ namespace Wonka.MetaData
     ///     
     /// </summary>
     [DataContract(Namespace = "http://sample.wonkasystem.com")]
-    [XmlType(TypeName = "QueryProductField")]
-    public class WonkaRefQueryProductField
+    [XmlType(TypeName = "QueryProductCadre")]
+    public class WonkaRefQueryProductCadre
     {
-        public WonkaRefQueryProductField()
+        public WonkaRefQueryProductCadre()
         {
-            FieldId = CurrentSourceId = -1;
+            CadreId = CurrentSourceId = -1;
 
             LockCd = null;
         }
 
         [DataMember]
-        public int FieldId { get; set; }
+        public int CadreId { get; set; }
 
         [DataMember]
         public string LockCd { get; set; }

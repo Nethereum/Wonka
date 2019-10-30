@@ -48,20 +48,20 @@ namespace Wonka.BizRulesEngine.Samples
             return CurrencyCache;
         }
 
-        public List<WonkaRefField> GetFieldCache()
+        public List<WonkaRefCadre> GetCadreCache()
         {
-            List<WonkaRefField> FieldCache = new List<WonkaRefField>();
+            List<WonkaRefCadre> CadreCache = new List<WonkaRefCadre>();
 
-            FieldCache.Add(new WonkaRefField() { FieldId = 101, FieldName = "BankAccountID",    GroupId = 1, AttrIds = new List<int>() { 1 } });
-            FieldCache.Add(new WonkaRefField() { FieldId = 102, FieldName = "BankAccountName",  GroupId = 1, AttrIds = new List<int>() { 2 } });
-            FieldCache.Add(new WonkaRefField() { FieldId = 103, FieldName = "AccountType",      GroupId = 1, AttrIds = new List<int>() { 3 } });
-            FieldCache.Add(new WonkaRefField() { FieldId = 3,   FieldName = "AccountValue",     GroupId = 1, AttrIds = new List<int>() { 4,5 } });            
-            FieldCache.Add(new WonkaRefField() { FieldId = 104, FieldName = "AccountStatus",    GroupId = 1, AttrIds = new List<int>() { 6 } });
-            FieldCache.Add(new WonkaRefField() { FieldId = 105, FieldName = "CreationDt",       GroupId = 1, AttrIds = new List<int>() { 7 } });
-            FieldCache.Add(new WonkaRefField() { FieldId = 2,   FieldName = "Owner",            GroupId = 2, AttrIds = new List<int>() { 8, 9, 10, 11 } });
-            FieldCache.Add(new WonkaRefField() { FieldId = 106, FieldName = "AuditReviewFlag",  GroupId = 1, AttrIds = new List<int>() { 12 } });
+            CadreCache.Add(new WonkaRefCadre() { CadreId = 101, CadreName = "BankAccountID",    GroupId = 1, AttrIds = new List<int>() { 1 } });
+            CadreCache.Add(new WonkaRefCadre() { CadreId = 102, CadreName = "BankAccountName",  GroupId = 1, AttrIds = new List<int>() { 2 } });
+            CadreCache.Add(new WonkaRefCadre() { CadreId = 103, CadreName = "AccountType",      GroupId = 1, AttrIds = new List<int>() { 3 } });
+            CadreCache.Add(new WonkaRefCadre() { CadreId = 3,   CadreName = "AccountValue",     GroupId = 1, AttrIds = new List<int>() { 4,5 } });
+            CadreCache.Add(new WonkaRefCadre() { CadreId = 104, CadreName = "AccountStatus",    GroupId = 1, AttrIds = new List<int>() { 6 } });
+            CadreCache.Add(new WonkaRefCadre() { CadreId = 105, CadreName = "CreationDt",       GroupId = 1, AttrIds = new List<int>() { 7 } });
+            CadreCache.Add(new WonkaRefCadre() { CadreId = 2,   CadreName = "Owner",            GroupId = 2, AttrIds = new List<int>() { 8, 9, 10, 11 } });
+            CadreCache.Add(new WonkaRefCadre() { CadreId = 106, CadreName = "AuditReviewFlag",  GroupId = 1, AttrIds = new List<int>() { 12 } });
 
-            return FieldCache;
+            return CadreCache;
         }
 
         public List<WonkaRefGroup> GetGroupCache()
@@ -69,10 +69,10 @@ namespace Wonka.BizRulesEngine.Samples
             List<WonkaRefGroup> GroupCache = new List<WonkaRefGroup>();
 
             GroupCache.Add(new WonkaRefGroup() { GroupId = 1, GroupName = "Account", Description = "The account" });
-			// GroupCache.Add(new WonkaRefGroup() { GroupId = 2, GroupName = "Owner", IsSequenced = true, Description = "One owner of the account" });
-			GroupCache.Add(new WonkaRefGroup() { GroupId = 2, GroupName = "Owner", Description = "One owner of the account" });
+            // GroupCache.Add(new WonkaRefGroup() { GroupId = 2, GroupName = "Owner", IsSequenced = true, Description = "One owner of the account" });
+            GroupCache.Add(new WonkaRefGroup() { GroupId = 2, GroupName = "Owner", Description = "One owner of the account" });
 
-			return GroupCache;
+            return GroupCache;
         }
 
         public List<WonkaRefSource> GetSourceCache()
@@ -85,16 +85,16 @@ namespace Wonka.BizRulesEngine.Samples
             return SourceCache;
         }
 
-        public List<WonkaRefSourceField> GetSourceFieldCache()
+        public List<WonkaRefSourceCadre> GetSourceCadreCache()
         {
-            List<WonkaRefSourceField> SourceFieldCache = new List<WonkaRefSourceField>();
+            List<WonkaRefSourceCadre> SourceCadreCache = new List<WonkaRefSourceCadre>();
 
-            SourceFieldCache.Add(new WonkaRefSourceField() { SourceFieldId = 1, SourceId = 1, FieldId = 102, SecurityLevel = 3 });
-            SourceFieldCache.Add(new WonkaRefSourceField() { SourceFieldId = 2, SourceId = 1, FieldId = 2, SecurityLevel = 1 });
-            SourceFieldCache.Add(new WonkaRefSourceField() { SourceFieldId = 3, SourceId = 2, FieldId = 102, SecurityLevel = 3 });
-            SourceFieldCache.Add(new WonkaRefSourceField() { SourceFieldId = 4, SourceId = 2, FieldId = 2, SecurityLevel = 1 });
+            SourceCadreCache.Add(new WonkaRefSourceCadre() { SourceCadreId = 1, SourceId = 1, CadreId = 102, SecurityLevel = 3 });
+            SourceCadreCache.Add(new WonkaRefSourceCadre() { SourceCadreId = 2, SourceId = 1, CadreId = 2, SecurityLevel = 1 });
+            SourceCadreCache.Add(new WonkaRefSourceCadre() { SourceCadreId = 3, SourceId = 2, CadreId = 102, SecurityLevel = 3 });
+            SourceCadreCache.Add(new WonkaRefSourceCadre() { SourceCadreId = 4, SourceId = 2, CadreId = 2, SecurityLevel = 1 });
 
-            return SourceFieldCache;
+            return SourceCadreCache;
         }
 
         public List<WonkaRefStandard> GetStandardCache()

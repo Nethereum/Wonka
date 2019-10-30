@@ -9,10 +9,10 @@ namespace Wonka.Import.Metadata
         public WonkaBreImportSource()
         {
             AttrCollection   = new List<WonkaRefAttr>();
-            FieldCollection  = new List<WonkaRefField>();
+            CadreCollection  = new List<WonkaRefCadre>();
             GroupCollection  = new List<WonkaRefGroup>();
             SourceCollection = new List<WonkaRefSource>();
-            SrcFldCollection = new List<WonkaRefSourceField>();
+            SrcFldCollection = new List<WonkaRefSourceCadre>();
         }
 
         public void AddAttribute(WonkaRefAttr poNewAttribute)
@@ -25,9 +25,9 @@ namespace Wonka.Import.Metadata
             GroupCollection.Add(poNewGroup);
         }
 
-        public void AddField(WonkaRefField poNewField)
+        public void AddField(WonkaRefCadre poNewField)
         {
-            FieldCollection.Add(poNewField);
+            CadreCollection.Add(poNewField);
         }
 
         public void AddSource(WonkaRefSource poNewSource)
@@ -35,7 +35,7 @@ namespace Wonka.Import.Metadata
             SourceCollection.Add(poNewSource);
         }
 
-        public void AddSourceField(WonkaRefSourceField poNewSrcField)
+        public void AddSourceField(WonkaRefSourceCadre poNewSrcField)
         {
             SrcFldCollection.Add(poNewSrcField);
         }
@@ -58,9 +58,9 @@ namespace Wonka.Import.Metadata
             return CurrencyCache;
         }
 
-        public List<WonkaRefField> GetFieldCache()
+        public List<WonkaRefCadre> GetCadreCache()
         {
-            return FieldCollection;
+            return CadreCollection;
         }
 
         public List<WonkaRefGroup> GetGroupCache()
@@ -73,7 +73,7 @@ namespace Wonka.Import.Metadata
             return SourceCollection;
         }
 
-        public List<WonkaRefSourceField> GetSourceFieldCache()
+        public List<WonkaRefSourceCadre> GetSourceCadreCache()
         {
             return SrcFldCollection;
         }
@@ -110,11 +110,11 @@ namespace Wonka.Import.Metadata
 
         private List<WonkaRefGroup> GroupCollection;
 
-        private List<WonkaRefField> FieldCollection;
+        private List<WonkaRefCadre> CadreCollection;
 
         private List<WonkaRefSource> SourceCollection;
 
-        private List<WonkaRefSourceField> SrcFldCollection;
+        private List<WonkaRefSourceCadre> SrcFldCollection;
 
         #endregion
     }

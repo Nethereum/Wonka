@@ -36,7 +36,7 @@ namespace Wonka.Product
             TransactionId = 0;
 
             ProductGroups     = new Dictionary<int, WonkaPrdGroup>();
-            ProductFieldIndex = new Dictionary<int, WonkaProductField>();
+            ProductCadreIndex = new Dictionary<int, WonkaProductCadre>();
             ResequenceGroups  = new HashSet<int>();
             ProductErrors     = new List<WonkaProductError>();
             MiscData          = new Dictionary<string, string>();
@@ -238,7 +238,7 @@ namespace Wonka.Product
 
         public void ClearFields()
         {
-            this.ProductFieldIndex.Clear();
+            this.ProductCadreIndex.Clear();
         }
 
         /// <summary>
@@ -294,20 +294,20 @@ namespace Wonka.Product
         /// <param name="poField">The Field representing the ProductField that we want to retrieve</param>
         /// <returns>The ProductField that we want to retrieve from this Product</returns>
         /// </summary>
-        public WonkaProductField GetProductField(WonkaRefField poField)
+        public WonkaProductCadre GetProductField(WonkaRefCadre poField)
         {
-            WonkaProductField SoughtField = null;
+            WonkaProductCadre SoughtField = null;
 
-            if (ProductFieldIndex.Keys.Contains(poField.FieldId))
-                SoughtField = ProductFieldIndex[poField.FieldId];
-            else if (WonkaRefEnvironment.GetInstance().DoesFieldExist(poField.FieldId))
+            if (ProductCadreIndex.Keys.Contains(poField.CadreId))
+                SoughtField = ProductCadreIndex[poField.CadreId];
+            else if (WonkaRefEnvironment.GetInstance().DoesFieldExist(poField.CadreId))
             {
-                ProductFieldIndex[poField.FieldId] = new WonkaProductField();
+                ProductCadreIndex[poField.CadreId] = new WonkaProductCadre();
 
-                SoughtField = ProductFieldIndex[poField.FieldId];
+                SoughtField = ProductCadreIndex[poField.CadreId];
 
                 SoughtField.ProductId = this.ProductId;
-                SoughtField.FieldId   = poField.FieldId;
+                SoughtField.CadreId   = poField.CadreId;
                 SoughtField.LockCd    = "N";
 
                 SoughtField.LastTouchedSourceId = 
@@ -315,7 +315,7 @@ namespace Wonka.Product
             }
             else
                 throw new Exception("ERROR!  WonkaProduct::getProductField(const WonkaRefField&) : " + 
-                                    "Requested field does not exist: (" + poField.FieldName + ").");
+                                    "Requested field does not exist: (" + poField.CadreName + ").");
 
             return SoughtField;
         }
@@ -372,9 +372,9 @@ namespace Wonka.Product
         /// <param name="poField">The Field indicating the ProductField that we are interested in</param>
         /// <returns>Indicator of whether or not an instance of that ProductField has been created within this Product</returns>
         /// </summary>
-        public bool HasProductField(WonkaRefField poField)
+        public bool HasProductField(WonkaRefCadre poField)
         {
-            return this.ProductFieldIndex.Keys.Contains(poField.FieldId);
+            return this.ProductCadreIndex.Keys.Contains(poField.CadreId);
         }
 
         public void PrintDisplay()
@@ -397,13 +397,13 @@ namespace Wonka.Product
                 foreach (WonkaPrdGroup ThatPrdGroup in ThatProduct)
                     this.Update(ThatPrdGroup, pbMergeFlag);
 
-                var iThatProductField = ThatProduct.ProductFieldIndex.GetEnumerator();
+                var iThatProductField = ThatProduct.ProductCadreIndex.GetEnumerator();
                 while (iThatProductField.MoveNext())
                 {
-                    WonkaProductField ThatProductField = iThatProductField.Current.Value;
+                    WonkaProductCadre ThatProductField = iThatProductField.Current.Value;
 
-                    if (this.ProductFieldIndex.Keys.Contains(ThatProductField.FieldId))
-                        this.ProductFieldIndex[ThatProductField.FieldId] = ThatProductField;
+                    if (this.ProductCadreIndex.Keys.Contains(ThatProductField.CadreId))
+                        this.ProductCadreIndex[ThatProductField.CadreId] = ThatProductField;
                 }
             }
             else
@@ -415,7 +415,7 @@ namespace Wonka.Product
 
                 ClearFields();
 
-                this.ProductFieldIndex = ThatProduct.ProductFieldIndex;
+                this.ProductCadreIndex = ThatProduct.ProductCadreIndex;
             }
 
             ClearErrors();
@@ -553,7 +553,7 @@ namespace Wonka.Product
 
         public Dictionary<int, WonkaPrdGroup> ProductGroups { get; set; }
 
-        public Dictionary<int, WonkaProductField> ProductFieldIndex { get; set; }
+        public Dictionary<int, WonkaProductCadre> ProductCadreIndex { get; set; }
 
         public HashSet<int> ResequenceGroups { get; set; }
 

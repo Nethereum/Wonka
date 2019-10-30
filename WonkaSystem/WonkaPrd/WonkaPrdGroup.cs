@@ -285,7 +285,7 @@ namespace Wonka.Product
         /// <param name="poTargetField">The Field that has the Attribute list of interest</param>
         /// <returns>Bool that indicates whether or not the two Groups are equal</returns>
         /// </summary>
-        public bool Equals(WonkaPrdGroup poThatGroup, WonkaRefField poTargetField)
+        public bool Equals(WonkaPrdGroup poThatGroup, WonkaRefCadre poTargetField)
         {
             Dictionary<int, string> ThisGroupAttrValues = new Dictionary<int, string>();
             Dictionary<int, string> ThatGroupAttrValues = new Dictionary<int, string>();
@@ -308,7 +308,7 @@ namespace Wonka.Product
         /// <returns>Bool that indicates whether or not the two Groups are equal</returns>
         /// </summary>
         public bool Equals(WonkaPrdGroup poThatGroup, 
-                      WonkaRefField      poTargetField,
+                      WonkaRefCadre      poTargetField,
                   Dictionary<int,string> poThisAttrValues,
                   Dictionary<int,string> poThatAttrValues)
         {
@@ -333,7 +333,7 @@ namespace Wonka.Product
         /// <returns>Bool that indicates whether or not the two Groups are equal</returns>
         /// </summary>
         public bool Equals(WonkaPrdGroup poThatGroup,
-                           WonkaRefField poTargetField,
+                           WonkaRefCadre poTargetField,
                             HashSet<int> poIgnoreAttrIds,
                  Dictionary<int, string> poNewAttrValues,
                  Dictionary<int, string> poOldAttrValues)
@@ -349,7 +349,7 @@ namespace Wonka.Product
                     WonkaPrdGroupDataRow ThatRow = poThatGroup[nThatRowIndex];
 
                     HashSet<int> FieldAttrIds =
-                        WonkaRefEnvironment.GetInstance().GetAttrIdsByFieldId(poTargetField.FieldId);
+                        WonkaRefEnvironment.GetInstance().GetAttrIdsByFieldId(poTargetField.CadreId);
 
                     foreach (int nAttrId in FieldAttrIds)
                     {
@@ -460,7 +460,7 @@ namespace Wonka.Product
         /// <returns>Bool that indicates if there are any rows present inside the Group that are not null</returns>
         /// 
         /// </summary>
-        public bool IsNull(WonkaRefField poField, bool pbIgnoreDeletedRows = true)
+        public bool IsNull(WonkaRefCadre poField, bool pbIgnoreDeletedRows = true)
         {
             bool bResult = true;
 
@@ -468,7 +468,7 @@ namespace Wonka.Product
                 return bResult;
 
             int          nGrpSeqAttrId = -1;
-            HashSet<int> FieldAttrIds  = WonkaRefEnvironment.GetInstance().GetAttrIdsByFieldId(poField.FieldId);
+            HashSet<int> FieldAttrIds  = WonkaRefEnvironment.GetInstance().GetAttrIdsByFieldId(poField.CadreId);
 
             if (this.MasterGroup.IsSequenced)
                 nGrpSeqAttrId = WonkaRefEnvironment.GetInstance().GetGroupSeqAttrId(MasterGroup.GroupId);
@@ -559,11 +559,11 @@ namespace Wonka.Product
         /// <param name="psCurrTimeStamp">The current Timestamp that we will use to set any associated AttrModDdt</param>
         /// <returns>The AttrID of the AttrModDt which has been updated with the CurrTimeStamp</returns>
         /// </summary>
-        public int UpdateField(WonkaPrdGroup poThatGroup, WonkaRefField poTargetField, string psCurrTimeStamp = null)
+        public int UpdateField(WonkaPrdGroup poThatGroup, WonkaRefCadre poTargetField, string psCurrTimeStamp = null)
         {
             int nUpdatedModDtAttrId = 0;
 
-            HashSet<int> FieldAttrIds = WonkaRefEnvironment.GetInstance().GetAttrIdsByFieldId(poTargetField.FieldId);
+            HashSet<int> FieldAttrIds = WonkaRefEnvironment.GetInstance().GetAttrIdsByFieldId(poTargetField.CadreId);
 
             string sTimeStamp = (!String.IsNullOrEmpty(psCurrTimeStamp)) ? psCurrTimeStamp : DateTime.Now.ToString("yyyyMMddHHmmss");
 

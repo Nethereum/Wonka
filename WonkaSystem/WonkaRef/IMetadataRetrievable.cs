@@ -16,13 +16,13 @@ namespace Wonka.MetaData
 
         List<WonkaRefCurrency>         GetCurrencyCache();
 
-        List<WonkaRefField>             GetFieldCache();
+        List<WonkaRefCadre>             GetCadreCache();
 
         List<WonkaRefGroup>             GetGroupCache();
 
         List<WonkaRefSource>            GetSourceCache();
 
-        List<WonkaRefSourceField>       GetSourceFieldCache();
+        List<WonkaRefSourceCadre>       GetSourceCadreCache();
 
         List<WonkaRefStandard>          GetStandardCache();
 
