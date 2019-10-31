@@ -10,7 +10,7 @@ using Nethereum.Web3.Accounts;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
-using Wonka.Eth.Contracts;
+using Wonka.Eth.Enums;
 using Wonka.Eth.Init;
 using Wonka.MetaData;
 
@@ -18,11 +18,11 @@ namespace Wonka.Eth.Extensions
 {
     public static class WonkaEthEngineExtensions
     {
-        private const int CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST  = 8388608;
-		private const int CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST = 2000000;
+        private const int CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST  = (int) GAS_COST.CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST;
+		private const int CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST = (int) GAS_COST.CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST;
 
-		private const int CONST_GAS_PER_READ_OP  = 80000;
-		private const int CONST_GAS_PER_WRITE_OP = 125000;
+		private const int CONST_GAS_PER_READ_OP  = (int) GAS_COST.CONST_GAS_PER_READ_OP;
+		private const int CONST_GAS_PER_WRITE_OP = (int) GAS_COST.CONST_GAS_PER_WRITE_OP;
 
 		public static uint CalculateMinGasEstimate(this WonkaEthEngineProps poEngineProps, uint pnWriteOpGasCost = CONST_GAS_PER_WRITE_OP)
 		{

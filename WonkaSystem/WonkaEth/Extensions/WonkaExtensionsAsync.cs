@@ -5,17 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Nethereum.ABI.FunctionEncoding.Attributes;
-using Nethereum.ABI.Model;
-using Nethereum.Web3.Accounts;
-
 using Nethereum.Contracts;
-using Nethereum.Hex.HexTypes;
+using Nethereum.Web3.Accounts;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.Readers;
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Eth.Contracts;
+using Wonka.Eth.Enums;
 using Wonka.MetaData;
 
 namespace Wonka.Eth.Extensions
@@ -42,12 +39,13 @@ namespace Wonka.Eth.Extensions
         public const string CONST_CONTRACT_FUNCTION_GET_LAST_RPT = "getLastRuleReport";
         public const string CONST_CONTRACT_FUNCTION_HAS_RT       = "hasRuleTree";
 
+        private const int CONST_MIN_GAS_COST_DEFAULT = (int) GAS_COST.CONST_MIN_OP_GAS_COST_DEFAULT;
+        private const int CONST_MID_GAS_COST_DEFAULT = (int) GAS_COST.CONST_MID_OP_GAS_COST_DEFAULT;
+        private const int CONST_MAX_GAS_COST_DEFAULT = (int) GAS_COST.CONST_MAX_OP_GAS_COST_DEFAULT;
+
         private const int CONST_CONTRACT_ATTR_NUM_ON_START = 3;
         private const int CONST_CONTRACT_BYTE32_MAX        = 32;
         private const int CONST_CUSTOM_OP_ARG_COUNT        = 4;
-        private const int CONST_MIN_GAS_COST_DEFAULT       = 100000;
-        private const int CONST_MID_GAS_COST_DEFAULT       = 1000000;
-        private const int CONST_MAX_GAS_COST_DEFAULT       = 2000000;
         private const int CONST_MAX_RULE_TREE_ID_LEN       = 16;
 
         private const string CONST_BLOCK_NUM_OP_IND = "00000";
