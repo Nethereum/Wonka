@@ -54,4 +54,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Contracts\Ethereum\TransactionStateInterface.abi" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Autogen\BizDataStorage\" />
+  </ItemGroup>
 </Project>
