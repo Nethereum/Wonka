@@ -13,6 +13,8 @@
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\WonkaBre\Wonka.BizRulesEngine.csproj" />
+    <ProjectReference Include="..\WonkaEth\Wonka.Eth.csproj" />
     <ProjectReference Include="..\WonkaPrd\Wonka.Product.csproj" />
     <ProjectReference Include="..\WonkaRef\Wonka.MetaData.csproj" />
   </ItemGroup>

@@ -435,6 +435,37 @@ namespace Wonka.Eth.Extensions
 
         /// <summary>
         /// 
+        /// This method will return the value of an Attribute from an instance contract of the Wonka engine (on the chain).
+        /// 
+        /// <returns>Returns the value for the Attribute, using the Wonka contract as a proxy</returns>
+        /// </summary>
+        public static string GetAttrValueFromChain(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
+        {
+            var contract = poTargetSource.GetContract(psWeb3Url);
+
+            var getRecordValueFunction = contract.GetFunction(poTargetSource.MethodName);
+
+            var result = getRecordValueFunction.CallAsync<string>(psAttrName).Result;
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will return an instance of the Wonka contract.
+        /// 
+        /// <returns>Provides the </returns>
+        /// </summary>
+        public static Nethereum.Contracts.Contract GetContract(this WonkaBizSource poTargetSource, string psWeb3Url = "")
+        {
+            var web3     = GetWeb3(poTargetSource.Password, psWeb3Url);
+            var contract = web3.Eth.GetContract(poTargetSource.ContractABI, poTargetSource.ContractAddress);
+
+            return contract;
+        }
+
+        /// <summary>
+        /// 
         /// This method will return a proxy to the Registry contract.
         /// 
         /// <returns>Provides the proxy to the Registry contract</returns>
@@ -473,6 +504,19 @@ namespace Wonka.Eth.Extensions
             var getRuleTreeIndexFunction = contract.GetFunction("getRuleTreeIndex"); 
 
             return getRuleTreeIndexFunction.CallDeserializingToObjectAsync<RuleTreeRegistryIndex>(psRuleTreeId).Result;
+        }
+
+        public static Nethereum.Web3.Web3 GetWeb3(string psPassword, string psWeb3Url = "")
+        {
+            var account = new Account(psPassword);
+
+            Nethereum.Web3.Web3 web3 = null;
+            if (!string.IsNullOrEmpty(psWeb3Url))
+                web3 = new Nethereum.Web3.Web3(account, psWeb3Url);
+            else
+                web3 = new Nethereum.Web3.Web3(account);
+
+            return web3;
         }
 
         /// <summary>
