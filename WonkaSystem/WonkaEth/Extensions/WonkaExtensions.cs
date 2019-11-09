@@ -10,6 +10,7 @@ using Nethereum.Web3.Accounts;
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.Readers;
 using Wonka.BizRulesEngine.RuleTree;
+using Wonka.Eth.Autogen.BizDataStorage;
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Enums;
 using Wonka.MetaData;
@@ -36,9 +37,10 @@ namespace Wonka.Eth.Extensions
         public const string CONST_CONTRACT_FUNCTION_EXEC         = "execute"; 
         public const string CONST_CONTRACT_FUNCTION_EXEC_RPT     = "executeWithReport"; 
         public const string CONST_CONTRACT_FUNCTION_GET_LAST_RPT = "getLastRuleReport";
-        public const string CONST_CONTRACT_FUNCTION_HAS_RT       = "hasRuleTree";
+		public const string CONST_CONTRACT_FUNCTION_GET_VALUE    = "getValueOnRecord";
+		public const string CONST_CONTRACT_FUNCTION_HAS_RT       = "hasRuleTree";
 
-        private const int CONST_MIN_GAS_COST_DEFAULT = (int) GAS_COST.CONST_MIN_OP_GAS_COST_DEFAULT;
+		private const int CONST_MIN_GAS_COST_DEFAULT = (int) GAS_COST.CONST_MIN_OP_GAS_COST_DEFAULT;
         private const int CONST_MID_GAS_COST_DEFAULT = (int) GAS_COST.CONST_MID_OP_GAS_COST_DEFAULT;
         private const int CONST_MAX_GAS_COST_DEFAULT = (int) GAS_COST.CONST_MAX_OP_GAS_COST_DEFAULT;
 
@@ -435,9 +437,9 @@ namespace Wonka.Eth.Extensions
 
         /// <summary>
         /// 
-        /// This method will return the value of an Attribute from an instance contract of the Wonka engine (on the chain).
+        /// This method will return the value of an Attribute from a third-party storage contract (on the chain).
         /// 
-        /// <returns>Returns the value for the Attribute, using the Wonka contract as a proxy</returns>
+        /// <returns>Returns the value for the Attribute from the third-party storage contract</returns>
         /// </summary>
         public static string GetAttrValueFromChain(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
         {
@@ -450,13 +452,37 @@ namespace Wonka.Eth.Extensions
             return result;
         }
 
-        /// <summary>
-        /// 
-        /// This method will return an instance of the Wonka contract.
-        /// 
-        /// <returns>Provides the </returns>
-        /// </summary>
-        public static Nethereum.Contracts.Contract GetContract(this WonkaBizSource poTargetSource, string psWeb3Url = "")
+		/// <summary>
+		/// 
+		/// This method will return the value of an Attribute from an instance contract of the Wonka engine (on the chain).
+		/// 
+		/// <returns>Returns the value for the Attribute, using the Wonka contract as a proxy</returns>
+		/// </summary>
+		public static Dictionary<string,string> GetAttrValuesViaChainEngine(this Wonka.Eth.Init.WonkaEthSource poTargetSource, HashSet<string> poTargetAttributes, string psWeb3Url = "")
+		{
+			var values = new Dictionary<string,string>();
+
+			var wonkaContract = poTargetSource.GetEngineContract(psWeb3Url);
+
+			var getValueOnRecordFunction = wonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_GET_VALUE);
+
+			foreach (string sTmpAttrName in poTargetAttributes)
+			{			
+				var result = getValueOnRecordFunction.CallAsync<string>(poTargetSource.ContractOwner, sTmpAttrName).Result;
+
+				values[sTmpAttrName] = result;
+			}
+
+			return values;
+		}
+
+		/// <summary>
+		/// 
+		/// This method will return an instance of a third-party storage contract.
+		/// 
+		/// <returns>Returns the contract instance</returns>
+		/// </summary>
+		public static Nethereum.Contracts.Contract GetContract(this WonkaBizSource poTargetSource, string psWeb3Url = "")
         {
             var web3     = GetWeb3(poTargetSource.Password, psWeb3Url);
             var contract = web3.Eth.GetContract(poTargetSource.ContractABI, poTargetSource.ContractAddress);
@@ -464,13 +490,41 @@ namespace Wonka.Eth.Extensions
             return contract;
         }
 
-        /// <summary>
-        /// 
-        /// This method will return a proxy to the Registry contract.
-        /// 
-        /// <returns>Provides the proxy to the Registry contract</returns>
-        /// </summary>
-        public static Nethereum.Contracts.Contract GetRegistryContract()
+		/// <summary>
+		/// 
+		/// This method will return an instance of a contract.
+		/// 
+		/// <returns>Returns the contract instance</returns>
+		/// </summary>
+		public static Nethereum.Contracts.Contract GetContract(this Wonka.Eth.Init.WonkaEthSource poTargetSource, string psWeb3Url = "")
+		{
+			var web3 = GetWeb3(poTargetSource.ContractPassword, psWeb3Url);
+			var contract = web3.Eth.GetContract(poTargetSource.ContractABI, poTargetSource.ContractAddress);
+
+			return contract;
+		}
+
+		/// <summary>
+		/// 
+		/// This method will return an instance of the Wonka contract.
+		/// 
+		/// <returns>Returns the contract instance</returns>
+		/// </summary>
+		public static Nethereum.Contracts.Contract GetEngineContract(this Wonka.Eth.Init.WonkaEthSource poTargetSource, string psWeb3Url = "")
+		{
+			var web3 = GetWeb3(poTargetSource.ContractPassword, psWeb3Url);
+			var contract = web3.Eth.GetContract(Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI, poTargetSource.ContractAddress);
+
+			return contract;
+		}
+
+		/// <summary>
+		/// 
+		/// This method will return a proxy to the Registry contract.
+		/// 
+		/// <returns>Provides the proxy to the Registry contract</returns>
+		/// </summary>
+		public static Nethereum.Contracts.Contract GetRegistryContract()
         {
             var WonkaRegistry = WonkaRuleTreeRegistry.GetInstance();
             var sPassword     = WonkaRegistry.RegistryPassword;
@@ -519,17 +573,30 @@ namespace Wonka.Eth.Extensions
             return web3;
         }
 
-        /// <summary>
-        /// 
-        /// This method will use Nethereum to execute the sibling RuleTree of a Wonka.NET instance.  This sibling should already exist on the chain.
-        /// 
-        /// <param name="poRulesEngine">The instance of the Wonka.NET whose sibling should exist already on an Ethereum client</param>
-        /// <param name="poWonkaContract">The contract instance on the chain that should contain the sibling of 'poRulesEngine'</param>
-        /// <param name="psRuleTreeOwnerAddress">The owner of the RuleTree on an Ethereum client</param>
-        /// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
-        /// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
-        /// </summary>
-        public static RuleTreeReport InvokeOnChain(this WonkaBizRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress, uint nSendTrxGas = 0)
+		/// <summary>
+		/// 
+		/// This method will return an instance of the Storage service.
+		/// 
+		/// <returns>Returns an instance of the storage service</returns>
+		/// </summary>
+		public static BizDataStorageService GetStorageService(this Wonka.Eth.Init.WonkaEthSource poTargetSource, string psWeb3Url = "")
+		{
+			var web3 = GetWeb3(poTargetSource.ContractPassword, psWeb3Url);
+
+			return new BizDataStorageService(web3, poTargetSource.ContractAddress);
+		}
+
+		/// <summary>
+		/// 
+		/// This method will use Nethereum to execute the sibling RuleTree of a Wonka.NET instance.  This sibling should already exist on the chain.
+		/// 
+		/// <param name="poRulesEngine">The instance of the Wonka.NET whose sibling should exist already on an Ethereum client</param>
+		/// <param name="poWonkaContract">The contract instance on the chain that should contain the sibling of 'poRulesEngine'</param>
+		/// <param name="psRuleTreeOwnerAddress">The owner of the RuleTree on an Ethereum client</param>
+		/// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
+		/// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
+		/// </summary>
+		public static RuleTreeReport InvokeOnChain(this WonkaBizRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress, uint nSendTrxGas = 0)
         {
             var InvocationReport = new RuleTreeReport();
             var WonkaEvents      = new WonkaInvocationEvents(poWonkaContract);
