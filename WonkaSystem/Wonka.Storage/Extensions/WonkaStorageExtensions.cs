@@ -11,16 +11,17 @@ namespace Wonka.Storage.Extensions
 {
     public static class WonkaStorageExtensions
     {
-        /// <summary>
-        /// 
-        /// This method will assemble the new product by iterating through each specified source
-        /// and retrieving the data from the chain.
-        /// 
-        /// <param name="poEngine">The Wonka.NET instance that represents the instance on the chain</param>
-        /// <param name="poKeyValues">The keys for the product whose data we wish to extract</param>
-        /// <returns>Contains the assembled product data that represents the current product</returns>
-        /// </summary>
-        public static WonkaProduct AssembleCurrentProductFromChainSources(this WonkaBizRulesEngine poEngine, Dictionary<string, string> poKeyValues, string psWeb3Url = "")
+		/// <summary>
+		/// 
+		/// This method will assemble the new product by iterating through each specified source
+		/// and retrieving the data from the chain.
+		/// 
+		/// <param name="poEngine">The Wonka.NET instance that represents the instance on the chain</param>
+		/// <param name="poKeyValues">The keys for the product whose data we wish to extract</param>
+		/// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
+		/// <returns>Contains the assembled product data that represents the current product</returns>
+		/// </summary>
+		public static WonkaProduct AssembleCurrentProductFromChainSources(this WonkaBizRulesEngine poEngine, Dictionary<string, string> poKeyValues, string psWeb3Url = "")
         {
             WonkaProduct CurrentProduct = new WonkaProduct();
 
@@ -41,16 +42,17 @@ namespace Wonka.Storage.Extensions
             return CurrentProduct;
         }
 
-        /// <summary>
-        /// 
-        /// This method will assemble the new product by iterating through each specified source
-        /// and retrieving the data from the chain.
-        /// 
-        /// <param name="poEngine">The Wonka.NET instance that represents the instance on the chain</param>
-        /// <param name="poKeyValues">The keys for the product whose data we wish to extract</param>
-        /// <returns>Contains the assembled product data that represents the current product</returns>
-        /// </summary>
-        public static WonkaProduct AssembleCurrentProductFromChainWonka(this WonkaBizRulesEngine poEngine, Dictionary<string, string> poKeyValues, string psWeb3Url = "")
+		/// <summary>
+		/// 
+		/// This method will assemble the new product by iterating through each specified source
+		/// and retrieving the data from the chain.
+		/// 
+		/// <param name="poEngineSource">The address that represents the instance on the chain</param>
+		/// <param name="poKeyValues">The keys for the product whose data we wish to extract</param>
+		/// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
+		/// <returns>Contains the assembled product data that represents the current product</returns>
+		/// </summary>
+		public static WonkaProduct AssembleCurrentProductFromChainWonka(this Wonka.Eth.Init.WonkaEthSource poEngineSource, Dictionary<string, string> poKeyValues, string psWeb3Url = "")
         {
             WonkaProduct CurrentProduct = new WonkaProduct();
 
