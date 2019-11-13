@@ -323,6 +323,45 @@ namespace Wonka.Eth.Extensions
 
         /// <summary>
         /// 
+        /// This method will return the value of an Attribute from a third-party storage contract (on the chain).
+        /// 
+        /// <returns>Returns the value for the Attribute from the third-party storage contract</returns>
+        /// </summary>
+        public static async Task<string> GetAttrValueFromChainAsync(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
+        {
+            var contract = poTargetSource.GetContract(psWeb3Url);
+
+            var getRecordValueFunction = contract.GetFunction(poTargetSource.MethodName);
+
+            return await getRecordValueFunction.CallAsync<string>(psAttrName).ConfigureAwait(false);
+        }
+
+		/// <summary>
+		/// 
+		/// This method will return the value of an Attribute from an instance contract of the Wonka engine (on the chain).
+		/// 
+		/// <returns>Returns the value for the Attribute, using the Wonka contract as a proxy</returns>
+		/// </summary>
+		public static async Task<Dictionary<string,string>> GetAttrValuesViaChainEngineAsync(this Wonka.Eth.Init.WonkaEthSource poTargetSource, HashSet<string> poTargetAttributes, string psWeb3Url = "")
+		{
+			var values = new Dictionary<string,string>();
+
+			var wonkaContract = poTargetSource.GetEngineContract(psWeb3Url);
+
+			var getValueOnRecordFunction = wonkaContract.GetFunction(WonkaExtensions.CONST_CONTRACT_FUNCTION_GET_VALUE);
+
+			foreach (string sTmpAttrName in poTargetAttributes)
+			{
+                string result = await getValueOnRecordFunction.CallAsync<string>(poTargetSource.ContractOwner, sTmpAttrName).ConfigureAwait(false);
+
+				values[sTmpAttrName] = result;
+			}
+
+			return values;
+		}
+
+        /// <summary>
+        /// 
         /// This method will return the metadata about a RuleTree that is registered within the blockchain.
         /// 
         /// <param name="psRuleTreeId">The ID of the RuleTree of interest</param>
