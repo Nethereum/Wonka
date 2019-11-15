@@ -137,6 +137,34 @@ namespace Wonka.Storage.Extensions
 
 		/// <summary>
 		/// 
+		/// This method will return an Attribute value using.
+		/// 
+		/// <param name="poTargetSource">The Source of the Attribute's location, defined on the chain</param>
+		/// <param name="psAttrName">The name of the Attribute which we are seeking</param>
+		/// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
+		/// <returns>Contains the value of the sought Attribute</returns>
+		/// </summary>
+		public static string GetAttrValue(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
+		{
+			return poTargetSource.GetAttrValueFromChain(psAttrName, psWeb3Url);
+		}
+
+		/// <summary>
+		/// 
+		/// This method will return an Attribute value using.
+		/// 
+		/// <param name="poTargetSource">The Source of the Attribute's location, defined on the chain</param>
+		/// <param name="psAttrName">The name of the Attribute which we are seeking</param>
+		/// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
+		/// <returns>Contains the value of the sought Attribute</returns>
+		/// </summary>
+		public static async Task<string> GetAttrValueAsync(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
+		{
+			return await poTargetSource.GetAttrValueFromChainAsync(psAttrName, psWeb3Url).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// 
 		/// This method will retrieve data via an instance of the official Nethereum Storage contract.
 		///
 		/// NOTE: UNDER CONSTRUCTION

@@ -9,8 +9,9 @@ using Xunit;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
-using Wonka.Product;
 using Wonka.MetaData;
+using Wonka.Product;
+using Wonka.Storage.Extensions;
 
 using Wonka.Eth.Extensions;
 
@@ -226,10 +227,11 @@ namespace WonkaSystem.TestHarness
 
                 var executeGetLastReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_GET_LAST_RPT);
 
-                WonkaProduct OrchContractCurrValues = poRulesEngine.AssembleCurrentProduct(new Dictionary<string, string>());
+				WonkaProduct OrchContractCurrValues =
+					poRulesEngine.AssembleCurrentProductFromChainSources(new Dictionary<string, string>(), CONST_ONLINE_TEST_CHAIN_URL);
 
-                // Before invoking the RuleTree, the storage contract should have Review Flag as "" and CurrVal as "999"
-                string sFlagBeforeOrchestrationAssignment  = RetrieveValueMethod(FlagSource, ReviewFlagAttr.AttrName);
+				// Before invoking the RuleTree, the storage contract should have Review Flag as "" and CurrVal as "999"
+				string sFlagBeforeOrchestrationAssignment  = RetrieveValueMethod(FlagSource, ReviewFlagAttr.AttrName);
                 string sValueBeforeOrchestrationAssignment = RetrieveValueMethod(CurrValSource, CurrValueAttr.AttrName);
 
 				var EthRuleTreeReport = new Wonka.Eth.Extensions.RuleTreeReport();
@@ -339,14 +341,7 @@ namespace WonkaSystem.TestHarness
 
         public string RetrieveValueMethod(WonkaBizSource poTargetSource, string psAttrName)
         {
-            var contract = GetContract(poTargetSource);
-
-            var getRecordValueFunction = contract.GetFunction(poTargetSource.MethodName);
-
-            var result = getRecordValueFunction.CallAsync<string>(psAttrName).Result;
-
-            return result;
+			return poTargetSource.GetAttrValue(psAttrName, CONST_ONLINE_TEST_CHAIN_URL);
         }
-
 	}
 }

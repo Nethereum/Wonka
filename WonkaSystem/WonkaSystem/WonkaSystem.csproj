@@ -52,6 +52,7 @@
     <ProjectReference Include="..\WonkaEth\Wonka.Eth.csproj" />
     <ProjectReference Include="..\WonkaIpfs\Wonka.IpfsW.csproj" />
     <ProjectReference Include="..\WonkaRef\Wonka.MetaData.csproj" />
+    <ProjectReference Include="..\Wonka.Storage\Wonka.Storage.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="TestData\SimpleAccountCheck.xml" />
