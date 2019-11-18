@@ -32,23 +32,25 @@ namespace WonkaSystem
                 var sPassword        = "e685eb6a1f71a07746ec6e65b0ae9864db14881759d8cd981100b689b7401a0f";
                 var sContractAddress = "0xeaed9c1082998971e56ac31512b08e3457644666";
 
-                // SimpleTest();
+				// SimpleTest();
 
-                // SimpleTest(sSenderAddress, sPassword, sContractAddress);
+				// SimpleTest(sSenderAddress, sPassword, sContractAddress);
 
-                // NoviceTest(sSenderAddress, sPassword, sContractAddress);
+				// NoviceTest(sSenderAddress, sPassword, sContractAddress);
 
-                NoviceOnlineChainTest();
+				// NoviceOnlineChainTest();
 
-                // CQSDemoTest(sSenderAddress, sPassword, sContractAddress);
+				NoviceOnlineChainAsyncTest();
 
-                // string sOrchTestContractAddress = "0x5f2d3b580e45ea133d368c66fff30cdd211a9372";
-                // SimpleOrchestrationTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
+				// CQSDemoTest(sSenderAddress, sPassword, sContractAddress);
 
-                // string sOrchTestContractAddress = "0x2843bb92fbdfcad057c6eea8ac37a098ae3f4077";
-                // SimpleCustomOpsTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
+				// string sOrchTestContractAddress = "0x5f2d3b580e45ea133d368c66fff30cdd211a9372";
+				// SimpleOrchestrationTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
 
-                string sOrchTestContractAddress = "0x3edf86c3ee590f9693393b8289c533e6cb0d6efa";
+				// string sOrchTestContractAddress = "0x2843bb92fbdfcad057c6eea8ac37a098ae3f4077";
+				// SimpleCustomOpsTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
+
+				string sOrchTestContractAddress = "0x3edf86c3ee590f9693393b8289c533e6cb0d6efa";
                 CQSOrchestrationDemoTest(sSenderAddress, sPassword, sContractAddress, sOrchTestContractAddress);
             }
             catch (Wonka.Eth.Validation.WonkaValidatorException ex)
@@ -106,7 +108,16 @@ namespace WonkaSystem
             OnlineChainTest.Execute(true);
         }
 
-        static void NoviceTest(string psSenderAddress, string psPassword, string psContractAddress)
+		static void NoviceOnlineChainAsyncTest()
+		{
+			var OnlineChainTest = new WonkaNoviceOnlineChainTestAsync(null, true);
+
+			var result = OnlineChainTest.Init().Result;
+
+			result = OnlineChainTest.Execute(true).Result;
+		}
+
+		static void NoviceTest(string psSenderAddress, string psPassword, string psContractAddress)
         {
             bool bSerializeMDAndEngine = true;
 

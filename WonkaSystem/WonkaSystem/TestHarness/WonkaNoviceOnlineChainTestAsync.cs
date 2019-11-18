@@ -10,10 +10,10 @@ using Xunit;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
-using Wonka.Product;
-using Wonka.MetaData;
-
 using Wonka.Eth.Extensions;
+using Wonka.MetaData;
+using Wonka.Product;
+using Wonka.Storage.Extensions;
 
 namespace WonkaSystem.TestHarness
 {
@@ -358,23 +358,12 @@ namespace WonkaSystem.TestHarness
 
         public string RetrieveValueMethod(WonkaBizSource poTargetSource, string psAttrName)
         {
-			WonkaRefEnvironment WkaRefEnv = WonkaRefEnvironment.GetInstance();
-
-			WonkaRefAttr TargetAttr = WkaRefEnv.GetAttributeByAttrName(psAttrName);
-
-			return moProduct.GetAttributeValue(TargetAttr);
-        }
+			return poTargetSource.GetAttrValue(psAttrName, CONST_ONLINE_TEST_CHAIN_URL);
+		}
 
 		public async Task<string> RetrieveValueMethodAsync(WonkaBizSource poTargetSource, string psAttrName)
 		{
-			var contract = GetContract(poTargetSource);
-
-			var getRecordValueFunction = contract.GetFunction(poTargetSource.MethodName);
-
-			var result =
-				await getRecordValueFunction.CallAsync<string>(psAttrName).ConfigureAwait(false);
-
-			return result;
+			return await poTargetSource.GetAttrValueAsync(psAttrName, CONST_ONLINE_TEST_CHAIN_URL).ConfigureAwait(false);
 		}
 
 	}
