@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections;
 
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine.RuleTree;
 
-namespace WonkaEth.Contracts
+namespace Wonka.Eth.Contracts
 {
     public interface ISerialize
     {
         void DeserializeRecordFromBlockchain(ICommand poCommand);
 
-        Nethereum.Contracts.Contract GetContract(WonkaBreSource poBlockchainSource);
+        Nethereum.Contracts.Contract GetContract(WonkaBizSource poBlockchainSource);
 
         void SerializeRecordToBlockchain(ICommand poCommand);
     }

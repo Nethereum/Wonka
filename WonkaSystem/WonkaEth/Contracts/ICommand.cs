@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-using WonkaRef;
+using Wonka.MetaData;
 
-namespace WonkaEth.Contracts
+namespace Wonka.Eth.Contracts
 {
     public interface ICommand
     {

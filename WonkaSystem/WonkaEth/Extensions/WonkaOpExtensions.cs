@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Web3.Accounts;
 
-using WonkaBre;
-using WonkaBre.RuleTree;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
 
-namespace WonkaEth.Extensions
+namespace Wonka.Eth.Extensions
 {
     /// <summary>
     /// 
@@ -20,7 +20,7 @@ namespace WonkaEth.Extensions
     /// </summary>
     public static class WonkaOpExtensions
     {
-        private static Dictionary<WonkaBreRulesEngine, Nethereum.Web3.Web3> EngineWeb3Accounts = new Dictionary<WonkaBreRulesEngine, Nethereum.Web3.Web3>();
+        private static Dictionary<WonkaBizRulesEngine, Nethereum.Web3.Web3> EngineWeb3Accounts = new Dictionary<WonkaBizRulesEngine, Nethereum.Web3.Web3>();
 
         /// <summary>
         /// 
@@ -30,7 +30,7 @@ namespace WonkaEth.Extensions
         /// <param name="poEngine">The target instance of an engine</param>
         /// <returns>None</returns>
         /// </summary>
-        public static void SetDefaultStdOps(this WonkaBreRulesEngine poEngine, string psPassword, string psWeb3HttpUrl = null)
+        public static void SetDefaultStdOps(this WonkaBizRulesEngine poEngine, string psPassword, string psWeb3HttpUrl = null)
         {
             var account = new Account(psPassword);
 
@@ -42,8 +42,8 @@ namespace WonkaEth.Extensions
 
             EngineWeb3Accounts[poEngine] = web3;
 
-			Dictionary<STD_OP_TYPE, WonkaBreRulesEngine.RetrieveStdOpValDelegate> DefaultStdOpMap =
-				new Dictionary<STD_OP_TYPE, WonkaBreRulesEngine.RetrieveStdOpValDelegate>();
+			Dictionary<STD_OP_TYPE, WonkaBizRulesEngine.RetrieveStdOpValDelegate> DefaultStdOpMap =
+				new Dictionary<STD_OP_TYPE, WonkaBizRulesEngine.RetrieveStdOpValDelegate>();
 
 			DefaultStdOpMap[STD_OP_TYPE.STD_OP_BLOCK_NUM] = GetCurrentBlockNum;
 
@@ -52,9 +52,9 @@ namespace WonkaEth.Extensions
 
         #region Default Op Functions
 
-        private static string GetCurrentBlockNum(WonkaBreRulesEngine poEngine, string psUnusedVal)
+        private static string GetCurrentBlockNum(WonkaBizRulesEngine poEngine, string psUnusedVal)
         {
-            string sCurrBlockNum = "";
+            string sCurrBlockNum = string.Empty;
 
             if (EngineWeb3Accounts.ContainsKey(poEngine))
             {

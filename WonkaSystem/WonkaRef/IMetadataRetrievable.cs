@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WonkaRef
+namespace Wonka.MetaData
 {
     /// <summary>
     /// 
@@ -16,13 +16,13 @@ namespace WonkaRef
 
         List<WonkaRefCurrency>         GetCurrencyCache();
 
-        List<WonkaRefField>             GetFieldCache();
+        List<WonkaRefCadre>             GetCadreCache();
 
         List<WonkaRefGroup>             GetGroupCache();
 
         List<WonkaRefSource>            GetSourceCache();
 
-        List<WonkaRefSourceField>       GetSourceFieldCache();
+        List<WonkaRefSourceCadre>       GetSourceCadreCache();
 
         List<WonkaRefStandard>          GetStandardCache();
 

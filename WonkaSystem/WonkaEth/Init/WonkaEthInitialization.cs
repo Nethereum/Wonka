@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WonkaEth.Init
+namespace Wonka.Eth.Init
 {
     /// <summary>
     /// 
@@ -24,9 +24,9 @@ namespace WonkaEth.Init
 
             ContractABI = BusinessRules = null;
 
-            msBusinessRulesEmbeddedResource = msBusinessRulesFileResource = msBusinessRulesIpfsResource = "";
+            msBusinessRulesEmbeddedResource = msBusinessRulesFileResource = msBusinessRulesIpfsResource = string.Empty;
 
-            msContractABIEmbeddedResource = msContractABIFileResource = msContractABIIpfsResource = "";
+            msContractABIEmbeddedResource = msContractABIFileResource = msContractABIIpfsResource = string.Empty;
         }
 
         public string ContractMarkupId { get; set; }
@@ -100,7 +100,7 @@ namespace WonkaEth.Init
 
                 if (!String.IsNullOrEmpty(msContractABIIpfsResource) && String.IsNullOrEmpty(ContractABI))
                 {
-                    ContractABI = WonkaIpfs.WonkaIpfsEnvironment.GetInstance().GetFile(msContractABIIpfsResource);
+                    ContractABI = Wonka.IpfsW.WonkaIpfsEnvironment.GetInstance().GetFile(msContractABIIpfsResource);
                 }
             }
         }
@@ -139,7 +139,7 @@ namespace WonkaEth.Init
 
                 if (!String.IsNullOrEmpty(msBusinessRulesIpfsResource) && String.IsNullOrEmpty(BusinessRules))
                 {
-                    BusinessRules = WonkaIpfs.WonkaIpfsEnvironment.GetInstance().GetFile(msBusinessRulesIpfsResource);
+                    BusinessRules = Wonka.IpfsW.WonkaIpfsEnvironment.GetInstance().GetFile(msBusinessRulesIpfsResource);
                 }
             }
         }
@@ -159,7 +159,7 @@ namespace WonkaEth.Init
     {
         public WonkaEthInitialization()
         {
-            Web3HttpUrl = "";
+            Web3HttpUrl = string.Empty;
 
             BlockchainEngine      = new WonkaEthSource();
             DefaultValueRetrieval = new WonkaEthSource();

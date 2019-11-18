@@ -15,75 +15,17 @@ using Nethereum.RPC.Eth.DTOs;
 using Nethereum.RPC.Eth.Filters;
 using Nethereum.Hex.HexConvertors.Extensions;
 
-using WonkaBre;
-using WonkaBre.Reporting;
-using WonkaRef;
-using WonkaPrd;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.Reporting;
+using Wonka.MetaData;
+using Wonka.Product;
 
-using WonkaEth.Contracts;
-using WonkaEth.Extensions;
-using WonkaEth.Misc;
+using Wonka.Eth.Contracts;
+using Wonka.Eth.Extensions;
+using Wonka.Eth.Misc;
 
-namespace WonkaEth.Validation
+namespace Wonka.Eth.Validation
 {
-    public class WonkaBlockchainEngine
-    {
-        public string SenderAddress { get; set; }
-
-        public string Password { get; set; }
-
-        public string ContractAddress { get; set; }
-
-        public string ContractABI { get; set; }
-    }
-
-    public class CallRuleTreeEvent
-    {
-        [Parameter("address", "ruler", 1, true)]
-        public string TreeOwner { get; set; }
-    }
-
-    public class CallRuleSetEvent
-    {
-        [Parameter("address", "ruler", 1, true)]
-        public string TreeOwner { get; set; }
-
-        [Parameter("bytes32", "tmpRuleSetId", 2, true)]
-        public string RuleSetId { get; set; }
-    }
-
-    public class CallRuleEvent
-    {
-        [Parameter("address", "ruler", 1, true)]
-        public string TreeOwner { get; set; }
-
-        [Parameter("bytes32", "ruleSetId", 2, true)]
-        public string RuleSetId { get; set; }
-
-        [Parameter("bytes32", "ruleId", 3, true)]
-        public string RuleId { get; set; }
-
-        [Parameter("uint", "ruleType", 4, false)]
-        public uint RuleType { get; set; }
-    }
-
-    [FunctionOutput]
-    public class WonkaRuleTreeReport
-    {
-        [Parameter("uint", "fails", 1)]
-        public uint NumberOfRuleFailures { get; set; }
-
-        [Parameter("bytes32[]", "rsets", 2)]
-        public List<string> RuleSetIds { get; set; }
-
-        [Parameter("bytes32[]", "rules", 3)]
-        public List<string> RuleIds { get; set; }
-
-        /*
-        [Parameter("bytes32[]", "values", 4)]
-        public List<string> RecordValues { get; set; }
-        */
-    }
 
     /// <summary>
     /// 
@@ -109,12 +51,12 @@ namespace WonkaEth.Validation
         public readonly StringBuilder msRulesContents;
 
         public readonly string              msWeb3HttpUrl;
-        public readonly WonkaBreRulesEngine moRulesEngine;
+        public readonly WonkaBizRulesEngine moRulesEngine;
 
         public AbstractWonkaValidator(T poCommand, string psRulesFilepath, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
          {
             BlockchainEngine      = new WonkaBlockchainEngine();
-            BlockchainEngineOwner = "";
+            BlockchainEngineOwner = string.Empty;
 
             msRulesFilepath = psRulesFilepath;
             msRulesContents = null;
@@ -122,13 +64,13 @@ namespace WonkaEth.Validation
 
             Init();
 
-            moRulesEngine = new WonkaBreRulesEngine(msRulesFilepath);
+            moRulesEngine = new WonkaBizRulesEngine(msRulesFilepath);
         }
 
         public AbstractWonkaValidator(T poCommand, StringBuilder psRules, string psWeb3HttpUrl = null, bool bDeployEngineToBlockchain = false)
         {
             BlockchainEngine      = new WonkaBlockchainEngine();
-            BlockchainEngineOwner = "";
+            BlockchainEngineOwner = string.Empty;
 
             msRulesFilepath = null;
             msRulesContents = psRules;
@@ -136,7 +78,7 @@ namespace WonkaEth.Validation
 
             Init();
 
-            moRulesEngine = new WonkaBreRulesEngine(msRulesContents);
+            moRulesEngine = new WonkaBizRulesEngine(msRulesContents);
         }
 
         public static void AssignPropertiesViaReflection(T poCommand, Hashtable poDataValues)
@@ -151,7 +93,7 @@ namespace WonkaEth.Validation
                 object oPropAttrValue = null;
 
                 Type   oAttrType = TmpProperty.PropertyType;
-                string sAttrName = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : "";
+                string sAttrName = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : string.Empty;
 
                 if (poDataValues.ContainsKey(sAttrName))
                 {
@@ -199,7 +141,7 @@ namespace WonkaEth.Validation
             foreach (PropertyInfo TmpProperty in Props)
             {
                 Type   oAttrType  = TmpProperty.PropertyType;
-                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : "";
+                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : string.Empty;
                 string sAttrValue = Convert.ToString(TmpProperty.GetValue(poCommand));
 
                 if (!String.IsNullOrEmpty(sAttrValue))
@@ -219,7 +161,7 @@ namespace WonkaEth.Validation
             foreach (PropertyInfo TmpProperty in Props)
             {
                 Type   oAttrType  = TmpProperty.PropertyType;
-                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : "";
+                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : string.Empty;
                 string sAttrValue = Convert.ToString(TmpProperty.GetValue(poCommand));
 
                 if (!String.IsNullOrEmpty(sAttrValue))
@@ -231,24 +173,9 @@ namespace WonkaEth.Validation
 
         protected void HandleEvents(Event poRuleTreeEvent, Event poRuleSetEvent, Event poRuleEvent, HexBigInteger rtFilter, HexBigInteger rsFilter, HexBigInteger rlFilter)
         {            
-            var ruleTreeLog = poRuleTreeEvent.GetFilterChanges<WonkaEth.Validation.CallRuleTreeEvent>(rtFilter).Result;
-            var ruleSetLog  = poRuleSetEvent.GetFilterChanges<WonkaEth.Validation.CallRuleSetEvent>(rsFilter).Result;
-            var ruleLog     = poRuleEvent.GetFilterChanges<WonkaEth.Validation.CallRuleEvent>(rlFilter).Result;
-
-            // var ruleTreeLog = callRuleTreeEvent.GetAllChanges<CQS.Validation.CallRuleTreeEvent>(filterCRTAll).Result;
-            // var ruleSetLog  = callRuleSetEvent.GetAllChanges<CQS.Validation.CallRuleSetEvent>(filterCRSAll).Result;
-            // var ruleLog     = callRuleSetEvent.GetAllChanges<CQS.Validation.CallRuleEvent>(filterCRAll).Result;
-
-            /*
-            for (int i = 0; i < 5; ++i)
-            {
-                System.Threading.Thread.Sleep(10000);
-
-                ruleTreeLog = callRuleTreeEvent.GetFilterChanges<CQS.Validation.CallRuleTreeEvent>(filterCRTAll).Result;
-                ruleSetLog  = callRuleSetEvent.GetFilterChanges<CQS.Validation.CallRuleSetEvent>(filterCRSAll).Result;
-                ruleLog     = callRuleSetEvent.GetFilterChanges<CQS.Validation.CallRuleEvent>(filterCRAll).Result;
-            }
-            */
+            var ruleTreeLog = poRuleTreeEvent.GetFilterChanges<Wonka.Eth.Validation.CallRuleTreeEvent>(rtFilter).Result;
+            var ruleSetLog  = poRuleSetEvent.GetFilterChanges<Wonka.Eth.Validation.CallRuleSetEvent>(rsFilter).Result;
+            var ruleLog     = poRuleEvent.GetFilterChanges<Wonka.Eth.Validation.CallRuleEvent>(rlFilter).Result;
 
             // Assert.Equal(1, ruleTreeLog.Count);
 
@@ -303,50 +230,6 @@ namespace WonkaEth.Validation
             return type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>));
         }
 
-        /*
-        protected void SerializeMetadataToBlockchain()
-        {
-            uint nAttrNum = 3;
-
-            string sSenderAddress = msSenderAddress;
-
-            var contract = GetContract();
-
-            var getAttrNumFunction = contract.GetFunction("getNumberOfAttributes");
-            var addAttrFunction    = contract.GetFunction("addAttribute");
-
-            nAttrNum = getAttrNumFunction.CallAsync<uint>().Result;
-
-            if (nAttrNum <= CONST_CONTRACT_ATTR_NUM_ON_START)
-            {
-                foreach (WonkaRefAttr TempAttr in moTargetAttrList)
-                {
-                    var sAttrName = "";
-
-                    if (TempAttr.AttrName.Length > 32)
-                        sAttrName = TempAttr.AttrName.Trim().Replace(" ", "").Substring(0, 31);
-                    else
-                        sAttrName = TempAttr.AttrName.Trim().Replace(" ", "");
-
-                    uint MaxLen    = (uint) TempAttr.MaxLength;
-                    uint MaxNumVal = 999999; // TempAttr.MaxValue;
-                    string DefVal  = !String.IsNullOrEmpty(TempAttr.DefaultValue) ? TempAttr.DefaultValue : "";
-                    bool IsString  = !TempAttr.IsNumeric;
-                    bool IsNumeric = TempAttr.IsNumeric;
-
-                    //  function addAttribute(bytes32 pAttrName, uint pMaxLen, uint pMaxNumVal, string pDefVal, bool pIsStr, bool pIsNum) public {                       
-
-                    // NOTE: Caused exception to be thrown
-                    // var gas = addAttrFunction.EstimateGasAsync("SomeAttr", 0, 0, "SomeVal", false, false).Result;
-                    var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
-
-                    var receiptAddAttribute =
-                        addAttrFunction.SendTransactionAsync(sSenderAddress, gas, null, sAttrName, MaxLen, MaxNumVal, DefVal, IsString, IsNumeric).Result;
-                }
-            }
-        }
-        */
-
         protected virtual void SerializeRecordToBlockchain(T poCommand)
         {
             Hashtable DataValues = new Hashtable();
@@ -384,14 +267,16 @@ namespace WonkaEth.Validation
             bool bTreeAlreadyExists =
                 hasRuleTreeFunction.CallAsync<bool>(BlockchainEngineOwner, gas, null, BlockchainEngine.SenderAddress).Result;
 
-            if (!bTreeAlreadyExists)
-                moRulesEngine.Serialize(BlockchainEngineOwner,
-                                        BlockchainEngine.Password,
-                                        BlockchainEngine.SenderAddress,
-                                        BlockchainEngine.ContractAddress, 
-                                        BlockchainEngine.ContractABI,
-                                        null,
-                                        msWeb3HttpUrl);
+			if (!bTreeAlreadyExists)
+			{
+				moRulesEngine.Serialize(BlockchainEngineOwner,
+										BlockchainEngine.Password,
+										BlockchainEngine.SenderAddress,
+										BlockchainEngine.ContractAddress,
+										BlockchainEngine.ContractABI,
+										null,
+										msWeb3HttpUrl);
+			}
         }
 
         public static void SetAttribute(WonkaProduct poTargetProduct, WonkaRefAttr poTargetAttr, string psTargetValue)
@@ -402,7 +287,7 @@ namespace WonkaEth.Validation
             poTargetProduct.GetProductGroup(poTargetAttr.GroupId)[0][poTargetAttr.AttrId] = psTargetValue;
         }
 
-        public virtual WonkaBreRuleTreeReport SimulateValidate(T instance) { return null; }
+        public virtual WonkaBizRuleTreeReport SimulateValidate(T instance) { return null; }
 
         public virtual bool Validate(T instance) 
         {
@@ -420,29 +305,20 @@ namespace WonkaEth.Validation
 
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
-            /*
-            var executeRulesEngineFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_EXECUTE);
-
-            bValid = 
-                executeRulesEngineFunction.CallAsync<bool>(BlockchainEngine.SenderAddress, gas, null, BlockchainEngine.SenderAddress).Result;
-            */
-
             var executeWithReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC_RPT);
 
             var ruleTreeReport = executeWithReportFunction.CallDeserializingToObjectAsync<WonkaRuleTreeReport>(BlockchainEngine.SenderAddress).Result;
 
-            /*
-            var executeResult =
-                executeRulesEngineFunction.SendTransactionAsync(BlockchainEngine.SenderAddress, gas, null, BlockchainEngine.SenderAddress).Result;
-            bValid = Convert.ToBoolean(executeResult);
-            */
-
             HandleEvents(callRuleTreeEvent, callRuleSetEvent, callRuleEvent, filterCRTAll, filterCRSAll, filterCRAll);
 
-            if (ruleTreeReport.NumberOfRuleFailures <= 0)
-                bValid = true;
-            else
-                throw new WonkaValidatorException(ruleTreeReport);
+			if (ruleTreeReport.NumberOfRuleFailures <= 0)
+			{
+				bValid = true;
+			}
+			else
+			{
+				throw new WonkaValidatorException(ruleTreeReport);
+			}
 
             return bValid;
         }
@@ -462,11 +338,73 @@ namespace WonkaEth.Validation
             {
                 moBlockchainEngine = value;
 
-                if (moRulesEngine != null)
-                    moRulesEngine.SetDefaultStdOps(moBlockchainEngine.Password, this.msWeb3HttpUrl);
+				if (moRulesEngine != null)
+				{
+					moRulesEngine.SetDefaultStdOps(moBlockchainEngine.Password, this.msWeb3HttpUrl);
+				}
             }
         }
 
-        #endregion 
+        #endregion
     }
+
+	public class WonkaBlockchainEngine
+	{
+		public string SenderAddress { get; set; }
+
+		public string Password { get; set; }
+
+		public string ContractAddress { get; set; }
+
+		public string ContractABI { get; set; }
+	}
+
+	public class CallRuleTreeEvent
+	{
+		[Parameter("address", "ruler", 1, true)]
+		public string TreeOwner { get; set; }
+	}
+
+	public class CallRuleSetEvent
+	{
+		[Parameter("address", "ruler", 1, true)]
+		public string TreeOwner { get; set; }
+
+		[Parameter("bytes32", "tmpRuleSetId", 2, true)]
+		public string RuleSetId { get; set; }
+	}
+
+	public class CallRuleEvent
+	{
+		[Parameter("address", "ruler", 1, true)]
+		public string TreeOwner { get; set; }
+
+		[Parameter("bytes32", "ruleSetId", 2, true)]
+		public string RuleSetId { get; set; }
+
+		[Parameter("bytes32", "ruleId", 3, true)]
+		public string RuleId { get; set; }
+
+		[Parameter("uint", "ruleType", 4, false)]
+		public uint RuleType { get; set; }
+	}
+
+	[FunctionOutput]
+	public class WonkaRuleTreeReport
+	{
+		[Parameter("uint", "fails", 1)]
+		public uint NumberOfRuleFailures { get; set; }
+
+		[Parameter("bytes32[]", "rsets", 2)]
+		public List<string> RuleSetIds { get; set; }
+
+		[Parameter("bytes32[]", "rules", 3)]
+		public List<string> RuleIds { get; set; }
+
+		/*
+        [Parameter("bytes32[]", "values", 4)]
+        public List<string> RecordValues { get; set; }
+        */
+	}
+
 }

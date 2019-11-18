@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-using WonkaEth.Extensions;
+using Wonka.Eth.Extensions;
 
-namespace WonkaEth.Contracts
+namespace Wonka.Eth.Contracts
 {
     /// <summary>
     /// 
@@ -20,7 +20,7 @@ namespace WonkaEth.Contracts
             Init();
         }
 
-        public WonkaRegistryItem(WonkaEth.Extensions.RuleTreeRegistryIndex poIndex, string psHostContractABI)
+        public WonkaRegistryItem(Wonka.Eth.Extensions.RuleTreeRegistryIndex poIndex, string psHostContractABI)
         {
             Init();
 
@@ -40,7 +40,7 @@ namespace WonkaEth.Contracts
 
         public void Init()
         {
-            RuleTreeId = Description = HostContractAddress = OwnerId = HostContractABI = "";
+            RuleTreeId = Description = HostContractAddress = OwnerId = HostContractABI = string.Empty;
 
             MinGasCost = MaxGasCost = 0;
 
@@ -97,7 +97,7 @@ namespace WonkaEth.Contracts
 
         private static WonkaRuleTreeRegistry mInstance = null;
 
-        Dictionary<string, WonkaRegistryItem> moRegisteredRuleTrees;
+        private Dictionary<string, WonkaRegistryItem> moRegisteredRuleTrees;
 
         private WonkaRuleTreeRegistry(string psSenderAddress, string psPassword, string psContractAddress, string psAbi, string psWeb3HttpUrl)
         {

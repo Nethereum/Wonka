@@ -15,9 +15,9 @@ using Nethereum.RPC.Eth.DTOs;
 
 using Xunit;
 
-using WonkaBre;
-using WonkaPrd;
-using WonkaRef;
+using Wonka.BizRulesEngine;
+using Wonka.Product;
+using Wonka.MetaData;
 
 namespace WonkaSystem.TestHarness
 {
@@ -109,8 +109,8 @@ namespace WonkaSystem.TestHarness
             WonkaRefAttr AccountStsAttr = RefEnv.GetAttributeByAttrName("AccountStatus");
 
             // Creating an instance of the rules engine using our rules and the metadata
-            WonkaBreRulesEngine RulesEngine =
-                new WonkaBreRulesEngine(new StringBuilder(msRulesContents), moMetadataSource);
+            WonkaBizRulesEngine RulesEngine =
+                new WonkaBizRulesEngine(new StringBuilder(msRulesContents), moMetadataSource);
 
 	        // Gets a predefined data record that will be our analog for new data coming into the system
             WonkaProduct NewProduct = GetNewProduct();
@@ -125,7 +125,7 @@ namespace WonkaSystem.TestHarness
             RulesEngine.GetCurrentProductDelegate = GetOldProduct;
 
             // Validate the new record using our rules engine and its initialized RuleTree		
-            WonkaBre.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
+            Wonka.BizRulesEngine.Reporting.WonkaBizRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
             // Now retrieve the AccountStatus value and see if the rules have altered it (which should
             // not be the case)

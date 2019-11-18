@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 using Nethereum.Web3.Accounts;
 
-using WonkaBre;
-using WonkaEth.Extensions;
-using WonkaPrd;
-using WonkaRef;
+using Wonka.BizRulesEngine;
+using Wonka.Eth.Extensions;
+using Wonka.Product;
+using Wonka.MetaData;
 
 using WonkaSystem.CQS;
 using WonkaSystem.TestHarness;
@@ -132,7 +132,7 @@ namespace WonkaSystem.TestHarness
             UpdateValidator.BlockchainEngineOwner = msSenderAddress;
 
             UpdateValidator.BlockchainEngine =
-                new WonkaEth.Validation.WonkaBlockchainEngine()
+                new Wonka.Eth.Validation.WonkaBlockchainEngine()
                 {
                     SenderAddress = msSenderAddress,
                     Password = msPassword,

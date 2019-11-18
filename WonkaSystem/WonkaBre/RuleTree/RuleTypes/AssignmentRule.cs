@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Text;
 
-using WonkaPrd;
-using WonkaRef;
+using Wonka.Product;
+using Wonka.MetaData;
 
-namespace WonkaBre.RuleTree.RuleTypes
+namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 {
 	/// <summary>
 	/// 
@@ -31,27 +31,29 @@ namespace WonkaBre.RuleTree.RuleTypes
 	/// NOTE: If the Attribute has neither a 'O' or 'N' preceding it, it will be assumed to be 'N'.
 	///  
 	/// </summary>
-	public class AssignmentRule : WonkaBreRule
+	public class AssignmentRule : WonkaBizRule
     {
         #region Constructors
 
-        public AssignmentRule() : base(-1, RULE_TYPE.RT_ASSIGNMENT)
+        public AssignmentRule() 
+            : base(-1, RULE_TYPE.RT_ASSIGNMENT)
         {
             Init(TARGET_RECORD.TRID_NONE, -1, null);
         }
 
-        public AssignmentRule(int pnRuleID) : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
+        public AssignmentRule(int pnRuleID) 
+            : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
         {
             Init(TARGET_RECORD.TRID_NONE, -1, null);
         }
 
-        public AssignmentRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, string psAssignValue) : 
-            base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
+        public AssignmentRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, string psAssignValue) 
+            : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
         {
             Init(peTargetRecord, pnTargetAttrId, psAssignValue);
 
             this.AssignValueProps =
-                new WonkaBreRuleValueProps()
+                new WonkaBizRuleValueProps()
                 {
                     IsLiteralValue = true,
                     TargetRecord   = TARGET_RECORD.TRID_NONE,
@@ -59,13 +61,13 @@ namespace WonkaBre.RuleTree.RuleTypes
                 };
         }
 
-        public AssignmentRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, TARGET_RECORD peAssignRecord, string psAssignAttrName) :
-            base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
+        public AssignmentRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, TARGET_RECORD peAssignRecord, string psAssignAttrName) 
+            : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
         {
             Init(peTargetRecord, pnTargetAttrId, psAssignAttrName);
 
             this.AssignValueProps =
-                new WonkaBreRuleValueProps()
+                new WonkaBizRuleValueProps()
                 {
                     IsLiteralValue = false,
                     TargetRecord   = peAssignRecord,
@@ -101,37 +103,55 @@ namespace WonkaBre.RuleTree.RuleTypes
             WonkaRefEnvironment WonkaRefEnv  = WonkaRefEnvironment.GetInstance();
 
             if (poTransactionRecord == null)
+            {
                 throw new Exception("ERROR!  The new Product is null.");
+            }
 
             if (poCurrentRecord == null)
+            {
                 throw new Exception("ERROR!  The old Product is null.");
+            }
 
             if (RecordOfInterest == TARGET_RECORD.TRID_NEW_RECORD)
+            {
                 TargetRecord = poTransactionRecord;
+            }
             else if (RecordOfInterest == TARGET_RECORD.TRID_OLD_RECORD)
+            {
                 TargetRecord = poCurrentRecord;
+            }
             else
+            {
                 throw new Exception("ERROR!  The target record is none!");
+            }
 
             if (DefaultAssignment)
             {
                 WonkaPrdGroup TempProductGroup = null;
 
                 if (RecordOfInterest == TARGET_RECORD.TRID_NEW_RECORD)
+                {
                     TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
+                }
                 else
+                {
                     TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
+                }
 
-                string sCurrentValue = "";
+                string sCurrentValue = string.Empty;
 
                 if (TempProductGroup.GetRowCount() > 0)
                 {
                     if (TempProductGroup[0].ContainsKey(nAttrId))
+                    {
                         sCurrentValue = TempProductGroup[0][nAttrId];
+                    }
                 }
 
-                if (!String.IsNullOrEmpty(sCurrentValue))
+                if (!string.IsNullOrEmpty(sCurrentValue))
+                {
                     bAssignValue = false;
+                }
             }
 
             if (bAssignValue)
@@ -141,9 +161,13 @@ namespace WonkaBre.RuleTree.RuleTypes
                 WonkaPrdGroup TempProductGroup = null;
 
                 if (RecordOfInterest == TARGET_RECORD.TRID_NEW_RECORD)
+                {
                     TempProductGroup = poTransactionRecord.GetProductGroup(nGroupId);
+                }
                 else
+                {
                     TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
+                }
 
                 TempProductGroup[0][nAttrId] = AssignValue;
             }
@@ -160,7 +184,7 @@ namespace WonkaBre.RuleTree.RuleTypes
         /// </summary>
         public override string GetVerboseError(WonkaProduct poTargetProduct)
         {
-            return "";
+            return string.Empty;
         }
 
         private void Init(TARGET_RECORD peTargetRecord, int pnTargetAttrId, string psAssignValue)
@@ -170,10 +194,12 @@ namespace WonkaBre.RuleTree.RuleTypes
             this.RecordOfInterest = peTargetRecord;
 
             if (pnTargetAttrId > 0)
-                this.TargetAttribute  = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
+            {
+                this.TargetAttribute = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
+            }
 
             this.AssignValue      = psAssignValue;
-            this.AssignValueProps = new WonkaBreRuleValueProps();
+            this.AssignValueProps = new WonkaBizRuleValueProps();
         }
 
         /// <summary>
@@ -192,13 +218,17 @@ namespace WonkaBre.RuleTree.RuleTypes
 
             if (!this.AssignValueProps.IsLiteralValue)
             {
-                this.AssignValue = "";
+                this.AssignValue = string.Empty;
 
                 if (poNewProduct == null)
+                {
                     throw new Exception("ERROR!  The new Product is null.");
+                }
 
                 if (poNewProduct == null)
+                {
                     throw new Exception("ERROR!  The old Product is null.");
+                }
 
                 nAttrId  = AssignValueProps.AttributeInfo.AttrId;
                 nGroupId = AssignValueProps.AttributeInfo.GroupId;
@@ -206,14 +236,20 @@ namespace WonkaBre.RuleTree.RuleTypes
                 WonkaPrdGroup TempProductGroup = null;
 
                 if (AssignValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
+                {
                     TempProductGroup = poNewProduct.GetProductGroup(nGroupId);
+                }
                 else
+                {
                     TempProductGroup = poOldProduct.GetProductGroup(nGroupId);
+                }
 
                 if (TempProductGroup.DataRowVector.Count > 0)
                 {
-                    if ( (TempProductGroup[0].Count > 0) && TempProductGroup[0].ContainsKey(nAttrId) )
+                    if ((TempProductGroup[0].Count > 0) && TempProductGroup[0].ContainsKey(nAttrId))
+                    {
                         this.AssignValue = TempProductGroup[0][nAttrId];
+                    }
                 }
             }
 
@@ -267,11 +303,15 @@ namespace WonkaBre.RuleTree.RuleTypes
                             sAttrName = asAttrNameParts[1];
 
                             if (sTargetRecord == "O")
+                            {
                                 eTargetRecord = TARGET_RECORD.TRID_OLD_RECORD;
+                            }
                         }
                     }
                     else
+                    {
                         sAttrName = sTempDomainVal;
+                    }
 
                     this.AssignValue = sAttrName;
 
@@ -288,7 +328,7 @@ namespace WonkaBre.RuleTree.RuleTypes
 
         public string AssignValue { get; set; }
 
-        public WonkaBreRuleValueProps AssignValueProps { get; set; }
+        public WonkaBizRuleValueProps AssignValueProps { get; set; }
 
         public bool DefaultAssignment = false;
 

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using WonkaPrd;
-using WonkaRef;
+using Wonka.Product;
+using Wonka.MetaData;
 
-namespace WonkaBre.RuleTree.RuleTypes
+namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 {
 	/// <summary>
 	/// 
@@ -33,21 +33,24 @@ namespace WonkaBre.RuleTree.RuleTypes
 	/// NOTE: All domain values are treated as strings.
 	///  
 	/// </summary>
-	public class DomainRule : WonkaBreRule
+	public class DomainRule : WonkaBizRule
     {
         #region Constructors
 
-        public DomainRule() : base(-1, RULE_TYPE.RT_DOMAIN)
+        public DomainRule() 
+            : base(-1, RULE_TYPE.RT_DOMAIN)
         {
             Init(TARGET_RECORD.TRID_NONE, -1);
         }
 
-        public DomainRule(int pnRuleID) : base(pnRuleID, RULE_TYPE.RT_DOMAIN)
+        public DomainRule(int pnRuleID) 
+            : base(pnRuleID, RULE_TYPE.RT_DOMAIN)
         {
             Init(TARGET_RECORD.TRID_NONE, -1);
         }
 
-        public DomainRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, bool bSearchAllRows) : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
+        public DomainRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, bool bSearchAllRows) 
+            : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
         {
             Init(peTargetRecord, pnTargetAttrId);
 
@@ -70,8 +73,8 @@ namespace WonkaBre.RuleTree.RuleTypes
         /// </summary>
         public void AddDomainValue(string psDomainVal, bool pbIsLiteral, TARGET_RECORD peTargetRecord)
         {
-            WonkaBreRuleValueProps oValueProps =
-                new WonkaBreRuleValueProps() { IsLiteralValue = pbIsLiteral };
+            WonkaBizRuleValueProps oValueProps =
+                new WonkaBizRuleValueProps() { IsLiteralValue = pbIsLiteral };
 
             if (pbIsLiteral)
             {
@@ -80,14 +83,20 @@ namespace WonkaBre.RuleTree.RuleTypes
                  *       we will require that any rule value with certain embeddeded delimiters use HTML chars instead, so that 
                  *       the value will be replaced with the correct equivalent here.  My apologies.
                  */
-                if (!String.IsNullOrEmpty(psDomainVal) && psDomainVal.Contains("&#44;"))
+                if (!string.IsNullOrEmpty(psDomainVal) && psDomainVal.Contains("&#44;"))
+                {
                     psDomainVal = psDomainVal.Replace("&#44;", ",");
+                }
 
-                if (!String.IsNullOrEmpty(psDomainVal) && psDomainVal.Contains("&#40;"))
+                if (!string.IsNullOrEmpty(psDomainVal) && psDomainVal.Contains("&#40;"))
+                {
                     psDomainVal = psDomainVal.Replace("&#40;", "(");
+                }
 
-                if (!String.IsNullOrEmpty(psDomainVal) && psDomainVal.Contains("&#41;"))
+                if (!string.IsNullOrEmpty(psDomainVal) && psDomainVal.Contains("&#41;"))
+                {
                     psDomainVal = psDomainVal.Replace("&#41;", ")");
+                }
 
                 DomainCache.Add(psDomainVal);
             }
@@ -104,12 +113,14 @@ namespace WonkaBre.RuleTree.RuleTypes
             DomainValueProps[psDomainVal] = oValueProps;
         }
 
-        public WonkaBreRuleValueProps GetDomainValueProps(string psValue)
+        public WonkaBizRuleValueProps GetDomainValueProps(string psValue)
         {
-            WonkaBreRuleValueProps oValueProps = null;
+            WonkaBizRuleValueProps oValueProps = null;
 
             if (!String.IsNullOrEmpty(psValue) && DomainValueProps.ContainsKey(psValue))
+            {
                 oValueProps = DomainValueProps[psValue];
+            }
 
             return oValueProps;
         }
@@ -134,24 +145,36 @@ namespace WonkaBre.RuleTree.RuleTypes
             WonkaRefEnvironment WonkaRefEnv    = WonkaRefEnvironment.GetInstance();
 
             if (RecordOfInterest == TARGET_RECORD.TRID_NEW_RECORD)
+            {
                 TargetRecord = poTransactionRecord;
+            }
             else if (RecordOfInterest == TARGET_RECORD.TRID_OLD_RECORD)
+            {
                 TargetRecord = poCurrentRecord;
+            }
             else
+            {
                 throw new Exception("ERROR!  The target record is none!");
+            }
 
             string sTargetData =
                 TargetRecord.GetPrimaryAttributeData(TargetAttribute.GroupId, TargetAttribute.AttrId);
 
             if (sTargetData == null)
-                sTargetData = "";
+            {
+                sTargetData = string.Empty;
+            }
 
             RefreshCache(poTransactionRecord, poCurrentRecord);
 
             if (DomainCache.Contains(sTargetData))
+            {
                 bResult = true;
+            }
             else
+            {
                 bResult = false;
+            }
 
             if (poErrorMessage != null)
             {
@@ -179,7 +202,9 @@ namespace WonkaBre.RuleTree.RuleTypes
             foreach (string sDomainVal in DomainCache)
             {
                 if (DomainListBuilder.Length > 0)
+                {
                     DomainListBuilder.Append(",");
+                }
 
                 DomainListBuilder.Append(sDomainVal);
             }
@@ -207,13 +232,15 @@ namespace WonkaBre.RuleTree.RuleTypes
             this.RecordOfInterest = peTargetRecord;
 
             if (pnTargetAttrId > 0)
-                this.TargetAttribute  = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
+            {
+                this.TargetAttribute = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
+            }
 
             this.HasAttrIdTargets  = false;
             this.SearchAllDataRows = false;
 
             DomainCache      = new HashSet<string>();
-            DomainValueProps = new Dictionary<string, WonkaBreRuleValueProps>();
+            DomainValueProps = new Dictionary<string, WonkaBizRuleValueProps>();
         }
 
         /// <summary>
@@ -244,18 +271,24 @@ namespace WonkaBre.RuleTree.RuleTypes
             int  nAttrId  = 0;
             int  nGroupId = 0;
 
-            WonkaBreRuleValueProps RuleValueProps = null;
+            WonkaBizRuleValueProps RuleValueProps = null;
 
             if (HasAttrIdTargets)
             {
                 if (poNewProduct == null)
+                {
                     throw new Exception("ERROR!  The new Product is null.");
+                }
 
                 if (poNewProduct == null)
+                {
                     throw new Exception("ERROR!  The old Product is null.");
+                }
 
                 if (poDomainCache == null)
+                {
                     throw new Exception("ERROR!  The provided Domain Cache is null.");
+                }
 
                 poDomainCache.Clear();
                 foreach (string sDomainValue in DomainValueProps.Keys)
@@ -263,7 +296,9 @@ namespace WonkaBre.RuleTree.RuleTypes
                     RuleValueProps = DomainValueProps[sDomainValue];
 
                     if (RuleValueProps.IsLiteralValue)
+                    {
                         poDomainCache.Add(sDomainValue);
+                    }
                     else
                     {
                         nAttrId  = RuleValueProps.AttributeInfo.AttrId;
@@ -272,14 +307,20 @@ namespace WonkaBre.RuleTree.RuleTypes
                         WonkaPrdGroup TempProductGroup = null;
 
                         if (RuleValueProps.TargetRecord == TARGET_RECORD.TRID_NEW_RECORD)
+                        {
                             TempProductGroup = poNewProduct.GetProductGroup(nGroupId);
+                        }
                         else
+                        {
                             TempProductGroup = poOldProduct.GetProductGroup(nGroupId);
+                        }
 
                         foreach (WonkaPrdGroupDataRow TempDataRow in TempProductGroup)
                         {
                             if (TempDataRow.Keys.Contains(nAttrId))
+                            {
                                 poDomainCache.Add(TempDataRow[nAttrId]);
+                            }
                         }
                     }
                 }
@@ -336,11 +377,15 @@ namespace WonkaBre.RuleTree.RuleTypes
                             sAttrName = asAttrNameParts[1];
 
                             if (sTargetRecord == "O")
+                            {
                                 eTargetRecord = TARGET_RECORD.TRID_OLD_RECORD;
+                            }
                         }
                     }
                     else
+                    {
                         sAttrName = sTempDomainVal;
+                    }
 
                     AddDomainValue(sAttrName, false, eTargetRecord);
                 }
@@ -357,7 +402,7 @@ namespace WonkaBre.RuleTree.RuleTypes
 
         public HashSet<string> DomainCache { get; set; }
 
-        public Dictionary<string, WonkaBreRuleValueProps> DomainValueProps { get; set; }
+        public Dictionary<string, WonkaBizRuleValueProps> DomainValueProps { get; set; }
 
         #endregion
     }

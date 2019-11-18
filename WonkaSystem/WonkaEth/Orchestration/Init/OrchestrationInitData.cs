@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-using WonkaBre;
-using WonkaBre.RuleTree;
-using WonkaRef;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
+using Wonka.MetaData;
 
-namespace WonkaEth.Orchestration.Init
+namespace Wonka.Eth.Orchestration.Init
 {
     public class OrchestrationInitData
     {
@@ -27,14 +27,14 @@ namespace WonkaEth.Orchestration.Init
 
         public string BlockchainEngineOwner;
 
-        public WonkaBreSource BlockchainEngine;
+        public WonkaBizSource BlockchainEngine;
 
         public string TrxStateContractAddress;
 
-        public WonkaBreSource DefaultBlockchainDataSource;
+        public WonkaBizSource DefaultBlockchainDataSource;
 
-        public Dictionary<string, WonkaBreSource> BlockchainDataSources;
+        public Dictionary<string, WonkaBizSource> BlockchainDataSources;
 
-        public Dictionary<string, WonkaBreSource> BlockchainCustomOpFunctions;
+        public Dictionary<string, WonkaBizSource> BlockchainCustomOpFunctions;
     }
 }

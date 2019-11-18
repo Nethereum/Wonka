@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using WonkaRef;
+using Wonka.MetaData;
 
-namespace WonkaRef.Extensions
+namespace Wonka.MetaData.Extensions
 {
     public class WonkaRefDummySource : IMetadataRetrievable
     {
@@ -24,9 +24,9 @@ namespace WonkaRef.Extensions
             return new List<WonkaRefCurrency>();
         }
 
-        public List<WonkaRefField> GetFieldCache()
+        public List<WonkaRefCadre> GetCadreCache()
         {
-            return new List<WonkaRefField>();
+            return new List<WonkaRefCadre>();
         }
 
         public List<WonkaRefGroup> GetGroupCache()
@@ -39,9 +39,9 @@ namespace WonkaRef.Extensions
             return new List<WonkaRefSource>();
         }
 
-        public List<WonkaRefSourceField> GetSourceFieldCache()
+        public List<WonkaRefSourceCadre> GetSourceCadreCache()
         {
-            return new List<WonkaRefSourceField>();
+            return new List<WonkaRefSourceCadre>();
         }
 
         public List<WonkaRefStandard> GetStandardCache()

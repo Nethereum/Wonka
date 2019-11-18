@@ -15,14 +15,14 @@ using Nethereum.RPC.Eth.DTOs;
 
 using Xunit;
 
-using WonkaBre;
-using WonkaBre.Readers;
-using WonkaBre.RuleTree;
-using WonkaPrd;
-using WonkaRef;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.Readers;
+using Wonka.BizRulesEngine.RuleTree;
+using Wonka.Product;
+using Wonka.MetaData;
 
-using WonkaEth.Extensions;
-using WonkaEth.Validation;
+using Wonka.Eth.Extensions;
+using Wonka.Eth.Validation;
 
 namespace WonkaSystem.TestHarness
 {
@@ -147,8 +147,7 @@ namespace WonkaSystem.TestHarness
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
-            Dictionary<string, WonkaBre.RuleTree.WonkaBreSource> SourceMap =
-                new Dictionary<string, WonkaBre.RuleTree.WonkaBreSource>();
+            Dictionary<string, WonkaBizSource> SourceMap = new Dictionary<string, WonkaBizSource>();
 
             string sDefaultSourceId    = "S";
             string sContractSourceId   = sDefaultSourceId;
@@ -179,8 +178,8 @@ namespace WonkaSystem.TestHarness
                 sOrchSetterMethod = "";
             }
 
-            WonkaBreSource DefaultSource =
-                new WonkaBreSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchGetterMethod, sOrchSetterMethod, RetrieveValueMethod);
+            WonkaBizSource DefaultSource =
+                new WonkaBizSource(sContractSourceId, msSenderAddress, msPassword, sContractAddress, sContractAbi, sOrchGetterMethod, sOrchSetterMethod, RetrieveValueMethod);
 
             // Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
             // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
@@ -189,18 +188,18 @@ namespace WonkaSystem.TestHarness
                 SourceMap[TempAttr.AttrName] = DefaultSource;
             }
 
-            Dictionary<string, WonkaBreSource> CustomOpSourceMap = new Dictionary<string, WonkaBreSource>();
+            Dictionary<string, WonkaBizSource> CustomOpSourceMap = new Dictionary<string, WonkaBizSource>();
 
             // Here a mapping is created, where each Custom Operator points to a specific contract and its "implementation" method
             // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
-            WonkaBreSource CustomOpSource =
-                new WonkaBreSource(sCustomOpId, msSenderAddress, msPassword, sContractAddress, sContractAbi, LookupVATDenominator, sCustomOpMethod);
+            WonkaBizSource CustomOpSource =
+                new WonkaBizSource(sCustomOpId, msSenderAddress, msPassword, sContractAddress, sContractAbi, LookupVATDenominator, sCustomOpMethod);
 
             CustomOpSourceMap[sCustomOpId] = CustomOpSource;
 
             // Creating an instance of the rules engine using our rules and the metadata
-            WonkaBreRulesEngine RulesEngine = 
-                new WonkaBreRulesEngine(new StringBuilder(msRulesContents), SourceMap, CustomOpSourceMap, moMetadataSource, false);
+            WonkaBizRulesEngine RulesEngine = 
+                new WonkaBizRulesEngine(new StringBuilder(msRulesContents), SourceMap, CustomOpSourceMap, moMetadataSource, false);
 
             RulesEngine.DefaultSource = sDefaultSourceId;
 
@@ -221,7 +220,7 @@ namespace WonkaSystem.TestHarness
             /**
              ** Test the .NET side
              */
-            WonkaBre.Reporting.WonkaBreRuleTreeReport Report = RulesEngine.Validate(NewProduct);
+            Wonka.BizRulesEngine.Reporting.WonkaBizRuleTreeReport Report = RulesEngine.Validate(NewProduct);
 
             string sSellAmtAfter = GetAttributeValue(NewProduct, NewSellTaxAmountAttr);
             string sVATAmtAfter  = GetAttributeValue(NewProduct, NewVATAmountForHMRCAttr);
@@ -274,7 +273,7 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        public RuleTreeReport ExecuteWithReport(WonkaBreRulesEngine poRulesEngine, bool pbValidateWithinTransaction, WonkaBreSource poSource, string psOrchestrationAddress)
+        public RuleTreeReport ExecuteWithReport(WonkaBizRulesEngine poRulesEngine, bool pbValidateWithinTransaction, WonkaBizSource poSource, string psOrchestrationAddress)
         {
             WonkaRefEnvironment RefEnv = WonkaRefEnvironment.GetInstance();
 
@@ -395,7 +394,7 @@ namespace WonkaSystem.TestHarness
             return contract;
         }
 
-        public Nethereum.Contracts.Contract GetContract(WonkaBre.RuleTree.WonkaBreSource TargetSource)
+        public Nethereum.Contracts.Contract GetContract(WonkaBizSource TargetSource)
         {
             var account  = new Account(TargetSource.Password);
             var web3     = new Nethereum.Web3.Web3(account);
@@ -444,7 +443,7 @@ namespace WonkaSystem.TestHarness
                 setValueFunction.SendTransactionAsync(msSenderAddress, gas, null, msSenderAddress, psAttrName, psAttrValue).Result;
         }
 
-        public string RetrieveValueMethod(WonkaBre.RuleTree.WonkaBreSource poTargetSource, string psAttrName)
+        public string RetrieveValueMethod(WonkaBizSource poTargetSource, string psAttrName)
         {
             var contract = GetContract(poTargetSource);
 
@@ -523,7 +522,7 @@ namespace WonkaSystem.TestHarness
             }
         }
 
-        private void SerializeRulesEngineToBlockchain(WonkaBreRulesEngine poEngine)
+        private void SerializeRulesEngineToBlockchain(WonkaBizRulesEngine poEngine)
         {
             var contract = GetContract();
 

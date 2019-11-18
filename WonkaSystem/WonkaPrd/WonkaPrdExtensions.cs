@@ -1,8 +1,8 @@
 ﻿using System;
 
-using WonkaRef;
+using Wonka.MetaData;
 
-namespace WonkaPrd
+namespace Wonka.Product
 {
     public static class WonkaPrdExtensions
     {

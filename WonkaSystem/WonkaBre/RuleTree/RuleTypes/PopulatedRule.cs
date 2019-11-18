@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Text;
 
-using WonkaPrd;
-using WonkaRef;
+using Wonka.Product;
+using Wonka.MetaData;
 
-namespace WonkaBre.RuleTree.RuleTypes
+namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 {
 	/// <summary>
 	/// 
@@ -22,16 +22,18 @@ namespace WonkaBre.RuleTree.RuleTypes
     /// of the incoming record are populated: AccountCurrValue, AccountStatus, and AccountType. 
 	/// 
 	/// </summary>
-	public class PopulatedRule : WonkaBreRule
+	public class PopulatedRule : WonkaBizRule
     {
         #region Constructors
 
-        public PopulatedRule() : base(-1, RULE_TYPE.RT_POPULATED)
+        public PopulatedRule() 
+            : base(-1, RULE_TYPE.RT_POPULATED)
         {
             Init(TARGET_RECORD.TRID_NONE, -1);
         }
 
-        public PopulatedRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId) : base(pnRuleID, RULE_TYPE.RT_DOMAIN)
+        public PopulatedRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId) 
+            : base(pnRuleID, RULE_TYPE.RT_DOMAIN)
         {
             Init(peTargetRecord, pnTargetAttrId);
         }
@@ -60,19 +62,29 @@ namespace WonkaBre.RuleTree.RuleTypes
             WonkaRefEnvironment WonkaRefEnv  = WonkaRefEnvironment.GetInstance();
 
             if (RecordOfInterest == TARGET_RECORD.TRID_NEW_RECORD)
+            {
                 TargetRecord = poTransactionRecord;
+            }
             else if (RecordOfInterest == TARGET_RECORD.TRID_OLD_RECORD)
+            {
                 TargetRecord = poCurrentRecord;
+            }
             else
+            {
                 throw new Exception("ERROR!  The target record is none!");
+            }
 
             string sTargetData =
                 TargetRecord.GetPrimaryAttributeData(TargetAttribute.GroupId, TargetAttribute.AttrId);
 
             if (!String.IsNullOrEmpty(sTargetData))
+            {
                 bResult = true;
+            }
             else
+            {
                 bResult = false;
+            }
 
             if (poErrorMessage != null)
             {
@@ -92,7 +104,7 @@ namespace WonkaBre.RuleTree.RuleTypes
         /// </summary>
         public override string GetVerboseError(WonkaProduct poTargetProduct)
         {
-            string sAttrName = this.TargetAttribute.AttrName;                
+            string sAttrName = this.TargetAttribute.AttrName;
 
             StringBuilder VerboseErrorBuilder = new StringBuilder();
 
@@ -116,7 +128,9 @@ namespace WonkaBre.RuleTree.RuleTypes
             this.RecordOfInterest = peTargetRecord;
 
             if (pnTargetAttrId > 0)
-                this.TargetAttribute  = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
+            {
+                this.TargetAttribute = WonkaRefEnvironment.GetInstance().GetAttributeByAttrId(pnTargetAttrId);
+            }
         }
 
         #endregion

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace WonkaRef
+namespace Wonka.MetaData
 {
     /// <summary>
     /// 

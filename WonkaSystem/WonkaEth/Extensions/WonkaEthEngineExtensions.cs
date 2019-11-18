@@ -8,21 +8,21 @@ using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Web3.Accounts;
 
-using WonkaBre;
-using WonkaBre.RuleTree;
-using WonkaEth.Contracts;
-using WonkaEth.Init;
-using WonkaRef;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
+using Wonka.Eth.Enums;
+using Wonka.Eth.Init;
+using Wonka.MetaData;
 
-namespace WonkaEth.Extensions
+namespace Wonka.Eth.Extensions
 {
     public static class WonkaEthEngineExtensions
     {
-        private const int CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST  = 8388608;
-		private const int CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST = 2000000;
+        private const int CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST  = (int) GAS_COST.CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST;
+		private const int CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST = (int) GAS_COST.CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST;
 
-		private const int CONST_GAS_PER_READ_OP  = 80000;
-		private const int CONST_GAS_PER_WRITE_OP = 125000;
+		private const int CONST_GAS_PER_READ_OP  = (int) GAS_COST.CONST_GAS_PER_READ_OP;
+		private const int CONST_GAS_PER_WRITE_OP = (int) GAS_COST.CONST_GAS_PER_WRITE_OP;
 
 		public static uint CalculateMinGasEstimate(this WonkaEthEngineProps poEngineProps, uint pnWriteOpGasCost = CONST_GAS_PER_WRITE_OP)
 		{
@@ -64,9 +64,9 @@ namespace WonkaEth.Extensions
 				{
 					poEngineProps.RulesEngine.AllRuleSets.ForEach(x => nMaxGasCost += (uint)(x.EvaluativeRules.Count * CONST_GAS_PER_READ_OP));
 
-					foreach (WonkaBre.RuleTree.WonkaBreRuleSet TempRuleSet in poEngineProps.RulesEngine.AllRuleSets)
+					foreach (WonkaBizRuleSet TempRuleSet in poEngineProps.RulesEngine.AllRuleSets)
 					{
-						foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in TempRuleSet.AssertiveRules)
+						foreach (WonkaBizRule TempRule in TempRuleSet.AssertiveRules)
 						{
 							if (TempRule.RuleType == RULE_TYPE.RT_CUSTOM_OP)
 								nMaxGasCost += (uint)(3 * pnWriteOpGasCost);
@@ -144,14 +144,14 @@ namespace WonkaEth.Extensions
 
 				if ((EngineProps.SourceMap == null) || (EngineProps.SourceMap.Count == 0))
 				{
-					EngineProps.SourceMap = new Dictionary<string, WonkaBre.RuleTree.WonkaBreSource>();
+					EngineProps.SourceMap = new Dictionary<string, WonkaBizSource>();
 
 					// Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
 					// - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
 					foreach (WonkaRefAttr TempAttr in WonkaRefEnv.AttrCache)
 					{
-						WonkaBreSource TempSource =
-							new WonkaBreSource(poEngineInitData.StorageDefaultSourceId,
+						WonkaBizSource TempSource =
+							new WonkaBizSource(poEngineInitData.StorageDefaultSourceId,
 											   poEngineInitData.EthSenderAddress, 
 											   poEngineInitData.EthPassword, 
 											   poEngineInitData.StorageContractAddress, 
@@ -165,7 +165,7 @@ namespace WonkaEth.Extensions
 				}
 
 				EngineProps.RulesEngine = 
-					new WonkaBreRulesEngine(new StringBuilder(EngineProps.RulesMarkupXml), EngineProps.SourceMap, EngineProps.MetadataSource);
+					new WonkaBizRulesEngine(new StringBuilder(EngineProps.RulesMarkupXml), EngineProps.SourceMap, EngineProps.MetadataSource);
 
 				EngineProps.RulesEngine.DefaultSource = poEngineInitData.StorageDefaultSourceId;
 
@@ -239,14 +239,14 @@ namespace WonkaEth.Extensions
 
                 if ((EngineProps.SourceMap == null) || (EngineProps.SourceMap.Count == 0))
                 {
-                    EngineProps.SourceMap = new Dictionary<string, WonkaBre.RuleTree.WonkaBreSource>();
+                    EngineProps.SourceMap = new Dictionary<string, WonkaBizSource>();
 
                     // Here a mapping is created, where each Attribute points to a specific contract and its "accessor" methods
                     // - the class that contains this information (contract, accessors, etc.) is of the WonkaBreSource type
                     foreach (WonkaRefAttr TempAttr in WonkaRefEnv.AttrCache)
                     {
-                        WonkaBreSource TempSource =
-                            new WonkaBreSource(poEngineInitData.StorageDefaultSourceId,
+                        WonkaBizSource TempSource =
+                            new WonkaBizSource(poEngineInitData.StorageDefaultSourceId,
                                                poEngineInitData.EthSenderAddress,
                                                poEngineInitData.EthPassword,
                                                poEngineInitData.StorageContractAddress,
@@ -260,7 +260,7 @@ namespace WonkaEth.Extensions
                 }
 
                 EngineProps.RulesEngine =
-                    new WonkaBreRulesEngine(new StringBuilder(EngineProps.RulesMarkupXml), EngineProps.SourceMap, EngineProps.MetadataSource);
+                    new WonkaBizRulesEngine(new StringBuilder(EngineProps.RulesMarkupXml), EngineProps.SourceMap, EngineProps.MetadataSource);
 
                 EngineProps.RulesEngine.DefaultSource = poEngineInitData.StorageDefaultSourceId;
 

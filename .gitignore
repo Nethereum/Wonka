@@ -20,3 +20,6 @@ WonkaSystem/WonkaIpfs/obj/
 WonkaSystem/WonkaIpfs/WonkaIpfs.csproj.user
 WonkaSystem/WonkaImport/bin/
 WonkaSystem/WonkaImport/obj/
+Solidity/WonkaEngine/bin/
+WonkaSystem/Wonka.Storage/bin/
+WonkaSystem/Wonka.Storage/obj/

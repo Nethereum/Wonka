@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace WonkaPrd
+namespace Wonka.Product
 {
     /// <summary>
     /// 

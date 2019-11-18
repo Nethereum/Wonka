@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-using WonkaEth.Contracts;
-using WonkaRef;
+using Wonka.Eth.Contracts;
+using Wonka.MetaData;
 
 namespace WonkaSystem.CQS.Contracts
 {

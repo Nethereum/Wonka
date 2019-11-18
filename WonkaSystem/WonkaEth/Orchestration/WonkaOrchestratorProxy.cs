@@ -7,16 +7,16 @@ using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Web3.Accounts;
 
-using WonkaBre.RuleTree;
-using WonkaRef;
-using WonkaPrd;
+using Wonka.BizRulesEngine.RuleTree;
+using Wonka.MetaData;
+using Wonka.Product;
 
-using WonkaEth.Contracts;
-using WonkaEth.Orchestration.BlockchainEvents;
-using WonkaEth.Orchestration.BlockchainOutput;
-using WonkaEth.Orchestration.Init;
+using Wonka.Eth.Contracts;
+using Wonka.Eth.Orchestration.BlockchainEvents;
+using Wonka.Eth.Orchestration.BlockchainOutput;
+using Wonka.Eth.Orchestration.Init;
 
-namespace WonkaEth.Orchestration
+namespace Wonka.Eth.Orchestration
 {
     /// <summary>
     /// 
@@ -61,7 +61,7 @@ namespace WonkaEth.Orchestration
                 object oPropAttrValue = null;
 
                 Type oAttrType = TmpProperty.PropertyType;
-                string sAttrName = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : "";
+                string sAttrName = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : string.Empty;
 
                 if (poDataValues.ContainsKey(sAttrName))
                 {
@@ -98,7 +98,7 @@ namespace WonkaEth.Orchestration
 
             foreach (String sTempAttrName in moInitData.BlockchainDataSources.Keys)
             {
-                WonkaBreSource TempSource = moInitData.BlockchainDataSources[sTempAttrName];
+                WonkaBizSource TempSource = moInitData.BlockchainDataSources[sTempAttrName];
 
                 string sSenderAddr = TempSource.SenderAddress;
 
@@ -115,7 +115,7 @@ namespace WonkaEth.Orchestration
             AssignPropertiesViaReflection(poCommand, DataValues);
         }
 
-        public Nethereum.Contracts.Contract GetContract(WonkaBreSource poBlockchainSource)
+        public Nethereum.Contracts.Contract GetContract(WonkaBizSource poBlockchainSource)
         {
             var account = new Account(poBlockchainSource.Password);
 
@@ -140,7 +140,7 @@ namespace WonkaEth.Orchestration
             foreach (PropertyInfo TmpProperty in Props)
             {
                 Type   oAttrType  = TmpProperty.PropertyType;
-                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : "";
+                string sAttrName  = PropMap.ContainsKey(TmpProperty) ? PropMap[TmpProperty].AttrName : string.Empty;
                 string sAttrValue = Convert.ToString(TmpProperty.GetValue(poCommand));
 
                 if (!String.IsNullOrEmpty(sAttrValue))
@@ -204,7 +204,7 @@ namespace WonkaEth.Orchestration
             {
                 if (poOrchInitData.DefaultBlockchainDataSource != null)
                 {
-                    Dictionary<string, WonkaBreSource> BlockchainDataSources = new Dictionary<string, WonkaBreSource>();
+                    Dictionary<string, WonkaBizSource> BlockchainDataSources = new Dictionary<string, WonkaBizSource>();
 
                     Dictionary<PropertyInfo, WonkaRefAttr> PropMap = poCommand.GetPropertyMap();
 
@@ -317,7 +317,7 @@ namespace WonkaEth.Orchestration
 
             foreach (String sTempAttrName in DataValues.Keys)
             {
-                WonkaBreSource TempSource = moInitData.BlockchainDataSources[sTempAttrName];
+                WonkaBizSource TempSource = moInitData.BlockchainDataSources[sTempAttrName];
 
                 string sSenderAddr = TempSource.SenderAddress;
                 string sAttrValue = (string)DataValues[sTempAttrName];

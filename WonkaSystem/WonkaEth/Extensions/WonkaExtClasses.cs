@@ -10,10 +10,10 @@ using Nethereum.ABI.Model;
 using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 
-using WonkaBre;
-using WonkaEth.Orchestration.BlockchainEvents;
+using Wonka.BizRulesEngine;
+using Wonka.Eth.Orchestration.BlockchainEvents;
 
-namespace WonkaEth.Extensions
+namespace Wonka.Eth.Extensions
 {
     [FunctionOutput]
     public class ExportRuleTreeProps
@@ -142,7 +142,7 @@ namespace WonkaEth.Extensions
 
         public HexBigInteger RuleSetErrorEventFilter { get; set; }
 
-        public void HandleEvents(WonkaBreRulesEngine poRulesEngine, RuleTreeReport poRuleTreeReport)
+        public void HandleEvents(WonkaBizRulesEngine poRulesEngine, RuleTreeReport poRuleTreeReport)
         {
             var ruleTreeLog   = RuleTreeEvents.GetFilterChanges<CallRuleTreeEvent>(RuleTreeEventFilter).Result;
             var ruleSetLog    = RuleSetEvents.GetFilterChanges<CallRuleSetEvent>(RuleSetEventFilter).Result;
@@ -198,7 +198,7 @@ namespace WonkaEth.Extensions
         public RuleTreeReport()
         {
             NumberOfRuleFailures = 0;
-            TransactionHash      = "";
+            TransactionHash      = string.Empty;
             InvokeTrxBlockNumber = null;
 
             RuleSetIds = new List<string>();

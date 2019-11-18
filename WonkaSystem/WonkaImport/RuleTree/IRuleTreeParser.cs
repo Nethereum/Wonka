@@ -1,10 +1,10 @@
-﻿using WonkaBre.RuleTree;
+﻿using Wonka.BizRulesEngine.RuleTree;
 
-namespace WonkaImport.RuleTree
+namespace Wonka.Import.RuleTree
 {
     #region Delegates
 
-    public delegate bool ProvideRuleSet(WonkaBreRuleSet poNewRuleSet);
+    public delegate bool ProvideRuleSet(WonkaBizRuleSet poNewRuleSet);
 
     #endregion
 

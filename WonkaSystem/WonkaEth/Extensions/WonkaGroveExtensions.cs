@@ -5,11 +5,11 @@ using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.ABI.Model;
 using Nethereum.Web3.Accounts;
 
-using WonkaEth.Contracts;
-using WonkaEth.Orchestration;
-using WonkaRef;
+using Wonka.Eth.Contracts;
+using Wonka.Eth.Orchestration;
+using Wonka.MetaData;
 
-namespace WonkaEth.Extensions
+namespace Wonka.Eth.Extensions
 {
     [FunctionOutput]
     public class RuleGroveRegistryData

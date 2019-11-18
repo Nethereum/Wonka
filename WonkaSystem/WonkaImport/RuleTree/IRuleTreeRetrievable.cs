@@ -1,9 +1,9 @@
 ﻿using System;
 
-using WonkaBre;
-using WonkaRef;
+using Wonka.BizRulesEngine;
+using Wonka.MetaData;
 
-namespace WonkaImport.RuleTree
+namespace Wonka.Import.RuleTree
 {
     public enum BRE_IMPORT_SOURCE
     {
@@ -20,7 +20,7 @@ namespace WonkaImport.RuleTree
     /// </summary>
     public interface IRuleTreeRetrievable
     {
-        WonkaBreRulesEngine CreateRulesEngine();
+        WonkaBizRulesEngine CreateRulesEngine();
 
         BRE_IMPORT_SOURCE GetImportSourceType();
 

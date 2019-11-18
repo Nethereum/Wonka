@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using WonkaBre;
-using WonkaBre.RuleTree;
-using WonkaRef;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
+using Wonka.MetaData;
 
-namespace WonkaEth.Init
+namespace Wonka.Eth.Init
 {
 	public class WonkaEthEngineProps
 	{
@@ -26,11 +26,11 @@ namespace WonkaEth.Init
 
 		public string RulesMarkupXml { get; set; }
 
-		public WonkaBreRulesEngine RulesEngine { get; set; }
+		public WonkaBizRulesEngine RulesEngine { get; set; }
 
-		public Dictionary<string, WonkaBreSource> SourceMap { get; set; }
+		public Dictionary<string, WonkaBizSource> SourceMap { get; set; }
 
-		public WonkaBreSource.RetrieveDataMethod DotNetRetrieveMethod { get; set; }
+		public WonkaBizSource.RetrieveDataMethod DotNetRetrieveMethod { get; set; }
 	}
 
 	public class WonkaEthEngineInitialization
@@ -38,20 +38,20 @@ namespace WonkaEth.Init
         public WonkaEthEngineInitialization()
         {
             Engine      = new WonkaEthEngineProps();
-            Web3HttpUrl = "";
+            Web3HttpUrl = string.Empty;
 
-            EthSenderAddress = EthPassword = EthRuleTreeOwnerAddress = "";
+            EthSenderAddress = EthPassword = EthRuleTreeOwnerAddress = string.Empty;
 
-            RulesEngineABI      = WonkaEth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
-            RegistryContractABI = WonkaEth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
-            StorageContractABI  = WonkaEth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
+            RulesEngineABI      = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
+            RegistryContractABI = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
+            StorageContractABI  = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
 
-            RulesEngineContractAddress = "";
-            RegistryContractAddress    = "";
+            RulesEngineContractAddress = string.Empty;
+            RegistryContractAddress    = string.Empty;
 
             UsingStorageContract   = true;
-            StorageContractAddress = "";
-			StorageDefaultSourceId = StorageGetterMethod = StorageSetterMethod = "";
+            StorageContractAddress = string.Empty;
+			StorageDefaultSourceId = StorageGetterMethod = StorageSetterMethod = string.Empty;
 
             UsingTrxStateContract   = false;
             TrxStateContractAddress = null;

@@ -5,20 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Nethereum.ABI.FunctionEncoding.Attributes;
-using Nethereum.ABI.Model;
+using Nethereum.Contracts;
 using Nethereum.Web3.Accounts;
 
-using Nethereum.Contracts;
-using Nethereum.Hex.HexTypes;
+using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.Readers;
+using Wonka.BizRulesEngine.RuleTree;
+using Wonka.Eth.Contracts;
+using Wonka.Eth.Enums;
+using Wonka.MetaData;
 
-using WonkaBre;
-using WonkaBre.Readers;
-using WonkaBre.RuleTree;
-using WonkaEth.Contracts;
-using WonkaRef;
-
-namespace WonkaEth.Extensions
+namespace Wonka.Eth.Extensions
 {
     /// <summary>
     /// 
@@ -42,12 +39,13 @@ namespace WonkaEth.Extensions
         public const string CONST_CONTRACT_FUNCTION_GET_LAST_RPT = "getLastRuleReport";
         public const string CONST_CONTRACT_FUNCTION_HAS_RT       = "hasRuleTree";
 
+        private const int CONST_MIN_GAS_COST_DEFAULT = (int) GAS_COST.CONST_MIN_OP_GAS_COST_DEFAULT;
+        private const int CONST_MID_GAS_COST_DEFAULT = (int) GAS_COST.CONST_MID_OP_GAS_COST_DEFAULT;
+        private const int CONST_MAX_GAS_COST_DEFAULT = (int) GAS_COST.CONST_MAX_OP_GAS_COST_DEFAULT;
+
         private const int CONST_CONTRACT_ATTR_NUM_ON_START = 3;
         private const int CONST_CONTRACT_BYTE32_MAX        = 32;
         private const int CONST_CUSTOM_OP_ARG_COUNT        = 4;
-        private const int CONST_MIN_GAS_COST_DEFAULT       = 100000;
-        private const int CONST_MID_GAS_COST_DEFAULT       = 1000000;
-        private const int CONST_MAX_GAS_COST_DEFAULT       = 2000000;
         private const int CONST_MAX_RULE_TREE_ID_LEN       = 16;
 
         private const string CONST_BLOCK_NUM_OP_IND = "00000";
@@ -79,7 +77,7 @@ namespace WonkaEth.Extensions
         /// <param name="psSenderAddress">The Ethereum address of the sender (i.e., owner) account</param>
         /// <returns>None</returns>
         /// </summary>
-        public static async Task<bool> CompareRuleTreesAsync(this WonkaBreRulesEngine poEngine, string psSenderAddress)
+        public static async Task<bool> CompareRuleTreesAsync(this WonkaBizRulesEngine poEngine, string psSenderAddress)
         {
 			bool bResult = true;
 
@@ -103,7 +101,7 @@ namespace WonkaEth.Extensions
         /// <param name="psTreeOwnerAddress">Address of the owner of the RuleTree in this engine instance on the chain</param>
         /// <returns>Indicates whether or not the RuleTree exists</returns>
         /// </summary>
-        public static async Task<bool> DoesTreeExistOnChainAsync(this WonkaBreRulesEngine poEngine, Contract poWonkaContract, string psTreeOwnerAddress)
+        public static async Task<bool> DoesTreeExistOnChainAsync(this WonkaBizRulesEngine poEngine, Contract poWonkaContract, string psTreeOwnerAddress)
         {
             var hasRuleTreeFunction = poWonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_HAS_RT);
 
@@ -123,7 +121,7 @@ namespace WonkaEth.Extensions
         /// <param name="poReport">If not null, we will fill the report with the results of the RuleTree's invocation on the blockchain</param>
         /// <returns>Receipt hash of transaction</returns>
         /// </summary>
-        public static async Task<string> ExecuteOnChainAsync(this WonkaBreRulesEngine poEngine, WonkaEth.Init.WonkaEthEngineInitialization poEngineInitProps, WonkaEth.Extensions.RuleTreeReport poReport = null)
+        public static async Task<string> ExecuteOnChainAsync(this WonkaBizRulesEngine poEngine, Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps, Wonka.Eth.Extensions.RuleTreeReport poReport = null)
         {
             var account = new Account(poEngineInitProps.EthPassword);
 
@@ -226,12 +224,12 @@ namespace WonkaEth.Extensions
         /// </summary>
         private static async Task<string> ExportXmlStringAsync(Contract poEngineContract, string psOwnerId, string psRuleSetName, uint pnStepLevel)
         {
-            var RSNodeTag   = WonkaBreXmlReader.CONST_RS_FLOW_TAG;
-            var RSNodeDesc  = WonkaBreXmlReader.CONST_RS_FLOW_DESC_ATTR;
-            var RSLeafTag   = WonkaBreXmlReader.CONST_RS_VALID_TAG;
-            var RSLeafMode  = WonkaBreXmlReader.CONST_RS_VALID_ERR_ATTR;
-            var RuleCollTag = WonkaBreXmlReader.CONST_RULES_TAG;
-            var LogicOp     = WonkaBreXmlReader.CONST_RULES_OP_ATTR;
+            var RSNodeTag   = WonkaBizRulesXmlReader.CONST_RS_FLOW_TAG;
+            var RSNodeDesc  = WonkaBizRulesXmlReader.CONST_RS_FLOW_DESC_ATTR;
+            var RSLeafTag   = WonkaBizRulesXmlReader.CONST_RS_VALID_TAG;
+            var RSLeafMode  = WonkaBizRulesXmlReader.CONST_RS_VALID_ERR_ATTR;
+            var RuleCollTag = WonkaBizRulesXmlReader.CONST_RULES_TAG;
+            var LogicOp     = WonkaBizRulesXmlReader.CONST_RULES_OP_ATTR;
 
             StringBuilder sbExportXmlString = new StringBuilder();
             StringBuilder sbTabSpaces       = new StringBuilder();
@@ -254,12 +252,14 @@ namespace WonkaEth.Extensions
             if (!psRuleSetName.StartsWith("Root", StringComparison.CurrentCultureIgnoreCase))
             {
                 if (SetProps.ChildRuleSetCount > 0)
+                {
                     sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<" + RSNodeTag + " " + RSNodeDesc + "=\"" + SetProps.RuleSetDesc + "\" >\n");
+                }
                 else
                 {
-                    string sMode = 
-                        SetProps.SevereFailureFlag ? WonkaBreXmlReader.CONST_RS_VALID_ERR_SEVERE : WonkaBreXmlReader.CONST_RS_VALID_ERR_WARNING;
-                    
+                    string sMode =
+                        SetProps.SevereFailureFlag ? WonkaBizRulesXmlReader.CONST_RS_VALID_ERR_SEVERE : WonkaBizRulesXmlReader.CONST_RS_VALID_ERR_WARNING;
+
                     sbExportXmlString.Append(sbTabSpaces.ToString()).Append("<" + RSLeafTag + " " + RSLeafMode + "=\"" + sMode + "\" >\n");
                 }
 
@@ -323,6 +323,45 @@ namespace WonkaEth.Extensions
 
         /// <summary>
         /// 
+        /// This method will return the value of an Attribute from a third-party storage contract (on the chain).
+        /// 
+        /// <returns>Returns the value for the Attribute from the third-party storage contract</returns>
+        /// </summary>
+        public static async Task<string> GetAttrValueFromChainAsync(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
+        {
+            var contract = poTargetSource.GetContract(psWeb3Url);
+
+            var getRecordValueFunction = contract.GetFunction(poTargetSource.MethodName);
+
+            return await getRecordValueFunction.CallAsync<string>(psAttrName).ConfigureAwait(false);
+        }
+
+		/// <summary>
+		/// 
+		/// This method will return the value of an Attribute from an instance contract of the Wonka engine (on the chain).
+		/// 
+		/// <returns>Returns the value for the Attribute, using the Wonka contract as a proxy</returns>
+		/// </summary>
+		public static async Task<Dictionary<string,string>> GetAttrValuesViaChainEngineAsync(this Wonka.Eth.Init.WonkaEthSource poTargetSource, HashSet<string> poTargetAttributes, string psWeb3Url = "")
+		{
+			var values = new Dictionary<string,string>();
+
+			var wonkaContract = poTargetSource.GetEngineContract(psWeb3Url);
+
+			var getValueOnRecordFunction = wonkaContract.GetFunction(WonkaExtensions.CONST_CONTRACT_FUNCTION_GET_VALUE);
+
+			foreach (string sTmpAttrName in poTargetAttributes)
+			{
+                string result = await getValueOnRecordFunction.CallAsync<string>(poTargetSource.ContractOwner, sTmpAttrName).ConfigureAwait(false);
+
+				values[sTmpAttrName] = result;
+			}
+
+			return values;
+		}
+
+        /// <summary>
+        /// 
         /// This method will return the metadata about a RuleTree that is registered within the blockchain.
         /// 
         /// <param name="psRuleTreeId">The ID of the RuleTree of interest</param>
@@ -347,7 +386,7 @@ namespace WonkaEth.Extensions
         /// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
         /// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
         /// </summary>
-        public static async Task<RuleTreeReport> InvokeOnChainAsync(this WonkaBreRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress, uint nSendTrxGas = 0)
+        public static async Task<RuleTreeReport> InvokeOnChainAsync(this WonkaBizRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress, uint nSendTrxGas = 0)
         {
             var InvocationReport = new RuleTreeReport();
             var WonkaEvents      = new WonkaInvocationEvents(poWonkaContract);
@@ -373,7 +412,7 @@ namespace WonkaEth.Extensions
                 {
                     foreach (string sTmpCustomId in InvocationReport.RuleSetFailures)
                     {
-                        WonkaBreRuleSet FoundRuleSet =
+                        WonkaBizRuleSet FoundRuleSet =
                             poRulesEngine.AllRuleSets.Where(x => x.CustomId == sTmpCustomId).FirstOrDefault();
 
                         if (!String.IsNullOrEmpty(FoundRuleSet.CustomId))
@@ -393,7 +432,7 @@ namespace WonkaEth.Extensions
         /// <param name="poEngine">The instance of an engine which contains the root node of the RuleTree</param>
         /// <returns>Indicates whether or not the RuleTree has already been registered on the blockchain</returns>
         /// </summary>
-        public static async Task<bool> IsRuleTreeRegisteredAsync(this WonkaBreRulesEngine poEngine)
+        public static async Task<bool> IsRuleTreeRegisteredAsync(this WonkaBizRulesEngine poEngine)
         {
             var contract   = WonkaExtensions.GetRegistryContract();
             var ruleTreeID = poEngine.DetermineRuleTreeChainID();
@@ -418,7 +457,7 @@ namespace WonkaEth.Extensions
         /// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the RuleTree</param>
         /// <returns>Indicates whether or not the RuleTree was created to the blockchain</returns>
         /// </summary>
-        public static async Task<bool> SerializeAsync(this WonkaBreRulesEngine poEngine, 
+        public static async Task<bool> SerializeAsync(this WonkaBizRulesEngine poEngine, 
                                                                         string psRuleMasterAddress,
                                                                         string psPassword, 
                                                                         string psSenderAddress,
@@ -429,7 +468,7 @@ namespace WonkaEth.Extensions
         {
             bool bResult = true;
 
-            WonkaBre.RuleTree.WonkaBreRuleSet treeRoot = poEngine.RuleTreeRoot;
+            WonkaBizRuleSet treeRoot = poEngine.RuleTreeRoot;
             
             var account = new Account(psPassword);
 
@@ -516,16 +555,16 @@ namespace WonkaEth.Extensions
             {
                 foreach (WonkaRefAttr TempAttr in poInstance.AttrCache)
                 {
-                    var sAttrName = "";
+                    var sAttrName = string.Empty;
 
                     if (TempAttr.AttrName.Length > CONST_CONTRACT_BYTE32_MAX)
-                        sAttrName = TempAttr.AttrName.Trim().Replace(" ", "").Substring(0, 31);
+                        sAttrName = TempAttr.AttrName.Trim().Replace(" ", string.Empty).Substring(0, 31);
                     else
-                        sAttrName = TempAttr.AttrName.Trim().Replace(" ", "");
+                        sAttrName = TempAttr.AttrName.Trim().Replace(" ", string.Empty);
 
                     uint   MaxLen    = (uint)TempAttr.MaxLength;
                     uint   MaxNumVal = 999999; // TempAttr.MaxValue;
-                    string DefVal    = !String.IsNullOrEmpty(TempAttr.DefaultValue) ? TempAttr.DefaultValue : "";
+                    string DefVal    = !String.IsNullOrEmpty(TempAttr.DefaultValue) ? TempAttr.DefaultValue : string.Empty;
                     bool   IsString  = !TempAttr.IsNumeric;
                     bool   IsNumeric = TempAttr.IsNumeric;
 
@@ -556,7 +595,7 @@ namespace WonkaEth.Extensions
             HashSet<string> SourcesAdded   = new HashSet<string>();
             HashSet<string> CustomOpsAdded = new HashSet<string>();
 
-            string sGroveId  = "";
+            string sGroveId  = string.Empty;
             int    nGroveIdx = 0;
 
             foreach (string TmpGroveId in poRegistryItem.RuleTreeGroveIds.Keys)
@@ -576,7 +615,9 @@ namespace WonkaEth.Extensions
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
             if (poRegistryItem.creationTime > 0)
+            {
                 nSecondsSinceEpoch = poRegistryItem.creationTime;
+            }
             else
             {
                 TimeSpan span = DateTime.UtcNow - new DateTime(1970, 1, 1);
@@ -616,13 +657,13 @@ namespace WonkaEth.Extensions
         /// <param name="psWeb3HttpUrl">The URL of the Ethereum node/client to which we will serialize the TransactionState</param>
         /// <returns>Indicates whether or not the transaction state was submitted to the blockchain</returns>
         /// </summary>
-        public static async Task<bool> SerializeAsync(this WonkaBre.Permissions.ITransactionState poTransState,
-                                                                     Nethereum.Contracts.Contract poWonkaContract,
-                                                                                           string psRuleMasterAddress,
-                                                                                           string psPassword,
-                                                                                           string psSenderAddress,
-                                                                                           string psTransStateContractAddress,
-                                                                                           string psWeb3HttpUrl)
+        public static async Task<bool> SerializeAsync(this Wonka.BizRulesEngine.Permissions.ITransactionState poTransState,
+                                                                                 Nethereum.Contracts.Contract poWonkaContract,
+                                                                                                       string psRuleMasterAddress,
+                                                                                                       string psPassword,
+                                                                                                       string psSenderAddress,
+                                                                                                       string psTransStateContractAddress,
+                                                                                                       string psWeb3HttpUrl)
         {
             #region Set Trx State on Tree in the Chain
 
@@ -642,7 +683,7 @@ namespace WonkaEth.Extensions
             var TmpAssembly  = System.Reflection.Assembly.GetExecutingAssembly();
             var TmpResStream = TmpAssembly.GetManifestResourceStream("WonkaEth.Contracts.Ethereum.TransactionStateInterface.abi");
 
-            string sTrxStateABI = "";
+            string sTrxStateABI = string.Empty;
             using (var AbiReader = new System.IO.StreamReader(TmpResStream))
             {
                 sTrxStateABI = AbiReader.ReadToEnd();
@@ -729,7 +770,7 @@ namespace WonkaEth.Extensions
         /// <param name="psSenderAddress">The Ethereum address of the sender account</param>
         /// <returns>Indicates whether or not the Orchestration info was submitted to the blockchain</returns>
         /// </summary>
-        private static async Task<bool> SerializeOrchestrationInfoAsync(this WonkaBreRulesEngine poEngine, Nethereum.Contracts.Contract poContract, string psRuleMasterAddress, string psSenderAddress)
+        private static async Task<bool> SerializeOrchestrationInfoAsync(this WonkaBizRulesEngine poEngine, Nethereum.Contracts.Contract poContract, string psRuleMasterAddress, string psSenderAddress)
         {
             var addSourceFunction   = poContract.GetFunction("addSource");
             var addCustomOpFunction = poContract.GetFunction("addCustomOp");
@@ -740,8 +781,8 @@ namespace WonkaEth.Extensions
 
             if (poEngine.UsingOrchestrationMode)
             {
-                string result = "";
-                string defSrc = (!String.IsNullOrEmpty(poEngine.DefaultSource)) ? poEngine.DefaultSource : "";
+                string result = string.Empty;
+                string defSrc = (!String.IsNullOrEmpty(poEngine.DefaultSource)) ? poEngine.DefaultSource : string.Empty;
 
                 var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
@@ -750,7 +791,7 @@ namespace WonkaEth.Extensions
 
                 foreach (string sTmpAttrId in poEngine.SourceMap.Keys)
                 {
-                    WonkaBreSource TmpSource = poEngine.SourceMap[sTmpAttrId];
+                    WonkaBizSource TmpSource = poEngine.SourceMap[sTmpAttrId];
 
                     // NOTE: Causes "out of gas" exception to be thrown?
                     // var gas = addSourceFunction.EstimateGasAsync("Something", "Something", "Something", "Something", "Something").Result;
@@ -774,7 +815,7 @@ namespace WonkaEth.Extensions
 
                 foreach (string sCustomOpName in poEngine.CustomOpMap.Keys)
                 {
-                    WonkaBreSource TmpSource = poEngine.CustomOpMap[sCustomOpName];
+                    WonkaBizSource TmpSource = poEngine.CustomOpMap[sCustomOpName];
 
                     var addSrcGas = new Nethereum.Hex.HexTypes.HexBigInteger(1500000);
 
@@ -808,7 +849,7 @@ namespace WonkaEth.Extensions
         /// <param name="psContractAddress">The address of the instance of the Ethgine contract</param>
         /// <returns>Indicates whether or not the Attributes were submitted to the blockchain</returns>
         /// </summary>
-        private static async Task<bool> SerializeRegistryInfoAsync(this WonkaBreRulesEngine poEngine, string psSenderAddress, string psContractAddress)
+        private static async Task<bool> SerializeRegistryInfoAsync(this WonkaBizRulesEngine poEngine, string psSenderAddress, string psContractAddress)
         {
             string sRuleTreeId = poEngine.DetermineRuleTreeChainID();
 
@@ -859,11 +900,11 @@ namespace WonkaEth.Extensions
         /// <param name="psRegistrationId">The alternate ID for the RuleTree to use when registering it within the Registry</param>
         /// <returns>Indicates whether or not all of the RuleTree's nodes were submitted to the blockchain</returns>
         /// </summary>
-        private static async Task<bool> SerializeTreeRootAsync(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, 
-                                                                         Nethereum.Contracts.Contract poContract, 
-                                                                                               string psRuleMasterAddress,
-                                                                                               string psSenderAddress, 
-                                                                                               string psRegistrationId)
+        private static async Task<bool> SerializeTreeRootAsync(this WonkaBizRuleSet poRuleSet, 
+                                                       Nethereum.Contracts.Contract poContract, 
+                                                                             string psRuleMasterAddress,
+                                                                             string psSenderAddress, 
+                                                                             string psRegistrationId)
         {
             var addRuleTreeFunction = poContract.GetFunction("addRuleTree");
 
@@ -871,7 +912,7 @@ namespace WonkaEth.Extensions
             // var gas = addRuleTreeFunction.EstimateGasAsync(psSenderAddress, "SomeName", "SomeDesc", true, true, true).Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(CONST_MID_GAS_COST_DEFAULT);
 
-            var sRootName      = "";
+            var sRootName      = string.Empty;
             var sDesc          = "Root Node of the Tree";
             var severeFailFlag = (poRuleSet.ErrorSeverity == RULE_SET_ERR_LVL.ERR_LVL_SEVERE);
             var andOpFlag      = (poRuleSet.RulesEvalOperator == RULE_OP.OP_AND);
@@ -883,7 +924,7 @@ namespace WonkaEth.Extensions
 
             await poRuleSet.SerializeRulesAsync(poContract, psRuleMasterAddress, psSenderAddress, sRootName).ConfigureAwait(false);
 
-            foreach (WonkaBre.RuleTree.WonkaBreRuleSet TempChildRuleSet in poRuleSet.ChildRuleSets)
+            foreach (WonkaBizRuleSet TempChildRuleSet in poRuleSet.ChildRuleSets)
             {
                 await TempChildRuleSet.SerializeRuleSetAsync(poContract, psRuleMasterAddress, psSenderAddress, sRootName).ConfigureAwait(false);
             }
@@ -903,11 +944,11 @@ namespace WonkaEth.Extensions
         /// <param name="psRSParentName">The parent node of the current node that we are adding to the RuleTree</param>
         /// <returns>Indicates whether or not the current node was submitted to the blockchain</returns>
         /// </summary>
-        private static async Task<bool> SerializeRuleSetAsync(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet,
-                                                                        Nethereum.Contracts.Contract poContract,
-                                                                                              string psRuleMasterAddress,
-                                                                                              string psSenderAddress, 
-                                                                                              string psRSParentName)
+        private static async Task<bool> SerializeRuleSetAsync(this WonkaBizRuleSet poRuleSet,
+                                                      Nethereum.Contracts.Contract poContract,
+                                                                            string psRuleMasterAddress,
+                                                                            string psSenderAddress, 
+                                                                            string psRSParentName)
         {
             var addRuleSetFunction = poContract.GetFunction("addRuleSet");
 
@@ -915,8 +956,8 @@ namespace WonkaEth.Extensions
             // var gas = addRuleSetFunction.EstimateGasAsync(psSenderAddress, "SomeName", "SomeDesc", "SomeParentName", true, true, true).Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
-            var sResultSetID   = "";
-            var sDescription   = "";
+            var sResultSetID   = string.Empty;
+            var sDescription   = string.Empty;
             var severeFailFlag = (poRuleSet.ErrorSeverity == RULE_SET_ERR_LVL.ERR_LVL_SEVERE);
             var andOpFlag      = (poRuleSet.RulesEvalOperator == RULE_OP.OP_AND);
 
@@ -947,12 +988,12 @@ namespace WonkaEth.Extensions
             }
             else if (poRuleSet.Description.Length > CONST_CONTRACT_BYTE32_MAX)
             {
-                sResultSetID = poRuleSet.Description.Replace(" ", "").Trim().Substring(0, 31);
+                sResultSetID = poRuleSet.Description.Replace(" ", string.Empty).Trim().Substring(0, 31);
                 sDescription = poRuleSet.Description;
             }
             else
             {
-                sResultSetID = poRuleSet.Description.Replace(" ", "").Trim();
+                sResultSetID = poRuleSet.Description.Replace(" ", string.Empty).Trim();
                 sDescription = poRuleSet.Description;
             }
 
@@ -964,7 +1005,7 @@ namespace WonkaEth.Extensions
 
             await poRuleSet.SerializeRulesAsync(poContract, psRuleMasterAddress, psSenderAddress, sResultSetID).ConfigureAwait(false);
 
-            foreach (WonkaBre.RuleTree.WonkaBreRuleSet TempChildRuleSet in poRuleSet.ChildRuleSets)
+            foreach (WonkaBizRuleSet TempChildRuleSet in poRuleSet.ChildRuleSets)
             {
                 await TempChildRuleSet.SerializeRuleSetAsync(poContract, psRuleMasterAddress, psSenderAddress, sResultSetID).ConfigureAwait(false);
             }
@@ -984,7 +1025,7 @@ namespace WonkaEth.Extensions
         /// <param name="psRuleSetId">The name of the current node in the blockchain whose rules we are adding to the RuleTree</param>
         /// <returns>Indicates whether or not the rules of the current node were submitted to the blockchain</returns>
         /// </summary>
-        private static async Task<bool> SerializeRulesAsync(this WonkaBre.RuleTree.WonkaBreRuleSet poRuleSet, 
+        private static async Task<bool> SerializeRulesAsync(this WonkaBizRuleSet poRuleSet, 
                                                                       Nethereum.Contracts.Contract poContract, 
                                                                                             string psRuleMasterAddress, 
                                                                                             string psSenderAddress, 
@@ -997,20 +1038,20 @@ namespace WonkaEth.Extensions
             // var gas = addRuleFunction.EstimateGasAsync(psSenderAddress, "SomeRSID", "SomeRuleName", "SomeAttrName", 0, "SomeVal", false, false).Result;
             var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1500000);
 
-            foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in poRuleSet.EvaluativeRules)
+            foreach (WonkaBizRule TempRule in poRuleSet.EvaluativeRules)
             {
-                var    sRuleName    = "";
+                var    sRuleName    = string.Empty;
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
                 var    sAttrName    = TempRule.TargetAttribute.AttrName;
                 uint   nRuleType    = (uint) CONTRACT_RULE_TYPES.MODE_MAX;
-                string sValue       = "";
+                string sValue       = string.Empty;
                 var    passFlag     = TempRule.IsPassive;
                 var    notFlag      = TempRule.NotOperator;
 
                 if (TempRule.RuleType == RULE_TYPE.RT_ARITH_LIMIT)
                 {
                     var ArithLimitRule = 
-                            (WonkaBre.RuleTree.RuleTypes.ArithmeticLimitRule) TempRule;
+                            (Wonka.BizRulesEngine.RuleTree.RuleTypes.ArithmeticLimitRule) TempRule;
 
                     if (ArithLimitRule.MinValue <= Double.MinValue)
                     {
@@ -1037,7 +1078,7 @@ namespace WonkaEth.Extensions
                 else if (TempRule.RuleType == RULE_TYPE.RT_DATE_LIMIT)
                 {
                     var DateLimitRule =
-                            (WonkaBre.RuleTree.RuleTypes.DateLimitRule) TempRule;
+                            (Wonka.BizRulesEngine.RuleTree.RuleTypes.DateLimitRule) TempRule;
 
                     if (DateLimitRule.MinValue <= DateTime.MinValue)
                     {
@@ -1082,7 +1123,7 @@ namespace WonkaEth.Extensions
                 else if (TempRule.RuleType == RULE_TYPE.RT_DOMAIN)
                 {
                     var DomainRule =
-                        (WonkaBre.RuleTree.RuleTypes.DomainRule) TempRule;
+                        (Wonka.BizRulesEngine.RuleTree.RuleTypes.DomainRule) TempRule;
                         
                     nRuleType = (uint) CONTRACT_RULE_TYPES.IN_DOMAIN_RULE;
 
@@ -1098,15 +1139,17 @@ namespace WonkaEth.Extensions
                         ((TempRule.TargetAttribute.AttrName.Length > 13) ? TempRule.TargetAttribute.AttrName.Substring(0, 13) : TempRule.TargetAttribute.AttrName);
                 }
 
-                if (!String.IsNullOrEmpty(TempRule.DescRuleId))
-                    sRuleName = TempRule.DescRuleId;
-                else
-                {
-                    if (sAltRuleName.Length > CONST_CONTRACT_BYTE32_MAX)
-                        sAltRuleName = sAltRuleName.Substring(0, CONST_CONTRACT_BYTE32_MAX - 1);
+				if (!String.IsNullOrEmpty(TempRule.DescRuleId))
+				{
+					sRuleName = TempRule.DescRuleId;
+				}
+				else
+				{
+					if (sAltRuleName.Length > CONST_CONTRACT_BYTE32_MAX)
+						sAltRuleName = sAltRuleName.Substring(0, CONST_CONTRACT_BYTE32_MAX - 1);
 
-                    sRuleName = sAltRuleName;
-                }
+					sRuleName = sAltRuleName;
+				}
 
                 // if ((nRuleType > 0) && !TempRule.NotOperator)
                 if (nRuleType < (uint) CONTRACT_RULE_TYPES.MODE_MAX)
@@ -1120,13 +1163,13 @@ namespace WonkaEth.Extensions
                 }
             }
 
-            foreach (WonkaBre.RuleTree.WonkaBreRule TempRule in poRuleSet.AssertiveRules)
+            foreach (WonkaBizRule TempRule in poRuleSet.AssertiveRules)
             {
-                var    sRuleName    = "";
+                var    sRuleName    = string.Empty;
                 var    sAltRuleName = "Rule" + TempRule.RuleId;
                 var    sAttrName    = TempRule.TargetAttribute.AttrName;
                 uint   nRuleType    = (uint) CONTRACT_RULE_TYPES.MODE_MAX;
-                string sValue       = "";
+                string sValue       = string.Empty;
                 var    notFlag      = TempRule.NotOperator;
 
                 List<string> CustomOpArgs = new List<string>();
@@ -1137,7 +1180,7 @@ namespace WonkaEth.Extensions
                 if (TempRule.RuleType == RULE_TYPE.RT_ASSIGNMENT)
                 {
                     var AssignRule =
-                        (WonkaBre.RuleTree.RuleTypes.AssignmentRule) TempRule;
+                        (Wonka.BizRulesEngine.RuleTree.RuleTypes.AssignmentRule) TempRule;
 
                     nRuleType = (uint) CONTRACT_RULE_TYPES.ASSIGN_RULE;
 
@@ -1149,7 +1192,7 @@ namespace WonkaEth.Extensions
                 else if (TempRule.RuleType == RULE_TYPE.RT_ARITHMETIC)
                 {
                     var AssignArithmeticRule =
-                        (WonkaBre.RuleTree.RuleTypes.ArithmeticRule) TempRule;
+                        (Wonka.BizRulesEngine.RuleTree.RuleTypes.ArithmeticRule) TempRule;
 
                     if (AssignArithmeticRule.OpType == ARITH_OP_TYPE.AOT_SUM)
                         nRuleType = (uint)CONTRACT_RULE_TYPES.ARITH_OP_SUM;
@@ -1164,7 +1207,7 @@ namespace WonkaEth.Extensions
                     {
                         foreach (string sTempVal in AssignArithmeticRule.DomainValueProps.Keys)
                         {
-                            if (!String.IsNullOrEmpty(sValue)) sValue += ",";
+                            if (!string.IsNullOrEmpty(sValue)) sValue += ",";
 
                             sValue += sTempVal;
                         }
@@ -1176,7 +1219,7 @@ namespace WonkaEth.Extensions
                 else if (TempRule.RuleType == RULE_TYPE.RT_CUSTOM_OP)
                 {
                     var CustomOpRule =
-                        (WonkaBre.RuleTree.RuleTypes.CustomOperatorRule) TempRule;
+                        (Wonka.BizRulesEngine.RuleTree.RuleTypes.CustomOperatorRule) TempRule;
 
                     nRuleType = (uint) CONTRACT_RULE_TYPES.CUSTOM_OP_RULE;
 
@@ -1196,7 +1239,9 @@ namespace WonkaEth.Extensions
                 }
 
                 if (!String.IsNullOrEmpty(TempRule.DescRuleId))
+                {
                     sRuleName = TempRule.DescRuleId;
+                }
                 else
                 {
                     if (sAltRuleName.Length > CONST_CONTRACT_BYTE32_MAX)

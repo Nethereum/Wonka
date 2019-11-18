@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 
-namespace WonkaRef
+namespace Wonka.MetaData
 {
     /// <summary>
     /// 
@@ -33,10 +33,10 @@ namespace WonkaRef
             AttrCache              = pMetadataRetrievable.GetAttrCache();
             AttrCollectionCache    = pMetadataRetrievable.GetAttrCollectionCache();
             CurrencyCache          = pMetadataRetrievable.GetCurrencyCache();
-            FieldCache             = pMetadataRetrievable.GetFieldCache();
+            CadreCache             = pMetadataRetrievable.GetCadreCache();
             GroupCache             = pMetadataRetrievable.GetGroupCache();
             SourceCache            = pMetadataRetrievable.GetSourceCache();
-            SourceFieldCache       = pMetadataRetrievable.GetSourceFieldCache();
+            SourceCadreCache       = pMetadataRetrievable.GetSourceCadreCache();
             StandardCache          = pMetadataRetrievable.GetStandardCache();
 
             // NOTE: To be implemented later
@@ -44,10 +44,10 @@ namespace WonkaRef
 
             AttrKeys       = new List<WonkaRefAttr>();
             AttrMap        = new Dictionary<int, WonkaRefAttr>();
-            FieldMap       = new Dictionary<int, WonkaRefField>();
+            CadreMap       = new Dictionary<int, WonkaRefCadre>();
             GroupMap       = new Dictionary<int, WonkaRefGroup>();
             SourceMap      = new Dictionary<int, WonkaRefSource>();
-            SourceFieldMap = new Dictionary<int, WonkaRefSourceField>();
+            SourceCadreMap = new Dictionary<int, WonkaRefSourceCadre>();
 
             foreach (WonkaRefAttr TmpAttribute in AttrCache)
             {
@@ -91,14 +91,14 @@ namespace WonkaRef
                 GroupMap[TmpGroup.GroupId] = TmpGroup;
             }
 
-            foreach (WonkaRefField TmpField in FieldCache)
-                FieldMap[TmpField.FieldId] = TmpField;
+            foreach (WonkaRefCadre TmpField in CadreCache)
+                CadreMap[TmpField.CadreId] = TmpField;
 
             foreach (WonkaRefSource TmpSource in SourceCache)
                 SourceMap[TmpSource.SourceId] = TmpSource;
 
-            foreach (WonkaRefSourceField TmpSrcField in SourceFieldCache)
-                SourceFieldMap[TmpSrcField.SourceFieldId] = TmpSrcField;            
+            foreach (WonkaRefSourceCadre TmpSrcField in SourceCadreCache)
+                SourceCadreMap[TmpSrcField.SourceCadreId] = TmpSrcField;            
 
             if (bAllMetadata)
             {
@@ -146,7 +146,7 @@ namespace WonkaRef
 
         public bool DoesFieldExist(int pnFieldId)
         {
-            return FieldMap.Keys.Contains(pnFieldId);
+            return CadreMap.Keys.Contains(pnFieldId);
         }
 
         public bool DoesGroupExist(int pnGroupId)
@@ -193,29 +193,29 @@ namespace WonkaRef
             return AttrCache.Where(x => x.TabCol == psTabColName).FirstOrDefault();
         }
 
-        public WonkaRefField GetFieldByFieldId(int pnFieldId)
+        public WonkaRefCadre GetFieldByFieldId(int pnFieldId)
         {
-            if (!FieldMap.Keys.Contains(pnFieldId))
+            if (!CadreMap.Keys.Contains(pnFieldId))
                 throw new Exception("ERROR!  Field ID (" + pnFieldId + ") does not exist.");
 
-            return FieldMap[pnFieldId];
+            return CadreMap[pnFieldId];
         }
 
-        public WonkaRefField GetFieldByFieldName(string psFieldName)
+        public WonkaRefCadre GetFieldByFieldName(string psFieldName)
         {
-            return FieldCache.Where(x => x.FieldName == psFieldName).FirstOrDefault();
+            return CadreCache.Where(x => x.CadreName == psFieldName).FirstOrDefault();
         }
 
-        public List<WonkaRefField> GetFieldsByGroupId(int pnGroupId)
+        public List<WonkaRefCadre> GetFieldsByGroupId(int pnGroupId)
         {
             HashSet<int>      oFieldIds = IdXref.GroupIdToFieldIds[pnGroupId];
-            List<WonkaRefField> oFields   = new List<WonkaRefField>();
+            List<WonkaRefCadre> oFields   = new List<WonkaRefCadre>();
 
             // var oFields = DownloadedItems.Where(x => !CurrentCollection.Any(y => x.bar == y.bar));
 
             foreach (int nFieldId in oFieldIds)
             {
-                WonkaRefField oTmpField = FieldMap[nFieldId];
+                WonkaRefCadre oTmpField = CadreMap[nFieldId];
                 oFields.Add(oTmpField);
             }
 
@@ -250,12 +250,12 @@ namespace WonkaRef
 			return nGrpSeqAttrId;
         }
 
-        public WonkaRefSourceField GetSourceField(WonkaRefSource poSource, WonkaRefField poField)
+        public WonkaRefSourceCadre GetSourceField(WonkaRefSource poSource, WonkaRefCadre poField)
         {
             if ( (poSource != null) && (poField != null))
             {
                 Dictionary<int, int> FieldsToSourceFields = IdXref.SourceFields[poSource.SourceId];
-                return SourceFieldCache[FieldsToSourceFields[poField.FieldId]];
+                return SourceCadreCache[FieldsToSourceFields[poField.CadreId]];
             }
             else
                 return null;
@@ -277,7 +277,7 @@ namespace WonkaRef
             return AttrCache.Any(x => x.AttrName == psAttrName);
         }
 
-        public bool IsSourceField(WonkaRefSource poSource, WonkaRefField poField)
+        public bool IsSourceField(WonkaRefSource poSource, WonkaRefCadre poField)
         {
             return (GetSourceField(poSource,poField) != null);
         }
@@ -314,9 +314,9 @@ namespace WonkaRef
 
         public int DefaultCommitThreshold { get; } 
 
-        public List<WonkaRefField>              FieldCache { get; }
+        public List<WonkaRefCadre>              CadreCache { get; }
 
-        private Dictionary<int, WonkaRefField>  FieldMap { get; }
+        private Dictionary<int, WonkaRefCadre>  CadreMap { get; }
 
         public List<WonkaRefGroup>              GroupCache { get; }
 
@@ -328,9 +328,9 @@ namespace WonkaRef
 
         private Dictionary<int, WonkaRefSource> SourceMap { get; }
 
-        public List<WonkaRefSourceField>        SourceFieldCache { get; }
+        public List<WonkaRefSourceCadre>        SourceCadreCache { get; }
 
-        private Dictionary<int, WonkaRefSourceField> SourceFieldMap { get; }
+        private Dictionary<int, WonkaRefSourceCadre> SourceCadreMap { get; }
 
         public List<WonkaRefStandard>                StandardCache { get; }
 

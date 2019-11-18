@@ -2,8 +2,8 @@
 using System.IO;
 using System.Text;
 
-using WonkaEth.Orchestration;
-using WonkaEth.Orchestration.Init;
+using Wonka.Eth.Orchestration;
+using Wonka.Eth.Orchestration.Init;
 
 using WonkaSystem.CQS.Contracts;
 

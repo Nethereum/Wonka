@@ -4,7 +4,7 @@ using System.Threading;
 using Nethereum.Contracts.ContractHandlers;
 using Nethereum.Web3;
 
-namespace WonkaEth.Triggers
+namespace Wonka.Eth.Triggers
 {
     public class WonkaEthContractTriggerBase
     {
