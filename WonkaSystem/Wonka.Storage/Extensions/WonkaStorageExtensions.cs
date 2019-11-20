@@ -163,18 +163,66 @@ namespace Wonka.Storage.Extensions
 			return await poTargetSource.GetAttrValueFromChainAsync(psAttrName, psWeb3Url).ConfigureAwait(false);
 		}
 
-		/// <summary>
-		/// 
-		/// This method will retrieve data via an instance of the official Nethereum Storage contract.
-		///
-		/// NOTE: UNDER CONSTRUCTION
-		/// 
-		/// <param name="poStorageSource">The address that represents the instance on the chain</param>
-		/// <param name="poSaveEntity">The entity that we are trying to save to the chain</param>
-		/// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
-		/// <returns>Contains indicator of success</returns>
-		/// </summary>
-		public static bool PersistEntity(this Wonka.Eth.Init.WonkaEthSource poStorageSource, WonkaProduct poSaveEntity, string psWeb3Url = "")
+        /// <summary>
+        /// 
+        /// This method will return an Attribute value using.
+        /// 
+        /// NOTE: UNDER CONSTRUCTION
+        /// 
+        /// <param name="poEngine">The Wonka.NET instance that represents the instance on the chain</param>
+        /// <param name="poEngineSource">The address that represents the instance on the chain</param>
+        /// <param name="pnEpochTimeToStartFrom">The time of the reports from which we want to start pulling reports</param>
+        /// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
+        /// <returns>Contains the array of rule reports</returns>
+        /// </summary>
+        public static List<Wonka.Eth.Extensions.RuleTreeReport> GetRuleTreeReportsFromChainStorage(this WonkaBizRulesEngine poEngine, 
+                                                                                              Wonka.Eth.Init.WonkaEthSource poEngineSource, 
+                                                                                                                       long pnEpochTimeToStartFrom = 0, 
+                                                                                                                     string psWeb3Url = "")
+        {
+            var RuleTreeReports = new List<Wonka.Eth.Extensions.RuleTreeReport>();
+
+            // NOTE: Do work here
+
+            return RuleTreeReports;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will return an Attribute value using.
+        /// 
+        /// NOTE: UNDER CONSTRUCTION
+        /// 
+        /// <param name="poEngine">The Wonka.NET instance that represents the instance on the chain</param>
+        /// <param name="poEngineSource">The address that represents the instance on the chain</param>
+        /// <param name="pnEpochTimeToStartFrom">The time of the reports from which we want to start pulling reports</param>
+        /// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
+        /// <returns>Contains the array of rule reports</returns>
+        /// </summary>
+        public static async Task<List<Wonka.Eth.Extensions.RuleTreeReport>> GetRuleTreeReportsFromChainStorageAsync(this WonkaBizRulesEngine poEngine,
+                                                                                                               Wonka.Eth.Init.WonkaEthSource poEngineSource,
+                                                                                                                                        long pnEpochTimeToStartFrom = 0,
+                                                                                                                                      string psWeb3Url = "")
+        {
+            var RuleTreeReports = new List<Wonka.Eth.Extensions.RuleTreeReport>();
+
+            // NOTE: Do work here
+
+            return RuleTreeReports;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will retrieve data via an instance of the official Nethereum Storage contract.
+        ///
+        /// NOTE: UNDER CONSTRUCTION
+        /// 
+        /// <param name="poStorageSource">The address that represents the instance on the chain</param>
+        /// <param name="poSaveEntity">The entity that we are trying to save to the chain</param>
+        /// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
+        /// <returns>Contains indicator of success</returns>
+        /// </summary>
+        public static bool PersistEntity(this Wonka.Eth.Init.WonkaEthSource poStorageSource, WonkaProduct poSaveEntity, string psWeb3Url = "")
 		{
 			BizDataStorageService storageService = poStorageSource.GetStorageService(psWeb3Url);
 
@@ -248,5 +296,6 @@ namespace Wonka.Storage.Extensions
 
             return CurrentEntity;
         }
+
     }
 }
