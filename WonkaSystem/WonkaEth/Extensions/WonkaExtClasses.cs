@@ -11,6 +11,7 @@ using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 
 using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Eth.Orchestration.BlockchainEvents;
 
 namespace Wonka.Eth.Extensions
@@ -185,6 +186,18 @@ namespace Wonka.Eth.Extensions
                     }
                 }
             }
+
+            if (poRulesEngine.AllRuleSets != null)
+            {
+                foreach (string sTmpCustomId in poRuleTreeReport.RuleSetFailures)
+                {
+                    WonkaBizRuleSet FoundRuleSet =
+                        poRulesEngine.AllRuleSets.Where(x => x.CustomId == sTmpCustomId).FirstOrDefault();
+
+                    if (!String.IsNullOrEmpty(FoundRuleSet.CustomId))
+                        poRuleTreeReport.RuleSetFailMessages[FoundRuleSet.CustomId] = FoundRuleSet.CustomFailureMsg;
+                }
+            }
         }
 
     }
@@ -207,6 +220,7 @@ namespace Wonka.Eth.Extensions
             RuleSetWarnings = new List<string>();
             RuleSetFailures = new List<string>();
 
+            DataSnapshot       = new Dictionary<string, string>();
             RuleSetFailMessages = new Dictionary<string, string>();
         }
 
@@ -227,7 +241,8 @@ namespace Wonka.Eth.Extensions
             RuleSetWarnings = poOriginal.RuleSetWarnings;
             RuleSetFailures = poOriginal.RuleSetFailures;
 
-            RuleSetFailMessages = poOriginal.RuleSetFailMessages;
+            DataSnapshot        = new Dictionary<string, string>(poOriginal.DataSnapshot);
+            RuleSetFailMessages = new Dictionary<string, string>(poOriginal.RuleSetFailMessages);
         }
 
         [Parameter("uint", "fails", 1)]
@@ -244,6 +259,8 @@ namespace Wonka.Eth.Extensions
 
         [Parameter("bytes32[]", "rset_failures", 5)]
         public List<string> RuleSetFailures { get; set; }
+
+        public Dictionary<string, string> DataSnapshot { get; set; }
 
         public Dictionary<string, string> RuleSetFailMessages { get; set; }
 

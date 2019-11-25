@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 
 using Nethereum.Contracts;
+using Nethereum.Hex.HexTypes;
 using Nethereum.Web3.Accounts;
 
 using Wonka.BizRulesEngine;
@@ -179,7 +180,8 @@ namespace Wonka.Eth.Extensions
 
             if (poEngineInitProps.EthRuleTreeOwnerAddress == poEngineInitProps.EthSenderAddress)
             {
-                var RuleTreeReport = poEngine.InvokeOnChain(wonkaContract, poEngineInitProps.EthRuleTreeOwnerAddress, nMaxGas);
+                var RuleTreeReport = 
+                    poEngine.InvokeOnChain(wonkaContract, poEngineInitProps.EthRuleTreeOwnerAddress, nMaxGas, poEngineInitProps.Web3HttpUrl);
 
 				trxHashRuleTreeInvocation = RuleTreeReport.TransactionHash;
 
@@ -441,13 +443,18 @@ namespace Wonka.Eth.Extensions
         /// 
         /// <returns>Returns the value for the Attribute from the third-party storage contract</returns>
         /// </summary>
-        public static string GetAttrValueFromChain(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
+        public static string GetAttrValueFromChain(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "", HexBigInteger poBlockNum = null)
         {
             var contract = poTargetSource.GetContract(psWeb3Url);
 
             var getRecordValueFunction = contract.GetFunction(poTargetSource.MethodName);
 
-            var result = getRecordValueFunction.CallAsync<string>(psAttrName).Result;
+            string result = "";
+
+            if (poBlockNum == null)
+                result = getRecordValueFunction.CallAsync<string>(psAttrName).Result;
+            else
+                result = getRecordValueFunction.CallAsync<string>(new Nethereum.RPC.Eth.DTOs.BlockParameter(poBlockNum), psAttrName).Result;
 
             return result;
         }
@@ -458,7 +465,10 @@ namespace Wonka.Eth.Extensions
 		/// 
 		/// <returns>Returns the value for the Attribute, using the Wonka contract as a proxy</returns>
 		/// </summary>
-		public static Dictionary<string,string> GetAttrValuesViaChainEngine(this Wonka.Eth.Init.WonkaEthSource poTargetSource, HashSet<string> poTargetAttributes, string psWeb3Url = "")
+		public static Dictionary<string,string> GetAttrValuesViaChainEngine(this Wonka.Eth.Init.WonkaEthSource poTargetSource, 
+                                                                                               HashSet<string> poTargetAttributes, 
+                                                                                                        string psWeb3Url = "",
+                                                                          Nethereum.Hex.HexTypes.HexBigInteger poTargetBlock = null)
 		{
 			var values = new Dictionary<string,string>();
 
@@ -467,10 +477,15 @@ namespace Wonka.Eth.Extensions
 			var getValueOnRecordFunction = wonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_GET_VALUE);
 
 			foreach (string sTmpAttrName in poTargetAttributes)
-			{			
-				var result = getValueOnRecordFunction.CallAsync<string>(poTargetSource.ContractOwner, sTmpAttrName).Result;
+			{
+				string result = getValueOnRecordFunction.CallAsync<string>(poTargetSource.ContractOwner, sTmpAttrName).Result;
 
-				values[sTmpAttrName] = result;
+                if (poTargetBlock == null)
+                    result = getValueOnRecordFunction.CallAsync<string>(poTargetSource.ContractOwner, sTmpAttrName).Result;
+                else
+                    result = getValueOnRecordFunction.CallAsync<string>(new Nethereum.RPC.Eth.DTOs.BlockParameter(poTargetBlock), poTargetSource.ContractOwner, sTmpAttrName).Result;
+
+                values[sTmpAttrName] = result;
 			}
 
 			return values;
@@ -596,7 +611,11 @@ namespace Wonka.Eth.Extensions
 		/// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
 		/// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
 		/// </summary>
-		public static RuleTreeReport InvokeOnChain(this WonkaBizRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress, uint nSendTrxGas = 0)
+		public static RuleTreeReport InvokeOnChain(this WonkaBizRulesEngine poRulesEngine, 
+                                                                   Contract poWonkaContract, 
+                                                                     string psRuleTreeOwnerAddress, 
+                                                                       uint nSendTrxGas = 0, 
+                                                                     string psWeb3Url = "")
         {
             var InvocationReport = new RuleTreeReport();
             var WonkaEvents      = new WonkaInvocationEvents(poWonkaContract);
@@ -614,24 +633,7 @@ namespace Wonka.Eth.Extensions
 
             // Finally, we handle any events that have been issued during the execution of the rules engine
             if (InvocationReport != null)
-            {			
-				InvocationReport.TransactionHash      = receipt.TransactionHash;
-                InvocationReport.InvokeTrxBlockNumber = receipt.BlockNumber;
-
-                WonkaEvents.HandleEvents(poRulesEngine, InvocationReport);
-
-                if (poRulesEngine.AllRuleSets != null)
-                {
-                    foreach (string sTmpCustomId in InvocationReport.RuleSetFailures)
-                    {
-                        WonkaBizRuleSet FoundRuleSet =
-                            poRulesEngine.AllRuleSets.Where(x => x.CustomId == sTmpCustomId).FirstOrDefault();
-
-                        if (!String.IsNullOrEmpty(FoundRuleSet.CustomId))
-                            InvocationReport.RuleSetFailMessages[FoundRuleSet.CustomId] = FoundRuleSet.CustomFailureMsg;
-                    }
-                }
-            }
+                InvocationReport.Populate(poWonkaContract, poRulesEngine, receipt, psWeb3Url);
 
             return InvocationReport;
         }
@@ -674,6 +676,44 @@ namespace Wonka.Eth.Extensions
 
 			return receipt;
 		}
+
+        /// <summary>
+		/// 
+		/// This method will use Nethereum to execute the sibling RuleTree of a Wonka.NET instance.  This sibling should already exist on the chain.
+		/// 
+		/// <param name="poRulesEngine">The instance of the Wonka.NET whose sibling should exist already on an Ethereum client</param>
+		/// <param name="poWonkaContract">The contract instance on the chain that should contain the sibling of 'poRulesEngine'</param>
+		/// <param name="psRuleTreeOwnerAddress">The owner of the RuleTree on an Ethereum client</param>
+		/// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
+		/// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
+		/// </summary>
+		public static void Populate(this RuleTreeReport poInvocationReport, 
+                                               Contract poWonkaContract,
+                                    WonkaBizRulesEngine poEngine,
+              Nethereum.RPC.Eth.DTOs.TransactionReceipt poTrxReceipt,
+                                                 string psWeb3Url = "",
+                                                   bool pbGetDataSnapshot = true)
+        {
+            var WonkaEvents = new WonkaInvocationEvents(poWonkaContract);
+
+            // Finally, we handle any events that have been issued during the execution of the rules engine
+            if (poInvocationReport != null)
+            {
+                poInvocationReport.TransactionHash      = poTrxReceipt.TransactionHash;
+                poInvocationReport.InvokeTrxBlockNumber = poTrxReceipt.BlockNumber;
+
+                WonkaEvents.HandleEvents(poEngine, poInvocationReport);
+
+                if (pbGetDataSnapshot)
+                {
+                    foreach (string sAttrName in poEngine.SourceMap.Keys)
+                    {
+                        poInvocationReport.DataSnapshot[sAttrName] =
+                            poEngine.SourceMap[sAttrName].GetAttrValueFromChain(sAttrName, psWeb3Url, poTrxReceipt.BlockNumber);
+                    }
+                }
+            }
+        }
 
 		/// <summary>
 		/// 
