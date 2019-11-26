@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Nethereum.Contracts;
+using Nethereum.Hex.HexTypes;
 using Nethereum.Web3.Accounts;
 
 using Wonka.BizRulesEngine;
@@ -145,7 +146,7 @@ namespace Wonka.Eth.Extensions
             if (poEngineInitProps.EthRuleTreeOwnerAddress == poEngineInitProps.EthSenderAddress)
             {
                 var RuleTreeReport =
-                    await poEngine.InvokeOnChainAsync(wonkaContract, poEngineInitProps.EthRuleTreeOwnerAddress, nMaxGas).ConfigureAwait(false);
+                    await poEngine.InvokeOnChainAsync(wonkaContract, poEngineInitProps.EthRuleTreeOwnerAddress, nMaxGas, poEngineInitProps.Web3HttpUrl).ConfigureAwait(false);
 
 				trxHashRuleTreeInvocation = RuleTreeReport.TransactionHash;
 
@@ -327,22 +328,29 @@ namespace Wonka.Eth.Extensions
         /// 
         /// <returns>Returns the value for the Attribute from the third-party storage contract</returns>
         /// </summary>
-        public static async Task<string> GetAttrValueFromChainAsync(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
+        public static async Task<string> GetAttrValueFromChainAsync(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "", HexBigInteger poBlockNum = null)
         {
             var contract = poTargetSource.GetContract(psWeb3Url);
 
             var getRecordValueFunction = contract.GetFunction(poTargetSource.MethodName);
 
-            return await getRecordValueFunction.CallAsync<string>(psAttrName).ConfigureAwait(false);
+            string result = "";
+
+            if (poBlockNum == null)
+                result = await getRecordValueFunction.CallAsync<string>(psAttrName).ConfigureAwait(false);
+            else
+                result = await getRecordValueFunction.CallAsync<string>(new Nethereum.RPC.Eth.DTOs.BlockParameter(poBlockNum), psAttrName).ConfigureAwait(false);
+
+            return result;
         }
 
-		/// <summary>
-		/// 
-		/// This method will return the value of an Attribute from an instance contract of the Wonka engine (on the chain).
-		/// 
-		/// <returns>Returns the value for the Attribute, using the Wonka contract as a proxy</returns>
-		/// </summary>
-		public static async Task<Dictionary<string,string>> GetAttrValuesViaChainEngineAsync(this Wonka.Eth.Init.WonkaEthSource poTargetSource, HashSet<string> poTargetAttributes, string psWeb3Url = "")
+        /// <summary>
+        /// 
+        /// This method will return the value of an Attribute from an instance contract of the Wonka engine (on the chain).
+        /// 
+        /// <returns>Returns the value for the Attribute, using the Wonka contract as a proxy</returns>
+        /// </summary>
+        public static async Task<Dictionary<string,string>> GetAttrValuesViaChainEngineAsync(this Wonka.Eth.Init.WonkaEthSource poTargetSource, HashSet<string> poTargetAttributes, string psWeb3Url = "")
 		{
 			var values = new Dictionary<string,string>();
 
@@ -384,12 +392,16 @@ namespace Wonka.Eth.Extensions
         /// <param name="poWonkaContract">The contract instance on the chain that should contain the sibling of 'poRulesEngine'</param>
         /// <param name="psRuleTreeOwnerAddress">The owner of the RuleTree on an Ethereum client</param>
         /// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
+        /// <param name="psWeb3Url">The URL that points to the Ethereum client with which we are communicating</param>
         /// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
         /// </summary>
-        public static async Task<RuleTreeReport> InvokeOnChainAsync(this WonkaBizRulesEngine poRulesEngine, Contract poWonkaContract, string psRuleTreeOwnerAddress, uint nSendTrxGas = 0)
+        public static async Task<RuleTreeReport> InvokeOnChainAsync(this WonkaBizRulesEngine poRulesEngine, 
+                                                                                    Contract poWonkaContract, 
+                                                                                      string psRuleTreeOwnerAddress, 
+                                                                                        uint nSendTrxGas = 0,
+                                                                                      string psWeb3Url = "")
         {
             var InvocationReport = new RuleTreeReport();
-            var WonkaEvents      = new WonkaInvocationEvents(poWonkaContract);
 
             var executeFunction = poWonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC);
 
@@ -400,25 +412,11 @@ namespace Wonka.Eth.Extensions
             var receipt =
                 await executeFunction.SendTransactionAndWaitForReceiptAsync(psRuleTreeOwnerAddress, gas, null, null, psRuleTreeOwnerAddress).ConfigureAwait(false);
 
-            // Finally, we handle any events that have been issued during the execution of the rules engine
+            // Finally, we populate the report, by handling any events that have been issued during the execution of the rules engine
             if (InvocationReport != null)
-            {			
-				InvocationReport.TransactionHash      = receipt.TransactionHash;
-                InvocationReport.InvokeTrxBlockNumber = receipt.BlockNumber;
-
-                WonkaEvents.HandleEvents(poRulesEngine, InvocationReport);
-
-                if (poRulesEngine.AllRuleSets != null)
-                {
-                    foreach (string sTmpCustomId in InvocationReport.RuleSetFailures)
-                    {
-                        WonkaBizRuleSet FoundRuleSet =
-                            poRulesEngine.AllRuleSets.Where(x => x.CustomId == sTmpCustomId).FirstOrDefault();
-
-                        if (!String.IsNullOrEmpty(FoundRuleSet.CustomId))
-                            InvocationReport.RuleSetFailMessages[FoundRuleSet.CustomId] = FoundRuleSet.CustomFailureMsg;
-                    }
-                }
+            {
+                bool bSuccess = 
+                    await InvocationReport.PopulateAsync(poWonkaContract, poRulesEngine, receipt, psWeb3Url).ConfigureAwait(false);
             }
 
             return InvocationReport;
@@ -440,6 +438,47 @@ namespace Wonka.Eth.Extensions
             var isRegisteredFunction = contract.GetFunction("isRuleTreeRegistered");
 
             return await isRegisteredFunction.CallAsync<bool>(poEngine.DetermineRuleTreeChainID()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to retrieve the details about the invocation of the engine on the chain and then populate the report with that data.
+        /// <param name="poInvocationReport">The report which will contain all the details about the RuleTree's invocation</param>
+        /// <param name="poWonkaContract">The contract instance on the chain that should contain the sibling of 'poRulesEngine'</param>
+        /// <param name="poRulesEngine">The instance of the Wonka.NET whose sibling should exist already on an Ethereum client</param>
+        /// <param name="poTrxReceipt">The hash that represents the receipt number of the engine's transaction</param>        
+        /// <param name="psWeb3Url">The URL that points to the Ethereum client with which we are communicating</param>
+        /// <param name="pbGetDataSnapshot">The indicator for whether or not to retrieve the storage data at the time of the invocation</param>
+        /// <returns>None</returns>
+        /// </summary>
+        public static async Task<bool> PopulateAsync(this RuleTreeReport poInvocationReport,
+                                                                Contract poWonkaContract,
+                                                     WonkaBizRulesEngine poEngine,
+                               Nethereum.RPC.Eth.DTOs.TransactionReceipt poTrxReceipt,
+                                                                  string psWeb3Url = "",
+                                                                    bool pbGetDataSnapshot = true)
+        {
+            var WonkaEvents = new WonkaInvocationEvents(poWonkaContract);
+
+            // Finally, we handle any events that have been issued during the execution of the rules engine
+            if (poInvocationReport != null)
+            {
+                poInvocationReport.TransactionHash      = poTrxReceipt.TransactionHash;
+                poInvocationReport.InvokeTrxBlockNumber = poTrxReceipt.BlockNumber;
+
+                WonkaEvents.HandleEvents(poEngine, poInvocationReport);
+
+                if (pbGetDataSnapshot)
+                {
+                    foreach (string sAttrName in poEngine.SourceMap.Keys)
+                    {
+                        poInvocationReport.DataSnapshot[sAttrName] =
+                            await poEngine.SourceMap[sAttrName].GetAttrValueFromChainAsync(sAttrName, psWeb3Url, poTrxReceipt.BlockNumber).ConfigureAwait(false);
+                    }
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

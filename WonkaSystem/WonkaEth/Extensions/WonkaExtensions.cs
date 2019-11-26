@@ -601,24 +601,24 @@ namespace Wonka.Eth.Extensions
 			return new BizDataStorageService(web3, poTargetSource.ContractAddress);
 		}
 
-		/// <summary>
-		/// 
-		/// This method will use Nethereum to execute the sibling RuleTree of a Wonka.NET instance.  This sibling should already exist on the chain.
-		/// 
-		/// <param name="poRulesEngine">The instance of the Wonka.NET whose sibling should exist already on an Ethereum client</param>
-		/// <param name="poWonkaContract">The contract instance on the chain that should contain the sibling of 'poRulesEngine'</param>
-		/// <param name="psRuleTreeOwnerAddress">The owner of the RuleTree on an Ethereum client</param>
-		/// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
-		/// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
-		/// </summary>
-		public static RuleTreeReport InvokeOnChain(this WonkaBizRulesEngine poRulesEngine, 
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to execute the sibling RuleTree of a Wonka.NET instance.  This sibling should already exist on the chain.
+        /// 
+        /// <param name="poRulesEngine">The instance of the Wonka.NET whose sibling should exist already on an Ethereum client</param>
+        /// <param name="poWonkaContract">The contract instance on the chain that should contain the sibling of 'poRulesEngine'</param>
+        /// <param name="psRuleTreeOwnerAddress">The owner of the RuleTree on an Ethereum client</param>
+        /// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
+        /// <param name="psWeb3Url">The URL that points to the Ethereum client with which we are communicating</param>
+        /// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
+        /// </summary>
+        public static RuleTreeReport InvokeOnChain(this WonkaBizRulesEngine poRulesEngine, 
                                                                    Contract poWonkaContract, 
                                                                      string psRuleTreeOwnerAddress, 
                                                                        uint nSendTrxGas = 0, 
                                                                      string psWeb3Url = "")
         {
             var InvocationReport = new RuleTreeReport();
-            var WonkaEvents      = new WonkaInvocationEvents(poWonkaContract);
 
             var executeFunction = poWonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC);
 
@@ -631,7 +631,7 @@ namespace Wonka.Eth.Extensions
 
             // ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>().Result;
 
-            // Finally, we handle any events that have been issued during the execution of the rules engine
+            // Finally, we populate the report, by handling any events that have been issued during the execution of the rules engine
             if (InvocationReport != null)
                 InvocationReport.Populate(poWonkaContract, poRulesEngine, receipt, psWeb3Url);
 
@@ -678,16 +678,17 @@ namespace Wonka.Eth.Extensions
 		}
 
         /// <summary>
-		/// 
-		/// This method will use Nethereum to execute the sibling RuleTree of a Wonka.NET instance.  This sibling should already exist on the chain.
-		/// 
-		/// <param name="poRulesEngine">The instance of the Wonka.NET whose sibling should exist already on an Ethereum client</param>
-		/// <param name="poWonkaContract">The contract instance on the chain that should contain the sibling of 'poRulesEngine'</param>
-		/// <param name="psRuleTreeOwnerAddress">The owner of the RuleTree on an Ethereum client</param>
-		/// <param name="nSendTrxGas">The gas amount to use when invoking the RuleTree sibling (on the chain) of 'poRulesEngine'</param>
-		/// <returns>Contains the detailed report of the RuleTree's execution on the chain</returns>
-		/// </summary>
-		public static void Populate(this RuleTreeReport poInvocationReport, 
+        /// 
+        /// This method will use Nethereum to retrieve the details about the invocation of the engine on the chain and then populate the report with that data.
+        /// <param name="poInvocationReport">The report which will contain all the details about the RuleTree's invocation</param>
+        /// <param name="poWonkaContract">The contract instance on the chain that should contain the sibling of 'poRulesEngine'</param>
+        /// <param name="poRulesEngine">The instance of the Wonka.NET whose sibling should exist already on an Ethereum client</param>
+        /// <param name="poTrxReceipt">The hash that represents the receipt number of the engine's transaction</param>        
+        /// <param name="psWeb3Url">The URL that points to the Ethereum client with which we are communicating</param>
+        /// <param name="pbGetDataSnapshot">The indicator for whether or not to retrieve the storage data at the time of the invocation</param>
+        /// <returns>None</returns>
+        /// </summary>
+        public static void Populate(this RuleTreeReport poInvocationReport, 
                                                Contract poWonkaContract,
                                     WonkaBizRulesEngine poEngine,
               Nethereum.RPC.Eth.DTOs.TransactionReceipt poTrxReceipt,
