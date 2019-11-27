@@ -220,7 +220,8 @@ namespace Wonka.Eth.Extensions
             RuleSetWarnings = new List<string>();
             RuleSetFailures = new List<string>();
 
-            DataSnapshot       = new Dictionary<string, string>();
+            DataSnapshotPrior   = new Dictionary<string, string>();
+            DataSnapshot        = new Dictionary<string, string>();
             RuleSetFailMessages = new Dictionary<string, string>();
         }
 
@@ -241,6 +242,7 @@ namespace Wonka.Eth.Extensions
             RuleSetWarnings = poOriginal.RuleSetWarnings;
             RuleSetFailures = poOriginal.RuleSetFailures;
 
+            DataSnapshotPrior   = new Dictionary<string, string>(poOriginal.DataSnapshotPrior);
             DataSnapshot        = new Dictionary<string, string>(poOriginal.DataSnapshot);
             RuleSetFailMessages = new Dictionary<string, string>(poOriginal.RuleSetFailMessages);
         }
@@ -260,7 +262,9 @@ namespace Wonka.Eth.Extensions
         [Parameter("bytes32[]", "rset_failures", 5)]
         public List<string> RuleSetFailures { get; set; }
 
-        public Dictionary<string, string> DataSnapshot { get; set; }
+        public Dictionary<string, string> DataSnapshotPrior { get; set; }
+
+        public Dictionary<string, string> DataSnapshot { get; set; }       
 
         public Dictionary<string, string> RuleSetFailMessages { get; set; }
 

@@ -715,6 +715,22 @@ namespace Wonka.Eth.Extensions
                         poInvocationReport.DataSnapshot[sAttrName] =
                             poEngine.SourceMap[sAttrName].GetAttrValueFromChain(sAttrName, psWeb3Url, poTrxReceipt.BlockNumber);
                     }
+
+                    var nBlockNum = poTrxReceipt.BlockNumber.ToUlong();
+                    if (nBlockNum > 0)
+                    {
+                        var nBlockNumPrior   = nBlockNum - 1;
+                        var HexBlockNumPrior = new HexBigInteger(new System.Numerics.BigInteger(nBlockNumPrior));
+
+                        if (HexBlockNumPrior.ToUlong() > 0)
+                        {
+                            foreach (string sAttrName in poEngine.SourceMap.Keys)
+                            {
+                                poInvocationReport.DataSnapshotPrior[sAttrName] =
+                                    poEngine.SourceMap[sAttrName].GetAttrValueFromChain(sAttrName, psWeb3Url, HexBlockNumPrior);
+                            }
+                        }
+                    }
                 }
             }
         }
