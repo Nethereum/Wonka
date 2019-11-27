@@ -401,7 +401,9 @@ namespace Wonka.Eth.Extensions
                                                                                         uint nSendTrxGas = 0,
                                                                                       string psWeb3Url = "")
         {
-            var InvocationReport = new RuleTreeReport();
+			var WonkaEvents = new WonkaInvocationEvents(poWonkaContract);
+
+			var InvocationReport = new RuleTreeReport();
 
             var executeFunction = poWonkaContract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC);
 
@@ -415,7 +417,10 @@ namespace Wonka.Eth.Extensions
             // Finally, we populate the report, by handling any events that have been issued during the execution of the rules engine
             if (InvocationReport != null)
             {
-                bool bSuccess = 
+				// Strangely, we cannot incorporate this within the Populate() function, and it has to be executed here
+				WonkaEvents.HandleEvents(poRulesEngine, InvocationReport);
+
+				bool bSuccess = 
                     await InvocationReport.PopulateAsync(poWonkaContract, poRulesEngine, receipt, psWeb3Url).ConfigureAwait(false);
             }
 
@@ -458,15 +463,11 @@ namespace Wonka.Eth.Extensions
                                                                   string psWeb3Url = "",
                                                                     bool pbGetDataSnapshot = true)
         {
-            var WonkaEvents = new WonkaInvocationEvents(poWonkaContract);
-
             // Finally, we handle any events that have been issued during the execution of the rules engine
             if (poInvocationReport != null)
             {
                 poInvocationReport.TransactionHash      = poTrxReceipt.TransactionHash;
                 poInvocationReport.InvokeTrxBlockNumber = poTrxReceipt.BlockNumber;
-
-                WonkaEvents.HandleEvents(poEngine, poInvocationReport);
 
                 if (pbGetDataSnapshot)
                 {
