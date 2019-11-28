@@ -214,6 +214,9 @@ namespace Wonka.Eth.Extensions
             TransactionHash      = string.Empty;
             InvokeTrxBlockNumber = null;
 
+			StartTime = DateTime.Now;
+			EndTime   = DateTime.Now;
+
             RuleSetIds = new List<string>();
             RuleIds    = new List<string>();
 
@@ -235,6 +238,9 @@ namespace Wonka.Eth.Extensions
             NumberOfRuleFailures = poOriginal.NumberOfRuleFailures;
             TransactionHash      = poOriginal.TransactionHash;
             InvokeTrxBlockNumber = poOriginal.InvokeTrxBlockNumber;
+
+			StartTime = poOriginal.StartTime;
+			EndTime   = poOriginal.EndTime;
 
             RuleSetIds = poOriginal.RuleSetIds;
             RuleIds    = poOriginal.RuleIds;
@@ -262,14 +268,18 @@ namespace Wonka.Eth.Extensions
         [Parameter("bytes32[]", "rset_failures", 5)]
         public List<string> RuleSetFailures { get; set; }
 
-        public Dictionary<string, string> DataSnapshotPrior { get; set; }
-
-        public Dictionary<string, string> DataSnapshot { get; set; }       
-
         public Dictionary<string, string> RuleSetFailMessages { get; set; }
 
         public string TransactionHash { get; set; }
 
         public HexBigInteger InvokeTrxBlockNumber { get; set; }
-    }
+
+		public Dictionary<string, string> DataSnapshotPrior { get; set; }
+
+		public Dictionary<string, string> DataSnapshot { get; set; }
+
+		public DateTime StartTime { get; set; }
+
+		public DateTime EndTime { get; set; }
+	}
 }

@@ -411,11 +411,15 @@ namespace Wonka.Eth.Extensions
             if (nSendTrxGas > 0)
                 gas = new Nethereum.Hex.HexTypes.HexBigInteger(nSendTrxGas);
 
-            var receipt =
+			InvocationReport.StartTime = DateTime.Now;
+
+			var receipt =
                 await executeFunction.SendTransactionAndWaitForReceiptAsync(psRuleTreeOwnerAddress, gas, null, null, psRuleTreeOwnerAddress).ConfigureAwait(false);
 
-            // Finally, we populate the report, by handling any events that have been issued during the execution of the rules engine
-            if (InvocationReport != null)
+			InvocationReport.EndTime = DateTime.Now;
+
+			// Finally, we populate the report, by handling any events that have been issued during the execution of the rules engine
+			if (InvocationReport != null)
             {
 				// Strangely, we cannot incorporate this within the Populate() function, and it has to be executed here
 				WonkaEvents.HandleEvents(poRulesEngine, InvocationReport);

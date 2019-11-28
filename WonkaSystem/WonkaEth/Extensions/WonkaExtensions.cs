@@ -628,8 +628,12 @@ namespace Wonka.Eth.Extensions
             if (nSendTrxGas > 0)
                 gas = new Nethereum.Hex.HexTypes.HexBigInteger(nSendTrxGas);
 
+			InvocationReport.StartTime = DateTime.Now;
+
             var receipt = 
                 executeFunction.SendTransactionAndWaitForReceiptAsync(psRuleTreeOwnerAddress, gas, null, null, psRuleTreeOwnerAddress).Result;
+
+			InvocationReport.EndTime = DateTime.Now;
 
 			// ruleTreeReport = executeGetLastReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>().Result;
 
