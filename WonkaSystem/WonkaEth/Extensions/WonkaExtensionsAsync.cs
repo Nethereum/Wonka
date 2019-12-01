@@ -1086,10 +1086,10 @@ namespace Wonka.Eth.Extensions
         /// <returns>Indicates whether or not the rules of the current node were submitted to the blockchain</returns>
         /// </summary>
         private static async Task<bool> SerializeRulesAsync(this WonkaBizRuleSet poRuleSet, 
-                                                                      Nethereum.Contracts.Contract poContract, 
-                                                                                            string psRuleMasterAddress, 
-                                                                                            string psSenderAddress, 
-                                                                                            string psRuleSetId)
+                                                    Nethereum.Contracts.Contract poContract, 
+                                                                          string psRuleMasterAddress, 
+                                                                          string psSenderAddress, 
+                                                                          string psRuleSetId)
         {
             var addRuleFunction         = poContract.GetFunction("addRule");
             var addCustomOpArgsFunction = poContract.GetFunction("addRuleCustomOpArgs");
@@ -1326,6 +1326,64 @@ namespace Wonka.Eth.Extensions
                     System.Console.WriteLine("ERROR!  This rule doesn't qualify for serialization!");    
                 }
             }
+
+            return true;
+        }
+
+		/// <summary>
+		/// 
+		/// This method will use Nethereum to revert certain values on the chain to a previous state, particularly
+		/// those values set by the engine during the previous invocation.
+		///
+		/// NOTE: ONLY INITIAL IMPLEMENTATION
+		/// 
+		/// <param name="poEngine">The instance of a RuleTree that already exists on the engine of the chain</param>
+		/// <param name="poInvocationReport">A report of the RuleTree's previous invocation</param>
+		/// <param name="psWeb3Url">The URL that points to the Ethereum client with which we are communicating</param>
+		/// <returns>Indicates whether or not the Orchestration info was submitted to the blockchain</returns>
+		/// </summary>
+		private static async Task<bool> UndoAsync(this WonkaBizRulesEngine poEngine, RuleTreeReport poInvocationReport, string psWeb3Url = "")
+        {
+            string empty  = string.Empty;
+            string defSrc = (!String.IsNullOrEmpty(poEngine.DefaultSource)) ? poEngine.DefaultSource : string.Empty;
+
+            var gas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+			HashSet<WonkaBizRuleSet> AssertiveRuleSets =
+				new HashSet<WonkaBizRuleSet>(poEngine.AllRuleSets.Where(x => x.AssertiveRules.Count() > 0).ToList());
+
+			foreach (WonkaBizRuleSet TempRuleSet in AssertiveRuleSets)
+			{
+				foreach (WonkaBizRule TempRule in TempRuleSet.AssertiveRules)
+				{
+					string sTmpAttrName   = TempRule.TargetAttribute.AttrName;
+					string sPreviousValue = empty;
+					string sSetValue      = empty;
+
+					if (poInvocationReport.DataSnapshot.ContainsKey(sTmpAttrName))
+						sSetValue = poInvocationReport.DataSnapshot[sTmpAttrName];
+
+					if (poInvocationReport.DataSnapshotPrior.ContainsKey(sTmpAttrName))
+						sPreviousValue = poInvocationReport.DataSnapshotPrior[sTmpAttrName];
+
+					if (poInvocationReport.RuleIds.Contains(TempRule.DescRuleId))
+					{
+						if ((sPreviousValue != sSetValue) && poEngine.SourceMap.ContainsKey(sTmpAttrName))
+						{
+							WonkaBizSource TargetSource = poEngine.SourceMap[sTmpAttrName];
+
+							string sSenderAddr = TargetSource.SenderAddress;
+
+							var contract = TargetSource.GetContract(psWeb3Url);
+
+							var setRecordValueFunction = contract.GetFunction(TargetSource.SetterMethodName);
+
+							var receiptSetValueOnRecord =
+								await setRecordValueFunction.SendTransactionAsync(sSenderAddr, gas, null, sTmpAttrName, sPreviousValue).ConfigureAwait(false);
+						}
+					}
+				}
+			}
 
             return true;
         }
