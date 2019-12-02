@@ -5,6 +5,7 @@ using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.ABI.Model;
 using Nethereum.Web3.Accounts;
 
+using Wonka.BizRulesEngine;
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Orchestration;
 using Wonka.MetaData;
@@ -101,5 +102,25 @@ namespace Wonka.Eth.Extensions
 
             string sCreateDateTime = poGrove.CreationTime.ToString();
         }
+
+        /// <summary>
+        /// 
+        /// This method will break apart a current RuleTree encapsulated within an instance of WonkaBizRulesEngine, taking each top level branch
+        /// and using it to create a new RuleTree.  These multiple instances of RuleTree will then form a new Grove.
+        /// 
+        /// NOTE: UNDER CONSTRUCTION
+        /// 
+        /// <param name="poRuleTree">The RuleTree that we are looking to turn into a Grove</param>
+        /// <returns>The Grove that will hold the RuleTrees created from its parent</returns>
+        /// </summary>
+        public static WonkaBizGrove Splinter(this WonkaBizRulesEngine poRuleTree, int pnGroveId, string psGroveDesc)
+        {
+            WonkaBizGrove SpawnedGrove = new WonkaBizGrove(pnGroveId, psGroveDesc);
+
+            // NOTE: UNDER CONSTRUCTION
+
+            return SpawnedGrove;
+        }
+
     }
 }
