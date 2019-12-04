@@ -6,6 +6,7 @@ using Nethereum.ABI.Model;
 using Nethereum.Web3.Accounts;
 
 using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Orchestration;
 using Wonka.MetaData;
@@ -117,7 +118,16 @@ namespace Wonka.Eth.Extensions
         {
             WonkaBizGrove SpawnedGrove = new WonkaBizGrove(pnGroveId, psGroveDesc);
 
-            // NOTE: UNDER CONSTRUCTION
+            if (poRuleTree.RuleTreeRoot == null)
+                throw new WonkaEthException("ERROR!  Splinter() cannot be invoked when there is no root of the supplied RuleTree.");
+
+            if (poRuleTree.RuleTreeRoot.ChildRuleSets.Count <= 0)
+                throw new WonkaEthException("ERROR!  Splinter() cannot be invoked when the root of the supplied RuleTree has no children.");
+
+            foreach (WonkaBizRuleSet TopChildRuleset in poRuleTree.RuleTreeRoot.ChildRuleSets)
+            {
+                // NOTE: UNDER CONSTRUCTION
+            }
 
             return SpawnedGrove;
         }
