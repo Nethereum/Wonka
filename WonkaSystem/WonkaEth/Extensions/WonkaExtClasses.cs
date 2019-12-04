@@ -281,5 +281,13 @@ namespace Wonka.Eth.Extensions
 		public DateTime StartTime { get; set; }
 
 		public DateTime EndTime { get; set; }
-	}
+    }
+
+    public class WonkaEthException : Exception
+    {
+        public WonkaEthException(string psErrorMessage) : base(psErrorMessage)
+        {
+            // NOTE: We might add more later
+        }
+    }
 }
