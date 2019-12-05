@@ -159,6 +159,35 @@ namespace Wonka.BizRulesEngine
             this.RetrieveCurrRecord = AssembleCurrentProduct;
         }
 
+        /// <summary>
+        /// 
+        /// This constructor should only be used when we call Splinter() to break up a current RuleTree
+        /// and form a new Grove with the main branches under the root.  Several assumptions are then
+        /// assumed here, like an instantiation of the WonkaRefEnvironment taking place already.
+        /// 
+        /// 
+        /// </summary>
+        public WonkaBizRulesEngine(WonkaBizRuleSet poRootRuleSet, WonkaBizRulesEngine poRefEngine)
+        {
+            UsingOrchestrationMode = true;
+            AddToRegistry          = false;
+
+            RefEnvHandle = Init(null);
+
+            RuleTreeRoot = poRootRuleSet;
+            SourceMap    = poRefEngine.SourceMap;
+            CustomOpMap  = poRefEngine.CustomOpMap;
+
+            AllRuleSets.Add(poRootRuleSet);
+            foreach (WonkaBizRuleSet TmpBizRuleSet in poRootRuleSet.ChildRuleSets)
+            {
+                AddRuleSets(TmpBizRuleSet);
+            }               
+
+            this.RetrieveCurrRecord = AssembleCurrentProduct;
+        }
+
+
         #endregion
 
         #region Public Methods
@@ -290,6 +319,13 @@ namespace Wonka.BizRulesEngine
 		#endregion
 
 		#region Private Methods
+
+        private void AddRuleSets(WonkaBizRuleSet poTargetRuleSet)
+        {
+            AllRuleSets.Add(poTargetRuleSet);
+
+            poTargetRuleSet.ChildRuleSets.ForEach(x => AddRuleSets(x));
+        }
 
         private WonkaRefEnvironment Init(IMetadataRetrievable piMetadataSource)
         {

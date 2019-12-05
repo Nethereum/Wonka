@@ -126,7 +126,7 @@ namespace Wonka.Eth.Extensions
 
             foreach (WonkaBizRuleSet TopChildRuleset in poRuleTree.RuleTreeRoot.ChildRuleSets)
             {
-                // NOTE: UNDER CONSTRUCTION
+                SpawnedGrove.AddRuleTree(new WonkaBizRulesEngine(TopChildRuleset, poRuleTree));
             }
 
             return SpawnedGrove;
