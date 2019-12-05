@@ -15,7 +15,7 @@ namespace Wonka.BizRulesEngine.Reporting
     /// (i.e., instances of WonkaBreRuleSetReportNode) within a RuleTree.
     /// 
     /// </summary>
-    public class WonkaBizRuleTreeReport
+    public class WonkaBizRuleTreeReport: IRuleTreeReport
     {
         #region CONSTANTS
         private const string CONST_ERROR_MSG_PREFACE = "BUSINESS RULE: ";
@@ -28,6 +28,66 @@ namespace Wonka.BizRulesEngine.Reporting
             this.RuleSetResults  = new List<WonkaBizRuleSetReportNode>();
             this.RuleSetFailures = new List<WonkaBizRuleSetReportNode>();
         }
+
+        #region Interface 'IRuleTreeReport' Methods
+
+        /// <summary>
+        /// 
+        /// This method will create an error string that mentions all of the validation rules that indicate 
+        /// a failure, whether a warning or severe.
+        /// 
+        /// <returns>The string that mentions all of the failed valiation rules</returns>
+        /// </summary>
+        public string GetErrorString()
+        {
+            StringBuilder AllErrorsBody = new StringBuilder();
+
+            foreach (WonkaBizRuleSetReportNode WarningRuleSetReport in GetRuleSetWarningFailures())
+            {
+                foreach (WonkaBizRuleReportNode WarningRuleReport in WarningRuleSetReport.RuleResults)
+                {
+                    if (WarningRuleReport.ErrorCode == ERR_CD.CD_FAILURE)
+                    {
+                        AllErrorsBody.Append("WARNING!  (" + WarningRuleReport.VerboseError + ").");
+                    }
+                }
+            }
+
+            foreach (WonkaBizRuleSetReportNode SevereRuleSetReport in GetRuleSetWarningFailures())
+            {
+                foreach (WonkaBizRuleReportNode SevereRuleReport in SevereRuleSetReport.RuleResults)
+                {
+                    if (SevereRuleReport.ErrorCode == ERR_CD.CD_FAILURE)
+                    {
+                        AllErrorsBody.Append("ERROR!  (" + SevereRuleReport.VerboseError + ").");
+                    }
+                }
+            }
+
+            return AllErrorsBody.ToString();
+        }
+
+        public int GetRuleSetSevereFailureCount()
+        {
+            return GetRuleSetSevereFailures().Count;
+        }
+
+        public int GetRuleSetWarningCount()
+        {
+            return GetRuleSetWarningFailures().Count;
+        }
+
+        public bool WasExecutedOnChain()
+        {
+            return false;
+        }
+
+        public bool WasExecutedSuccessfully()
+        {
+            return (GetRuleSetSevereFailures().Count() <= 0);
+        }
+
+        #endregion
 
         #region Simple Accessors
 
@@ -126,42 +186,6 @@ namespace Wonka.BizRulesEngine.Reporting
         public void Dump(string psTargetFilepath)
         {
             // NOTE: Will we use this function?
-        }
-
-        /// <summary>
-        /// 
-        /// This method will create an error string that mentions all of the validation rules that indicate 
-        /// a failure, whether a warning or severe.
-        /// 
-        /// <returns>The string that mentions all of the failed valiation rules</returns>
-        /// </summary>
-        public string GetErrorString()
-        {
-            StringBuilder AllErrorsBody = new StringBuilder();
-
-            foreach (WonkaBizRuleSetReportNode WarningRuleSetReport in GetRuleSetWarningFailures())
-            {
-                foreach (WonkaBizRuleReportNode WarningRuleReport in WarningRuleSetReport.RuleResults)
-                {
-                    if (WarningRuleReport.ErrorCode == ERR_CD.CD_FAILURE)
-                    {
-                        AllErrorsBody.Append("WARNING!  (" + WarningRuleReport.VerboseError + ").");
-                    }
-                }
-            }
-
-            foreach (WonkaBizRuleSetReportNode SevereRuleSetReport in GetRuleSetWarningFailures())
-            {
-                foreach (WonkaBizRuleReportNode SevereRuleReport in SevereRuleSetReport.RuleResults)
-                {
-                    if (SevereRuleReport.ErrorCode == ERR_CD.CD_FAILURE)
-                    {
-                        AllErrorsBody.Append("ERROR!  (" + SevereRuleReport.VerboseError + ").");
-                    }
-                }
-            }
-
-            return AllErrorsBody.ToString();
         }
 
         /// <summary>

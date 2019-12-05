@@ -11,6 +11,7 @@ using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 
 using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.Reporting;
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Eth.Orchestration.BlockchainEvents;
 
@@ -206,7 +207,7 @@ namespace Wonka.Eth.Extensions
     /// This class represents the aggregated output of the rules engine on the blockchain.
     /// </summary>
     [FunctionOutput]
-    public class RuleTreeReport
+    public class RuleTreeReport: IRuleTreeReport
     {
         public RuleTreeReport()
         {
@@ -232,6 +233,59 @@ namespace Wonka.Eth.Extensions
         {
             Copy(poOriginal);
         }
+
+        #region Interface 'IRuleTreeReport' Methods
+
+        /// <summary>
+        /// 
+        /// This method will create an error string that mentions all of the validation rules that indicate 
+        /// a failure, whether a warning or severe.
+        /// 
+        /// <returns>The string that mentions all of the failed valiation rules</returns>
+        /// </summary>
+        public string GetErrorString()
+        {
+            StringBuilder AllErrorsBody = new StringBuilder();
+
+            foreach (string sWarningRuleSet in RuleSetWarnings)
+            {
+                AllErrorsBody.Append("WARNING!  From RuleSet(" + sWarningRuleSet + ").");
+            }
+
+            foreach (string sFailureRuleSet in RuleSetFailures)
+            {
+                AllErrorsBody.Append("FAILURE!  From RuleSet(" + sFailureRuleSet + ".)");
+            }
+
+            foreach (string sFailureRuleId in RuleSetFailMessages.Keys)
+            {
+                AllErrorsBody.Append("FAILURE!  Rule(" + sFailureRuleId + " failed with verbose message: (" + RuleSetFailMessages[sFailureRuleId] + ").");
+            }
+
+            return AllErrorsBody.ToString();
+        }
+
+        public int GetRuleSetSevereFailureCount()
+        {
+            return RuleSetFailures.Count;
+        }
+
+        public int GetRuleSetWarningCount()
+        {
+            return RuleSetWarnings.Count;
+        }
+
+        public bool WasExecutedOnChain()
+        {
+            return true;
+        }
+
+        public bool WasExecutedSuccessfully()
+        {
+            return (RuleSetFailures.Count <= 0);
+        }
+
+        #endregion
 
         public void Copy(RuleTreeReport poOriginal)
         {
