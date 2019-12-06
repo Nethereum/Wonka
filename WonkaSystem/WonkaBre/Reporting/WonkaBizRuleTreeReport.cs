@@ -27,6 +27,9 @@ namespace Wonka.BizRulesEngine.Reporting
 
             this.RuleSetResults  = new List<WonkaBizRuleSetReportNode>();
             this.RuleSetFailures = new List<WonkaBizRuleSetReportNode>();
+
+            this.StartTime = DateTime.Now;
+            this.EndTime   = DateTime.Now;
         }
 
         #region Interface 'IRuleTreeReport' Methods
@@ -75,6 +78,16 @@ namespace Wonka.BizRulesEngine.Reporting
         public int GetRuleSetWarningCount()
         {
             return GetRuleSetWarningFailures().Count;
+        }
+
+        public DateTime GetRuleTreeStartTime()
+        {
+            return StartTime;
+        }
+
+        public DateTime GetRuleTreeEndTime()
+        {
+            return EndTime;
         }
 
         public bool WasExecutedOnChain()
@@ -376,6 +389,11 @@ namespace Wonka.BizRulesEngine.Reporting
         private List<WonkaBizRuleSetReportNode> RuleSetResults { get; set; }
 
         private List<WonkaBizRuleSetReportNode> RuleSetFailures { get; set; }
+
+        public DateTime StartTime { get; set; }
+
+        public DateTime EndTime { get; set; }
+
         #endregion
     }
 }

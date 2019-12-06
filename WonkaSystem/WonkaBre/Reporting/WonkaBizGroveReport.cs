@@ -16,6 +16,9 @@ namespace Wonka.BizRulesEngine.Reporting
     {
         public WonkaBizGroveReport(WonkaBizGrove poGrove)
         {
+            this.StartTime = DateTime.Now;
+            this.EndTime   = DateTime.Now;
+
             this.GroveOrigin        = poGrove;
             this.OverallGroveResult = ERR_CD.CD_SUCCESS;
         }
@@ -27,6 +30,10 @@ namespace Wonka.BizRulesEngine.Reporting
         public WonkaBizGrove GroveOrigin { get; }
 
         public Dictionary<string, IRuleTreeReport> RuleTreeReports { get; set; }
+
+        public DateTime StartTime { get; set; }
+
+        public DateTime EndTime { get; set; }
 
         #endregion
 

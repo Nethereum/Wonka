@@ -20,6 +20,10 @@ namespace Wonka.BizRulesEngine.Reporting
 
         int GetRuleSetWarningCount();
 
+        DateTime GetRuleTreeStartTime();
+
+        DateTime GetRuleTreeEndTime();
+
         bool WasExecutedOnChain();
 
         bool WasExecutedSuccessfully();

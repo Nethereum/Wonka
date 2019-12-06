@@ -314,6 +314,8 @@ namespace Wonka.BizRulesEngine
                 }
             }
 
+            RuleTreeReport.EndTime = DateTime.Now;
+
             return RuleTreeReport;
         }
 

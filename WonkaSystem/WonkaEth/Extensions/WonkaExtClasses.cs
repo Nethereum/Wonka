@@ -275,6 +275,16 @@ namespace Wonka.Eth.Extensions
             return RuleSetWarnings.Count;
         }
 
+        public DateTime GetRuleTreeStartTime()
+        {
+            return StartTime;
+        }
+
+        public DateTime GetRuleTreeEndTime()
+        {
+            return EndTime;
+        }
+
         public bool WasExecutedOnChain()
         {
             return true;
