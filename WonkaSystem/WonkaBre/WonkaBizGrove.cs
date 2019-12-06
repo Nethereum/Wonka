@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Wonka.BizRulesEngine
 {
+    #region Delegates
+    public delegate void GroveMemberBreakpoint(WonkaBizRulesEngine poRuleTreeExecuted);
+    #endregion
+
     public class WonkaBizGrove
     {
         public WonkaBizGrove()
