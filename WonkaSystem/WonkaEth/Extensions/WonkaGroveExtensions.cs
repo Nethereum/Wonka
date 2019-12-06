@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.ABI.Model;
 using Nethereum.Web3.Accounts;
 
 using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.Reporting;
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Orchestration;
 using Wonka.MetaData;
+using Wonka.Product;
 
 namespace Wonka.Eth.Extensions
 {
@@ -53,6 +56,59 @@ namespace Wonka.Eth.Extensions
     public static class WonkaGroveExtensions
     {
         private static WonkaRefEnvironment moWonkaRevEnv = WonkaRefEnvironment.GetInstance();
+
+        /// <summary>
+        /// 
+        /// This method will execute the RuleTree collection of a Grove, invoking each one either on the chain or off the chain.
+        /// All of the invocations will be assembled and then returned in a report about the execution of the Grove.
+        /// 
+        /// NOTE: UNDER CONSTRUCTION
+        /// 
+        /// <param name="poGrove">The Grove that we are looking to execute, especially its pool of RuleTree members</param>
+        /// <returns>The report that will hold the aggregated reports about the execution of each Grove member</returns>
+        /// </summary>
+        public static async Task<WonkaBizGroveReport> ExecuteAsync(this WonkaBizGrove poGrove, Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitData)
+        {
+            if (poGrove.RuleTreeMembers.Count == 0)
+                throw new WonkaEthException("ERROR!  Execute() cannot be invoked for Grove(" + poGrove.GroveDesc + ") when it has no members.");
+
+            if (poEngineInitData == null)
+                throw new WonkaEthException("ERROR!  Cannot invoke the Grove(" + poGrove.GroveDesc + ") since the EthEngineInit data provided is empty.");
+
+            var GroveReport = new WonkaBizGroveReport(poGrove);
+
+            foreach (WonkaBizRulesEngine RuleTreeMember in poGrove.RuleTreeMembers)
+            {
+                if (poGrove.ExecuteRuleTreesOnChain.Contains(RuleTreeMember))
+                {
+                    var OnChainReport = new Wonka.Eth.Extensions.RuleTreeReport();
+
+                    // NOTE: We assume here that that the Wonka contract instance (mentioned within 'poEngineInitData') and certain RuleTrees of 'poGrove'
+                    //       exist on the chain - maybe we should check that fact?
+
+                    string sTrxHash = await RuleTreeMember.ExecuteOnChainAsync(poEngineInitData, OnChainReport).ConfigureAwait(false);
+
+                    GroveReport.RuleTreeReports[RuleTreeMember.DetermineRuleTreeChainID()] = OnChainReport;
+                }
+                else
+                {
+                    var OffChainReport = new WonkaBizRuleTreeReport();
+
+                    WonkaProduct CurrValues = new WonkaProduct();
+
+                    bool bResult = 
+                        await CurrValues.PopulateWithDataFromChainAsync(RuleTreeMember.RefEnvHandle, RuleTreeMember.SourceMap, poEngineInitData.Web3HttpUrl).ConfigureAwait(false);
+
+                    OffChainReport = RuleTreeMember.Validate(CurrValues);
+
+                    GroveReport.RuleTreeReports[RuleTreeMember.DetermineRuleTreeChainID()] = OffChainReport;
+                }                
+            }
+
+            GroveReport.EndTime = DateTime.Now;
+
+            return GroveReport;
+        }
 
         /// <summary>
         /// 
