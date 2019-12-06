@@ -15,6 +15,7 @@ using Wonka.BizRulesEngine.RuleTree;
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Enums;
 using Wonka.MetaData;
+using Wonka.Product;
 
 namespace Wonka.Eth.Extensions
 {
@@ -498,6 +499,31 @@ namespace Wonka.Eth.Extensions
                     }
                 }
             }
+
+            return true;
+        }
+
+        public static async Task<bool> PopulateWithDataFromChainAsync(this WonkaProduct poTargetProduct, 
+                                                                    WonkaRefEnvironment poRefEnvHandle, 
+                                                     Dictionary<string, WonkaBizSource> poSourceMap,
+                                                                                 string psWeb3Url = "")
+        {
+            WonkaProduct CurrentProduct = new WonkaProduct();
+
+            if ((poSourceMap != null) && (poSourceMap.Count > 0))
+            {
+                foreach (string sTmpAttrName in poSourceMap.Keys)
+                {
+                    WonkaBizSource TmpSource  = poSourceMap[sTmpAttrName];
+                    WonkaRefAttr   TargetAttr = poRefEnvHandle.GetAttributeByAttrName(sTmpAttrName);
+
+                    string sTmpValue = await TmpSource.GetAttrValueFromChainAsync(sTmpAttrName, psWeb3Url).ConfigureAwait(false);
+
+                    CurrentProduct.SetAttribute(TargetAttr, sTmpValue);
+                }
+            }
+            else
+                throw new WonkaEthException("ERROR!  Cannot populate with data from chain if source map is empty.");
 
             return true;
         }
