@@ -162,7 +162,7 @@ namespace Wonka.BizRulesEngine
         /// <summary>
         /// 
         /// This constructor should only be used when we call Splinter() to break up a current RuleTree
-        /// and form a new Grove with the main branches under the root.  Several assumptions are then
+        /// and form a new Grove with the main child branches under the root.  Several assumptions are then
         /// assumed here, like an instantiation of the WonkaRefEnvironment taking place already.
         /// 
         /// 
@@ -174,6 +174,7 @@ namespace Wonka.BizRulesEngine
 
             RefEnvHandle = Init(null);
 
+			AllRuleSets  = new List<WonkaBizRuleSet>();
             RuleTreeRoot = poRootRuleSet;
             SourceMap    = poRefEngine.SourceMap;
             CustomOpMap  = poRefEngine.CustomOpMap;
