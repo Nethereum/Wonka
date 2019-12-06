@@ -27,7 +27,11 @@ namespace Wonka.Storage.Extensions
         {
             WonkaProduct CurrentProduct = new WonkaProduct();
 
-            // NOTE: Do work here
+            if ((poKeyValues != null) && (poKeyValues.Count > 0))
+            {
+                // NOTE: To be determined
+            }
+            
             if (poEngine.SourceMap != null)
             {
                 foreach (string sTmpAttrName in poEngine.SourceMap.Keys)
@@ -58,18 +62,13 @@ namespace Wonka.Storage.Extensions
         {
             WonkaProduct CurrentProduct = new WonkaProduct();
 
-            if (poEngine.SourceMap != null)
+            if ((poKeyValues != null) && (poKeyValues.Count > 0))
             {
-                foreach (string sTmpAttrName in poEngine.SourceMap.Keys)
-                {
-                    WonkaBizSource TmpSource = poEngine.SourceMap[sTmpAttrName];
-                    WonkaRefAttr TargetAttr  = poEngine.RefEnvHandle.GetAttributeByAttrName(sTmpAttrName);
-
-                    string sTmpValue = await TmpSource.GetAttrValueFromChainAsync(sTmpAttrName, psWeb3Url).ConfigureAwait(false);
-
-                    CurrentProduct.SetAttribute(TargetAttr, sTmpValue);
-                }
+                // NOTE: To be determined
             }
+
+            bool bSuccess = 
+                await CurrentProduct.PopulateWithDataFromChainAsync(poEngine.RefEnvHandle, poEngine.SourceMap, psWeb3Url).ConfigureAwait(false);
 
             return CurrentProduct;
         }
