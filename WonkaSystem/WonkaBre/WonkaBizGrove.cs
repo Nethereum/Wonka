@@ -14,21 +14,27 @@ namespace Wonka.BizRulesEngine
             GroveId   = 0;
             GroveDesc = String.Empty;
 
+            MaxGasCostAllowed = 0;
+
             RuleTreeMembers         = new List<WonkaBizRulesEngine>();
             ExecuteRuleTreesOnChain = new HashSet<WonkaBizRulesEngine>();
 
             ExecutionBreakpointBetweenRuleTrees = null;
+            MaxGasCostExceeded                  = null;
         }
 
-        public WonkaBizGrove(int pnGroveId, string psGroveDesc, GroveMemberBreakpoint poExecutionBreakpoint = null)
+        public WonkaBizGrove(int pnGroveId, string psGroveDesc, GroveMemberBreakpoint poExecBreakpoint = null, GroveMemberBreakpoint poMaxGasAlarm = null)
         {
             GroveId   = pnGroveId;
             GroveDesc = psGroveDesc;
 
+            MaxGasCostAllowed = 0;
+
             RuleTreeMembers         = new List<WonkaBizRulesEngine>();
             ExecuteRuleTreesOnChain = new HashSet<WonkaBizRulesEngine>();
 
-            ExecutionBreakpointBetweenRuleTrees = poExecutionBreakpoint;
+            ExecutionBreakpointBetweenRuleTrees = poExecBreakpoint;
+            MaxGasCostExceeded                  = poMaxGasAlarm;
         }
 
         #region Methods
@@ -68,5 +74,9 @@ namespace Wonka.BizRulesEngine
         public HashSet<WonkaBizRulesEngine> ExecuteRuleTreesOnChain { get; }
 
         public GroveMemberBreakpoint ExecutionBreakpointBetweenRuleTrees { get; }
+
+        public GroveMemberBreakpoint MaxGasCostExceeded { get; }
+
+        public uint MaxGasCostAllowed { get; set; }
     }
 }
