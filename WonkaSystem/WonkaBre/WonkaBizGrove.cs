@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Wonka.BizRulesEngine
 {
     #region Delegates
-    public delegate void GroveMemberBreakpoint(WonkaBizRulesEngine poRuleTreeExecuted);
+    public delegate void GroveMemberBreakpoint(WonkaBizGrove poTargetGrove, WonkaBizRulesEngine poRuleTreeJustExecuted);
     #endregion
 
     public class WonkaBizGrove
@@ -16,15 +16,19 @@ namespace Wonka.BizRulesEngine
 
             RuleTreeMembers         = new List<WonkaBizRulesEngine>();
             ExecuteRuleTreesOnChain = new HashSet<WonkaBizRulesEngine>();
+
+            ExecutionBreakpointBetweenRuleTrees = null;
         }
 
-        public WonkaBizGrove(int pnGroveId, string psGroveDesc)
+        public WonkaBizGrove(int pnGroveId, string psGroveDesc, GroveMemberBreakpoint poExecutionBreakpoint = null)
         {
             GroveId   = pnGroveId;
             GroveDesc = psGroveDesc;
 
             RuleTreeMembers         = new List<WonkaBizRulesEngine>();
             ExecuteRuleTreesOnChain = new HashSet<WonkaBizRulesEngine>();
+
+            ExecutionBreakpointBetweenRuleTrees = poExecutionBreakpoint;
         }
 
         #region Methods
@@ -62,5 +66,7 @@ namespace Wonka.BizRulesEngine
         public List<WonkaBizRulesEngine> RuleTreeMembers { get; }
 
         public HashSet<WonkaBizRulesEngine> ExecuteRuleTreesOnChain { get; }
+
+        public GroveMemberBreakpoint ExecutionBreakpointBetweenRuleTrees { get; }
     }
 }

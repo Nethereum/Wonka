@@ -102,7 +102,10 @@ namespace Wonka.Eth.Extensions
                     OffChainReport = RuleTreeMember.Validate(CurrValues);
 
                     GroveReport.RuleTreeReports[RuleTreeMember.DetermineRuleTreeChainID()] = OffChainReport;
-                }                
+                }
+
+                if (poGrove.ExecutionBreakpointBetweenRuleTrees != null)
+                    poGrove.ExecutionBreakpointBetweenRuleTrees.Invoke(poGrove, RuleTreeMember);
             }
 
             GroveReport.EndTime = DateTime.Now;
