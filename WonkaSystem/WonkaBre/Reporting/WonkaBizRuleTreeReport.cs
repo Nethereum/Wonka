@@ -23,7 +23,7 @@ namespace Wonka.BizRulesEngine.Reporting
 
         public WonkaBizRuleTreeReport()
         {
-            this.OverallRuleTreeResult = ERR_CD.CD_SUCCESS;            
+            this.OverallRuleTreeResult = ERR_CD.CD_SUCCESS;
 
             this.RuleSetResults  = new List<WonkaBizRuleSetReportNode>();
             this.RuleSetFailures = new List<WonkaBizRuleSetReportNode>();
@@ -68,6 +68,11 @@ namespace Wonka.BizRulesEngine.Reporting
             }
 
             return AllErrorsBody.ToString();
+        }
+
+        public ulong GetGasUsed()
+        {
+            return 0;
         }
 
         public int GetRuleSetSevereFailureCount()

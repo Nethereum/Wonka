@@ -23,6 +23,19 @@ namespace Wonka.BizRulesEngine.Reporting
             this.OverallGroveResult = ERR_CD.CD_SUCCESS;
         }
 
+        #region Accessors
+
+        public ulong GetTotalGasUsed()
+        {
+            ulong nGasUsed = 0;
+
+            RuleTreeReports.ToList().ForEach(x => nGasUsed += x.Value.GetGasUsed());
+
+            return nGasUsed;
+        }
+
+        #endregion
+
         #region Properties
 
         public ERR_CD OverallGroveResult { get; set; }

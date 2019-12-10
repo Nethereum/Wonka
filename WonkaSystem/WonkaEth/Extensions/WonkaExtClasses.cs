@@ -212,6 +212,7 @@ namespace Wonka.Eth.Extensions
         public RuleTreeReport()
         {
             NumberOfRuleFailures = 0;
+            GasUsed              = 0;
             TransactionHash      = string.Empty;
             InvokeTrxBlockNumber = null;
 
@@ -265,6 +266,11 @@ namespace Wonka.Eth.Extensions
             return AllErrorsBody.ToString();
         }
 
+        public ulong GetGasUsed()
+        {
+            return this.GasUsed;
+        }
+
         public int GetRuleSetSevereFailureCount()
         {
             return RuleSetFailures.Count;
@@ -299,6 +305,7 @@ namespace Wonka.Eth.Extensions
 
         public void Copy(RuleTreeReport poOriginal)
         {
+            GasUsed              = poOriginal.GasUsed;
             NumberOfRuleFailures = poOriginal.NumberOfRuleFailures;
             TransactionHash      = poOriginal.TransactionHash;
             InvokeTrxBlockNumber = poOriginal.InvokeTrxBlockNumber;
@@ -335,6 +342,8 @@ namespace Wonka.Eth.Extensions
         public Dictionary<string, string> RuleSetFailMessages { get; set; }
 
         public string TransactionHash { get; set; }
+
+        public ulong GasUsed { get; set; }
 
         public HexBigInteger InvokeTrxBlockNumber { get; set; }
 

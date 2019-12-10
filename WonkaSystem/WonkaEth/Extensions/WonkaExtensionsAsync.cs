@@ -473,6 +473,7 @@ namespace Wonka.Eth.Extensions
             {
                 poInvocationReport.TransactionHash      = poTrxReceipt.TransactionHash;
                 poInvocationReport.InvokeTrxBlockNumber = poTrxReceipt.BlockNumber;
+                poInvocationReport.GasUsed              = poTrxReceipt.GasUsed.ToUlong();
 
                 if (pbGetDataSnapshot)
                 {

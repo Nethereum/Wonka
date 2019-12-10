@@ -16,6 +16,8 @@ namespace Wonka.BizRulesEngine.Reporting
     {
         string GetErrorString();
 
+        ulong GetGasUsed();
+
         int GetRuleSetSevereFailureCount();
 
         int GetRuleSetWarningCount();
