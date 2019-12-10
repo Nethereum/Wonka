@@ -104,8 +104,11 @@ namespace Wonka.Eth.Extensions
                     GroveReport.RuleTreeReports[RuleTreeMember.DetermineRuleTreeChainID()] = OffChainReport;
                 }
 
-                if (poGrove.ExecutionBreakpointBetweenRuleTrees != null)
-                    poGrove.ExecutionBreakpointBetweenRuleTrees.Invoke(poGrove, RuleTreeMember);
+                if (poGrove.ExecutionBreakpointDelegate != null)
+                    poGrove.ExecutionBreakpointDelegate.Invoke(poGrove, RuleTreeMember);
+
+                if ((GroveReport.GetTotalGasUsed() >= poGrove.MaxGasCostAllowed) && (poGrove.MaxGasCostExceededDelegate != null))
+                    poGrove.MaxGasCostExceededDelegate.Invoke(poGrove, RuleTreeMember);
             }
 
             GroveReport.EndTime = DateTime.Now;
