@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-/*
-using System.Data.Entity.Core.Objects;
-using System.Data.Entity.Core.Metadata.Edm;
-*/
+// using System.Data.Entity.Core.Objects;
+// using System.Data.Entity.Core.Metadata.Edm;
 using System.IO;
 using System.Linq;
 using System.Text;
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure; 
+using Microsoft.EntityFrameworkCore.Metadata; 
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 using Wonka.BizRulesEngine;
 using Wonka.MetaData;
@@ -19,8 +22,10 @@ namespace Wonka.Import.Metadata
     /// This extensions class provides additional functionality for the Rules Engine, including the ability to
     /// import a schema from a database table and designate that as an IMetadataRetrievable instance.
     /// 
+    /// NOTE: UNDER CONSTRUCTION
+    /// 
     /// </summary>
-    public class WonkaBreImportFactory
+    public class WonkaImportFactory
     {
         #region CONSTANTS
 
@@ -90,27 +95,27 @@ namespace Wonka.Import.Metadata
 
         private static int mGenAttrId = 1;
 
-        private static WonkaBreImportFactory mInstance = null;
+        private static WonkaImportFactory mInstance = null;
 
         Dictionary<string, IMetadataRetrievable> moCachedImports;
 
-        private WonkaBreImportFactory()
+        private WonkaImportFactory()
         {
             moCachedImports = new Dictionary<string, IMetadataRetrievable>();
         }
 
-        static private WonkaBreImportFactory CreateInstance()
+        static private WonkaImportFactory CreateInstance()
         {
             lock (mLock)
             {
                 if (mInstance == null)
-                    mInstance = new WonkaBreImportFactory();
+                    mInstance = new WonkaImportFactory();
 
                 return mInstance;
             }
         }
 
-        static public WonkaBreImportFactory GetInstance()
+        static public WonkaImportFactory GetInstance()
         {
             lock (mLock)
             {
@@ -121,7 +126,6 @@ namespace Wonka.Import.Metadata
             }
         }
 
-        /*
         #region Instance Methods
 
         private void CacheImport(string psDatabaseTable, IMetadataRetrievable poSource)
@@ -129,7 +133,7 @@ namespace Wonka.Import.Metadata
             if (!String.IsNullOrEmpty(psDatabaseTable) && (poSource != null))
                 moCachedImports[psDatabaseTable] = poSource;
             else
-                throw new WonkaBreException(0, 0, "ERROR!  Could not cache the schema for the database table.");
+                throw new WonkaBizRuleException(0, 0, "ERROR!  Could not cache the schema for the database table.");
         }
 
         private int GenerateNewAttrId()
@@ -216,41 +220,57 @@ namespace Wonka.Import.Metadata
             return sbRulesBody.ToString();
         }
 
-        public IMetadataRetrievable ImportSource(string psDatabaseTable, System.Data.Entity.DbContext poDbContext)
+        public IMetadataRetrievable ImportSource(string psDatabaseTable, DbContext poDbContext)
         {
-            var adapter       = (System.Data.Entity.Infrastructure.IObjectContextAdapter) poDbContext;
-            var objectContext = adapter.ObjectContext;
-
-            return ImportSource(psDatabaseTable, objectContext);
+            return ImportSource(psDatabaseTable, poDbContext.Model);
         }
 
-        public IMetadataRetrievable ImportSource(string psDatabaseTable, ObjectContext poDbContext)
+        public IMetadataRetrievable ImportSource(string psDatabaseTable, IModel poDbContext)
         {
-            WonkaBreImportSource NewImportSource = new WonkaBreImportSource();
-            HashSet<string>      KeyColNames     = new HashSet<string>();
+            WonkaImportSource NewImportSource = new WonkaImportSource();
+            HashSet<string>   KeyColNames     = new HashSet<string>();
+
+            IEntityType FoundTable = null;
 
             if (!String.IsNullOrEmpty(psDatabaseTable) && (poDbContext != null))
             {
                 if (moCachedImports.ContainsKey(psDatabaseTable))
                     return moCachedImports[psDatabaseTable];
 
-                var tables =
-                    poDbContext.MetadataWorkspace.GetItems(DataSpace.CSpace).Where(m => m.BuiltInTypeKind == BuiltInTypeKind.EntityType);
+                var tables = poDbContext.GetEntityTypes(psDatabaseTable);
 
                 foreach (var TmpTable in tables)
                 {
-                    EntityType TmpEntityType = (EntityType) TmpTable;
-
-                    if (TmpEntityType.Name == psDatabaseTable)
+                    if (TmpTable.Name == psDatabaseTable)
                     {
-                        var KeyCols = TmpEntityType.KeyMembers;
+                        var KeyCols = TmpTable.GetDeclaredKeys();
                         foreach (var KeyCol in KeyCols)
-                            KeyColNames.Add(KeyCol.Name);
+                            KeyColNames.Add(KeyCol.GetName());
 
                         break;
                     }
                 }
 
+                /*
+                 * NOTE: THROW CUSTOM EXCEPTION
+                 * 
+                if (FoundTable == null)
+                    throw new WonkaImportException("ERROR");
+                */
+
+                var columns = 
+                  from p in FoundTable.GetProperties()
+                  select new
+                  {
+                      colName   = p.Name,
+                      colType   = p.GetColumnType(),
+                      maxLength = p.GetMaxLength(),
+                      precision = 0,
+                      scale     = 0,
+                      defValue  = p.GetDefaultValue()
+                  };
+
+                /*
                 var columns =
                     from meta in poDbContext.MetadataWorkspace.GetItems(DataSpace.CSpace).Where(m => m.BuiltInTypeKind == BuiltInTypeKind.EntityType)
                     from p in (meta as EntityType).Properties.Where(p => p.DeclaringType.Name == psDatabaseTable)
@@ -265,11 +285,11 @@ namespace Wonka.Import.Metadata
                         defValue  = p.DefaultValue,
                         props     = p.MetadataProperties
                     };
+                */
 
                 foreach (var TmpCol in columns)
                 {
                     string sTmpColName = TmpCol.colName;
-                    var    Props       = TmpCol.props;
 
                     WonkaRefAttr TmpWonkaAttr = new WonkaRefAttr();
 
@@ -279,7 +299,7 @@ namespace Wonka.Import.Metadata
                     TmpWonkaAttr.TabName  = psDatabaseTable;
 
                     TmpWonkaAttr.DefaultValue = Convert.ToString(TmpCol.defValue);
-                    TmpWonkaAttr.Description  = (TmpCol.doc != null) ? TmpCol.doc.LongDescription : "";
+                    // TmpWonkaAttr.Description  = (TmpCol.doc != null) ? TmpCol.doc.LongDescription : "";
 
                     TmpWonkaAttr.IsDate    = IsTypeDate(TmpCol.colType);
                     TmpWonkaAttr.IsNumeric = IsTypeNumeric(TmpCol.colType);
@@ -287,8 +307,10 @@ namespace Wonka.Import.Metadata
 
                     if (TmpWonkaAttr.IsNumeric || TmpWonkaAttr.IsDecimal)
                     {
-                        TmpWonkaAttr.Precision = (int) ((TmpCol.precision != null) ? TmpCol.precision : 0);
-                        TmpWonkaAttr.Scale     = (int) ((TmpCol.scale != null) ? TmpCol.scale : 0);
+                        // TmpWonkaAttr.Precision = (int) ((TmpCol.precision != null) ? TmpCol.precision : 0);
+                        // TmpWonkaAttr.Scale     = (int) ((TmpCol.scale != null) ? TmpCol.scale : 0);
+                        TmpWonkaAttr.Precision = TmpCol.precision;
+                        TmpWonkaAttr.Scale     = TmpCol.scale;
                     }
 
                     TmpWonkaAttr.MaxLength = (TmpCol.maxLength != null) ? (int)TmpCol.maxLength : 0;
@@ -303,7 +325,7 @@ namespace Wonka.Import.Metadata
                 }
 
                 if (NewImportSource.GetAttrCache().Count <= 0)
-                    throw new WonkaBreException(0, 0, "ERROR!  Could not import the schema because the Reader's field count was zero.");
+                    throw new WonkaBizRuleException(0, 0, "ERROR!  Could not import the schema because the Reader's field count was zero.");
 
                 WonkaRefGroup NewImportGroup = new WonkaRefGroup();
 
@@ -319,30 +341,9 @@ namespace Wonka.Import.Metadata
                 GuestSource.SourceName = "Guest";
                 GuestSource.Status     = "Active";
                 NewImportSource.AddSource(GuestSource);
-
-                foreach (WonkaRefAttr TempAttr in NewImportSource.GetAttrCache())
-                {
-                    WonkaRefField NewImportField = new WonkaRefField();
-
-                    NewImportField.FieldId     = TempAttr.FieldId;
-                    NewImportField.FieldName   = TempAttr.AttrName;
-                    NewImportField.Description = TempAttr.Description;
-                    NewImportField.GroupId     = CONST_DEFAULT_GROUP_ID;
-                    NewImportField.DisplayName = TempAttr.AttrName;
-                    NewImportField.AttrIds.Add(TempAttr.AttrId);
-                    NewImportSource.AddField(NewImportField);
-
-                    WonkaRefSourceField NewImportSrcFld = new WonkaRefSourceField();
-
-                    NewImportSrcFld.SourceFieldId = 10000 + NewImportField.FieldId;
-                    NewImportSrcFld.SourceId      = 1;
-                    NewImportSrcFld.FieldId       = NewImportField.FieldId;
-                    NewImportSrcFld.SecurityLevel = CONST_SEC_LEVEL_READ;
-                    NewImportSource.AddSourceField(NewImportSrcFld);
-                }
             }
             else
-                throw new WonkaBreException(0, 0, "ERROR!  Could not import the schema for the database table.");
+                throw new WonkaBizRuleException(0, 0, "ERROR!  Could not import the schema for the database table.");
 
             PopulateDefaults();
 
@@ -354,9 +355,9 @@ namespace Wonka.Import.Metadata
             // NOTE: Do work here
         }
 
-        public static bool IsTypeDate(EdmType edmType)
+        public static bool IsTypeDate(string psTypeName)
         {
-            switch (edmType.Name)
+            switch (psTypeName)
             {
                 case "DateTime":
                     return true;
@@ -366,9 +367,9 @@ namespace Wonka.Import.Metadata
             }
         }
 
-        public static bool IsTypeDecimal(EdmType edmType)
+        public static bool IsTypeDecimal(string psTypeName)
         {
-            switch (edmType.Name)
+            switch (psTypeName)
             {
                 case "Float":
                 case "Double":
@@ -380,9 +381,9 @@ namespace Wonka.Import.Metadata
             }
         }
 
-        public static bool IsTypeNumeric(EdmType edmType)
+        public static bool IsTypeNumeric(string psTypeName)
         {
-            switch (edmType.Name)
+            switch (psTypeName)
             {
                 case "String":
                 case "Guid":
@@ -402,7 +403,6 @@ namespace Wonka.Import.Metadata
         }
 
         #endregion
-        */
 
     }
 }

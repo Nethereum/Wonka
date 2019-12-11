@@ -4,9 +4,9 @@ using Wonka.MetaData;
 
 namespace Wonka.Import.Metadata
 {
-    public class WonkaBreImportSource : IMetadataRetrievable
+    public class WonkaImportSource : IMetadataRetrievable
     {
-        public WonkaBreImportSource()
+        public WonkaImportSource()
         {
             AttrCollection   = new List<WonkaRefAttr>();
             CadreCollection  = new List<WonkaRefCadre>();
