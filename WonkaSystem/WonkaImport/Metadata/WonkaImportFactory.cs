@@ -243,6 +243,8 @@ namespace Wonka.Import.Metadata
                 {
                     if (TmpTable.Name == psDatabaseTable)
                     {
+                        FoundTable = TmpTable;
+
                         var KeyCols = TmpTable.GetDeclaredKeys();
                         foreach (var KeyCol in KeyCols)
                             KeyColNames.Add(KeyCol.GetName());
