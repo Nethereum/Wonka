@@ -387,6 +387,7 @@ select *
             DataTable       TableSchema = null;
             HashSet<string> KeyAttrList = new HashSet<string>();
 
+            // NOTE: Possible issues with ingesting the schema of a large table
             using (SqlCommand QueryTableCmd = poDbConn.CreateCommand())
             {
                 QueryTableCmd.CommandText = "select * from " + psDatabaseTable;
@@ -404,6 +405,9 @@ select *
                 string sTmpColName = TmpColInfoRow["ColumnName"].ToString();
                 string sTmpColType = TmpColInfoRow["DataType"].ToString();
 
+                if (sTmpColType.Contains("System."))
+                    sTmpColType = sTmpColType.Replace("System.", "");
+
                 WonkaRefAttr TmpWonkaAttr = new WonkaRefAttr();
 
                 TmpWonkaAttr.AttrId   = GenerateNewAttrId();
@@ -411,17 +415,15 @@ select *
                 TmpWonkaAttr.ColName  = sTmpColName;
                 TmpWonkaAttr.TabName  = psDatabaseTable;
 
-                TmpWonkaAttr.DefaultValue = TmpColInfoRow["DefaultValue"].ToString();
+                // TmpWonkaAttr.DefaultValue = TmpColInfoRow["DefaultValue"].ToString();
                 // TmpWonkaAttr.Description  = (TmpCol.doc != null) ? TmpCol.doc.LongDescription : "";
 
-                TmpWonkaAttr.IsDate    = IsTypeDate(sTmpColName);
-                TmpWonkaAttr.IsNumeric = IsTypeNumeric(sTmpColName);
-                TmpWonkaAttr.IsDecimal = IsTypeDecimal(sTmpColName);
+                TmpWonkaAttr.IsDate    = IsTypeDate(sTmpColType);
+                TmpWonkaAttr.IsNumeric = IsTypeNumeric(sTmpColType);
+                TmpWonkaAttr.IsDecimal = IsTypeDecimal(sTmpColType);
 
                 if (TmpWonkaAttr.IsNumeric || TmpWonkaAttr.IsDecimal)
                 {
-                    // TmpWonkaAttr.Precision = (int) ((TmpCol.precision != null) ? TmpCol.precision : 0);
-                    // TmpWonkaAttr.Scale     = (int) ((TmpCol.scale != null) ? TmpCol.scale : 0);
                     TmpWonkaAttr.Precision = Int32.Parse(TmpColInfoRow["NumericPrecision"].ToString());
                     TmpWonkaAttr.Scale     = Int32.Parse(TmpColInfoRow["NumericScale"].ToString());
                 }
@@ -436,8 +438,7 @@ select *
                 if (TmpWonkaAttr.IsKey)
                     KeyAttrList.Add(sTmpColName);
 
-                NewImportSource.AddAttribute(TmpWonkaAttr);
-                // Console.WriteLine("{0}: {1}", dr["ColumnName"], dr["DataType"]);
+                NewImportSource.AddAttribute(TmpWonkaAttr);                
             }
 
             if (NewImportSource.GetAttrCache().Count <= 0)
