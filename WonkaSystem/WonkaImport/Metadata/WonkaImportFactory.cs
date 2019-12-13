@@ -7,8 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure; 
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata; 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -31,6 +32,13 @@ namespace Wonka.Import.Metadata
 
         public const int CONST_DEFAULT_GROUP_ID = 1;
         public const int CONST_SEC_LEVEL_READ   = 1;
+
+        public const string CONST_VALIDATE_TABLE_SQL =
+@"
+select * 
+  from INFORMATION_SCHEMA.TABLES
+ where TABLE_NAME = @tname
+";
 
         public const string CONST_SAMPLE_RULE_FORMAT_MAIN_BODY =
 @"<?xml version=""1.0""?>
@@ -253,12 +261,8 @@ namespace Wonka.Import.Metadata
                     }
                 }
 
-                /*
-                 * NOTE: THROW CUSTOM EXCEPTION
-                 * 
                 if (FoundTable == null)
-                    throw new WonkaImportException("ERROR");
-                */
+                    throw new WonkaImportException("ERROR!  Table (" + psDatabaseTable + ") was not found in the provided DbContext.");
 
                 var columns = 
                   from p in FoundTable.GetProperties()
@@ -348,6 +352,104 @@ namespace Wonka.Import.Metadata
                 throw new WonkaBizRuleException(0, 0, "ERROR!  Could not import the schema for the database table.");
 
             PopulateDefaults();
+
+            return NewImportSource;
+        }
+
+        public IMetadataRetrievable ImportSource(string psDatabaseTable, SqlConnection poDbConn)
+        {
+            bool bTableFound = false;
+
+            WonkaImportSource NewImportSource = new WonkaImportSource();
+
+            if ((poDbConn == null) || (poDbConn.State != ConnectionState.Open))
+                throw new WonkaImportException("ERROR!  Provided connection is either null or is not open.");
+
+            using (SqlCommand ValidateTableCmd = new SqlCommand(CONST_VALIDATE_TABLE_SQL, poDbConn))
+            {
+                ValidateTableCmd.CommandType = CommandType.Text;
+
+                SqlParameter TableParam = new SqlParameter("@tname", SqlDbType.NVarChar, 128);
+                TableParam.Value = psDatabaseTable;
+
+                ValidateTableCmd.Parameters.Add(TableParam);
+
+                using (SqlDataReader ValidateTableReader = ValidateTableCmd.ExecuteReader())
+                {
+                    if (ValidateTableReader.Read())
+                        bTableFound = true;
+                }
+            }
+
+            if (!bTableFound)
+                throw new WonkaImportException("ERROR!  Table (" + psDatabaseTable + ") not found within the schema.");
+
+            DataTable       TableSchema = null;
+            HashSet<string> KeyAttrList = new HashSet<string>();
+
+            using (SqlCommand QueryTableCmd = poDbConn.CreateCommand())
+            {
+                QueryTableCmd.CommandText = "select * from " + psDatabaseTable;
+                QueryTableCmd.CommandType = CommandType.Text;
+
+                using (SqlDataReader QueryTableReader = QueryTableCmd.ExecuteReader(CommandBehavior.KeyInfo))
+                {
+                    TableSchema = QueryTableReader.GetSchemaTable();
+                }
+            }
+
+            int nColumnCount = TableSchema.Columns.Count;
+            foreach (DataRow TmpColInfoRow in TableSchema.Rows)
+            {
+                string sTmpColName = TmpColInfoRow["ColumnName"].ToString();
+                string sTmpColType = TmpColInfoRow["DataType"].ToString();
+
+                WonkaRefAttr TmpWonkaAttr = new WonkaRefAttr();
+
+                TmpWonkaAttr.AttrId   = GenerateNewAttrId();
+                TmpWonkaAttr.AttrName = sTmpColName;
+                TmpWonkaAttr.ColName  = sTmpColName;
+                TmpWonkaAttr.TabName  = psDatabaseTable;
+
+                TmpWonkaAttr.DefaultValue = TmpColInfoRow["DefaultValue"].ToString();
+                // TmpWonkaAttr.Description  = (TmpCol.doc != null) ? TmpCol.doc.LongDescription : "";
+
+                TmpWonkaAttr.IsDate    = IsTypeDate(sTmpColName);
+                TmpWonkaAttr.IsNumeric = IsTypeNumeric(sTmpColName);
+                TmpWonkaAttr.IsDecimal = IsTypeDecimal(sTmpColName);
+
+                if (TmpWonkaAttr.IsNumeric || TmpWonkaAttr.IsDecimal)
+                {
+                    // TmpWonkaAttr.Precision = (int) ((TmpCol.precision != null) ? TmpCol.precision : 0);
+                    // TmpWonkaAttr.Scale     = (int) ((TmpCol.scale != null) ? TmpCol.scale : 0);
+                    TmpWonkaAttr.Precision = Int32.Parse(TmpColInfoRow["NumericPrecision"].ToString());
+                    TmpWonkaAttr.Scale     = Int32.Parse(TmpColInfoRow["NumericScale"].ToString());
+                }
+                else
+                    TmpWonkaAttr.MaxLength = Int32.Parse(TmpColInfoRow["ColumnSize"].ToString());
+
+                TmpWonkaAttr.FieldId   = TmpWonkaAttr.AttrId + 1000;
+                TmpWonkaAttr.GroupId   = CONST_DEFAULT_GROUP_ID;
+                TmpWonkaAttr.IsAudited = true;
+
+                TmpWonkaAttr.IsKey = Boolean.Parse(TmpColInfoRow["IsKey"].ToString());
+                if (TmpWonkaAttr.IsKey)
+                    KeyAttrList.Add(sTmpColName);
+
+                NewImportSource.AddAttribute(TmpWonkaAttr);
+                // Console.WriteLine("{0}: {1}", dr["ColumnName"], dr["DataType"]);
+            }
+
+            if (NewImportSource.GetAttrCache().Count <= 0)
+                throw new WonkaBizRuleException(0, 0, "ERROR!  Could not import the schema because the Reader's field count was zero.");
+
+            WonkaRefGroup NewImportGroup = new WonkaRefGroup();
+
+            NewImportGroup.GroupId        = CONST_DEFAULT_GROUP_ID;
+            NewImportGroup.GroupName      = psDatabaseTable;
+            NewImportGroup.KeyTabCols     = KeyAttrList;
+            NewImportGroup.ProductTabName = psDatabaseTable;
+            NewImportSource.AddGroup(NewImportGroup);
 
             return NewImportSource;
         }
