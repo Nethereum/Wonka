@@ -80,6 +80,7 @@
     {
         SRC_TYPE_CONTRACT = 1,
         SRC_TYPE_API,
+		SRC_TYPE_STORED_PROCEDURE,
         SRC_TYPE_NONE
     }
 

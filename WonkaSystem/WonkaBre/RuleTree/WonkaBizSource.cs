@@ -69,9 +69,21 @@ namespace Wonka.BizRulesEngine.RuleTree
 
         public readonly int APIServerPort;
 
-        #endregion
+		#endregion
 
-        public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, string psMethodName, string psSetterMethodName, RetrieveDataMethod poRetrievalDelegate)
+		#region Properties for calls to SQL Server stored procedure
+
+		public readonly string SqlServer;
+
+		public readonly string SqlDatabase;
+
+		public readonly string SqlUsername;
+
+		public readonly string SqlPassword;
+
+		#endregion
+
+		public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, string psMethodName, string psSetterMethodName, RetrieveDataMethod poRetrievalDelegate)
         {
             this.SourceId     = psSourceId;
             this.TypeOfSource = SOURCE_TYPE.SRC_TYPE_CONTRACT;
@@ -83,6 +95,7 @@ namespace Wonka.BizRulesEngine.RuleTree
 
             this.APIServerAddress = string.Empty;
             this.APIServerPort    = -1;
+			this.SqlServer        = this.SqlDatabase = this.SqlUsername = this.SqlPassword = string.Empty;
 
             this.MethodName        = psMethodName;
             this.SetterMethodName  = psSetterMethodName;
@@ -101,6 +114,7 @@ namespace Wonka.BizRulesEngine.RuleTree
 
             this.APIServerAddress = string.Empty;
             this.APIServerPort    = -1;
+			this.SqlServer        = this.SqlDatabase = this.SqlUsername = this.SqlPassword = string.Empty;
 
             this.CustomOpDelegate   = poCustomOpDelegate;
             this.CustomOpMethodName = psCustomOpMethodName; 
@@ -112,12 +126,33 @@ namespace Wonka.BizRulesEngine.RuleTree
             this.TypeOfSource = SOURCE_TYPE.SRC_TYPE_API;
 
             this.SenderAddress = this.Password = this.ContractAddress = this.ContractABI = string.Empty;
+			this.SqlServer     = this.SqlDatabase = this.SqlUsername = this.SqlPassword = string.Empty;
+
 
             this.APIServerAddress = psAPISrvrAddr;
             this.APIServerPort    = pnAPISrvrPort;
 
             this.MethodName        = psMethodName;
             this.SetterMethodName  = string.Empty;
+            this.RetrievalDelegate = poRetrievalDelegate;
+        }
+
+        public WonkaBizSource(string psSourceId, string psSqlServer, string psDatabase, string psUsername, string psPassword, RetrieveDataMethod poRetrievalDelegate)
+        {
+            this.SourceId     = psSourceId;
+            this.TypeOfSource = SOURCE_TYPE.SRC_TYPE_STORED_PROCEDURE;
+
+            this.SenderAddress = this.Password = this.ContractAddress = this.ContractABI = string.Empty;
+
+            this.APIServerAddress = string.Empty;
+            this.APIServerPort    = -1;
+            this.MethodName        = this.SetterMethodName = string.Empty;
+
+			this.SqlServer   = psSqlServer;
+			this.SqlDatabase = psDatabase;
+			this.SqlUsername = psUsername;
+			this.SqlPassword = psPassword;
+
             this.RetrievalDelegate = poRetrievalDelegate;
         }
     }
