@@ -382,9 +382,10 @@ namespace Wonka.BizRulesEngine.Readers
 
         private void ParseSingleRule(XmlNode poRuleXmlNode, WonkaBizRuleSet poTargetRuleSet)
         {
-            int        nNewRuleId      = ++(this.RuleIdCounter);
-            string     sRuleExpression = poRuleXmlNode.InnerText;
-            WonkaBizRule NewRule         = null;
+            int    nNewRuleId      = ++(this.RuleIdCounter);
+            string sRuleExpression = poRuleXmlNode.InnerText;
+
+            WonkaBizRule NewRule = null;
 
             if (this.CustomOpSources.Keys.Any(s => sRuleExpression.Contains(s)))
             {
