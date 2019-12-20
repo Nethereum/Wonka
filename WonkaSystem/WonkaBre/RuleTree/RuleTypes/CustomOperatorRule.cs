@@ -33,6 +33,8 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
     /// the data type before assignment.
     /// 
     /// NOTE: If the Attribute has neither a 'O' or 'N' preceding it, it will be assumed to be 'N'.
+    /// 
+    /// NOTE: If the returned value from the custom operator is blank or empty, we consider the rule as having failed.
     ///  
     /// </summary>
     public class CustomOperatorRule : WonkaBizRule
@@ -51,12 +53,12 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             Init(TARGET_RECORD.TRID_NONE, -1, null);
         }
 
-        public CustomOperatorRule(int                                     pnRuleID, 
-                                  TARGET_RECORD                           peTargetRecord, 
-                                  int                                     pnTargetAttrId, 
-                                  string                                  psCustomOpName,
+        public CustomOperatorRule(int                                          pnRuleID, 
+                                  TARGET_RECORD                                peTargetRecord, 
+                                  int                                          pnTargetAttrId, 
+                                  string                                       psCustomOpName,
                                   WonkaBizRulesXmlReader.ExecuteCustomOperator poCustomOpDelegate,
-                                  WonkaBizSource                          poCustomOpContractSource) 
+                                  WonkaBizSource                               poCustomOpContractSource) 
             : base(pnRuleID, RULE_TYPE.RT_CUSTOM_OP)
         {
             Init(peTargetRecord, pnTargetAttrId, null);
@@ -203,8 +205,15 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     }
                 }
 
-                TempProductGroup[0][nAttrId] = 
+                string sCustomOpResult =
                     CustomOpDelegate(CustomOpArgs[0], CustomOpArgs[1], CustomOpArgs[2], CustomOpArgs[3]);
+
+                // NOTE: If the result is empty, we consider the rule's invocation as a failure
+                if (!String.IsNullOrEmpty(sCustomOpResult))
+                {
+                    TempProductGroup[0][nAttrId] = sCustomOpResult;
+                    bResult = true;
+                }
 
                 if (poErrorMessage != null)
                 {
