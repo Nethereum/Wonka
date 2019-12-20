@@ -264,7 +264,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             return VerboseErrorBuilder.ToString();
         }
 
-        private void Init(TARGET_RECORD peTargetRecord, int pnTargetAttrId, string psAssignValue)
+        protected void Init(TARGET_RECORD peTargetRecord, int pnTargetAttrId, string psAssignValue)
         {
             this.IsPassive        = false;
             this.HasAttrIdTargets = false;
