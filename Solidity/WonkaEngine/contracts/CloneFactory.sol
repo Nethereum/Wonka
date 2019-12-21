@@ -3,7 +3,6 @@ pragma solidity ^0.5.0;
 /// @title A base class for creating clones
 /// @author Aaron Kendall
 /// @notice UNDER CONSTRUCTION
-/// @dev
 contract CloneFactory
 {
     function createClone(address target) internal returns (address result)
