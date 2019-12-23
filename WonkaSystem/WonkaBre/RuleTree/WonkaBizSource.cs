@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Wonka.BizRulesEngine.Readers;
+using Wonka.BizRulesEngine.RuleTree.RuleTypes;
 using Wonka.Product;
 
 namespace Wonka.BizRulesEngine.RuleTree
@@ -21,7 +22,8 @@ namespace Wonka.BizRulesEngine.RuleTree
     {
         #region Delegates
 
-        public delegate string RetrieveDataMethod(WonkaBizSource TargetSource, string psAttrName);
+        public delegate string             RetrieveDataMethod(WonkaBizSource TargetSource, string psAttrName);
+        public delegate CustomOperatorRule BuildCustomOpRuleDelegate(WonkaBizSource poSource, int pnRuleID);
 
         #endregion
 
@@ -99,9 +101,10 @@ namespace Wonka.BizRulesEngine.RuleTree
             this.APIServerPort    = -1;
 			this.SqlServer        = this.SqlDatabase = this.SqlUsername = this.SqlPassword = this.SqlQueryOrProcedure = string.Empty;
 
-            this.MethodName        = psMethodName;
-            this.SetterMethodName  = psSetterMethodName;
-            this.RetrievalDelegate = poRetrievalDelegate;
+            this.MethodName          = psMethodName;
+            this.SetterMethodName    = psSetterMethodName;
+            this.RetrievalDelegate   = poRetrievalDelegate;
+            this.CustomOpRuleBuilder = null;
         }
 
         public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, WonkaBizRulesXmlReader.ExecuteCustomOperator poCustomOpDelegate, string psCustomOpMethodName)
@@ -118,8 +121,9 @@ namespace Wonka.BizRulesEngine.RuleTree
             this.APIServerPort    = -1;
 			this.SqlServer        = this.SqlDatabase = this.SqlUsername = this.SqlPassword = this.SqlQueryOrProcedure = string.Empty;
 
-            this.CustomOpDelegate   = poCustomOpDelegate;
-            this.CustomOpMethodName = psCustomOpMethodName; 
+            this.CustomOpDelegate    = poCustomOpDelegate;
+            this.CustomOpMethodName  = psCustomOpMethodName;
+            this.CustomOpRuleBuilder = null;
         }
 
         public WonkaBizSource(string psSourceId, string psAPISrvrAddr, int pnAPISrvrPort, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
@@ -133,9 +137,10 @@ namespace Wonka.BizRulesEngine.RuleTree
             this.APIServerAddress = psAPISrvrAddr;
             this.APIServerPort    = pnAPISrvrPort;
 
-            this.MethodName        = psMethodName;
-            this.SetterMethodName  = string.Empty;
-            this.RetrievalDelegate = poRetrievalDelegate;
+            this.MethodName          = psMethodName;
+            this.SetterMethodName    = string.Empty;
+            this.RetrievalDelegate   = poRetrievalDelegate;
+            this.CustomOpRuleBuilder = null;
         }
 
         public WonkaBizSource(string psSourceId, string psSqlServer, string psDatabase, string psUsername, string psPassword, string psQueryOrProcedure, RetrieveDataMethod poRetrievalDelegate)
@@ -156,8 +161,11 @@ namespace Wonka.BizRulesEngine.RuleTree
 
             this.SqlQueryOrProcedure = psQueryOrProcedure;
 
-            this.RetrievalDelegate = poRetrievalDelegate;
+            this.RetrievalDelegate   = poRetrievalDelegate;
+            this.CustomOpRuleBuilder = null;
         }
+
+        public BuildCustomOpRuleDelegate CustomOpRuleBuilder { get; set; }
     }
 }
 

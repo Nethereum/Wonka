@@ -389,7 +389,18 @@ namespace Wonka.BizRulesEngine.Readers
 
             if (this.CustomOpSources.Keys.Any(s => sRuleExpression.Contains(s)))
             {
-                NewRule = new CustomOperatorRule() { RuleId = nNewRuleId };
+                string sFoundKey = this.CustomOpSources.Keys.FirstOrDefault(s => sRuleExpression.Contains(s));
+
+                if (!String.IsNullOrEmpty(sFoundKey) && (this.CustomOpSources[sFoundKey].CustomOpRuleBuilder != null))
+                {
+                    WonkaBizSource CustomOpSource = this.CustomOpSources[sFoundKey];
+
+                    NewRule = CustomOpSource.CustomOpRuleBuilder.Invoke(CustomOpSource, nNewRuleId);
+                }
+                else
+                {
+                    NewRule = new CustomOperatorRule() { RuleId = nNewRuleId };
+                }
             }
             else if (this.ArithmeticLimitOps.Any(s => sRuleExpression.Contains(s)))
             {
