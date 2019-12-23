@@ -11,24 +11,30 @@ using Wonka.BizRulesEngine.RuleTree.RuleTypes;
 
 namespace Wonka.Storage.Rules
 {
-    public class WonkaBizQueryDomainRule: CustomOperatorRule
+    public class WonkaBizStoredProcRule : CustomOperatorRule
     {
-        public WonkaBizQueryDomainRule(int pnRuleID, int pnTargetAttrId, string psCustomOpName, WonkaBizSource poCustomOpSource) : 
+        public WonkaBizStoredProcRule(int pnRuleID, WonkaBizSource poCustomOpSource) :
+            base(pnRuleID, TARGET_RECORD.TRID_NEW_RECORD, 0, null, null, poCustomOpSource)
+        {
+            this.CustomOpDelegate = ExecuteStoredProcedure;
+        }
+
+        public WonkaBizStoredProcRule(int pnRuleID, int pnTargetAttrId, string psCustomOpName, WonkaBizSource poCustomOpSource) :
             base(pnRuleID, TARGET_RECORD.TRID_NEW_RECORD, pnTargetAttrId, psCustomOpName, null, poCustomOpSource)
         {
-            this.CustomOpDelegate = ExecuteQuery;
+            this.CustomOpDelegate = ExecuteStoredProcedure;
         }
 
         /// <summary>
         /// 
-        /// This method will do a data lookup of the value by calling a query on a table in the database.
+        /// This method will do a data lookup of the value by calling a stored procedure in the database.
         ///
         /// NOTE: UNDER CONSTRUCTION
         ///
         /// </summary>
-        public string ExecuteQuery(string psArg1, string psArg2, string psArg3, string psArg4)
+        public string ExecuteStoredProcedure(string psArg1, string psArg2, string psArg3, string psArg4)
         {
-            string sQueryValue = "";
+            string sResultValue = "";
 
             string sConnString = "Data Source=" + this.CustomOpContractSource.SqlServer +
                                  ";Initial Catalog=" + this.CustomOpContractSource.SqlDatabase +
@@ -44,24 +50,17 @@ namespace Wonka.Storage.Rules
                 {
                     DbConn.Open();
 
-                    using (SqlCommand QueryCmd = new SqlCommand(sSqlQuery, DbConn))
-                    {
-                        using (SqlDataReader dataReader = QueryCmd.ExecuteReader())
-                        {
-                            if (dataReader.Read())
-                            {
-                                // NOTE: Additional work needed
-                            }
-                        }
-                    }
+                    /*
+                     * NOTE: Call stored procedure here
+                     */
                 }
                 catch (Exception ex)
                 {
                     // NOTE: Do something here?
                 }
-            }            
+            }
 
-            return sQueryValue;
+            return sResultValue;
         }
     }
 }
