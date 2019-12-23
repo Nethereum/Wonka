@@ -15,17 +15,34 @@ namespace Wonka.Storage.Extensions
 {
     public static class WonkaBizExtensions
     {
-		/// <summary>
-		/// 
-		/// This method will create a custom operator rule that will determine whether an attribute's value falls within a domain defined by the
+        /// <summary>
+        /// 
+        /// This method will create a custom operator rule that will determine whether an attribute's value falls within a domain defined by the
         /// results of a query on a database.
         /// 
         /// NOTE: UNDER CONSTRUCTION
-		/// 
-		/// </summary>
-		public static CustomOperatorRule BuildSqlDomainQueryRule(this WonkaBizSource poSource, int pnRuleID, int pnTargetAttrId, string psCustomOpName)
+        /// 
+        /// </summary>
+        public static CustomOperatorRule BuildSqlQueryRule(this WonkaBizSource poSource, int pnRuleID, bool pbQueryDomainRule = false)
         {
-            return new WonkaBizQueryDomainRule(pnRuleID, pnTargetAttrId, psCustomOpName, poSource);
+            var QueryRule = new WonkaBizQueryRule(pnRuleID, poSource) { IsDomainQuery = pbQueryDomainRule };
+
+            return QueryRule;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will create a custom operator rule that will determine whether an attribute's value falls within a domain defined by the
+        /// results of a query on a database.
+        /// 
+        /// NOTE: UNDER CONSTRUCTION
+        /// 
+        /// </summary>
+        public static CustomOperatorRule BuildSqlQueryRule(this WonkaBizSource poSource, int pnRuleID, int pnTargetAttrId, string psCustomOpName, bool pbQueryDomainRule = false)
+        {
+            var QueryRule = new WonkaBizQueryRule(pnRuleID, pnTargetAttrId, psCustomOpName, poSource) { IsDomainQuery = pbQueryDomainRule };
+
+            return QueryRule;
         }
     }
 }
