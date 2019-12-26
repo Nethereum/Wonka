@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,8 @@ namespace Wonka.Storage.Rules
 {
     public class WonkaBizStoredProcRule : CustomOperatorRule
     {
+        public const string CONST_OUT_PARAM_RET_VALUE = "@RETURN_VALUE";
+
         public WonkaBizStoredProcRule(int pnRuleID, WonkaBizSource poCustomOpSource) :
             base(pnRuleID, TARGET_RECORD.TRID_NEW_RECORD, 0, null, null, poCustomOpSource)
         {
@@ -50,9 +53,36 @@ namespace Wonka.Storage.Rules
                 {
                     DbConn.Open();
 
-                    /*
-                     * NOTE: Call stored procedure here
-                     */
+                    using (SqlCommand StoredProcCmd = new SqlCommand())
+                    {
+                        StoredProcCmd.CommandType = CommandType.StoredProcedure;
+                        StoredProcCmd.CommandText = sSqlQuery;
+                        StoredProcCmd.Parameters.Clear();
+
+                        string[] Args1 = psArg1.Split('=');
+                        string[] Args2 = psArg2.Split('=');
+                        string[] Args3 = psArg3.Split('=');
+                        string[] Args4 = psArg4.Split('=');
+
+                        AddParameter(StoredProcCmd, Args1);
+                        AddParameter(StoredProcCmd, Args2);
+                        AddParameter(StoredProcCmd, Args3);
+                        AddParameter(StoredProcCmd, Args4);
+
+                        StoredProcCmd.Parameters.Add(CONST_OUT_PARAM_RET_VALUE, SqlDbType.VarChar, 128);
+
+                        using (SqlDataReader ProcReader = StoredProcCmd.ExecuteReader())
+                        {
+                            if (ProcReader.Read())
+                            {
+                                if (StoredProcCmd.Parameters[CONST_OUT_PARAM_RET_VALUE].Value != DBNull.Value)
+                                {
+                                    sResultValue = 
+                                        StoredProcCmd.Parameters[CONST_OUT_PARAM_RET_VALUE].Value.ToString();
+                                }
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -62,5 +92,18 @@ namespace Wonka.Storage.Rules
 
             return sResultValue;
         }
+
+        #region Support Methods
+
+        private void AddParameter(SqlCommand poStoredProcedure, string[] pArgs)
+        {
+            if (pArgs.Length >= 2)
+            {
+                poStoredProcedure.Parameters.Add(pArgs[0], SqlDbType.VarChar, 128);
+                poStoredProcedure.Parameters[pArgs[0]].Value = pArgs[1];
+            }
+        }
+
+        #endregion
     }
 }
