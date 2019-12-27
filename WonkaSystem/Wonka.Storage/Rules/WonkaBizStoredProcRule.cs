@@ -70,6 +70,7 @@ namespace Wonka.Storage.Rules
                         AddParameter(StoredProcCmd, Args4);
 
                         StoredProcCmd.Parameters.Add(CONST_OUT_PARAM_RET_VALUE, SqlDbType.VarChar, 128);
+                        StoredProcCmd.Parameters[CONST_OUT_PARAM_RET_VALUE].Direction = ParameterDirection.ReturnValue;
 
                         using (SqlDataReader ProcReader = StoredProcCmd.ExecuteReader())
                         {
