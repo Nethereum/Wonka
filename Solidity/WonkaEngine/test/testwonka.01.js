@@ -51,24 +51,24 @@ contract('WonkaTransactionState', function(accounts4) {
     return WonkaEngine.deployed().then(function(instance) {
       return instance.getAttributeName.call(0);
     }).then(function(attrName) {
-      console.log("Name of first attribute is (" + web3.toAscii(attrName.valueOf()) + ")");
+      console.log("Name of first attribute is (" + web3.utils.toAscii(attrName.valueOf()) + ")");
     });
   });
   */
   it("add a new Attribute called 'Language'", function() {
     return WonkaEngine.deployed().then(function(instance) {
 
-      instance.addAttribute(web3.fromAscii('Language'),         64, 0, new String('ENG').valueOf(),   true, false);
+      instance.addAttribute(web3.utils.fromAscii('Language'),         64, 0, new String('ENG').valueOf(),   true, false);
       console.log("Added another Attribute!");
 
-      instance.addAttribute(web3.fromAscii('BankAccountID'),   256, 0, new String('Blank').valueOf(), true, false);
-      instance.addAttribute(web3.fromAscii('BankAccountName'), 1024, 0, new String('Blank').valueOf(), true, false);
-      instance.addAttribute(web3.fromAscii('AccountStatus'),     3,  0, new String('ACT').valueOf(), true, false);
-      instance.addAttribute(web3.fromAscii('AccountCurrValue'), 64, 100000, new String('').valueOf(), false, true);
-      instance.addAttribute(web3.fromAscii('AccountType'),    1024, 0, new String('Checking').valueOf(), true, false);
-      instance.addAttribute(web3.fromAscii('AccountCurrency'),   3, 0, new String('USD').valueOf(), true, false);
-      instance.addAttribute(web3.fromAscii('AccountPrevValue'), 64, 100000, new String('').valueOf(), false, true);
-      instance.addAttribute(web3.fromAscii('StartSaleDate'),    64, 0, new String('').valueOf(), true, true);
+      instance.addAttribute(web3.utils.fromAscii('BankAccountID'),   256, 0, new String('Blank').valueOf(), true, false);
+      instance.addAttribute(web3.utils.fromAscii('BankAccountName'), 1024, 0, new String('Blank').valueOf(), true, false);
+      instance.addAttribute(web3.utils.fromAscii('AccountStatus'),     3,  0, new String('ACT').valueOf(), true, false);
+      instance.addAttribute(web3.utils.fromAscii('AccountCurrValue'), 64, 100000, new String('').valueOf(), false, true);
+      instance.addAttribute(web3.utils.fromAscii('AccountType'),    1024, 0, new String('Checking').valueOf(), true, false);
+      instance.addAttribute(web3.utils.fromAscii('AccountCurrency'),   3, 0, new String('USD').valueOf(), true, false);
+      instance.addAttribute(web3.utils.fromAscii('AccountPrevValue'), 64, 100000, new String('').valueOf(), false, true);
+      instance.addAttribute(web3.utils.fromAscii('StartSaleDate'),    64, 0, new String('').valueOf(), true, true);
 
       console.log("Added more Attributes!");
     });
@@ -78,7 +78,7 @@ contract('WonkaTransactionState', function(accounts4) {
     return WonkaEngine.deployed().then(function(instance) {
       return instance.getAttributeName.call(3);
     }).then(function(attrName) {
-      console.log("Name of last attribute is (" + web3.toAscii(attrName.valueOf()) + ")");
+      console.log("Name of last attribute is (" + web3.utils.toAscii(attrName.valueOf()) + ")");
     });
   });
   */
@@ -95,7 +95,7 @@ contract('WonkaTransactionState', function(accounts4) {
       //var events = engine.allEvents();
       
       //var done = true;
-      //instance.addRuleTree(accounts[0], web3.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), true, true, false).then(new Promise(
+      //instance.addRuleTree(accounts[0], web3.utils.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), true, true, false).then(new Promise(
       //  function(resolve, reject){
       //    events.watch(function(error, log){ resolve(log, done); });
       // }).then(function(log, done){
@@ -112,31 +112,31 @@ contract('WonkaTransactionState', function(accounts4) {
       });
        **/
 
-      instance.addRuleTree(accounts[0], web3.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), true, true, false);
+      instance.addRuleTree(accounts[0], web3.utils.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), true, true, false);
 
       console.log("Added the root ruletree!");      
 
-      instance.addRule(accounts[0], web3.fromAscii('JohnSmithRuleTree'), web3.fromAscii('AccntNameEqualRule'), web3.fromAscii('BankAccountName'), EQUAL_TO_RULE, new String('JohnSmithFirstCheckingAccount').valueOf(), false, true);
+      instance.addRule(accounts[0], web3.utils.fromAscii('JohnSmithRuleTree'), web3.utils.fromAscii('AccntNameEqualRule'), web3.utils.fromAscii('BankAccountName'), EQUAL_TO_RULE, new String('JohnSmithFirstCheckingAccount').valueOf(), false, true);
 
       console.log("Added the rule to the root ruleset!");
 
-      instance.addRuleSet(accounts[0], web3.fromAscii('CheckAccntSts'), new String('Will determine the account status').valueOf(), web3.fromAscii('JohnSmithRuleTree'), false, false, false);
+      instance.addRuleSet(accounts[0], web3.utils.fromAscii('CheckAccntSts'), new String('Will determine the account status').valueOf(), web3.utils.fromAscii('JohnSmithRuleTree'), false, false, false);
 
       console.log("Added the first child ruleset to the root ruleset!");
 
-      instance.addRule(accounts[0], web3.fromAscii('CheckAccntSts'), web3.fromAscii('CheckForTooLittleRule'), web3.fromAscii('AccountCurrValue'), LESS_THAN_RULE, new String('1000').valueOf(), false, true);
-      instance.addRule(accounts[0], web3.fromAscii('CheckAccntSts'), web3.fromAscii('CheckForTooMuchRule'), web3.fromAscii('AccountCurrValue'), GREATER_THAN_RULE, new String('2000').valueOf(), false, true);
-      instance.addRule(accounts[0], web3.fromAscii('CheckAccntSts'), web3.fromAscii('AccountTypeRule'), web3.fromAscii('AccountType'), IN_DOMAIN_RULE, new String('Checking,Savings,TaxHaven').valueOf(), false, true);
+      instance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntSts'), web3.utils.fromAscii('CheckForTooLittleRule'), web3.utils.fromAscii('AccountCurrValue'), LESS_THAN_RULE, new String('1000').valueOf(), false, true);
+      instance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntSts'), web3.utils.fromAscii('CheckForTooMuchRule'), web3.utils.fromAscii('AccountCurrValue'), GREATER_THAN_RULE, new String('2000').valueOf(), false, true);
+      instance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntSts'), web3.utils.fromAscii('AccountTypeRule'), web3.utils.fromAscii('AccountType'), IN_DOMAIN_RULE, new String('Checking,Savings,TaxHaven').valueOf(), false, true);
 
       console.log("Added the rules to the first child ruleset!");
 
-      instance.addRuleSet(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), new String('Will determine the account status - leaf').valueOf(), web3.fromAscii('CheckAccntSts'), true, true, false);
+      instance.addRuleSet(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), new String('Will determine the account status - leaf').valueOf(), web3.utils.fromAscii('CheckAccntSts'), true, true, false);
 
       console.log("Added the leaf ruleset to the first child ruleset!");
 
-      instance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('ValidateStatusRule'), web3.fromAscii('AccountStatus'), EQUAL_TO_RULE, new String('ACT').valueOf(), false, true);
-      instance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('PopulatedValueRule'), web3.fromAscii('Language'), POPULATED_RULE, new String('').valueOf(), false, true);
-      instance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('SaleDateRule'), web3.fromAscii('StartSaleDate'), LESS_THAN_RULE, new String('NOW').valueOf(), false, true);
+      instance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('ValidateStatusRule'), web3.utils.fromAscii('AccountStatus'), EQUAL_TO_RULE, new String('ACT').valueOf(), false, true);
+      instance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('PopulatedValueRule'), web3.utils.fromAscii('Language'), POPULATED_RULE, new String('').valueOf(), false, true);
+      instance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('SaleDateRule'), web3.utils.fromAscii('StartSaleDate'), LESS_THAN_RULE, new String('NOW').valueOf(), false, true);
 
       console.log("Added the rules to the leaf ruleset for the first child RS!");
 
@@ -158,8 +158,8 @@ contract('WonkaTransactionState', function(accounts4) {
         return WonkaRegistry.deployed().then(function(rInstance) {
 
           var assocArray = [tInstance.address];
-          var attrArray  = [web3.fromAscii('BankAccountID'), web3.fromAscii('BankAccountName'), web3.fromAscii('AccountStatus'), web3.fromAscii('AccountCurrValue'), web3.fromAscii('AccountType'), web3.fromAscii('AccountCurrency')];
-          var opArray    = [web3.fromAscii('MyCustomOp')];
+          var attrArray  = [web3.utils.fromAscii('BankAccountID'), web3.utils.fromAscii('BankAccountName'), web3.utils.fromAscii('AccountStatus'), web3.utils.fromAscii('AccountCurrValue'), web3.utils.fromAscii('AccountType'), web3.utils.fromAscii('AccountCurrency')];
+          var opArray    = [web3.utils.fromAscii('MyCustomOp')];
           var groupIndex = 1; // Group Order starts with index one
 
           // var currTimeInMilliseconds = (new Date).getTime();
@@ -167,13 +167,13 @@ contract('WonkaTransactionState', function(accounts4) {
 
           console.log("Adding the 'JohnSmithRuleTree' ruletree to the registry!");      
 
-          rInstance.addRuleTreeIndex(accounts[0], web3.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), web3.fromAscii('MyGroup'), groupIndex, instance.address, 100000, 200000, assocArray, attrArray, opArray, currTimeInSeconds);
+          rInstance.addRuleTreeIndex(accounts[0], web3.utils.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), web3.utils.fromAscii('MyGroup'), groupIndex, instance.address, 100000, 200000, assocArray, attrArray, opArray, currTimeInSeconds);
 
           console.log("Now retrieving info about the 'JohnSmithRuleTree' ruletree from the registry!");
 
-          return rInstance.getRuleTreeIndex.call(web3.fromAscii('JohnSmithRuleTree')).then(function(results) {
+          return rInstance.getRuleTreeIndex.call(web3.utils.fromAscii('JohnSmithRuleTree')).then(function(results) {
   
-            var id         = web3.toAscii(results[0].toString());
+            var id         = web3.utils.toAscii(results[0].toString());
             var desc       = new String(results[1].toString()).valueOf();
             var hostAddr   = results[2].toString();
             var owner      = results[3].toString();
@@ -205,7 +205,7 @@ contract('WonkaTransactionState', function(accounts4) {
                   if (attributes != "")
                       attributes += ",";
 
-                  attributes += web3.toAscii(attrListArray[i]);
+                  attributes += web3.utils.toAscii(attrListArray[i]);
               }
 
               console.log("Attributes required by the ruletree are (" + attributes + ")");
@@ -213,7 +213,7 @@ contract('WonkaTransactionState', function(accounts4) {
 
             console.log("Getting all member IDs of the group 'MyGroup'");
 
-            return rInstance.getGroveMembers.call(web3.fromAscii('MyGroup'));
+            return rInstance.getGroveMembers.call(web3.utils.fromAscii('MyGroup'));
 
           }).then(function(list) {
     
@@ -226,7 +226,7 @@ contract('WonkaTransactionState', function(accounts4) {
                 if (membersIds != "")
                     membersIds += ",";
 
-                membersIds += web3.toAscii(groupIdListArray[i]);
+                membersIds += web3.utils.toAscii(groupIdListArray[i]);
             }
 
             console.log("Members of Grove 'MyGroup' include : (" + membersIds + ")");
@@ -239,22 +239,22 @@ contract('WonkaTransactionState', function(accounts4) {
   it("add Values into current record", function() {
     return WonkaEngine.deployed().then(function(instance) {
 
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('Title'), new String('The First Book').valueOf());
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('Price'), new String('0999').valueOf()); // in cents
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('PageAmount'), new String('289').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('Title'), new String('The First Book').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('Price'), new String('0999').valueOf()); // in cents
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('PageAmount'), new String('289').valueOf());
       console.log("Added the values to the current record!");
 
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('BankAccountID'), new String('1234567890').valueOf());
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('BankAccountName'), new String('JohnSmithFirstCheckingAccount').valueOf());
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountStatus'), new String('OOS').valueOf());
-      //instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountStatus'), new String('ACT').valueOf());
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountCurrValue'), new String('999').valueOf());
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountCurrency'), new String('USD').valueOf());
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('AccountType'), new String('Checking').valueOf());
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('Language'), new String('ENG').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('BankAccountID'), new String('1234567890').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('BankAccountName'), new String('JohnSmithFirstCheckingAccount').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('AccountStatus'), new String('OOS').valueOf());
+      //instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('AccountStatus'), new String('ACT').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('AccountCurrValue'), new String('999').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('AccountCurrency'), new String('USD').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('AccountType'), new String('Checking').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('Language'), new String('ENG').valueOf());
       console.log("Added more values onto current record!");
 
-      instance.setValueOnRecord(accounts[0], web3.fromAscii('Language'), new String('ENG').valueOf());
+      instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('Language'), new String('ENG').valueOf());
     });
   });
   it("run the business rules on the currently populated record", function() {
@@ -291,26 +291,26 @@ contract('WonkaTransactionState', function(accounts4) {
     return WonkaEngine.deployed().then(function(wInstance) {      
       return OrchTestContract.deployed().then(function(testInstance) {
 
-        wInstance.setOrchestrationMode(true, web3.fromAscii('TEST'));
+        wInstance.setOrchestrationMode(true, web3.utils.fromAscii('TEST'));
 
         console.log("Set Orchestration mode to on");
 
-        wInstance.addSource(web3.fromAscii('TEST'), web3.fromAscii('ACT'), testInstance.address, web3.fromAscii('getAttrValueBytes32'), web3.fromAscii('setAttrValueBytes32'));
+        wInstance.addSource(web3.utils.fromAscii('TEST'), web3.utils.fromAscii('ACT'), testInstance.address, web3.utils.fromAscii('getAttrValueBytes32'), web3.utils.fromAscii('setAttrValueBytes32'));
 
-        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('AccountStatus'));
+        return wInstance.getValueOnRecord.call(accounts[0], web3.utils.fromAscii('AccountStatus'));
 
       }).then(function(accountStatus) {
 
-        // console.log("Value of AccountStatus attribute is (" + web3.toAscii(accountStatus.valueOf()) + ")");
+        // console.log("Value of AccountStatus attribute is (" + web3.utils.toAscii(accountStatus.valueOf()) + ")");
         console.log("Value of AccountStatus attribute is (" + new String(accountStatus).valueOf() + ")");
 
-        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('Language'));
+        return wInstance.getValueOnRecord.call(accounts[0], web3.utils.fromAscii('Language'));
 
       }).then(function(langCd) {
 
         console.log("Value of Language attribute is (" + new String(langCd).valueOf() + ")");
 
-        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('StartSaleDate'));
+        return wInstance.getValueOnRecord.call(accounts[0], web3.utils.fromAscii('StartSaleDate'));
 
       }).then(function(startSaleDt) {
 
@@ -323,7 +323,7 @@ contract('WonkaTransactionState', function(accounts4) {
         console.log("Current record for owner is valid through Orchestration execution?  [" + recordValid + "]");
 
         // Now let's add an assignment rule to the last ruleset, where we set the Language to '???'
-        wInstance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('AssignLangRule'), web3.fromAscii('Language'), ASSIGN_RULE, new String('???').valueOf(), false, true);
+        wInstance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('AssignLangRule'), web3.utils.fromAscii('Language'), ASSIGN_RULE, new String('???').valueOf(), false, true);
 
         console.log("Added assignment rule to set a value on the Orchestration contract using Assembly.");
      
@@ -338,14 +338,14 @@ contract('WonkaTransactionState', function(accounts4) {
         console.log("Current record for owner is valid, with added Assignment rule?  [" + recordValid + "]");   
 
         // Now let's check the record on the Orchestration contract, to ensure that the Language has been set to '???'
-        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('Language'));
+        return wInstance.getValueOnRecord.call(accounts[0], web3.utils.fromAscii('Language'));
 
       }).then(function(currLang) {
   
         console.log("Current value of Language is (" + new String(currLang).valueOf() + ")");      
 
         // Now let's add an OpAdd rule to the last ruleset, where we set the AccountCurrValue = AccountCurrValue + AccountPrevValue + 1 (i.e., 2500 = 999 + 1500 + 1)
-        wInstance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('SumForCurrValue'), web3.fromAscii('AccountCurrValue'), OP_ADD_RULE, new String('AccountCurrValue,AccountPrevValue,1').valueOf(), false, true);      
+        wInstance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('SumForCurrValue'), web3.utils.fromAscii('AccountCurrValue'), OP_ADD_RULE, new String('AccountCurrValue,AccountPrevValue,1').valueOf(), false, true);      
 
         console.log("Added OP_ADD rule to set a value on the Orchestration contract using Assembly.");
      
@@ -360,7 +360,7 @@ contract('WonkaTransactionState', function(accounts4) {
         console.log("Current record for owner is valid, with added OP_ADD rule?  [" + recordValid + "]");   
 
         // Now let's check the record on the Orchestration contract, to ensure that the Language has been set to '???'
-        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('AccountCurrValue'));
+        return wInstance.getValueOnRecord.call(accounts[0], web3.utils.fromAscii('AccountCurrValue'));
 
       }).then(function(currAcctValue) {
   
@@ -393,22 +393,22 @@ contract('WonkaTransactionState', function(accounts4) {
 
       });
     });
-  });  
+  });
   it("Running the rules engine with a Custom Operator rule", function() {
     return WonkaEngine.deployed().then(function(wInstance) {      
       return OrchTestContract.deployed().then(function(testInstance) {
 
         console.log("Define a new custom operator");
 
-        wInstance.addCustomOp(web3.fromAscii('MyCustomOp'), web3.fromAscii('ACT'), testInstance.address, web3.fromAscii('performMyCalc'));
+        wInstance.addCustomOp(web3.utils.fromAscii('MyCustomOp'), web3.utils.fromAscii('ACT'), testInstance.address, web3.utils.fromAscii('performMyCalc'));
 
         console.log("Add a new rule with the new custom operator focused on the AccountCurrValue");
 
         // The value "MyCustomOp,AccountCurrValue,11,40,50" indicates that this Custom Operator will invoke the method defined by 'MyCustomOp' with the arguments AccountCurrValue,500,1000,100
-        wInstance.addRule(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('InvokeCustomOp'), web3.fromAscii('AccountCurrValue'), CUSTOM_OP_RULE, new String('MyCustomOp').valueOf(), false, true); 
+        wInstance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('InvokeCustomOp'), web3.utils.fromAscii('AccountCurrValue'), CUSTOM_OP_RULE, new String('MyCustomOp').valueOf(), false, true); 
 
         console.log("Add args to the custom operator");
-        wInstance.addRuleCustomOpArgs(accounts[0], web3.fromAscii('CheckAccntStsLeaf'), web3.fromAscii('AccountCurrValue'), web3.fromAscii('500'), web3.fromAscii('1000'), web3.fromAscii('100'));
+        wInstance.addRuleCustomOpArgs(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('AccountCurrValue'), web3.utils.fromAscii('500'), web3.utils.fromAscii('1000'), web3.utils.fromAscii('100'));
 
         console.log("Running the engine now with the new Custom Operator rule");
 
@@ -423,7 +423,7 @@ contract('WonkaTransactionState', function(accounts4) {
   
         console.log("O -> Current record for owner(" + accounts[0] + ") is valid?  [" + recordValid + "]");
 
-        return wInstance.getValueOnRecord.call(accounts[0], web3.fromAscii('AccountCurrValue'));
+        return wInstance.getValueOnRecord.call(accounts[0], web3.utils.fromAscii('AccountCurrValue'));
 
       }).then(function(acctCurrValue) {
 
