@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.6.0;
 
 /// @title An Ethereum library that contains information about all the instances of the Wonka rules engines in a blockchain
 /// @author Aaron Kendall

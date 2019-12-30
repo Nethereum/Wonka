@@ -1,10 +1,10 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.6.0;
 
 import "./TransactionStateInterface.sol";
 
 /// @title An Ethereum library that contains the functionality for a rules engine
 /// @author Aaron Kendall
-/// @notice 1.) Certain steps are required in order to use this engine correctly + 2.) Deployment of this contract to a blockchain is expensive (~7000000 gas)
+/// @notice 1.) Certain steps are required in order to use this engine correctly + 2.) Deployment of this contract to a blockchain is expensive (~8000000 gas) + 3.) Various require() statements are commented out to save deployment costs
 /// @dev Even though you can create rule trees by calling this contract directly, it is generally recommended that you create them using the Nethereum library
 contract WonkaEngine {
 
@@ -796,8 +796,7 @@ contract WonkaEngine {
 
         // NOTE: Likely to retire this check
         // require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
-
-        require (attrMap[key].isValue == true, "The specified Attribute does not exist.");
+        // require (attrMap[key].isValue == true, "The specified Attribute does not exist.");
 
         if (!orchestrationMode) {
             return (currentRecords[ruler])[key];
@@ -871,8 +870,7 @@ contract WonkaEngine {
 
         // NOTE: Likely to retire this check
         // require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
-
-        require(attrMap[key].isValue == true, "The specified Attribute does not exist.");
+        // require(attrMap[key].isValue == true, "The specified Attribute does not exist.");
         
         if (!orchestrationMode) {
             (currentRecords[ruler])[key] = value;

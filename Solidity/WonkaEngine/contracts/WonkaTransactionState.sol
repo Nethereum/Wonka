@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.6.0;
 
 import "./TransactionStateInterface.sol";
 
@@ -28,21 +28,21 @@ contract WonkaTransactionState is TransactionStateInterface {
         minReqScoreForApproval = 0;
     }    
   
-    function addConfirmation(address owner) public {
+    function addConfirmation(address owner) public override {
         
         require(ownerWeights[owner] > 0, "The provided address does not belong to a registered owner.");
         
         ownerConfirmations[owner] = true;
     }
 
-    function clearPendingTransaction() public {
+    function clearPendingTransaction() public override {
         
         revokeAllConfirmations();
 
         // NOTE: In the case that we introduce othe state variables, they should be reset here
     }
 
-    function getCurrentScore() public view returns (uint) {
+    function getCurrentScore() public override view returns (uint) {
         
         uint currScore = 0;
         
@@ -54,12 +54,12 @@ contract WonkaTransactionState is TransactionStateInterface {
         return currScore;
     }
 
-    function getMinScoreRequirement() public view returns (uint) {
+    function getMinScoreRequirement() public override view returns (uint) {
         
         return minReqScoreForApproval;
     }
   
-    function getOwnersConfirmed() public view returns (address[] memory) {
+    function getOwnersConfirmed() public override view returns (address[] memory) {
         
         uint16 confirmedCount = 0;
         
@@ -78,7 +78,7 @@ contract WonkaTransactionState is TransactionStateInterface {
         return confirmed;
     }
   
-    function getOwnersUnconfirmed() public view returns (address[] memory) {
+    function getOwnersUnconfirmed() public override view returns (address[] memory) {
         
         uint16 unconfirmedCount = 0;
         
@@ -97,19 +97,19 @@ contract WonkaTransactionState is TransactionStateInterface {
         return unconfirmed;
     }
   
-    function hasConfirmed(address owner) public view returns (bool) {
+    function hasConfirmed(address owner) public override view returns (bool) {
         
         require(ownerWeights[owner] > 0, "The provided address does not belong to a registered owner.");
        
         return ownerConfirmations[owner];
     }
 
-    function isExecutor(address candidate) public view returns (bool) {
+    function isExecutor(address candidate) public override view returns (bool) {
 
         return executors[candidate];
     }
   
-    function isTransactionConfirmed() public view returns (bool) {
+    function isTransactionConfirmed() public override view returns (bool) {
         
         require(getMinScoreRequirement() > 0, "Minimum score has not yet been set.");
         
@@ -118,12 +118,12 @@ contract WonkaTransactionState is TransactionStateInterface {
         return (getCurrentScore() >= minReqScoreForApproval);
     }
 
-    function removeExecutor(address executor) public {
+    function removeExecutor(address executor) public override {
 
         executors[executor] = false;
     }
   
-    function removeOwner(address owner) public {
+    function removeOwner(address owner) public override {
         
         require(ownerWeights[owner] > 0, "The provided address does not belong to a registered owner.");
        
@@ -131,7 +131,7 @@ contract WonkaTransactionState is TransactionStateInterface {
         revokeConfirmation(owner);
     }
   
-    function revokeAllConfirmations() public returns (bool) {
+    function revokeAllConfirmations() public override returns (bool) {
         
         for (uint16 idx = 0; idx < owners.length; ++idx) {
             revokeConfirmation(owners[idx]);
@@ -140,7 +140,7 @@ contract WonkaTransactionState is TransactionStateInterface {
         return true;
     }
   
-    function revokeConfirmation(address owner) public returns (bool) {
+    function revokeConfirmation(address owner) public override returns (bool) {
         
         require(ownerWeights[owner] > 0, "The provided address does not belong to a registered owner.");
         
@@ -148,17 +148,17 @@ contract WonkaTransactionState is TransactionStateInterface {
         return true;
     }
   
-    function setMinScoreRequirement(uint newMinReqScore) public {
+    function setMinScoreRequirement(uint newMinReqScore) public override {
         
         minReqScoreForApproval = newMinReqScore;
     }
 
-    function setExecutor(address executor) public {
+    function setExecutor(address executor) public override {
 
         executors[executor] = true;
     }
   
-    function setOwner(address owner, uint weight) public {
+    function setOwner(address owner, uint weight) public override {
         
         require(owners.length < CONST_MAX_OWNERS, "The maximum number of owners has already been reached.");
         

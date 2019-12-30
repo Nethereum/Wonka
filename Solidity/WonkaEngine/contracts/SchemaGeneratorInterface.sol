@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.6.0;
 
 /// @title An interface for classes that want to replicate an existing schema within their internal storage
 /// @author Aaron Kendall
