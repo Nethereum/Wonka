@@ -8,12 +8,11 @@ module.exports = {
   },
   networks: {
     development: {
-      // host: "localhost",
-      host: "MyUbuntuVM",
+      host: "localhost",
       port: 8545,
       network_id: "*" // Match any network id
-      // , gas: 8388608
-      , gas: 10000000
+      , gas: 8388608
+      // , gas: 10000000
     },
     nethereum: {
       host: "testchain.nethereum.com",
