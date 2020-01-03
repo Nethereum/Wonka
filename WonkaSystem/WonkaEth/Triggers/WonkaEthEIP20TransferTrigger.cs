@@ -44,15 +44,23 @@ namespace Wonka.Eth.Triggers
             moContract     = moEIP20Service.ContractHandler;
         }
 
-        public WonkaEthEIP20TransferTrigger(Web3 poWeb3, EIP20Deployment moDeployData, string psContractAddress, string psReceiverAddress, long pnTransferAmount, CancellationTokenSource poCancelToken = null)
+        public WonkaEthEIP20TransferTrigger(Web3 poWeb3, string psContractAddress, string psReceiverAddress, long pnTransferAmount, CancellationTokenSource poCancelToken = null, EIP20Deployment poDeployData = null)
             : base(poWeb3, psContractAddress, poCancelToken)
         {
-            mnTotalSupply = Convert.ToInt64(moDeployData.InitialAmount);
-			mnTransferAmt = pnTransferAmount;
+			mnTransferAmt     = pnTransferAmount;
+            msReceiverAddress = psReceiverAddress;
 
-			msTokenName       = moDeployData.TokenName;
-			msTokenSymbol     = moDeployData.TokenSymbol;
-			msReceiverAddress = psReceiverAddress;
+            if (poDeployData != null)
+            {
+                msTokenName   = poDeployData.TokenName;
+                msTokenSymbol = poDeployData.TokenSymbol;
+                mnTotalSupply = Convert.ToInt64(poDeployData.InitialAmount);
+            }
+            else
+            {
+                msTokenName   = msTokenSymbol = "";
+                mnTotalSupply = 0;
+            }
 
             moEIP20Service = new StandardTokenService(poWeb3, psContractAddress);
             moContract     = moEIP20Service.ContractHandler;
