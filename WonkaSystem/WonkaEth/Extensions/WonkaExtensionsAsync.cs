@@ -1366,19 +1366,56 @@ namespace Wonka.Eth.Extensions
             return true;
         }
 
-		/// <summary>
-		/// 
-		/// This method will use Nethereum to revert certain values on the chain to a previous state, particularly
-		/// those values set by the engine during the previous invocation.
-		///
-		/// NOTE: ONLY INITIAL IMPLEMENTATION
-		/// 
-		/// <param name="poEngine">The instance of a RuleTree that already exists on the engine of the chain</param>
-		/// <param name="poInvocationReport">A report of the RuleTree's previous invocation</param>
-		/// <param name="psWeb3Url">The URL that points to the Ethereum client with which we are communicating</param>
-		/// <returns>Indicates whether or not the Orchestration info was submitted to the blockchain</returns>
-		/// </summary>
-		private static async Task<bool> UndoAsync(this WonkaBizRulesEngine poEngine, RuleTreeReport poInvocationReport, string psWeb3Url = "")
+        /// <summary>
+        /// 
+        /// This method will transfer Ether from one account to another.
+        /// 
+        /// NOTE: UNDER CONSTRUCTION
+        /// 
+        /// <returns>Returns the transaction ID of the transfer</returns>
+        /// </summary>
+        public static async Task<string> TransferEtherAsync(this WonkaBizSource poTargetSource, string psToAccount, HexBigInteger poTransferValue, string psWeb3Url = "")
+        {
+            string sTrxId = "";
+
+            if ((poTargetSource != null) && !String.IsNullOrEmpty(poTargetSource.SenderAddress))
+            {
+                var account = new Account(poTargetSource.Password);
+
+                Nethereum.Web3.Web3 web3 = null;
+
+                if (!String.IsNullOrEmpty(psWeb3Url))
+                    web3 = new Nethereum.Web3.Web3(account, psWeb3Url);
+                else
+                    web3 = new Nethereum.Web3.Web3(account);
+
+                var transactionInput = new Nethereum.RPC.Eth.DTOs.TransactionInput();
+
+                transactionInput.Data  = "0x123";
+                transactionInput.From  = poTargetSource.SenderAddress;
+                transactionInput.To    = psToAccount;
+                transactionInput.Value = poTransferValue;
+                transactionInput.Gas   = new HexBigInteger(50000);
+
+                sTrxId = await web3.Eth.TransactionManager.SendTransactionAsync(transactionInput).ConfigureAwait(false);
+            }
+
+            return sTrxId;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will use Nethereum to revert certain values on the chain to a previous state, particularly
+        /// those values set by the engine during the previous invocation.
+        ///
+        /// NOTE: ONLY INITIAL IMPLEMENTATION
+        /// 
+        /// <param name="poEngine">The instance of a RuleTree that already exists on the engine of the chain</param>
+        /// <param name="poInvocationReport">A report of the RuleTree's previous invocation</param>
+        /// <param name="psWeb3Url">The URL that points to the Ethereum client with which we are communicating</param>
+        /// <returns>Indicates whether or not the Orchestration info was submitted to the blockchain</returns>
+        /// </summary>
+        private static async Task<bool> UndoAsync(this WonkaBizRulesEngine poEngine, RuleTreeReport poInvocationReport, string psWeb3Url = "")
         {
             string empty  = string.Empty;
             string defSrc = (!String.IsNullOrEmpty(poEngine.DefaultSource)) ? poEngine.DefaultSource : string.Empty;
