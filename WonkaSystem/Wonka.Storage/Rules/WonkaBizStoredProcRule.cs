@@ -39,13 +39,13 @@ namespace Wonka.Storage.Rules
         {
             string sResultValue = "";
 
-            string sConnString = "Data Source=" + this.CustomOpContractSource.SqlServer +
-                                 ";Initial Catalog=" + this.CustomOpContractSource.SqlDatabase +
-                                 ";User ID=" + this.CustomOpContractSource.SqlUsername +
-                                 ";Password=" + this.CustomOpContractSource.SqlPassword;
+            string sConnString = "Data Source=" + this.CustomOpSource.SqlServer +
+                                 ";Initial Catalog=" + this.CustomOpSource.SqlDatabase +
+                                 ";User ID=" + this.CustomOpSource.SqlUsername +
+                                 ";Password=" + this.CustomOpSource.SqlPassword;
 
             // NOTE: Use parameters in prepared statement with query here?
-            string sSqlQuery = this.CustomOpContractSource.SqlQueryOrProcedure;
+            string sSqlQuery = this.CustomOpSource.SqlQueryOrProcedure;
 
             using (SqlConnection DbConn = new SqlConnection(sConnString))
             {

@@ -557,8 +557,8 @@ namespace Wonka.BizRulesEngine.Readers
                         {                            
                             Rule.SetDomain(asValueSet);
 
-                            Rule.CustomOpName           = sCustomOpKey;
-                            Rule.CustomOpContractSource = CustomOpSources[sCustomOpKey];
+                            Rule.CustomOpName   = sCustomOpKey;
+                            Rule.CustomOpSource = CustomOpSources[sCustomOpKey];
                         }
                     }
                 }

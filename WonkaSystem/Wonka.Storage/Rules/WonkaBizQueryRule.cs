@@ -61,7 +61,7 @@ namespace Wonka.Storage.Rules
 
                     // NOTE: Use parameters in prepared statement with query here?
                     string sSqlQuery =
-                        String.Format(this.CustomOpContractSource.SqlQueryOrProcedure, psArg1, psArg2, psArg3, psArg4);
+                        String.Format(this.CustomOpSource.SqlQueryOrProcedure, psArg1, psArg2, psArg3, psArg4);
 
                     using (SqlCommand QueryCmd = new SqlCommand(sSqlQuery, DbConn))
                     {
@@ -106,7 +106,7 @@ namespace Wonka.Storage.Rules
 
                         // NOTE: Use parameters in prepared statement with query here?
                         string sSqlQuery =
-                            String.Format(this.CustomOpContractSource.SqlQueryOrProcedure);
+                            String.Format(this.CustomOpSource.SqlQueryOrProcedure);
 
                         using (SqlCommand QueryCmd = new SqlCommand(sSqlQuery, DbConn))
                         {
@@ -138,10 +138,10 @@ namespace Wonka.Storage.Rules
 
         private SqlConnection GetConnection()
         {
-            string sConnString = "Data Source=" + this.CustomOpContractSource.SqlServer +
-                     ";Initial Catalog=" + this.CustomOpContractSource.SqlDatabase +
-                     ";User ID=" + this.CustomOpContractSource.SqlUsername +
-                     ";Password=" + this.CustomOpContractSource.SqlPassword;
+            string sConnString = "Data Source=" + this.CustomOpSource.SqlServer +
+                     ";Initial Catalog=" + this.CustomOpSource.SqlDatabase +
+                     ";User ID=" + this.CustomOpSource.SqlUsername +
+                     ";Password=" + this.CustomOpSource.SqlPassword;
 
             return new SqlConnection(sConnString);
         }

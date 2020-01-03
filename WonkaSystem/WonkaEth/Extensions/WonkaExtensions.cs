@@ -1530,12 +1530,21 @@ namespace Wonka.Eth.Extensions
 
                     sValue = CustomOpRule.CustomOpName;
 
-                    for (int idx = 0; idx < CONST_CUSTOM_OP_ARG_COUNT; ++idx)
+                    if ((CustomOpRule.CustomOpSource != null) && !String.IsNullOrEmpty(CustomOpRule.CustomOpSource.ContractAddress))
                     {
-                        if (idx < CustomOpRule.CustomOpPropArgs.Count)
-                            CustomOpArgs.Add(CustomOpRule.CustomOpPropArgs[idx]);
-                        else
-                            CustomOpArgs.Add("dummyValue");
+                        for (int idx = 0; idx < CONST_CUSTOM_OP_ARG_COUNT; ++idx)
+                        {
+                            if (idx < CustomOpRule.CustomOpPropArgs.Count)
+                                CustomOpArgs.Add(CustomOpRule.CustomOpPropArgs[idx]);
+                            else
+                                CustomOpArgs.Add("dummyValue");
+                        }
+                    }
+                    // NOTE: Need to figure out another way to serialize this rule, which is either a SQL query or procedure - 
+                    // Currently, it will cause the entire RuleTree to fail serialization
+                    else
+                    {
+                        throw new WonkaEthException("ERROR!  Custom Operator isn't compatible for serialization.");
                     }
 
                     string sParamsAbbr = (sValue.Length > 8) ? sValue.Substring(0, 8) + "..." : sValue;

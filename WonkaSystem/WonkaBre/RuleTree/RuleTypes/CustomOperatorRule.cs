@@ -58,14 +58,14 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                                   int                                          pnTargetAttrId, 
                                   string                                       psCustomOpName,
                                   WonkaBizRulesXmlReader.ExecuteCustomOperator poCustomOpDelegate,
-                                  WonkaBizSource                               poCustomOpContractSource) 
+                                  WonkaBizSource                               poCustomOpSource) 
             : base(pnRuleID, RULE_TYPE.RT_CUSTOM_OP)
         {
             Init(peTargetRecord, pnTargetAttrId, null);
 
-            CustomOpName           = psCustomOpName;
-            CustomOpDelegate       = poCustomOpDelegate;
-            CustomOpContractSource = poCustomOpContractSource; 
+            CustomOpName     = psCustomOpName;
+            CustomOpDelegate = poCustomOpDelegate;
+            CustomOpSource   = poCustomOpSource; 
         }
 
         #endregion
@@ -184,9 +184,9 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                 TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
             }
 
-            if ((CustomOpDelegate == null) && (CustomOpContractSource.CustomOpDelegate != null))
+            if ((CustomOpDelegate == null) && (CustomOpSource.CustomOpDelegate != null))
             {
-                CustomOpDelegate = CustomOpContractSource.CustomOpDelegate;
+                CustomOpDelegate = CustomOpSource.CustomOpDelegate;
             }
 
             if (CustomOpDelegate != null)
@@ -440,7 +440,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 
         public WonkaBizRulesXmlReader.ExecuteCustomOperator CustomOpDelegate { get; set; }
 
-        public WonkaBizSource CustomOpContractSource { get; set; }
+        public WonkaBizSource CustomOpSource { get; set; }
 
         public List<string> DomainCache { get; set; }
 
