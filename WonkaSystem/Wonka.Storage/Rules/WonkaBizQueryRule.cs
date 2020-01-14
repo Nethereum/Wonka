@@ -25,12 +25,38 @@ namespace Wonka.Storage.Rules
             Init(pbCacheDomain);
         }
 
-        /// <summary>
-        /// 
-        /// This method will do a data lookup of the value by looking for the value in the cached domain.
-        ///
-        /// </summary>
-        public string ExecuteCacheCheck(string psArg1, string psArg2, string psArg3, string psArg4)
+		#region Override Interface Methods
+
+		/// <summary>
+		/// 
+		/// This method will serialize the cached domain into a storage contract on the chain, so that the Wonka engine on the chain
+		/// can perform a domain check.
+		///
+		/// NOTE: UNDER CONSTRUCTION
+		///
+		/// </summary>
+		public override bool SerializeToStorage()
+		{
+			bool bResult = false;
+
+			if (IsDomainQuery && (CachedDomain.Count > 0))
+			{
+				// NOTE: Perform the serialization to storage here
+			}
+
+			return bResult;
+		}
+
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		/// 
+		/// This method will do a data lookup of the value by looking for the value in the cached domain.
+		///
+		/// </summary>
+		public string ExecuteCacheCheck(string psArg1, string psArg2, string psArg3, string psArg4)
         {
             string sResultValue = "";
 
@@ -134,9 +160,11 @@ namespace Wonka.Storage.Rules
             return DomainSet;
         }
 
-        #region SUPPORT METHODS
+		#endregion
 
-        private SqlConnection GetConnection()
+		#region SUPPORT METHODS
+
+		private SqlConnection GetConnection()
         {
             string sConnString = "Data Source=" + this.CustomOpSource.SqlServer +
                      ";Initial Catalog=" + this.CustomOpSource.SqlDatabase +

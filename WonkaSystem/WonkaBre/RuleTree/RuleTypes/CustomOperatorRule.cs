@@ -7,6 +7,7 @@ using Wonka.Product;
 using Wonka.MetaData;
 
 using Wonka.BizRulesEngine.Readers;
+using Wonka.BizRulesEngine.RuleTree;
 
 namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
 {
@@ -37,8 +38,8 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
     /// NOTE: If the returned value from the custom operator is blank or empty, we consider the rule as having failed.
     ///  
     /// </summary>
-    public class CustomOperatorRule : WonkaBizRule
-    {
+    public class CustomOperatorRule : WonkaBizRule, IStorageSerialize
+	{
         #region Constructors
 
         public CustomOperatorRule() 
@@ -68,21 +69,35 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
             CustomOpSource   = poCustomOpSource; 
         }
 
-        #endregion
+		#endregion
 
-        #region Methods
+		#region Interface Methods
 
-        /// <summary>
-        /// 
-        /// This method allows the caller to add a domain value to the set, whether it's a literal value or 
-        /// a referenced Attribute in the Transactional record.
-        /// 
-        /// <param name="psDomainVal">The value to add to the set</param>
-        /// <param name="pbIsLiteral">The indicator for whether the value is literal (i.e., '5') or an Attribute name (i.e., 'PubPrice')</param>
-        /// <param name="peTargetRecord">The record with the Attribute value that we will add to the set (if the domain value is not literal)</param>
-        /// <returns>None.</returns>
-        /// </summary>
-        public void AddDomainValue(string psDomainVal, bool pbIsLiteral, TARGET_RECORD peTargetRecord)
+	    public virtual bool IsSerializable()
+		{
+			return false;
+		}
+
+		public virtual bool SerializeToStorage()
+		{
+			return true;
+		}
+
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		/// 
+		/// This method allows the caller to add a domain value to the set, whether it's a literal value or 
+		/// a referenced Attribute in the Transactional record.
+		/// 
+		/// <param name="psDomainVal">The value to add to the set</param>
+		/// <param name="pbIsLiteral">The indicator for whether the value is literal (i.e., '5') or an Attribute name (i.e., 'PubPrice')</param>
+		/// <param name="peTargetRecord">The record with the Attribute value that we will add to the set (if the domain value is not literal)</param>
+		/// <returns>None.</returns>
+		/// </summary>
+		public void AddDomainValue(string psDomainVal, bool pbIsLiteral, TARGET_RECORD peTargetRecord)
         {
             WonkaBizRuleValueProps oValueProps =
                 new WonkaBizRuleValueProps() { IsLiteralValue = pbIsLiteral };
