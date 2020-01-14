@@ -1312,7 +1312,17 @@ namespace Wonka.Eth.Extensions
 
                     sValue = CustomOpRule.CustomOpName;
 
-                    if ((CustomOpRule.CustomOpSource != null) && !String.IsNullOrEmpty(CustomOpRule.CustomOpSource.ContractAddress))
+					/*
+					// NOTE: In the future, if this rule has data that should be placed within chain storage as an external reference,
+					// we should serialize it here
+					//
+					if (CustomOpRule.IsSerializable())
+					{
+						CustomOpRule.SerializeToStorage();
+					}
+					*/
+
+					if ((CustomOpRule.CustomOpSource != null) && !String.IsNullOrEmpty(CustomOpRule.CustomOpSource.ContractAddress))
                     {
                         for (int idx = 0; idx < CONST_CUSTOM_OP_ARG_COUNT; ++idx)
                         {
