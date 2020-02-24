@@ -5,6 +5,7 @@ using System.Data;
 // using System.Data.Entity.Core.Metadata.Edm;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 using Microsoft.Data.SqlClient;
@@ -451,6 +452,81 @@ select *
             NewImportGroup.KeyTabCols     = KeyAttrList;
             NewImportGroup.ProductTabName = psDatabaseTable;
             NewImportSource.AddGroup(NewImportGroup);
+
+            return NewImportSource;
+        }
+
+        public IMetadataRetrievable ImportSource(HashSet<Type> poDataStructList)
+        {
+            WonkaImportSource NewAggregateSource = new WonkaImportSource();
+
+            if (poDataStructList != null)
+            {
+                foreach (Type TempType in poDataStructList)
+                {
+                    IMetadataRetrievable TempSource = ImportSource(TempType);
+
+                    TempSource.GetAttrCache().ForEach(x => NewAggregateSource.AddAttribute(x));
+                    TempSource.GetGroupCache().ForEach(x => NewAggregateSource.AddGroup(x));
+                }
+            }
+
+            return NewAggregateSource;
+        }
+
+        public IMetadataRetrievable ImportSource(Type poDataStructType, object poDataStructure = null)
+        {
+            WonkaImportSource NewImportSource = new WonkaImportSource();
+
+            PropertyInfo[] Props = poDataStructType.GetProperties();
+
+            foreach (PropertyInfo TmpProperty in Props)
+            {
+                Type   AttrType  = TmpProperty.PropertyType;
+                string sAttrName = TmpProperty.Name;
+
+                WonkaRefAttr TmpWonkaAttr = new WonkaRefAttr();
+
+                TmpWonkaAttr.AttrId   = GenerateNewAttrId();
+                TmpWonkaAttr.AttrName = sAttrName;
+                TmpWonkaAttr.ColName  = sAttrName;
+                TmpWonkaAttr.TabName  = poDataStructType.FullName;
+
+                if (poDataStructure != null)
+                {
+                    object oTmpValue = TmpProperty.GetValue(poDataStructure);
+
+                    TmpWonkaAttr.DefaultValue = Convert.ToString(oTmpValue);
+                }
+
+                TmpWonkaAttr.Description = "";
+
+                TmpWonkaAttr.IsDate    = IsTypeDate(AttrType.Name);
+                TmpWonkaAttr.IsNumeric = IsTypeNumeric(AttrType.Name);
+                TmpWonkaAttr.IsDecimal = IsTypeDecimal(AttrType.Name);
+
+                // NOTE: These values are simply defaults and have no real meaning
+                if (TmpWonkaAttr.IsNumeric)
+                {
+                    TmpWonkaAttr.Precision = 9;
+                    TmpWonkaAttr.Scale     = 0;
+                }
+                else if (TmpWonkaAttr.IsDecimal)
+                {
+                    TmpWonkaAttr.Precision = 9;
+                    TmpWonkaAttr.Scale     = 9;
+                }
+
+                // TmpWonkaAttr.MaxLength = ?;
+
+                TmpWonkaAttr.FieldId   = TmpWonkaAttr.AttrId + 1000;
+                TmpWonkaAttr.GroupId   = CONST_DEFAULT_GROUP_ID;
+                TmpWonkaAttr.IsAudited = true;
+
+                TmpWonkaAttr.IsKey = (TmpWonkaAttr.AttrName.EndsWith("ID") || TmpWonkaAttr.AttrName.EndsWith("Id"));
+
+                NewImportSource.AddAttribute(TmpWonkaAttr);
+            }
 
             return NewImportSource;
         }
