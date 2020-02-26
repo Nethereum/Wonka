@@ -316,7 +316,7 @@ namespace WonkaSystem.TestHarness
                 // var gas = executeWithReportFunction.EstimateGasAsync(msSenderAddress).Result;
                 var gas = new Nethereum.Hex.HexTypes.HexBigInteger(2000000);
 
-                WonkaProduct OrchContractCurrValues = poRulesEngine.AssembleCurrentProduct(new Dictionary<string, string>());
+                WonkaProduct OrchContractCurrValues = poRulesEngine.AssembleOtherProduct(new Dictionary<string, string>());
 
                 string sNSTABeforeOrchestrationAssignment  = RetrieveValueMethod(poSource, NewSellTaxAmountAttr.AttrName);
                 string sNVABeforeOrchestrationAssignment   = RetrieveValueMethod(poSource, NewVATAmountForHMRCAttr.AttrName);

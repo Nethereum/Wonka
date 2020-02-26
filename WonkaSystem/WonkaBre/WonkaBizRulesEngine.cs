@@ -123,7 +123,7 @@ namespace Wonka.BizRulesEngine
             SourceMap    = poSourceMap;
             AllRuleSets  = BreXmlReader.AllParsedRuleSets;
 
-            this.RetrieveCurrRecord = AssembleCurrentProduct;
+            this.RetrieveCurrRecord = AssembleOtherProduct;
         }
 
         public WonkaBizRulesEngine(StringBuilder                      psRules, 
@@ -156,7 +156,7 @@ namespace Wonka.BizRulesEngine
             CustomOpMap  = poCustomOpBlockchainSources;
             AllRuleSets  = BreXmlReader.AllParsedRuleSets;
 
-            this.RetrieveCurrRecord = AssembleCurrentProduct;
+            this.RetrieveCurrRecord = AssembleOtherProduct;
         }
 
         /// <summary>
@@ -185,9 +185,8 @@ namespace Wonka.BizRulesEngine
                 AddRuleSets(TmpBizRuleSet);
             }               
 
-            this.RetrieveCurrRecord = AssembleCurrentProduct;
+            this.RetrieveCurrRecord = AssembleOtherProduct;
         }
-
 
         #endregion
 
@@ -195,15 +194,15 @@ namespace Wonka.BizRulesEngine
 
         /// <summary>
         /// 
-        /// This method will assemble the new product by iterating through each specified source
-        /// and retrieving the data from it.
+        /// This method will assemble the other product (denoted by O.* names) by iterating through 
+        /// each specified source and retrieving the data from it.
         /// 
         /// <param name="poKeyValues">The keys for the product whose data we wish to extract/param>
         /// <returns>Contains the assembled product data that represents the current product</returns>
         /// </summary>
-        public WonkaProduct AssembleCurrentProduct(Dictionary<string, string> poKeyValues)
+        public WonkaProduct AssembleOtherProduct(Dictionary<string, string> poKeyValues)
         {
-            WonkaProduct CurrentProduct = new WonkaProduct();
+            WonkaProduct OtherProduct = new WonkaProduct();
 
             // NOTE: Do work here
             if (SourceMap != null)
@@ -213,13 +212,16 @@ namespace Wonka.BizRulesEngine
                     WonkaBizSource TmpSource  = SourceMap[sTmpAttName];
                     WonkaRefAttr   TargetAttr = RefEnvHandle.GetAttributeByAttrName(sTmpAttName);
 
-                    string sTmpValue = TmpSource.RetrievalDelegate.Invoke(TmpSource, TargetAttr.AttrName);
+                    if (TmpSource.RetrievalDelegate != null)
+                    {
+                        string sTmpValue = TmpSource.RetrievalDelegate.Invoke(TmpSource, TargetAttr.AttrName);
 
-                    CurrentProduct.SetAttribute(TargetAttr, sTmpValue);
+                        OtherProduct.SetAttribute(TargetAttr, sTmpValue);
+                    }
                 }
             }
 
-            return CurrentProduct;
+            return OtherProduct;
         }
 
         /// <summary>

@@ -37,7 +37,7 @@ namespace Wonka.BizRulesEngine.RuleTree
 
         #region Properties for Simple Orchestration (i.e., data getter/setter)
 
-        public readonly RetrieveDataMethod RetrievalDelegate;
+        public RetrieveDataMethod RetrievalDelegate { get; set; }
 
         public readonly string MethodName;
 
@@ -85,9 +85,17 @@ namespace Wonka.BizRulesEngine.RuleTree
 
         public readonly string SqlQueryOrProcedure;
 
-		#endregion
+        #endregion
 
-		public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, string psMethodName, string psSetterMethodName, RetrieveDataMethod poRetrievalDelegate)
+        #region Other Properties
+
+        public BuildCustomOpRuleDelegate CustomOpRuleBuilder { get; set; }
+
+        public string DefaultWeb3Url { get; set; }
+
+        #endregion
+
+        public WonkaBizSource(string psSourceId, string psSenderAddr, string psPwd, string psContractAddr, string psABI, string psMethodName, string psSetterMethodName, RetrieveDataMethod poRetrievalDelegate)
         {
             this.SourceId     = psSourceId;
             this.TypeOfSource = SOURCE_TYPE.SRC_TYPE_CONTRACT;
@@ -152,7 +160,7 @@ namespace Wonka.BizRulesEngine.RuleTree
 
             this.APIServerAddress = string.Empty;
             this.APIServerPort    = -1;
-            this.MethodName        = this.SetterMethodName = string.Empty;
+            this.MethodName       = this.SetterMethodName = string.Empty;
 
 			this.SqlServer   = psSqlServer;
 			this.SqlDatabase = psDatabase;
@@ -164,8 +172,7 @@ namespace Wonka.BizRulesEngine.RuleTree
             this.RetrievalDelegate   = poRetrievalDelegate;
             this.CustomOpRuleBuilder = null;
         }
-
-        public BuildCustomOpRuleDelegate CustomOpRuleBuilder { get; set; }
+        
     }
 }
 

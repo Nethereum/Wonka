@@ -134,30 +134,43 @@ namespace Wonka.Storage.Extensions
 			return CurrentProduct;
         }
 
-		/// <summary>
-		/// 
-		/// This method will return an Attribute value using.
-		/// 
-		/// <param name="poTargetSource">The Source of the Attribute's location, defined on the chain</param>
-		/// <param name="psAttrName">The name of the Attribute which we are seeking</param>
-		/// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
-		/// <returns>Contains the value of the sought Attribute</returns>
-		/// </summary>
-		public static string GetAttrValue(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
-		{
-			return poTargetSource.GetAttrValueFromChain(psAttrName, psWeb3Url);
-		}
+        /// <summary>
+        /// 
+        /// This method will return an Attribute value using.
+        /// 
+        /// <param name="poTargetSource">The Source of the Attribute's location, defined on the chain</param>
+        /// <param name="psAttrName">The name of the Attribute which we are seeking</param>
+        /// <returns>Contains the value of the sought Attribute</returns>
+        /// </summary>
+        public static string GetAttrValue(this WonkaBizSource poTargetSource, string psAttrName)
+        {
+            return poTargetSource.GetAttrValueFromChain(psAttrName, poTargetSource.DefaultWeb3Url);
+        }
 
-		/// <summary>
-		/// 
-		/// This method will return an Attribute value using.
-		/// 
-		/// <param name="poTargetSource">The Source of the Attribute's location, defined on the chain</param>
-		/// <param name="psAttrName">The name of the Attribute which we are seeking</param>
-		/// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
-		/// <returns>Contains the value of the sought Attribute</returns>
-		/// </summary>
-		public static async Task<string> GetAttrValueAsync(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
+        /// <summary>
+        /// 
+        /// This method will return an Attribute value using.
+        /// 
+        /// <param name="poTargetSource">The Source of the Attribute's location, defined on the chain</param>
+        /// <param name="psAttrName">The name of the Attribute which we are seeking</param>
+        /// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
+        /// <returns>Contains the value of the sought Attribute</returns>
+        /// </summary>
+        public static string GetAttrValue(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
+        {
+            return poTargetSource.GetAttrValueFromChain(psAttrName, psWeb3Url);
+        }
+
+        /// <summary>
+        /// 
+        /// This method will return an Attribute value using.
+        /// 
+        /// <param name="poTargetSource">The Source of the Attribute's location, defined on the chain</param>
+        /// <param name="psAttrName">The name of the Attribute which we are seeking</param>
+        /// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
+        /// <returns>Contains the value of the sought Attribute</returns>
+        /// </summary>
+        public static async Task<string> GetAttrValueAsync(this WonkaBizSource poTargetSource, string psAttrName, string psWeb3Url = "")
 		{
 			return await poTargetSource.GetAttrValueFromChainAsync(psAttrName, psWeb3Url).ConfigureAwait(false);
 		}
@@ -294,6 +307,43 @@ namespace Wonka.Storage.Extensions
             // storageService.GetEntityRequestAsync(getEntityFunction);
 
             return CurrentEntity;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will provide default functionality on the retrieval delegate of each Source 
+        /// in an engine's SourceMap .
+        /// 
+		/// <param name="poEngine">The Wonka.NET instance that represents the instance on the chain</param>
+        /// <param name="psWeb3Url">The URL for the Ethereum client to which we want to connect</param>
+        /// <returns>N/A</returns>
+        /// </summary>
+        /// 
+        public static void SetDefaultSourceRetrievalDelegates(this WonkaBizRulesEngine poEngine, string psWeb3Url = "")
+        {
+            if ((poEngine.SourceMap != null) && (poEngine.SourceMap.Count > 0))
+            {
+                foreach (string sTmpAttrName in poEngine.SourceMap.Keys)
+                {
+                    var TmpSource = poEngine.SourceMap[sTmpAttrName];
+
+                    if (!String.IsNullOrEmpty(TmpSource.DefaultWeb3Url) && !String.IsNullOrEmpty(psWeb3Url))
+                        TmpSource.DefaultWeb3Url = psWeb3Url;
+
+                    if (!String.IsNullOrEmpty(TmpSource.ContractAddress))
+                    {
+                        TmpSource.RetrievalDelegate = GetAttrValue;
+                    }
+                    else if (!String.IsNullOrEmpty(TmpSource.APIServerAddress))
+                    {
+                        // NOTE: Set delegate that grabs data from API call
+                    }
+                    else if (!String.IsNullOrEmpty(TmpSource.SqlDatabase))
+                    {
+                        // NOTE: Set delegate that grabs data from SQL Stored procedure
+                    }
+                }
+            }
         }
 
     }
