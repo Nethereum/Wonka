@@ -67,15 +67,17 @@ namespace Wonka.BizRulesEngine.RuleTree
 
         #region Properties for calls to API server
 
-        public readonly string APIServerAddress;
+        public readonly string APIWebUrl;
 
-        public readonly int APIServerPort;
+        public readonly string APIWebMethod;
 
-		#endregion
+        public readonly string APIWebParam;
 
-		#region Properties for calls to SQL Server query/stored procedure
+        #endregion
 
-		public readonly string SqlServer;
+        #region Properties for calls to SQL Server query/stored procedure
+
+        public readonly string SqlServer;
 
 		public readonly string SqlDatabase;
 
@@ -105,9 +107,10 @@ namespace Wonka.BizRulesEngine.RuleTree
             this.ContractAddress = psContractAddr;
             this.ContractABI     = psABI;
 
-            this.APIServerAddress = string.Empty;
-            this.APIServerPort    = -1;
-			this.SqlServer        = this.SqlDatabase = this.SqlUsername = this.SqlPassword = this.SqlQueryOrProcedure = string.Empty;
+            this.APIWebUrl       = string.Empty;
+            this.APIWebMethod    = string.Empty;
+            this.APIWebParam     = string.Empty;
+            this.SqlServer       = this.SqlDatabase = this.SqlUsername = this.SqlPassword = this.SqlQueryOrProcedure = string.Empty;
 
             this.MethodName          = psMethodName;
             this.SetterMethodName    = psSetterMethodName;
@@ -125,16 +128,17 @@ namespace Wonka.BizRulesEngine.RuleTree
             this.ContractAddress = psContractAddr;
             this.ContractABI     = psABI;
 
-            this.APIServerAddress = string.Empty;
-            this.APIServerPort    = -1;
-			this.SqlServer        = this.SqlDatabase = this.SqlUsername = this.SqlPassword = this.SqlQueryOrProcedure = string.Empty;
+            this.APIWebUrl       = string.Empty;
+            this.APIWebMethod    = string.Empty;
+            this.APIWebParam     = string.Empty;
+			this.SqlServer       = this.SqlDatabase = this.SqlUsername = this.SqlPassword = this.SqlQueryOrProcedure = string.Empty;
 
             this.CustomOpDelegate    = poCustomOpDelegate;
             this.CustomOpMethodName  = psCustomOpMethodName;
             this.CustomOpRuleBuilder = null;
         }
 
-        public WonkaBizSource(string psSourceId, string psAPISrvrAddr, int pnAPISrvrPort, string psMethodName, RetrieveDataMethod poRetrievalDelegate)
+        public WonkaBizSource(string psSourceId, string psAPIWebUrl, string psAPIWebMethod, string psAPIWebParam, RetrieveDataMethod poRetrievalDelegate)
         {
             this.SourceId     = psSourceId;
             this.TypeOfSource = SOURCE_TYPE.SRC_TYPE_API;
@@ -142,11 +146,11 @@ namespace Wonka.BizRulesEngine.RuleTree
             this.SenderAddress = this.Password = this.ContractAddress = this.ContractABI = string.Empty;
 			this.SqlServer     = this.SqlDatabase = this.SqlUsername = this.SqlPassword = this.SqlQueryOrProcedure = string.Empty;
 
-            this.APIServerAddress = psAPISrvrAddr;
-            this.APIServerPort    = pnAPISrvrPort;
+            this.APIWebUrl    = psAPIWebUrl;
+            this.APIWebMethod = psAPIWebMethod;
+            this.APIWebParam  = psAPIWebParam;
 
-            this.MethodName          = psMethodName;
-            this.SetterMethodName    = string.Empty;
+            this.MethodName          = this.SetterMethodName = string.Empty;
             this.RetrievalDelegate   = poRetrievalDelegate;
             this.CustomOpRuleBuilder = null;
         }
@@ -158,10 +162,8 @@ namespace Wonka.BizRulesEngine.RuleTree
 
             this.SenderAddress = this.Password = this.ContractAddress = this.ContractABI = string.Empty;
 
-            this.APIServerAddress = string.Empty;
-            this.APIServerPort    = -1;
-            this.MethodName       = this.SetterMethodName = string.Empty;
-
+            this.APIWebUrl   = this.APIWebMethod = this.APIWebParam = string.Empty;
+            this.MethodName  = this.SetterMethodName = string.Empty;
 			this.SqlServer   = psSqlServer;
 			this.SqlDatabase = psDatabase;
 			this.SqlUsername = psUsername;
