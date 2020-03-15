@@ -332,6 +332,9 @@ namespace Wonka.BizRulesEngine.Readers
                                 NewChildRuleSet.ErrorSeverity = RULE_SET_ERR_LVL.ERR_LVL_SEVERE;
                             }
                         }
+
+                        if (String.IsNullOrEmpty(NewChildRuleSet.Description))
+                            NewChildRuleSet.Description = currentRuleSet.Description + " (Leaf)";
                     }
 
                     NewChildRuleSet.ParentRuleSetId = currentRuleSet.RuleSetId;
