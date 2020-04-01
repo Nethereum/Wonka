@@ -28,4 +28,7 @@
   <ItemGroup>
     <None Include="Samples\SimpleAccountCheck.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Writers\" />
+  </ItemGroup>
 </Project>
