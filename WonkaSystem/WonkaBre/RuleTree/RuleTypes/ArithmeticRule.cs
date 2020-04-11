@@ -47,7 +47,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
         }
 
         public ArithmeticRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, ARITH_OP_TYPE poArithOpType, bool bSearchAllRows) 
-            : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
+            : base(pnRuleID, RULE_TYPE.RT_ARITHMETIC)
         {
             Init(peTargetRecord, pnTargetAttrId, poArithOpType);
 

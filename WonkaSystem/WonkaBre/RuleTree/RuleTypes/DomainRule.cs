@@ -50,7 +50,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
         }
 
         public DomainRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId, bool bSearchAllRows) 
-            : base(pnRuleID, RULE_TYPE.RT_ASSIGNMENT)
+            : base(pnRuleID, RULE_TYPE.RT_DOMAIN)
         {
             Init(peTargetRecord, pnTargetAttrId);
 

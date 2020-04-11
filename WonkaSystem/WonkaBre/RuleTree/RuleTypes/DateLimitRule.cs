@@ -37,7 +37,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
         }
 
         public DateLimitRule(int pnRuleId) 
-            : base(pnRuleId, RULE_TYPE.RT_ARITH_LIMIT)
+            : base(pnRuleId, RULE_TYPE.RT_DATE_LIMIT)
         {
             Init(TARGET_RECORD.TRID_NONE, -1);
         }

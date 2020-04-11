@@ -33,7 +33,7 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
         }
 
         public PopulatedRule(int pnRuleID, TARGET_RECORD peTargetRecord, int pnTargetAttrId) 
-            : base(pnRuleID, RULE_TYPE.RT_DOMAIN)
+            : base(pnRuleID, RULE_TYPE.RT_POPULATED)
         {
             Init(peTargetRecord, pnTargetAttrId);
         }
