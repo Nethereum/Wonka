@@ -287,6 +287,18 @@ namespace Wonka.MetaData
             // NOTE: To be ported later
         }
 
+		public void RefreshMaps()
+		{
+            foreach (WonkaRefCadre TmpField in CadreCache)
+                CadreMap[TmpField.CadreId] = TmpField;
+
+            foreach (WonkaRefSource TmpSource in SourceCache)
+                SourceMap[TmpSource.SourceId] = TmpSource;
+
+            foreach (WonkaRefSourceCadre TmpSrcField in SourceCadreCache)
+                SourceCadreMap[TmpSrcField.SourceCadreId] = TmpSrcField;
+        }
+
         public bool ValidateMetadata()
         {
             /*
