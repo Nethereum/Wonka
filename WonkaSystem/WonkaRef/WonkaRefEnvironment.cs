@@ -287,8 +287,53 @@ namespace Wonka.MetaData
             // NOTE: To be ported later
         }
 
+		// NOTE: Should only be used in special circumstances
 		public void RefreshMaps()
 		{
+            AttrKeys.Clear();
+
+            foreach (WonkaRefAttr TmpAttribute in AttrCache)
+            {
+                if (TmpAttribute.IsKey)
+                    AttrKeys.Add(TmpAttribute);
+                
+                if (!IdXref.FieldIdToAttrIds.Keys.Contains(TmpAttribute.FieldId))
+                    IdXref.FieldIdToAttrIds[TmpAttribute.FieldId] = new HashSet<int>();
+
+                IdXref.FieldIdToAttrIds[TmpAttribute.FieldId].Add(TmpAttribute.AttrId);
+
+                if (!IdXref.GroupIdToAttrIds.Keys.Contains(TmpAttribute.GroupId))
+                    IdXref.GroupIdToAttrIds[TmpAttribute.GroupId] = new HashSet<int>();
+
+                IdXref.GroupIdToAttrIds[TmpAttribute.GroupId].Add(TmpAttribute.AttrId);
+
+                if (!IdXref.GroupIdToFieldIds.Keys.Contains(TmpAttribute.GroupId))
+                    IdXref.GroupIdToFieldIds[TmpAttribute.GroupId] = new HashSet<int>();
+
+                IdXref.GroupIdToFieldIds[TmpAttribute.GroupId].Add(TmpAttribute.FieldId);
+
+                if (!String.IsNullOrEmpty(TmpAttribute.ColName) && (TmpAttribute.ColName == GetStandardByStdName("GSCName").StandardValue))
+                    IdXref.GroupIdToGroupSeqAttrId[TmpAttribute.GroupId] = TmpAttribute.AttrId;
+
+                AttrMap[TmpAttribute.AttrId] = TmpAttribute;
+            }
+
+            foreach (WonkaRefGroup TmpGroup in GroupCache)
+            {
+                if (TmpGroup.KeyTabCols.Count > 0)
+                {
+                    IdXref.GroupIdToKeyAttrIds[TmpGroup.GroupId] = new HashSet<int>();
+
+                    foreach (string sTmpKeyTabCol in TmpGroup.KeyTabCols)
+                    {
+                        int nTargetAttrId = GetAttributeByTabColName(sTmpKeyTabCol).AttrId;
+                        IdXref.GroupIdToKeyAttrIds[TmpGroup.GroupId].Add(nTargetAttrId);
+                    }
+                }
+
+                GroupMap[TmpGroup.GroupId] = TmpGroup;
+            }
+
             foreach (WonkaRefCadre TmpField in CadreCache)
                 CadreMap[TmpField.CadreId] = TmpField;
 
@@ -297,7 +342,7 @@ namespace Wonka.MetaData
 
             foreach (WonkaRefSourceCadre TmpSrcField in SourceCadreCache)
                 SourceCadreMap[TmpSrcField.SourceCadreId] = TmpSrcField;
-        }
+		}
 
         public bool ValidateMetadata()
         {
