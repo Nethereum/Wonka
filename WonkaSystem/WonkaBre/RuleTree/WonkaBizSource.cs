@@ -47,7 +47,7 @@ namespace Wonka.BizRulesEngine.RuleTree
 
         #region Properties for Custom Orchestration (i.e., custom operators)
 
-        public readonly WonkaBizRulesXmlReader.ExecuteCustomOperator CustomOpDelegate;
+        public WonkaBizRulesXmlReader.ExecuteCustomOperator CustomOpDelegate { get; protected set; }
 
         public readonly string CustomOpMethodName;
 
