@@ -1,15 +1,23 @@
 using System;
+using System.Collections.Generic;
+
 using Nethereum.Web3;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
 using Wonka.MetaData;
 
+using Wonka.Eth.Extensions.OpSource;
+
 namespace Wonka.Eth.Extensions
 {
 	public static class WonkaEthCustomRuleERC20Extensions
 	{
 		private static int mnRuleCounter = 100000;
+
+		public static string CONST_ERC_DUMMY_SOURCE   = "ERC20_SOURCE";
+		public static string CONST_ERC_GET_BALANCE_OP = "ERC20_GET_BALANCE";
+		public static string CONST_ERC_TRANSFER_OP    = "ERC20_TRANSFER";
 
 		public static void AddNethereumERC20GetBalanceRule(this WonkaBizRuleSet poRuleSet,
 			                                                WonkaRefEnvironment poRefEnv, 
@@ -28,7 +36,7 @@ namespace Wonka.Eth.Extensions
 				new WonkaEthCustomOpRule(mnRuleCounter++,
 									     TARGET_RECORD.TRID_NEW_RECORD,
 										 poTargetAttr.AttrId,
-									     "GET_ERC20_BALANCE",
+										 CONST_ERC_GET_BALANCE_OP,
 									     null,
 									     DummySource);
 
@@ -63,7 +71,7 @@ namespace Wonka.Eth.Extensions
 				new WonkaEthCustomOpRule(mnRuleCounter++,
 										 TARGET_RECORD.TRID_NEW_RECORD,
 										 poTargetAttr.AttrId,
-										 "ERC20_TRANSFER",
+										 CONST_ERC_TRANSFER_OP,
 										 null,
 										 DummySource);
 
@@ -78,6 +86,32 @@ namespace Wonka.Eth.Extensions
 				NewRule.DescRuleId = psAddRuleDesc;
 
 			poRuleSet.AddRule(NewRule);
+		}
+
+		public static Dictionary<string, WonkaBizSource> CreateERC20OpMap(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
+		{
+			var OpMapERC20 = new Dictionary<string, WonkaBizSource>();
+
+			OpMapERC20[CONST_ERC_GET_BALANCE_OP] = CreateERC20GetBalanceOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
+			OpMapERC20[CONST_ERC_TRANSFER_OP]    = CreateERC20TransferOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
+
+			return OpMapERC20;
+		}
+
+		public static WonkaBizSource CreateERC20GetBalanceOperator(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
+		{
+			WonkaEthERC20GetBalanceOpSource ERC20GetBalanceSource =
+				new WonkaEthERC20GetBalanceOpSource(CONST_ERC_DUMMY_SOURCE, psEthSender, psEthPwd, psEthContractAddress, CONST_ERC_GET_BALANCE_OP, psWeb3Url);
+
+			return ERC20GetBalanceSource;
+		}
+
+		public static WonkaBizSource CreateERC20TransferOperator(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
+		{
+			WonkaEthERC20TransferOpSource ERC20TransferSource =
+				new WonkaEthERC20TransferOpSource(CONST_ERC_DUMMY_SOURCE, psEthSender, psEthPwd, psEthContractAddress, CONST_ERC_TRANSFER_OP, psWeb3Url);
+
+			return ERC20TransferSource;
 		}
 	}
 }

@@ -52,5 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Autogen\BizDataStorage\" />
+    <Folder Include="Extensions\OpSource\" />
   </ItemGroup>
 </Project>
