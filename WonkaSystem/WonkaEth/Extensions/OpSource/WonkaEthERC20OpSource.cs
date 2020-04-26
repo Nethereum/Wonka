@@ -30,9 +30,29 @@ namespace Wonka.Eth.Extensions.OpSource
 				SenderWeb3 = new Nethereum.Web3.Web3(account);
 		}
 
+		public string InvokeERC20Approve(string psSpender, string psApprovedAmt, string psDummyVal1 = "", string psDummyVal2 = "")
+		{
+			var tokenService = GetERC20TokenService();
+
+			BigInteger nApprovedAmt = BigInteger.Parse(psApprovedAmt, NumberStyles.AllowHexSpecifier);
+
+			var trxReceipt = tokenService.ApproveRequestAndWaitForReceiptAsync(new ApproveFunction() { Spender = psSpender, Value = nApprovedAmt }).Result;
+
+			return trxReceipt.TransactionHash;
+		}
+
 		public Nethereum.StandardTokenEIP20.StandardTokenService GetERC20TokenService()
 		{
 			return new Nethereum.StandardTokenEIP20.StandardTokenService(SenderWeb3, this.ContractAddress);
+		}
+
+		public string InvokeERC20GetAllowance(string psOwner, string psSpender, string psDummyVal1 = "", string psDummyVal2 = "")
+		{
+			var tokenService = GetERC20TokenService();
+
+			var nAmtRemaining = tokenService.AllowanceQueryAsync(new AllowanceFunction() { Owner = psOwner, Spender = psSpender }).Result;
+
+			return nAmtRemaining.ToString();
 		}
 
 		public string InvokeERC20GetBalance(string psOwner = "", string psDummyVal1 = "", string psDummyVal2 = "", string psDummyVal3 = "")
@@ -60,7 +80,7 @@ namespace Wonka.Eth.Extensions.OpSource
 
 			BigInteger nAmtToSend = BigInteger.Parse(psTransferAmt, NumberStyles.AllowHexSpecifier);
 
-			var trxReceipt = tokenService.TransferRequestAndWaitForReceiptAsync(new TransferFunction() { To = psToAccount, AmountToSend = nAmtToSend }).Result;
+			var trxReceipt = tokenService.TransferRequestAndWaitForReceiptAsync(new TransferFunction() { To = psToAccount, Value = nAmtToSend }).Result;
 
 			return trxReceipt.TransactionHash;
 
