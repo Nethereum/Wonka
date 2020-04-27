@@ -4,10 +4,7 @@ using System.Numerics;
 
 using Nethereum.StandardTokenEIP20.ContractDefinition;
 
-using Wonka.BizRulesEngine;
-using Wonka.BizRulesEngine.Readers;
 using Wonka.BizRulesEngine.RuleTree;
-using Wonka.BizRulesEngine.RuleTree.RuleTypes;
 
 namespace Wonka.Eth.Extensions.OpSource
 {
