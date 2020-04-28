@@ -7,7 +7,7 @@ using Nethereum.StandardNonFungibleTokenERC721.ContractDefinition;
 
 using Wonka.BizRulesEngine.RuleTree;
 
-namespace Wonka.Eth.Extensions.OpSource
+namespace Wonka.Eth.Extensions.OpSource.ERC721
 {
 	public class WonkaEthERC721OpSource : WonkaBizSource
 	{
@@ -44,7 +44,7 @@ namespace Wonka.Eth.Extensions.OpSource
 			return new Nethereum.StandardNonFungibleTokenERC721.ERC721Service(SenderWeb3, this.ContractAddress);
 		}
 
-		public string InvokeERC20GetBalance(string psOwner = "", string psDummyVal1 = "", string psDummyVal2 = "", string psDummyVal3 = "")
+		public string InvokeERC721GetBalance(string psOwner = "", string psDummyVal1 = "", string psDummyVal2 = "", string psDummyVal3 = "")
 		{
 			var tokenService = GetERC721TokenService();
 
@@ -53,7 +53,7 @@ namespace Wonka.Eth.Extensions.OpSource
 			return balance.ToString();
 		}
 
-		public string InvokeERC20OwnerOf(string psTokenId = "", string psDummyVal1 = "", string psDummyVal2 = "", string psDummyVal3 = "")
+		public string InvokeERC721OwnerOf(string psTokenId = "", string psDummyVal1 = "", string psDummyVal2 = "", string psDummyVal3 = "")
 		{
 			var tokenService = GetERC721TokenService();
 

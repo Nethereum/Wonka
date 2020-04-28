@@ -1,6 +1,6 @@
 using System;
 
-namespace Wonka.Eth.Extensions.OpSource
+namespace Wonka.Eth.Extensions.OpSource.ERC20
 {
 	public class WonkaEthERC20ApproveOpSource : WonkaEthERC20OpSource
 	{

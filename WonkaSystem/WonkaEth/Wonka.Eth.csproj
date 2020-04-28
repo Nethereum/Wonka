@@ -54,5 +54,7 @@
   <ItemGroup>
     <Folder Include="Autogen\BizDataStorage\" />
     <Folder Include="Extensions\OpSource\" />
+    <Folder Include="Extensions\OpSource\ERC20\" />
+    <Folder Include="Extensions\OpSource\ERC721\" />
   </ItemGroup>
 </Project>

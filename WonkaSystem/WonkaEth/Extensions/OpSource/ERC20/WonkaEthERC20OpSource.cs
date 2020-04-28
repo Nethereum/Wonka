@@ -6,7 +6,7 @@ using Nethereum.StandardTokenEIP20.ContractDefinition;
 
 using Wonka.BizRulesEngine.RuleTree;
 
-namespace Wonka.Eth.Extensions.OpSource
+namespace Wonka.Eth.Extensions.OpSource.ERC20
 {
 	public class WonkaEthERC20OpSource : WonkaBizSource
 	{
