@@ -312,6 +312,14 @@ namespace Wonka.Eth.Extensions
             return bResult;
         }
 
+        public static Dictionary<string, WonkaBizSource> InitializeTokenOpMap(this WonkaEthEngineInitialization poEngInitData)
+		{
+            return WonkaEthCustomRuleERC20Extensions.InitializeTokenOperationsMap(poEngInitData.EthSenderAddress,
+				                                                                  poEngInitData.EthPassword,
+																				  poEngInitData.RulesEngineContractAddress,
+																				  poEngInitData.Web3HttpUrl);
+        }
+
         /// <summary>
         /// 
         /// This method will use Nethereum to call upon (or create) an instance of the Ethgine contract and 

@@ -491,12 +491,6 @@ namespace Wonka.Eth.Autogen.WonkaRegistry
         public virtual List<BigInteger> OrderList { get; set; }
     }
 
-
-
-
-
-
-
     public partial class GetAllRegisteredRuleTreesOutputDTO : GetAllRegisteredRuleTreesOutputDTOBase { }
 
     [FunctionOutput]

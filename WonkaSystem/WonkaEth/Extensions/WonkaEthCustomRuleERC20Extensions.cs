@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 using Nethereum.Web3;
 
@@ -168,6 +170,19 @@ namespace Wonka.Eth.Extensions
 				new WonkaEthERC721TransferOpSource(CONST_ERC721_DUMMY_SOURCE, psEthSender, psEthPwd, psEthContractAddress, CONST_ERC721_TRANSFER_OP, psWeb3Url);
 
 			return ERC20TransferSource;
+		}
+
+		public static Dictionary<string, WonkaBizSource> InitializeTokenOperationsMap(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
+		{
+			var TokenOpsMap = new Dictionary<string, WonkaBizSource>();
+
+			var ERC20_Ops_Map  = InitializeERC20OpMap(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
+			var ERC721_Ops_Map = InitializeERC721OpMap(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
+
+			ERC20_Ops_Map.ToList().ForEach(x => TokenOpsMap.Add(x.Key, x.Value));
+			ERC721_Ops_Map.ToList().ForEach(x => TokenOpsMap.Add(x.Key, x.Value));
+
+			return TokenOpsMap;
 		}
 
 		public static Dictionary<string, WonkaBizSource> InitializeERC20OpMap(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
