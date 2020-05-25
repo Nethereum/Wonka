@@ -20,10 +20,12 @@ namespace Wonka.Eth.Init
                                    Dictionary<string, WonkaBizSource> poSourceMap,
 				                         WonkaEthEngineInitialization poEthEngineInit,
 					                             IMetadataRetrievable piMetadataSource,
+												               string psERC20Address,
+															   string psERC721Address,
                                                                  bool pbAddToRegistry = true)
             : base(psRules,
 				   poSourceMap,
-				   poEthEngineInit.InitializeTokenOpMap(),
+				   poEthEngineInit.InitializeTokenOpMap(psERC20Address, psERC721Address),
 				   piMetadataSource,
 				   pbAddToRegistry)
         {

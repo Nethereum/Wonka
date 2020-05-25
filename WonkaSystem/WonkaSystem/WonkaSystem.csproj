@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="TestData\SimpleAccountCheck.xml" />
+    <EmbeddedResource Include="TestData\SimpleEthCheck.xml" />
     <EmbeddedResource Include="TestData\WonkaEngine.abi" />
     <EmbeddedResource Include="TestData\WonkaEngine.bin" />
     <EmbeddedResource Include="TestData\OrchTest.abi" />

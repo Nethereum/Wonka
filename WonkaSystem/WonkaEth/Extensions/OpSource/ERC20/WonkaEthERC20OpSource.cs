@@ -52,11 +52,15 @@ namespace Wonka.Eth.Extensions.OpSource.ERC20
 			return nAmtRemaining.ToString();
 		}
 
-		public string InvokeERC20GetBalance(string psOwner = "", string psDummyVal1 = "", string psDummyVal2 = "", string psDummyVal3 = "")
+		public string InvokeERC20GetBalance(string psOwner, string psDummyVal1 = "", string psDummyVal2 = "", string psDummyVal3 = "")
 		{
 			var tokenService = GetERC20TokenService();
 
-			var balance = tokenService.BalanceOfQueryAsync(new BalanceOfFunction() { Owner = psOwner }).Result;
+			var acctOwner = psOwner;
+
+			var function = new BalanceOfFunction() { Owner = acctOwner };
+
+			var balance = tokenService.BalanceOfQueryAsync(function).Result;
 
 			return balance.ToString();
 		}

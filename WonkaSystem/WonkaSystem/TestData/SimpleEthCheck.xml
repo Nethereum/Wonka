@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<RuleTree xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+   <if description="Set the status for the incoming record">
+      <criteria op="AND">
+         <eval id="pop1">(N.BankAccountName) POPULATED</eval>
+         <eval id="dom1">(N.BankAccountName) == ('JohnSmithFirstCheckingAccount')</eval>
+      </criteria>
+
+      <if description="Setting Account Status">
+           <criteria op="AND">
+               <eval id="pop2">(N.AcctCurrValueHex) ERC20_GET_BALANCE('0x8ee7d9235e01e6b42345120b5d270bdb763624c7')</eval>
+           </criteria>
+
+           <validate err="severe">
+               <criteria op="AND">
+		           <eval id="dom2">(N.AcctCurrValueHex) POPULATED</eval>					
+                   <eval id="asn1">(N.AuditReviewFlag) ASSIGN ('###')</eval>
+               </criteria>
+
+               <failure_message/>
+               <success_message/>
+           </validate>           
+       </if>
+       
+   </if>    
+    
+</RuleTree>

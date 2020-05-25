@@ -312,11 +312,12 @@ namespace Wonka.Eth.Extensions
             return bResult;
         }
 
-        public static Dictionary<string, WonkaBizSource> InitializeTokenOpMap(this WonkaEthEngineInitialization poEngInitData)
+        public static Dictionary<string, WonkaBizSource> InitializeTokenOpMap(this WonkaEthEngineInitialization poEngInitData, string psERC20Addr, string psERC721Addr)
 		{
             return WonkaEthCustomRuleERC20Extensions.InitializeTokenOperationsMap(poEngInitData.EthSenderAddress,
 				                                                                  poEngInitData.EthPassword,
-																				  poEngInitData.RulesEngineContractAddress,
+																				  psERC20Addr,
+                                                                                  psERC721Addr,
 																				  poEngInitData.Web3HttpUrl);
         }
 

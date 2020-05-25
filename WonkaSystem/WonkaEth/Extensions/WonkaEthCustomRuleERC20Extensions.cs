@@ -172,12 +172,12 @@ namespace Wonka.Eth.Extensions
 			return ERC20TransferSource;
 		}
 
-		public static Dictionary<string, WonkaBizSource> InitializeTokenOperationsMap(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
+		public static Dictionary<string, WonkaBizSource> InitializeTokenOperationsMap(string psEthSender, string psEthPwd, string psERC20Addr, string psERC721Addr, string psWeb3Url = "")
 		{
 			var TokenOpsMap = new Dictionary<string, WonkaBizSource>();
 
-			var ERC20_Ops_Map  = InitializeERC20OpMap(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
-			var ERC721_Ops_Map = InitializeERC721OpMap(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
+			var ERC20_Ops_Map  = InitializeERC20OpMap(psEthSender, psEthPwd, psERC20Addr, psWeb3Url);
+			var ERC721_Ops_Map = InitializeERC721OpMap(psEthSender, psEthPwd, psERC721Addr, psWeb3Url);
 
 			ERC20_Ops_Map.ToList().ForEach(x => TokenOpsMap.Add(x.Key, x.Value));
 			ERC721_Ops_Map.ToList().ForEach(x => TokenOpsMap.Add(x.Key, x.Value));

@@ -31,6 +31,7 @@ namespace WonkaSystem.TestHarness
             AttrCache.Add(new WonkaRefAttr() { AttrId = 10, AttrName = "OwnerSSN",        FieldId = 2, GroupId = 2, IsAudited = true, IsNumeric = true, IsKey = true });
             AttrCache.Add(new WonkaRefAttr() { AttrId = 11, AttrName = "OwnerRank",       FieldId = 2, GroupId = 2, IsAudited = true, IsNumeric = true });
             AttrCache.Add(new WonkaRefAttr() { AttrId = 12, AttrName = "AuditReviewFlag", FieldId = 106, GroupId = 1, IsAudited = true, MaxLength = 3 });
+            AttrCache.Add(new WonkaRefAttr() { AttrId = 13, AttrName = "AcctCurrValueHex", FieldId = 107, GroupId = 1, IsAudited = true, MaxLength = 1024 });
 
             return AttrCache;
         }
@@ -60,6 +61,7 @@ namespace WonkaSystem.TestHarness
             FieldCache.Add(new WonkaRefCadre() { CadreId = 105, CadreName = "CreationDt",       GroupId = 1, AttrIds = new List<int>() { 7 } });
             FieldCache.Add(new WonkaRefCadre() { CadreId = 2,   CadreName = "Owner",            GroupId = 2, AttrIds = new List<int>() { 8, 9, 10, 11 } });
             FieldCache.Add(new WonkaRefCadre() { CadreId = 106, CadreName = "AuditReviewFlag",  GroupId = 1, AttrIds = new List<int>() { 12 } });
+            FieldCache.Add(new WonkaRefCadre() { CadreId = 107, CadreName = "AcctCurrValueHex", GroupId = 1, AttrIds = new List<int>() { 13 } });
 
             return FieldCache;
         }
