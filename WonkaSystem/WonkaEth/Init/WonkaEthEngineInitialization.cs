@@ -87,6 +87,10 @@ namespace Wonka.Eth.Init
 
 		public string StorageSetterMethod { get; set; }
 
+        public string ERC20ContractAddress { get; set; }
+
+        public string ERC721ContractAddress { get; set; }
+
         public bool UsingTrxStateContract { get; set; }
 
         public string TrxStateContractAddress { get; set; }
