@@ -32,6 +32,8 @@ namespace Wonka.Eth.Extensions.OpSource.ERC721
 		{
 			var tokenService = GetERC721TokenService();
 
+			psTokenId = psTokenId.StartsWith("0x") ? psTokenId.Replace("0x", "0") : psTokenId;
+
 			BigInteger nTokenId = BigInteger.Parse(psTokenId, NumberStyles.AllowHexSpecifier);
 
 			var trxReceipt = tokenService.ApproveRequestAndWaitForReceiptAsync(new ApproveFunction() { To = psApprovedAcct, TokenId = nTokenId }).Result;
@@ -57,6 +59,8 @@ namespace Wonka.Eth.Extensions.OpSource.ERC721
 		{
 			var tokenService = GetERC721TokenService();
 
+			psTokenId = psTokenId.StartsWith("0x") ? psTokenId.Replace("0x", "0") : psTokenId;
+
 			BigInteger nTokenId = BigInteger.Parse(psTokenId, NumberStyles.AllowHexSpecifier);
 
 			var owner = tokenService.OwnerOfQueryAsync(new OwnerOfFunction() { TokenId = nTokenId }).Result;
@@ -70,6 +74,8 @@ namespace Wonka.Eth.Extensions.OpSource.ERC721
 
 			byte[] TokenData = Encoding.ASCII.GetBytes(psTokenData);
 
+			psTokenId = psTokenId.StartsWith("0x") ? psTokenId.Replace("0x", "0") : psTokenId;
+
 			BigInteger nTokenId = BigInteger.Parse(psTokenId, NumberStyles.AllowHexSpecifier);
 
 			var trxReceipt =
@@ -82,6 +88,8 @@ namespace Wonka.Eth.Extensions.OpSource.ERC721
 		public string InvokeERC721TransferFrom(string psFromAccount, string psToAccount, string psTokenId, string psDummyVal1 = "")
 		{
 			var tokenService = GetERC721TokenService();
+
+			psTokenId = psTokenId.StartsWith("0x") ? psTokenId.Replace("0x", "0") : psTokenId;
 
 			BigInteger nTokenId = BigInteger.Parse(psTokenId, NumberStyles.AllowHexSpecifier);
 
