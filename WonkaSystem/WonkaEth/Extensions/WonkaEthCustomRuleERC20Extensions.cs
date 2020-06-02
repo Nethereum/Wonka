@@ -22,6 +22,7 @@ namespace Wonka.Eth.Extensions
 		public static string CONST_ERC20_APPROVE_OP       = "ERC20_APPROVE";
 		public static string CONST_ERC20_GET_ALLOWANCE_OP = "ERC20_GET_ALLOWANCE";
 		public static string CONST_ERC20_GET_BALANCE_OP   = "ERC20_GET_BALANCE";
+		public static string CONST_ERC20_GET_TOTAL_OP     = "ERC20_GET_TOTAL";
 		public static string CONST_ERC20_TRANSFER_OP      = "ERC20_TRANSFER";
 
 		public static string CONST_ERC721_DUMMY_SOURCE     = "ERC721_SOURCE";
@@ -124,6 +125,14 @@ namespace Wonka.Eth.Extensions
 			return ERC20GetBalanceSource;
 		}
 
+		public static WonkaBizSource CreateERC20GetTotalOperator(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
+		{
+			var ERC20GetTotalSource =
+				new WonkaEthERC20GetTotalOpSource(CONST_ERC20_DUMMY_SOURCE, psEthSender, psEthPwd, psEthContractAddress, CONST_ERC20_GET_TOTAL_OP, psWeb3Url);
+
+			return ERC20GetTotalSource;
+		}
+
 		public static WonkaBizSource CreateERC20TransferOperator(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
 		{
 			var ERC20TransferSource =
@@ -189,10 +198,11 @@ namespace Wonka.Eth.Extensions
 		{
 			var OpMapERC20 = new Dictionary<string, WonkaBizSource>();
 
-			OpMapERC20[CONST_ERC20_GET_BALANCE_OP]   = CreateERC20GetBalanceOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
 			OpMapERC20[CONST_ERC20_TRANSFER_OP]      = CreateERC20TransferOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
-			OpMapERC20[CONST_ERC20_GET_ALLOWANCE_OP] = CreateERC20GetAllowanceOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);			
-			OpMapERC20[CONST_ERC20_APPROVE_OP]       = CreateERC20ApproveOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);			
+			OpMapERC20[CONST_ERC20_GET_ALLOWANCE_OP] = CreateERC20GetAllowanceOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
+			OpMapERC20[CONST_ERC20_GET_BALANCE_OP]   = CreateERC20GetBalanceOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
+			OpMapERC20[CONST_ERC20_APPROVE_OP]       = CreateERC20ApproveOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
+			OpMapERC20[CONST_ERC20_GET_TOTAL_OP]     = CreateERC20GetTotalOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
 
 			return OpMapERC20;
 		}

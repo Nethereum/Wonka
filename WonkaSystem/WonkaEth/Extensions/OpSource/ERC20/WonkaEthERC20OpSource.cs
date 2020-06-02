@@ -31,7 +31,10 @@ namespace Wonka.Eth.Extensions.OpSource.ERC20
 		{
 			var tokenService = GetERC20TokenService();
 
-			BigInteger nApprovedAmt = BigInteger.Parse(psApprovedAmt, NumberStyles.AllowHexSpecifier);
+			psApprovedAmt = psApprovedAmt.StartsWith("0x") ? psApprovedAmt.Replace("0x", "0") : psApprovedAmt;
+
+			var nApprovedAmt =
+            	System.Numerics.BigInteger.Parse(psApprovedAmt, System.Globalization.NumberStyles.HexNumber);
 
 			var trxReceipt = tokenService.ApproveRequestAndWaitForReceiptAsync(new ApproveFunction() { Spender = psSpender, Value = nApprovedAmt }).Result;
 
@@ -79,7 +82,10 @@ namespace Wonka.Eth.Extensions.OpSource.ERC20
 		{
 			var tokenService = GetERC20TokenService();
 
-			BigInteger nAmtToSend = BigInteger.Parse(psTransferAmt, NumberStyles.AllowHexSpecifier);
+			psTransferAmt = psTransferAmt.StartsWith("0x") ? psTransferAmt.Replace("0x", "0") : psTransferAmt;
+
+			var nAmtToSend =
+	            System.Numerics.BigInteger.Parse(psTransferAmt, System.Globalization.NumberStyles.HexNumber);
 
 			var trxReceipt = tokenService.TransferRequestAndWaitForReceiptAsync(new TransferFunction() { To = psToAccount, Value = nAmtToSend }).Result;
 
