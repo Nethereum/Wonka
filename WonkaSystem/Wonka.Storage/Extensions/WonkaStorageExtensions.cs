@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
@@ -15,6 +18,91 @@ namespace Wonka.Storage.Extensions
 {
     public static class WonkaStorageExtensions
     {
+        public static void AppendMetadata(this WonkaRefEnvironment poRefEnv, string psMetadataFileContents, int pnAttrNumMax = 1, int pnGrpNumMax = 1, int pnCadreNumMax = 1)
+		{
+			XmlTextReader MetadataXmlReader = new XmlTextReader(new StringReader(psMetadataFileContents));
+			MetadataXmlReader.XmlResolver   = null;
+			MetadataXmlReader.DtdProcessing = DtdProcessing.Ignore;
+			MetadataXmlReader.Namespaces    = false;
+
+			XmlDocument XMLDoc = new XmlDocument();
+			XMLDoc.Load(MetadataXmlReader);
+
+			var GroupRedirectMap = new Dictionary<int, int>();
+			var CadreRedirectMap = new Dictionary<int, int>();
+
+			XmlNodeList GroupList = XMLDoc.GetElementsByTagName("Group");
+			if ((GroupList != null) && (GroupList.Count > 0))
+			{
+				foreach (XmlNode TempGroupNode in GroupList)
+				{
+					var TempGroup =
+						new XmlSerializer(typeof(WonkaRefGroup), new XmlRootAttribute("Group"))
+						.Deserialize(new StringReader(TempGroupNode.OuterXml)) as WonkaRefGroup;
+
+					if (!poRefEnv.GroupCache.Any(x => x.GroupName == TempGroup.GroupName))
+					{
+						int nGroupId = TempGroup.GroupId;
+
+						if (poRefEnv.GroupCache.Any(x => x.GroupId == TempGroup.GroupId))
+							TempGroup.GroupId = pnGrpNumMax++;
+
+						GroupRedirectMap[nGroupId] = TempGroup.GroupId;
+
+						poRefEnv.GroupCache.Add(TempGroup);
+					}
+				}
+			}
+
+			XmlNodeList CadreList = XMLDoc.GetElementsByTagName("Cadre");
+			if ((CadreList != null) && (CadreList.Count > 0))
+			{
+				foreach (XmlNode TempCadreNode in CadreList)
+				{
+					var TempCadre =
+						new XmlSerializer(typeof(WonkaRefCadre), new XmlRootAttribute("Cadre"))
+						.Deserialize(new StringReader(TempCadreNode.OuterXml)) as WonkaRefCadre;
+
+					if (!poRefEnv.CadreCache.Any(x => x.CadreName == TempCadre.CadreName))
+					{
+						int nCadreId = TempCadre.CadreId;
+
+						if (poRefEnv.CadreCache.Any(x => x.CadreId == TempCadre.CadreId))
+							TempCadre.CadreId = pnCadreNumMax++;
+
+						CadreRedirectMap[nCadreId] = TempCadre.CadreId;
+
+						poRefEnv.CadreCache.Add(TempCadre);
+					}
+				}
+			}
+
+			XmlNodeList AttrList = XMLDoc.GetElementsByTagName("Attr");
+			if ((AttrList != null) && (AttrList.Count > 0))
+			{
+				foreach (XmlNode TempAttrNode in AttrList)
+				{
+					var TempAttr =
+				        new XmlSerializer(typeof(WonkaRefAttr), new XmlRootAttribute("Attr"))
+						.Deserialize(new StringReader(TempAttrNode.OuterXml)) as WonkaRefAttr;
+
+					if (!poRefEnv.AttrCache.Any(x => x.AttrName == TempAttr.AttrName))
+					{
+						if (poRefEnv.AttrCache.Any(x => x.AttrId == TempAttr.AttrId))
+							TempAttr.AttrId = pnAttrNumMax++;
+
+						TempAttr.FieldId = CadreRedirectMap[TempAttr.FieldId];
+						TempAttr.GroupId = GroupRedirectMap[TempAttr.GroupId];
+
+						poRefEnv.AttrCache.Add(TempAttr);
+					}
+				}
+			}
+
+			poRefEnv.RefreshMaps();
+		}
+
+
 		/// <summary>
 		/// 
 		/// This method will assemble the new product by iterating through each specified source
