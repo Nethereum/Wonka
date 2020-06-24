@@ -2,8 +2,6 @@ using System;
 using System.Globalization;
 using System.Numerics;
 
-using Nethereum.StandardTokenEIP20.ContractDefinition;
-
 using Wonka.BizRulesEngine.RuleTree;
 
 namespace Wonka.Eth.Extensions.OpSource.ERC1155
@@ -290,9 +288,16 @@ namespace Wonka.Eth.Extensions.OpSource.ERC1155
 ]
 ";
 
-		#region PROPERTIES
+        public const string CONST_FUNCTION_SAFE_TRANSFER_FROM       = "safeTransferFrom";
+        public const string CONST_FUNCTION_SAFE_BATCH_TRANSFER_FROM = "safeBatchTransferFrom";
+        public const string CONST_FUNCTION_BALANCE_OF               = "balanceOf";
+        public const string CONST_FUNCTION_BALANCE_OF_BATCH         = "balanceOfBatch";
+        public const string CONST_FUNCTION_SET_APPROVAL_FOR_ALL     = "setApprovalForAll";
+        public const string CONST_FUNCTION_IS_APPROVED_FOR_ALL      = "isApprovedForAll";
 
-		public readonly Nethereum.Web3.Web3 SenderWeb3;
+        #region PROPERTIES
+
+        public readonly Nethereum.Web3.Web3 SenderWeb3;
 
 		#endregion
 
@@ -306,5 +311,80 @@ namespace Wonka.Eth.Extensions.OpSource.ERC1155
 			else
 				SenderWeb3 = new Nethereum.Web3.Web3(account);
 		}
-	}
+
+        public Nethereum.Contracts.Contract GetERC1155TokenContract()
+        {
+            var contract = SenderWeb3.Eth.GetContract(CONST_ERC_1155_ABI, this.ContractAddress);
+
+            return contract;
+        }
+
+        public string InvokeERC1155BalanceOf(string psOwner, string psTokenId, string psDummyVal1 = "", string psDummyVal2 = "")
+        {
+            var contract = GetERC1155TokenContract();
+
+            var getBalanceOfFunction = contract.GetFunction(CONST_FUNCTION_BALANCE_OF);
+
+            var balance = getBalanceOfFunction.CallAsync<string>(psOwner, psTokenId).Result;
+
+            return balance;
+        }
+
+        public string InvokeERC1155IsApprovedForAll(string psOwner, string psOperator, string psDummyVal1 = "", string psDummyVal2 = "")
+        {
+            var contract = GetERC1155TokenContract();
+
+            var getBalanceOfFunction = contract.GetFunction(CONST_FUNCTION_IS_APPROVED_FOR_ALL);
+
+            var isApproved = getBalanceOfFunction.CallAsync<string>(psOwner, psOperator).Result;
+
+            return isApproved;
+        }
+
+
+        /**
+         ** NOTE: Not yet supported
+         **
+        public string InvokeERC1155BalanceOfBatch(string[] paOwners, string[] psTokenIds, string psDummyVal1 = "", string psDummyVal2 = "")
+        {           
+        }
+         **/
+
+        public string InvokeERC1155SafeTransferFrom(string psFromAcct, string psToAcct, string psTokenId, string psTokenAmt)
+        {
+            var contract = GetERC1155TokenContract();
+
+            var getSafeTransferFromFunction = contract.GetFunction(CONST_FUNCTION_SAFE_TRANSFER_FROM);
+
+            var gas = getSafeTransferFromFunction.EstimateGasAsync(psFromAcct, psToAcct, psTokenId, psTokenAmt).Result;
+
+            var receipt = getSafeTransferFromFunction.SendTransactionAndWaitForReceiptAsync(this.SenderAddress, gas, null, null, psFromAcct, psToAcct, psTokenId, psTokenAmt, "").Result;
+
+            return psTokenAmt;
+        }
+
+        /**
+         ** NOTE: Not yet supported
+         **
+        public string InvokeERC1155SafeBatchTransferFrom(string[] paOwners, string[] psTokenIds, string psDummyVal1 = "", string psDummyVal2 = "")
+        {           
+        }
+         **/
+
+        public string InvokeERC1155SetApprovalForAll(string psOperator, string psIsApproved, string psDummyVal1 = "", string psDummyVal2 = "")
+        {
+            var contract = GetERC1155TokenContract();
+
+            var getSetApprovalForAllFunction = contract.GetFunction(CONST_FUNCTION_SET_APPROVAL_FOR_ALL);
+
+            bool bIsApproved = Convert.ToBoolean(psIsApproved);
+
+            var gas = getSetApprovalForAllFunction.EstimateGasAsync(psOperator, bIsApproved).Result;
+
+            var receipt = getSetApprovalForAllFunction.SendTransactionAndWaitForReceiptAsync(this.SenderAddress, gas, null, null, psOperator, bIsApproved).Result;
+
+            return psOperator;
+        }
+
+    }
 }
