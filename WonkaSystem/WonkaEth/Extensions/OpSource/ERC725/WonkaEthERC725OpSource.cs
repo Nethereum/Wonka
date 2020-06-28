@@ -2,8 +2,6 @@ using System;
 using System.Globalization;
 using System.Numerics;
 
-using Nethereum.StandardTokenEIP20.ContractDefinition;
-
 using Wonka.BizRulesEngine.RuleTree;
 
 namespace Wonka.Eth.Extensions.OpSource.ERC725
@@ -139,6 +137,11 @@ namespace Wonka.Eth.Extensions.OpSource.ERC725
   ]
 ";
 
+        public const string CONST_FUNCTION_CHANGE_OWNER = "changeOwner";
+        public const string CONST_FUNCTION_GET_DATA     = "getData";
+        public const string CONST_FUNCTION_SET_DATA     = "setData";
+        public const string CONST_FUNCTION_EXECUTE      = "execute";
+
         #region PROPERTIES
 
         public readonly Nethereum.Web3.Web3 SenderWeb3;
@@ -155,5 +158,69 @@ namespace Wonka.Eth.Extensions.OpSource.ERC725
             else
                 SenderWeb3 = new Nethereum.Web3.Web3(account);
         }
+
+        public Nethereum.Contracts.Contract GetERC725IdentityContract()
+        {
+            var contract = SenderWeb3.Eth.GetContract(CONST_ERC_725_ABI, this.ContractAddress);
+
+            return contract;
+        }
+
+        public string InvokeERC725ChangeOwner(string psNewOwner, string psDummyVal1 = "", string psDummyVal2 = "", string psDummyVal3 = "")
+        {
+            var contract = GetERC725IdentityContract();
+
+            var changeOwnerFunction = contract.GetFunction(CONST_FUNCTION_CHANGE_OWNER);
+
+            var gas = changeOwnerFunction.EstimateGasAsync(psNewOwner).Result;
+
+            var receipt = changeOwnerFunction.SendTransactionAndWaitForReceiptAsync(this.SenderAddress, gas, null, null, psNewOwner).Result;
+
+            return receipt.TransactionHash;
+        }
+
+        public string InvokeERC725Execute(string psOpType, string psTo, string psValue, string psData)
+        {
+            var contract = GetERC725IdentityContract();
+
+            var setDataFunction = contract.GetFunction(CONST_FUNCTION_EXECUTE);
+
+            var OpTypeBigInt =
+                System.Numerics.BigInteger.Parse(psOpType, System.Globalization.NumberStyles.HexNumber);
+
+            var ValueBigInt =
+                System.Numerics.BigInteger.Parse(psValue, System.Globalization.NumberStyles.HexNumber);
+
+            var gas = setDataFunction.EstimateGasAsync(OpTypeBigInt, psTo, ValueBigInt, psData).Result;
+
+            var receipt = setDataFunction.SendTransactionAndWaitForReceiptAsync(this.SenderAddress, gas, null, null, OpTypeBigInt, psTo, ValueBigInt, psData).Result;
+
+            return receipt.TransactionHash;
+        }
+
+        public string InvokeERC725GetData(string psKey, string psDummyVal1 = "", string psDummyVal2 = "", string psDummyVal3 = "")
+        {
+            var contract = GetERC725IdentityContract();
+
+            var getDataFunction = contract.GetFunction(CONST_FUNCTION_GET_DATA);
+
+            var valueData = getDataFunction.CallAsync<string>(psKey).Result;
+
+            return valueData;
+        }
+
+        public string InvokeERC725SetData(string psKey, string psValue = "", string psDummyVal1 = "", string psDummyVal2 = "")
+        {
+            var contract = GetERC725IdentityContract();
+
+            var setDataFunction = contract.GetFunction(CONST_FUNCTION_SET_DATA);
+
+            var gas = setDataFunction.EstimateGasAsync(psKey, psValue).Result;
+
+            var receipt = setDataFunction.SendTransactionAndWaitForReceiptAsync(this.SenderAddress, gas, null, null, psKey, psValue).Result;
+
+            return receipt.TransactionHash;
+        }
+
     }
 }
