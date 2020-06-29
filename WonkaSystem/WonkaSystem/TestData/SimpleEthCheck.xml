@@ -9,13 +9,15 @@
 
       <if description="Setting Account Status">
            <criteria op="AND">
-               <eval id="pop2">(N.AcctCurrValueHex) ERC20_GET_BALANCE('0x8ee7d9235e01e6b42345120b5d270bdb763624c7')</eval>
+               <eval id="pop2">(N.AcctCurrValueHex) ERC20_GET_TOTAL('0x8ee7d9235e01e6b42345120b5d270bdb763624c7')</eval>
+               <eval id="pop3">(N.AcctCurrValueHex) ERC20_GET_BALANCE('0x8ee7d9235e01e6b42345120b5d270bdb763624c7')</eval>				
            </criteria>
 
            <validate err="severe">
                <criteria op="AND">
-		           <eval id="dom2">(N.AcctCurrValueHex) POPULATED</eval>					
-                   <eval id="asn1">(N.AuditReviewFlag) ASSIGN ('###')</eval>
+		           <eval id="dom2">(N.AcctCurrValueHex) POPULATED</eval>                   
+				   <eval id="asn1">(N.AuditReviewFlag) ERC20_TRANSFER ('0x8ee7d9235e01e6b42345120b5d270bdb763624c7','0x8ee7d9235e01e6b42345120b5d270bdb763624c7')</eval>
+				   <eval id="asn2">(N.AuditReviewFlag) ASSIGN ('###')</eval>
                </criteria>
 
                <failure_message/>

@@ -1,10 +1,11 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.8;
 
 /**
     @title ERC-#### Rules Engine Standard
     @dev See https://eips.ethereum.org/EIPS/eip-####
  */
- interface ERCRulesEngine {
+interface ERCRulesEngine {
 
     /**
         @dev Should emit when a RuleTree is invoked.

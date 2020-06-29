@@ -1,4 +1,5 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.8;
 
 /// @title An Ethereum library that contains information about all the instances of the Wonka rules engines in a blockchain
 /// @author Aaron Kendall

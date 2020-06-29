@@ -56,5 +56,7 @@
     <Folder Include="Extensions\OpSource\" />
     <Folder Include="Extensions\OpSource\ERC20\" />
     <Folder Include="Extensions\OpSource\ERC721\" />
+    <Folder Include="Extensions\OpSource\ERC1155\" />
+    <Folder Include="Extensions\OpSource\ERC725\" />
   </ItemGroup>
 </Project>

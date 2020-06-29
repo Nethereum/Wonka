@@ -1,4 +1,5 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.8;
 
 import "./TransactionStateInterface.sol";
 
@@ -592,8 +593,8 @@ contract WonkaEngine {
 		
         executeSuccess = tempSetResult;
 		
-		if (!executeSuccess) {		    
-			emit RuleSetError(ruler, targetRuleSet.ruleSetId, severeFailure);
+        if (!executeSuccess) {
+            emit RuleSetError(ruler, targetRuleSet.ruleSetId, severeFailure);
 		}
 		
         if (targetRuleSet.isLeaf && severeFailure)
