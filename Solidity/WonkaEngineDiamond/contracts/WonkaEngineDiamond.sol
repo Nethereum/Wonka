@@ -5,7 +5,9 @@ import "./DiamondStorageContract.sol";
 import "./DiamondHeaders.sol";
 import "./DiamondFacet.sol";
 import "./DiamondLoupeFacet.sol";
+
 import "./TransactionStateInterface.sol";
+import "./WonkaEngineSupportFacet.sol";
 
 /// @title An Ethereum library that contains the functionality for a rules engine
 /// @author Aaron Kendall
@@ -298,7 +300,10 @@ contract WonkaEngineDiamond is DiamondStorageContract {
         DiamondFacet diamondFacet = new DiamondFacet();
 
         // Create a DiamondLoupeFacet contract which implements the Diamond Loupe interface
-        DiamondLoupeFacet diamondLoupeFacet = new DiamondLoupeFacet();   
+        DiamondLoupeFacet diamondLoupeFacet = new DiamondLoupeFacet(); 
+
+        // Create a WonkaEngineSupportFacet contract
+        WonkaEngineSupportFacet diamondSupportFacet = new WonkaEngineSupportFacet(); 
 
         bytes[] memory diamondCut = new bytes[](3);
 
@@ -313,6 +318,19 @@ contract WonkaEngineDiamond is DiamondStorageContract {
             DiamondLoupe.facetAddress.selector,
             DiamondLoupe.facetAddresses.selector            
         );    
+
+        diamondCut[2] = abi.encodePacked(
+            diamondSupportFacet,
+            Diamond.diamondCut.selector,
+            WonkaEngineSupportFacet.bytes32ToString.selector,
+            WonkaEngineSupportFacet.invokeCustomOperator.selector,
+            WonkaEngineSupportFacet.invokeValueRetrieval.selector,
+            WonkaEngineSupportFacet.invokeValueSetter.selector,
+            WonkaEngineSupportFacet.parseInt.selector,
+            WonkaEngineSupportFacet.strConcat.selector,
+            WonkaEngineSupportFacet.stringToBytes32.selector,
+            WonkaEngineSupportFacet.uintToBytes.selector                       
+        );
 
         /**
          ** NOTE: Replace this section with adding WonkaEngine functions

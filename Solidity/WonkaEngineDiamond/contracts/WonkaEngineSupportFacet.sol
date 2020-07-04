@@ -223,7 +223,7 @@ contract WonkaEngineSupportFacet is DiamondFacet {
     /// @param _a The string to convert into an unsigned integer
     /// @param _b The number of decimal places that we wish to include in the unsigned integer, with 0 meaning none
     /// @return The unsigned integer converted from the string
-    function parseInt(string memory _a, uint _b) internal pure returns (uint) {
+    function parseInt(string memory _a, uint _b) public pure returns (uint) {
 
         bytes memory bresult = bytes(_a);
         
@@ -292,7 +292,7 @@ contract WonkaEngineSupportFacet is DiamondFacet {
 
     /// @dev This method will concatenate the provided strings into one larger string
     /// @notice 
-    function strConcat(string memory _a, string memory _b, string memory _c, string memory _d, string memory _e) private pure returns (string memory) {
+    function strConcat(string memory _a, string memory _b, string memory _c, string memory _d, string memory _e) public pure returns (string memory) {
 
         bytes memory _ba = bytes(_a);
         bytes memory _bb = bytes(_b);
@@ -341,7 +341,7 @@ contract WonkaEngineSupportFacet is DiamondFacet {
 
     /// @dev This method will convert a 'string' type to a 'bytes32' type
     /// @notice 
-    function stringToBytes32(string memory source) private pure returns (bytes32 result) {
+    function stringToBytes32(string memory source) public pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
             return 0x0;
@@ -355,7 +355,7 @@ contract WonkaEngineSupportFacet is DiamondFacet {
 
     /// @notice Copied this code from MIT implentation
     /// @dev This method will convert a 'uint' type to a 'bytes32' type
-    function uintToBytes(uint targetVal) private pure returns (bytes32 ret) {
+    function uintToBytes(uint targetVal) public pure returns (bytes32 ret) {
 
         uint v = targetVal;
 
