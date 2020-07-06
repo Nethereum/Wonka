@@ -623,6 +623,56 @@ contract WonkaEngineMainFacet is DiamondFacet {
             }
         }
     }
+
+    // SUPPORT METHODS
+
+    /// @dev This method will calculate the value for a Rule according to its type (Add, Subtract, etc.) and its domain values
+    /// @notice 
+    function calculateValue(address ruler, WonkaEngineStructs.WonkaRule storage targetRule, mapping(bytes32 => WonkaEngineStructs.WonkaAttr) storage attrMap) private returns (uint calcValue){  
+
+        uint tmpValue   = 0;
+        uint finalValue = 0;
+
+        for (uint i = 0; i < targetRule.ruleDomainKeys.length; i++) {
+
+            bytes32 keyName = stringToBytes32(targetRule.ruleDomainKeys[i]);
+
+            if (attrMap[keyName].isValue)
+                tmpValue = parseInt(getValueOnRecord(ruler, keyName), 0);
+            else
+                tmpValue = parseInt(targetRule.ruleDomainKeys[i], 0);
+
+            if (i == 0)
+                finalValue = tmpValue;
+            else {
+
+                if ( uint(RuleTypes.OpAdd) == targetRule.ruleType )
+                    finalValue += tmpValue;
+                else if ( uint(RuleTypes.OpSub) == targetRule.ruleType )
+                    finalValue -= tmpValue;
+                else if ( uint(RuleTypes.OpMult) == targetRule.ruleType )
+                    finalValue *= tmpValue;
+                else if ( uint(RuleTypes.OpDiv) == targetRule.ruleType )
+                    finalValue /= tmpValue;                    
+            }
+
+        }
+
+        calcValue = finalValue;
+    }
+
+    /// @author Aaron Kendall
+    /// @dev This method will assist by returning the correct value, either a literal static value or one obtained through retrieval
+    function determineDomainValue(address ruler, uint domainIdx, WonkaEngineStructs.WonkaRule storage targetRule) private returns (string memory retValue) {
+
+        bytes32 keyName = targetRule.customOpArgs[domainIdx];
+
+        if (attrMap[keyName].isValue)
+            retValue = getValueOnRecord(ruler, keyName);
+        else
+            retValue = bytes32ToString(keyName);
+    }  
+
     **/
 
 }

@@ -7,9 +7,14 @@ import "./DiamondStorageContract.sol";
 import "./DiamondHeaders.sol";
 import "./DiamondFacet.sol";
 
+import "./WonkaEngineStructs.sol";
 import "./WonkaEngineDiamond.sol";
 
 contract WonkaEngineSupportFacet is DiamondFacet {
+
+    // For the function splitStr(...)
+    // Currently unsure how the function will perform in a multithreaded scenario
+    bytes splitTempStr; // temporarily holds the string part until a space is received
 
     /// @dev This method will convert a bytes32 type to a String
     /// @notice 
@@ -32,61 +37,6 @@ contract WonkaEngineSupportFacet is DiamondFacet {
 
         return string(bytesStringTrimmed);
     }
-
-    /**
-     ** NOTE: Should use the library as a reference for rule 
-     **
-    /// @dev This method will calculate the value for a Rule according to its type (Add, Subtract, etc.) and its domain values
-    /// @notice 
-    function calculateValue(address ruler, WonkaRule storage targetRule) private returns (uint calcValue){  
-
-        uint tmpValue = 0;
-        uint finalValue = 0;
-
-        for (uint i = 0; i < targetRule.ruleDomainKeys.length; i++) {
-
-            bytes32 keyName = stringToBytes32(targetRule.ruleDomainKeys[i]);
-
-            if (attrMap[keyName].isValue)
-                tmpValue = parseInt(getValueOnRecord(ruler, keyName), 0);
-            else
-                tmpValue = parseInt(targetRule.ruleDomainKeys[i], 0);
-
-            if (i == 0)
-                finalValue = tmpValue;
-            else {
-
-                if ( uint(RuleTypes.OpAdd) == targetRule.ruleType )
-                    finalValue += tmpValue;
-                else if ( uint(RuleTypes.OpSub) == targetRule.ruleType )
-                    finalValue -= tmpValue;
-                else if ( uint(RuleTypes.OpMult) == targetRule.ruleType )
-                    finalValue *= tmpValue;
-                else if ( uint(RuleTypes.OpDiv) == targetRule.ruleType )
-                    finalValue /= tmpValue;                    
-            }
-
-        }
-
-        calcValue = finalValue;
-    }
-     **/
-
-    /**
-     ** NOTE: Should use the library as a reference for WonkaRule 
-     **
-    /// @author Aaron Kendall
-    /// @dev This method will assist by returning the correct value, either a literal static value or one obtained through retrieval
-    function determineDomainValue(address ruler, uint domainIdx, WonkaRule storage targetRule) private returns (string memory retValue) {
-
-        bytes32 keyName = targetRule.customOpArgs[domainIdx];
-
-        if (attrMap[keyName].isValue)
-            retValue = getValueOnRecord(ruler, keyName);
-        else
-            retValue = bytes32ToString(keyName);
-    }  
-     **/
 
     /// @author Aaron Kendall
     /// @dev This method will supply the functionality for a Custom Operator rule, calling a method on another contract (like perform a calculation) via assembly
@@ -252,12 +202,9 @@ contract WonkaEngineSupportFacet is DiamondFacet {
         return mint;
     }
 
-    /**
-     ** NOTE: Should use the library as a reference for rule 
-     **
     /// @dev This method will parse a delimited string and insert them into the Domain map of a Rule
     /// @notice 
-    function splitStrIntoMap(string memory str, string memory delimiter, rule storage targetRule, bool isOpRule) private {  
+    function splitStrIntoMap(string memory str, string memory delimiter, WonkaEngineStructs.WonkaRule storage targetRule, bool isOpRule) private {  
 
         bytes memory b = bytes(str); //cast the string to bytes to iterate
         bytes memory delm = bytes(delimiter); 
@@ -288,7 +235,6 @@ contract WonkaEngineSupportFacet is DiamondFacet {
                 targetRule.ruleDomainKeys.push(sTempValLast);
         }
     }
-     **/
 
     /// @dev This method will concatenate the provided strings into one larger string
     /// @notice 

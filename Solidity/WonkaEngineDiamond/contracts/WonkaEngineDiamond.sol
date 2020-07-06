@@ -229,10 +229,6 @@ contract WonkaEngineDiamond is DiamondStorageContract {
     // The cache of transaction states assigned to RuleTrees
     mapping(bytes32 => TransactionStateInterface) transStateMap;
 
-    // For the function splitStr(...)
-    // Currently unsure how the function will perform in a multithreaded scenario
-    bytes splitTempStr; // temporarily holds the string part until a space is received
-
     /// @dev Constructor for the rules engine
     /// @author Aaron Kendall
     /// @notice Currently, the engine will create three dummy Attributes within the cache by default, but they will be removed later
