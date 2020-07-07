@@ -6,6 +6,7 @@ pragma experimental ABIEncoderV2;
 import "./DiamondStorageContract.sol";
 import "./DiamondHeaders.sol";
 import "./DiamondFacet.sol";
+import "./WonkaEngineDiamond.sol";
 
 import "./TransactionStateInterface.sol";
 
@@ -15,12 +16,17 @@ import "./TransactionStateInterface.sol";
 /// @dev Even though you can create rule trees by calling this contract directly, it is generally recommended that you create them using the Nethereum library
 contract WonkaEngineMainFacet is DiamondFacet {
 
-    /**
-     ** NOTE: These methods need to be altered for the storage
-     **
+    WonkaEngineDiamond diamond;
+
+    /// @dev Constructor for the main facet
+    /// @author Aaron Kendall
+    constructor(address payable _diamondAddress) public {
+        diamond = WonkaEngineDiamond(_diamondAddress);
+    }    
+
     modifier onlyEngineOwner()
     {
-        require(msg.sender == rulesMaster, "The caller of this method does not have permission for this action.");
+        require(msg.sender == diamond.rulesMaster(), "The caller of this method does not have permission for this action.");
 
         // Do not forget the "_;"! It will
         // be replaced by the actual function
@@ -30,9 +36,9 @@ contract WonkaEngineMainFacet is DiamondFacet {
 
     modifier onlyEngineOwnerOrTreeOwner(address _RTOwner) {
 
-        require((msg.sender == rulesMaster) || (msg.sender == _RTOwner), "The caller of this method does not have permission for this action.");
+        require((msg.sender == diamond.rulesMaster()) || (msg.sender == _RTOwner), "The caller of this method does not have permission for this action.");
 
-        require(ruletrees[_RTOwner].isValue == true, "The specified RuleTree does not exist.");
+        require(diamond.hasRuleTree(_RTOwner) == true, "The specified RuleTree does not exist.");
 
         // Do not forget the "_;"! It will
         // be replaced by the actual function
@@ -40,191 +46,9 @@ contract WonkaEngineMainFacet is DiamondFacet {
         _;
     }
 
-    /// @dev This method will add a new Attribute to the cache.  By adding Attributes, we expand the set of possible values that can be held by a record.
-    /// @author Aaron Kendall
-    /// @notice 
-    function addAttribute(bytes32 pAttrName, uint pMaxLen, uint pMaxNumVal, string memory pDefVal, bool pIsStr, bool pIsNum) public onlyEngineOwner {
-
-        bool maxLenTrun = (pMaxLen > 0);
-
-        attributes.push(WonkaAttr({
-            attrId: attrCounter++,
-            attrName: pAttrName,
-            maxLength: pMaxLen,
-            maxLengthTruncate: maxLenTrun,
-            maxNumValue: pMaxNumVal,
-            defaultValue: pDefVal,
-            isString: pIsStr,
-            isDecimal: false,
-            isNumeric: pIsNum,
-            isValue: true              
-        }));
-
-        attrMap[attributes[attributes.length-1].attrName] = attributes[attributes.length-1];
-    }
-
-    /// @dev This method will add a new Attribute to the cache.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
-    /// @author Aaron Kendall
-    /// @notice Currently, only one ruletree can be defined for any given address/account
-    function addRuleTree(address ruler, bytes32 rsName, string memory desc, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public onlyEngineOwner {
-
-        require(ruletrees[ruler].isValue != true, "A RuleTree with this ID already exists.");
-
-        ruletrees[ruler] = WonkaRuleTree({
-            ruleTreeId: rsName,
-            description: desc,
-            rootRuleSetName: rsName,
-            allRuleSetList: new bytes32[](0),
-            totalRuleCount: 0,
-            isValue: true
-        });
-
-        addRuleSet(ruler, rsName, desc, "", severeFailureFlag, useAndOperator, flagFailImmediately);
-
-        transStateInd[ruletrees[ruler].ruleTreeId] = false;
-    }
-
-    /// @dev This method will add a new custom operator to the cache.
-    /// @author Aaron Kendall
-    /// @notice 
-    function addCustomOp(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName) public onlyEngineOwner {
-
-        opMap[srcName] = 
-            WonkaSource({
-                sourceName: srcName,
-                status: sts,
-                contractAddress: cntrtAddr,
-                methodName: methName,
-                setMethodName: "",
-                isValue: true
-        });
-    }
-
-    /// @dev This method will add a new RuleSet to the cache and to the indicated RuleTree.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
-    /// @author Aaron Kendall
-    /// @notice Currently, a RuleSet can only belong to one RuleTree and be a child of one parent RuleSet, though there are plans to have a RuleSet capable of being shared among parents
-    function addRuleSet(address ruler, bytes32 ruleSetName, string memory desc, bytes32 parentRSName, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public onlyEngineOwnerOrTreeOwner(ruler) {
-
-        if (parentRSName != "") {
-            require(ruletrees[ruler].allRuleSets[parentRSName].isValue == true, "The specified parent RuleSet does not exist.");
-        }
-
-        // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
-        // require(ruletrees[ruler].allRuleSets[ruleSetName].isValue == false, "The specified RuleSet with the provided ID already exists.");
-
-        ruletrees[ruler].allRuleSetList.push(ruleSetName);
-
-        ruletrees[ruler].allRuleSets[ruleSetName] = 
-            WonkaRuleSet({
-                ruleSetId: ruleSetName,
-                description: desc,
-                parentRuleSetId: parentRSName,
-                severeFailure: severeFailureFlag,
-                andOp: useAndOperator,
-                failImmediately: flagFailImmediately,
-                evalRuleList: new uint[](0),
-                assertiveRuleList: new uint[](0),
-                childRuleSetList: new bytes32[](0),
-                isLeaf: true,
-                isValue: true                
-            });
-
-        if (parentRSName != "") {
-            ruletrees[ruler].allRuleSets[parentRSName].childRuleSetList.push(ruleSetName);
-            ruletrees[ruler].allRuleSets[parentRSName].isLeaf = false;
-        }
-    }
-
-    /// @dev This method will add a new Rule to the indicated RuleSet
-    /// @author Aaron Kendall
-    /// @notice Currently, a Rule can only belong to one RuleSet
-    function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string memory rVal, bool notFlag, bool passiveFlag) public onlyEngineOwnerOrTreeOwner(ruler) {
-
-        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, "The specified RuleSet does not exist.");
-
-        require(attrMap[attrName].isValue, "The specified Attribute of the Rule does not exist.");
-
-        require(rType < uint(RuleTypes.MAX_TYPE), "The specified type of the Rule does not exist.");
-
-        uint currRuleId = lastRuleId = ruleCounter;
-
-        ruleCounter = ruleCounter + 1;
-
-        ruletrees[ruler].totalRuleCount += 1; 
-
-        if (passiveFlag) {
-            ruletrees[ruler].allRuleSets[ruleSetId].evalRuleList.push(currRuleId);
-
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId] = 
-                WonkaRule({
-                    ruleId: currRuleId,
-                    name: ruleName,
-                    ruleType: rType,
-                    targetAttr: attrMap[attrName],
-                    ruleValue: rVal,
-                    ruleDomainKeys: new string[](0),   
-                    customOpArgs: new bytes32[](CONST_CUSTOM_OP_ARGS),
-                    parentRuleSetId: ruleSetId,
-                    notOpFlag: notFlag,
-                    isPassiveFlag: passiveFlag
-                });
-
-            bool isOpRule = ((uint(RuleTypes.OpAdd) == rType) || (uint(RuleTypes.OpSub) == rType) || (uint(RuleTypes.OpMult) == rType) || (uint(RuleTypes.OpDiv) == rType) || (uint(RuleTypes.CustomOp) == rType));
-
-            if ( (uint(RuleTypes.InDomain) == rType) || isOpRule)  {                     
-                splitStrIntoMap(rVal, ",", ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId], isOpRule);
-            }
-
-        } else {
-            ruletrees[ruler].allRuleSets[ruleSetId].assertiveRuleList.push(currRuleId);
-
-            ruletrees[ruler].allRuleSets[ruleSetId].assertiveRules[currRuleId] = 
-                WonkaRule({
-                    ruleId: currRuleId,
-                    name: ruleName,
-                    ruleType: rType,
-                    targetAttr: attrMap[attrName],
-                    ruleValue: rVal,
-                    ruleDomainKeys: new string[](0),
-                    customOpArgs: new bytes32[](CONST_CUSTOM_OP_ARGS),
-                    parentRuleSetId: ruleSetId,
-                    notOpFlag: notFlag,
-                    isPassiveFlag: passiveFlag
-                });
-
-        }
-    }
-
-    /// @dev This method will supply the args to the last rule added (of type Custom Operator)
-    /// @author Aaron Kendall
-    /// @notice Currently, a Rule can only belong to one RuleSet
-    function addRuleCustomOpArgs(address ruler, bytes32 ruleSetId, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public onlyEngineOwnerOrTreeOwner(ruler) {
-
-        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, "The specified RuleSet does not exist.");
-
-        require(ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].ruleType == uint(RuleTypes.CustomOp), "The last rule added to this RuleTree was not a Custom Op rule.");
-
-        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[0] = arg1;
-        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[1] = arg2;
-        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[2] = arg3;
-        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[3] = arg4;
-    }    
-
-    /// @dev This method will add a new source to the mapping cache.
-    /// @author Aaron Kendall
-    /// @notice 
-    function addSource(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName, bytes32 setMethName) public onlyEngineOwner {
-
-        sourceMap[srcName] = 
-            WonkaSource({
-                sourceName: srcName,
-                status: sts,
-                contractAddress: cntrtAddr,
-                methodName: methName,
-                setMethodName: setMethName,
-                isValue: true
-        });
-    }
+    /**
+     ** NOTE: These methods need to be altered for the storage
+     **
 
     /// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
     /// @author Aaron Kendall
@@ -557,28 +381,12 @@ contract WonkaEngineMainFacet is DiamondFacet {
         return sourceMap[key].isValue;
     }
 
-    /// @dev This method will return the current number of Attributes in the cache
-    /// @author Aaron Kendall
-    /// @notice This method should only be used for debugging purposes.
-    function getNumberOfAttributes() public view returns(uint) {
-
-        return attributes.length;
-    }
-
 	/// @dev This method will indicate whether or not the Orchestration mode has been enabled
     /// @author Aaron Kendall
     /// @notice This method should only be used for debugging purposes.
     function getOrchestrationMode() public view returns(bool) {
 
         return orchestrationMode;
-    }	
-
-    /// @dev This method will indicate whether or not the provided address/account has a RuleTree associated with it
-    /// @author Aaron Kendall
-    /// @notice This method should only be used for debugging purposes.
-    function hasRuleTree(address ruler) public view returns(bool) {
-
-        return (ruletrees[ruler].isValue == true);
     }
 
     /// @dev This method will set the flag as to whether or not the engine should run in Orchestration mode (i.e., use the sourceMap)
