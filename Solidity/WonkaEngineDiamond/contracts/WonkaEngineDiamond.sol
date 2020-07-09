@@ -7,6 +7,7 @@ import "./DiamondFacet.sol";
 import "./DiamondLoupeFacet.sol";
 
 import "./TransactionStateInterface.sol";
+import "./WonkaEngineStructs.sol";
 import "./WonkaEngineMainFacet.sol";
 import "./WonkaEngineSupportFacet.sol";
 
@@ -17,140 +18,6 @@ import "./WonkaEngineSupportFacet.sol";
 contract WonkaEngineDiamond is DiamondStorageContract {
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    /// @title Holds metadata which represents an Attribute (i.e., a unique point of data in a user's record)
-    /// @author Aaron Kendall
-    /// @notice Not all struct members are currently used
-    struct WonkaAttr {
- 
-        uint attrId;
-
-        bytes32 attrName;
-
-        uint maxLength;
-
-        bool maxLengthTruncate;
-
-        uint maxNumValue;
-
-        string defaultValue;
-
-        bool isString;
-
-        bool isDecimal;
-        
-        bool isNumeric;
-
-        bool isValue;
-    }
-
-    /// @title A data structure that represents a Source (i.e., a provider of a record)
-    /// @author Aaron Kendall
-    /// @notice This structure isn't currently used
-    struct WonkaSource {
-
-        bytes32 sourceName;
-
-        bytes32 status;
-
-        // For retrieving an Attribute value
-        bytes32 methodName;
-
-        // For setting an Attribute value
-        bytes32 setMethodName;
-        
-        address contractAddress;
-
-        bool isValue;
-    }
-
-    /// @title Defines a rule (i.e., a logical unit for testing the validity of an Attribute value in a record)
-    /// @author Aaron Kendall
-    /// @notice 1.) Only one Attribute can be targeted now, but in the future, rules could be able to target multiple Attributes + 2.) A Rule can only be owned by one RuleSet
-    /// @dev 
-    struct WonkaRule {
-
-        uint ruleId;
-
-        bytes32 name;
-
-        uint ruleType;
-
-        WonkaAttr targetAttr;
-
-        string ruleValue;
-
-        mapping(string => string) ruleValueDomain;
-
-        string[] ruleDomainKeys;
-
-        bytes32[] customOpArgs;
-
-        bytes32 parentRuleSetId;
-
-        bool notOpFlag;
-
-        bool isPassiveFlag;
-    }
-
-    /// @title Contains a list of all rules that have failed during a validation (and the rulesets to which they belong)
-    /// @author Aaron Kendall
-    /// @notice 
-    /// @dev The arrays will be set to the total number of rules in a RuleTree, but 'ruleFailCount' will indicate how many of them are actually populated
-    struct WonkaRuleReport {
-
-        uint ruleFailCount;
-
-        bytes32[] ruleSetIds;
-
-        bytes32[] ruleIds;
-    }
-
-    /// @title Defines a ruleset (i.e., a logical grouping of rules)
-    /// @author Aaron Kendall
-    /// @notice A RuleSet can only be owned by one RuleTree
-    /// @dev The collective evaluation of its rules will make a determination (such as how to navigate the RuleTree or whether or not the provided record is valid)  
-    struct WonkaRuleSet {
-
-        bytes32     ruleSetId;
-
-        string      description;
-        bytes32     parentRuleSetId;
-        bool        severeFailure;
-        // string      customFailureMsg;
-
-        uint[]                           evalRuleList;
-        mapping(uint => WonkaRule)       evaluativeRules;
-
-        uint[]                           assertiveRuleList;
-        mapping(uint => WonkaRule)       assertiveRules;
-
-        bytes32[]                        childRuleSetList;
-
-        bool        andOp;
-        bool        failImmediately;
-        bool        isLeaf;
-        bool        isValue;
-    }
-
-    /// @title Defines a ruletree (i.e., a logical, hierarchical grouping of rulesets)
-    /// @author Aaron Kendall
-    /// @notice Currently, only one ruletree can be defined for any given address/account
-    /// @dev The collective evaluation of its rulesets will determine whether or not the provided record is valid  
-    struct WonkaRuleTree {
-
-        bytes32     ruleTreeId;
-        string      description;
-
-        bytes32 rootRuleSetName;
-
-        bytes32[]                        allRuleSetList;
-        mapping(bytes32 => WonkaRuleSet) allRuleSets;
-
-        uint totalRuleCount;
-
-        bool isValue;
-    }
 
     /// @dev Defines an event that will report when a ruletree has been invoked to validate a provided record.
     /// @author Aaron Kendall
@@ -200,35 +67,40 @@ contract WonkaEngineDiamond is DiamondStorageContract {
 
     address         lastSenderAddressProvided;
     bool            lastTransactionSuccess;
-    WonkaRuleReport lastRuleReport;
+
+    WonkaEngineStructs.WonkaRuleReport lastRuleReport;
 
     bool    orchestrationMode;
     bytes32 defaultTargetSource;
 
     // The Attributes known by this instance of the rules engine
-    mapping(bytes32 => WonkaAttr) public attrMap;    
-    WonkaAttr[] public attributes;
+    mapping(bytes32 => WonkaEngineStructs.WonkaAttr) public attrMap;    
+    WonkaEngineStructs.WonkaAttr[] public attributes;
 
     // The cache of rule trees that are owned by owner 
-    mapping(address => WonkaRuleTree) public ruletrees;
+    mapping(address => WonkaEngineStructs.WonkaRuleTree) public ruletrees;
 
     // The cache of all created rulesets
-    WonkaRuleSet[] public rulesets;
+    WonkaEngineStructs.WonkaRuleSet[] public rulesets;
 
     // The cache of records that are owned by "rulers" and that are validated when invoking a rule tree
     mapping(address => mapping(bytes32 => string)) public currentRecords;
 
     // The cache of available sources for retrieving and setting attribute values found on other contracts
-    mapping(bytes32 => WonkaSource) public sourceMap;
+    mapping(bytes32 => WonkaEngineStructs.WonkaSource) public sourceMap;
 
     // The cache of available sources for calling 'op' methods (i.e., that contain special logic to implement a custom operator)
-    mapping(bytes32 => WonkaSource) public opMap;
+    mapping(bytes32 => WonkaEngineStructs.WonkaSource) public opMap;
 
     // The cache that indicates if a transaction state exist for a RuleTree
     mapping(bytes32 => bool) public transStateInd;
 
     // The cache of transaction states assigned to RuleTrees
     mapping(bytes32 => TransactionStateInterface) public transStateMap;
+
+    // For the function splitStr(...)
+    // Currently unsure how the function will perform in a multithreaded scenario
+    bytes splitTempStr; // temporarily holds the string part until a space is received
 
     /// @dev Constructor for the rules engine
     /// @author Aaron Kendall
@@ -241,7 +113,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
         rulesMaster = msg.sender;
         ruleCounter = lastRuleId = 1;
 
-        attributes.push(WonkaAttr({
+        attributes.push(WonkaEngineStructs.WonkaAttr({
             attrId: 1,
             attrName: "Title",
             maxLength: 256,
@@ -256,7 +128,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
 
         attrMap[attributes[attributes.length-1].attrName] = attributes[attributes.length-1];
 
-        attributes.push(WonkaAttr({
+        attributes.push(WonkaEngineStructs.WonkaAttr({
             attrId: 2,
             attrName: "Price",
             maxLength: 128,
@@ -271,7 +143,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
 
         attrMap[attributes[attributes.length-1].attrName] = attributes[attributes.length-1];
         
-        attributes.push(WonkaAttr({
+        attributes.push(WonkaEngineStructs.WonkaAttr({
             attrId: 3,
             attrName: "PageAmount",
             maxLength: 256,
@@ -300,7 +172,8 @@ contract WonkaEngineDiamond is DiamondStorageContract {
         DiamondLoupeFacet diamondLoupeFacet = new DiamondLoupeFacet(); 
 
         // Create a WonkaEngineSupportFacet contract
-        WonkaEngineMainFacet diamondMainFacet = new WonkaEngineMainFacet(address(this)); 
+        WonkaEngineMainFacet diamondMainFacet = new WonkaEngineMainFacet(); 
+        diamondMainFacet.setDiamondAddress(address(this), rulesMaster);
 
         // Create a WonkaEngineSupportFacet contract
         WonkaEngineSupportFacet diamondSupportFacet = new WonkaEngineSupportFacet(); 
@@ -385,7 +258,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
 
         bool maxLenTrun = (pMaxLen > 0);
 
-        attributes.push(WonkaAttr({
+        attributes.push(WonkaEngineStructs.WonkaAttr({
             attrId: attrCounter++,
             attrName: pAttrName,
             maxLength: pMaxLen,
@@ -408,7 +281,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
 
         require(ruletrees[ruler].isValue != true, "A RuleTree with this ID already exists.");
 
-        ruletrees[ruler] = WonkaRuleTree({
+        ruletrees[ruler] = WonkaEngineStructs.WonkaRuleTree({
             ruleTreeId: rsName,
             description: desc,
             rootRuleSetName: rsName,
@@ -428,7 +301,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
     function addCustomOp(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName) public onlyEngineOwner {
 
         opMap[srcName] = 
-            WonkaSource({
+            WonkaEngineStructs.WonkaSource({
                 sourceName: srcName,
                 status: sts,
                 contractAddress: cntrtAddr,
@@ -453,7 +326,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
         ruletrees[ruler].allRuleSetList.push(ruleSetName);
 
         ruletrees[ruler].allRuleSets[ruleSetName] = 
-            WonkaRuleSet({
+            WonkaEngineStructs.WonkaRuleSet({
                 ruleSetId: ruleSetName,
                 description: desc,
                 parentRuleSetId: parentRSName,
@@ -494,7 +367,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
             ruletrees[ruler].allRuleSets[ruleSetId].evalRuleList.push(currRuleId);
 
             ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId] = 
-                WonkaRule({
+                WonkaEngineStructs.WonkaRule({
                     ruleId: currRuleId,
                     name: ruleName,
                     ruleType: rType,
@@ -509,19 +382,16 @@ contract WonkaEngineDiamond is DiamondStorageContract {
 
             bool isOpRule = ((uint(RuleTypes.OpAdd) == rType) || (uint(RuleTypes.OpSub) == rType) || (uint(RuleTypes.OpMult) == rType) || (uint(RuleTypes.OpDiv) == rType) || (uint(RuleTypes.CustomOp) == rType));
  
-            /**
-             ** NOTE: How do we call splitStrIntoMap properly from here?
-             **
             if ( (uint(RuleTypes.InDomain) == rType) || isOpRule)  {                     
+                
                 splitStrIntoMap(rVal, ",", ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId], isOpRule);
             }
-             **/
 
         } else {
             ruletrees[ruler].allRuleSets[ruleSetId].assertiveRuleList.push(currRuleId);
 
             ruletrees[ruler].allRuleSets[ruleSetId].assertiveRules[currRuleId] = 
-                WonkaRule({
+                WonkaEngineStructs.WonkaRule({
                     ruleId: currRuleId,
                     name: ruleName,
                     ruleType: rType,
@@ -558,7 +428,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
     function addSource(bytes32 srcName, bytes32 sts, address cntrtAddr, bytes32 methName, bytes32 setMethName) public onlyEngineOwner {
 
         sourceMap[srcName] = 
-            WonkaSource({
+            WonkaEngineStructs.WonkaSource({
                 sourceName: srcName,
                 status: sts,
                 contractAddress: cntrtAddr,
@@ -584,6 +454,13 @@ contract WonkaEngineDiamond is DiamondStorageContract {
         return (ruletrees[ruler].isValue == true);
     }
 
+    /// @dev This method will indicate if the Attribute exists in the cache
+    /// @author Aaron Kendall
+    function isAttribute(bytes32 keyName) public view returns(bool) {
+
+        return attrMap[keyName].isValue;
+    }
+
     // Finds facet for function that is called and executes the
     // function if it is found and returns any value.
     fallback() external payable {
@@ -601,5 +478,41 @@ contract WonkaEngineDiamond is DiamondStorageContract {
             default {return (ptr, size)}
         }
     }
+   
+    /**
+     ** SUPPORT METHODS
+     **/
+    /// @dev This method will parse a delimited string and insert them into the Domain map of a Rule
+    /// @notice 
+    function splitStrIntoMap(string memory str, string memory delimiter, WonkaEngineStructs.WonkaRule storage targetRule, bool isOpRule) private {  
 
+        bytes memory b = bytes(str); //cast the string to bytes to iterate
+        bytes memory delm = bytes(delimiter); 
+
+        splitTempStr = "";
+
+        for(uint i; i<b.length ; i++){          
+
+            if(b[i] != delm[0]) { //check if a not space
+                splitTempStr.push(b[i]);             
+            }
+            else { 
+                string memory sTempVal = string(splitTempStr);
+                targetRule.ruleValueDomain[sTempVal] = "Y";
+
+                if (isOpRule)
+                    targetRule.ruleDomainKeys.push(sTempVal);
+
+                splitTempStr = "";                 
+            }                
+        }
+
+        if(b[b.length-1] != delm[0]) { 
+            string memory sTempValLast = string(splitTempStr);
+            targetRule.ruleValueDomain[sTempValLast] = "Y";
+
+            if (isOpRule)
+                targetRule.ruleDomainKeys.push(sTempValLast);
+        }
+    }     
 }

@@ -6,6 +6,8 @@ pragma experimental ABIEncoderV2;
 import "./DiamondStorageContract.sol";
 import "./DiamondHeaders.sol";
 import "./DiamondFacet.sol";
+import "./WonkaEngineStructs.sol";
+import "./WonkaEngineSupportFacet.sol";
 import "./WonkaEngineDiamond.sol";
 
 import "./TransactionStateInterface.sol";
@@ -20,8 +22,7 @@ contract WonkaEngineMainFacet is DiamondFacet {
 
     /// @dev Constructor for the main facet
     /// @author Aaron Kendall
-    constructor(address payable _diamondAddress) public {
-        diamond = WonkaEngineDiamond(_diamondAddress);
+    constructor() public {
     }    
 
     modifier onlyEngineOwner()
@@ -45,6 +46,15 @@ contract WonkaEngineMainFacet is DiamondFacet {
         // body when the modifier is used.
         _;
     }
+
+    /// @dev This method will set the address for the Wonka Diamond (proxy) 
+    /// @author Aaron Kendall
+    function setDiamondAddress(address payable _diamondAddress, address ruler) public onlyEngineOwnerOrTreeOwner(ruler) {
+
+        require(msg.sender == diamond.rulesMaster(), "The caller of this method does not have permission for this action.");
+
+        diamond = WonkaEngineDiamond(_diamondAddress);
+    }    
 
     /**
      ** NOTE: These methods need to be altered for the storage
@@ -347,15 +357,24 @@ contract WonkaEngineMainFacet is DiamondFacet {
 
         return (ruletrees[ruler].ruleTreeId, ruletrees[ruler].description, ruletrees[ruler].rootRuleSetName);
     }
+    */
 
     /// @dev This method will return the value for an Attribute that is currently stored within the ruler's record
     /// @author Aaron Kendall
     /// @notice This method should only be used for debugging purposes.
-    function getValueOnRecord(address ruler, bytes32 key) public returns(string memory) { 
+    function getValueOnRecord(address ruler, bytes32 key) public onlyEngineOwnerOrTreeOwner(ruler) returns(string memory) { 
 
-        // NOTE: Likely to retire this check
-        // require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
-        // require (attrMap[key].isValue == true, "The specified Attribute does not exist.");
+        if (key != "") {
+            return "X";
+        }
+        else {
+            return "Z";
+        }
+
+        /**
+        ** NOTE: These methods need to be altered for the storage
+        **        
+        require (attrMap[key].isValue == true, "The specified Attribute does not exist.");
 
         if (!orchestrationMode) {
             return (currentRecords[ruler])[key];
@@ -371,7 +390,12 @@ contract WonkaEngineMainFacet is DiamondFacet {
             else
                 return blankValue;
         }
+        */
     }
+
+    /**
+     ** NOTE: These methods need to be altered for the storage
+     **
 
 	/// @dev This method will indicate whether or not a particular source exists
     /// @author Aaron Kendall
@@ -468,6 +492,7 @@ contract WonkaEngineMainFacet is DiamondFacet {
 
         calcValue = finalValue;
     }
+     **/
 
     /// @author Aaron Kendall
     /// @dev This method will assist by returning the correct value, either a literal static value or one obtained through retrieval
@@ -475,12 +500,31 @@ contract WonkaEngineMainFacet is DiamondFacet {
 
         bytes32 keyName = targetRule.customOpArgs[domainIdx];
 
-        if (attrMap[keyName].isValue)
+        if (diamond.isAttribute(keyName))
+        {
             retValue = getValueOnRecord(ruler, keyName);
+        }
         else
-            retValue = bytes32ToString(keyName);
-    }  
+        {
+            // NOTE: OLD WAY
+            // retValue = bytes32ToString(keyName);
 
-    **/
+            // NOTE: ALT WAY
+            // (bool success, bytes memory retData) = address(diamond).call(bytes4(bytes32(keccak256("bytes32ToString(bytes32)"))), keyName);
+            // (uint a, uint[2] memory b, bytes memory c) = abi.decode(retData, (uint, uint[2], bytes))
+            // (retValue) = abi.decode(retData, (string));
+
+            DiamondStorage storage ds = diamondStorage();
+
+            address supportFacetAddress = address(bytes20(ds.facets[WonkaEngineSupportFacet.bytes32ToString.selector]));
+
+            bytes memory BTSFunction = abi.encodeWithSelector(WonkaEngineSupportFacet.bytes32ToString.selector, keyName);
+
+            (bool success, bytes memory returnedData) = address(supportFacetAddress).delegatecall(BTSFunction);
+            require(success);
+
+            (retValue) = abi.decode(returnedData, (string));
+        }
+    }  
 
 }

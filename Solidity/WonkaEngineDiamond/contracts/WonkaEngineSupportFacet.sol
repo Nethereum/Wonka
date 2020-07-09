@@ -12,10 +12,6 @@ import "./WonkaEngineDiamond.sol";
 
 contract WonkaEngineSupportFacet is DiamondFacet {
 
-    // For the function splitStr(...)
-    // Currently unsure how the function will perform in a multithreaded scenario
-    bytes splitTempStr; // temporarily holds the string part until a space is received
-
     /// @dev This method will convert a bytes32 type to a String
     /// @notice 
     function bytes32ToString(bytes32 x) public pure returns (string memory) {
@@ -200,40 +196,6 @@ contract WonkaEngineSupportFacet is DiamondFacet {
         }
 
         return mint;
-    }
-
-    /// @dev This method will parse a delimited string and insert them into the Domain map of a Rule
-    /// @notice 
-    function splitStrIntoMap(string memory str, string memory delimiter, WonkaEngineStructs.WonkaRule storage targetRule, bool isOpRule) private {  
-
-        bytes memory b = bytes(str); //cast the string to bytes to iterate
-        bytes memory delm = bytes(delimiter); 
-
-        splitTempStr = "";
-
-        for(uint i; i<b.length ; i++){          
-
-            if(b[i] != delm[0]) { //check if a not space
-                splitTempStr.push(b[i]);             
-            }
-            else { 
-                string memory sTempVal = string(splitTempStr);
-                targetRule.ruleValueDomain[sTempVal] = "Y";
-
-                if (isOpRule)
-                    targetRule.ruleDomainKeys.push(sTempVal);
-
-                splitTempStr = "";                 
-            }                
-        }
-
-        if(b[b.length-1] != delm[0]) { 
-            string memory sTempValLast = string(splitTempStr);
-            targetRule.ruleValueDomain[sTempValLast] = "Y";
-
-            if (isOpRule)
-                targetRule.ruleDomainKeys.push(sTempValLast);
-        }
     }
 
     /// @dev This method will concatenate the provided strings into one larger string
