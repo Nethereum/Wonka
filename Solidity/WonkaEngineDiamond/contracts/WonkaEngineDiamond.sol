@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.8;
 
+pragma experimental ABIEncoderV2;
+
 import "./DiamondStorageContract.sol";
 import "./DiamondHeaders.sol";
 import "./DiamondFacet.sol";
@@ -19,44 +21,9 @@ contract WonkaEngineDiamond is DiamondStorageContract {
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-    /// @dev Defines an event that will report when a ruletree has been invoked to validate a provided record.
-    /// @author Aaron Kendall
-    /// @notice 
-    event CallRuleTree(
-        address indexed ruler
-    );
-
-    /// @dev Defines an event that will report when a ruleset has been invoked when validating a provided record.
-    /// @author Aaron Kendall
-    /// @notice 
-    event CallRuleSet(
-        address indexed ruler,
-        bytes32 indexed tmpRuleSetId
-    );
-
-    /// @dev Defines an event that will report when a rule has been invoked when validating a provided record.
-    /// @author Aaron Kendall
-    /// @notice 
-    event CallRule(
-        address indexed ruler,
-        bytes32 indexed ruleSetId,
-        bytes32 indexed ruleId,
-        uint ruleType
-    );
-	
-    /// @dev Defines an event that will report when the record does not satisfy a ruleset.
-    /// @author Aaron Kendall
-    event RuleSetError (
-        address indexed ruler,
-        bytes32 indexed ruleSetId,
-        bool severeFailure
-    );	
-
-    // An enum for the type of rules currently supported
+     // An enum for the type of rules currently supported
     enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, OpDiv, CustomOp, MAX_TYPE }
-    RuleTypes constant defaultType = RuleTypes.IsEqual;
-
-    string constant blankValue = "";
+    RuleTypes constant defaultType = RuleTypes.IsEqual;   
 
     uint constant CONST_CUSTOM_OP_ARGS = 4;
 
@@ -65,13 +32,9 @@ contract WonkaEngineDiamond is DiamondStorageContract {
     uint    public ruleCounter;
     uint    public lastRuleId;
 
-    address         lastSenderAddressProvided;
-    bool            lastTransactionSuccess;
+    address lastSenderAddressProvided;
 
     WonkaEngineStructs.WonkaRuleReport lastRuleReport;
-
-    bool    orchestrationMode;
-    bytes32 defaultTargetSource;
 
     // The Attributes known by this instance of the rules engine
     mapping(bytes32 => WonkaEngineStructs.WonkaAttr) public attrMap;    
@@ -82,9 +45,6 @@ contract WonkaEngineDiamond is DiamondStorageContract {
 
     // The cache of all created rulesets
     WonkaEngineStructs.WonkaRuleSet[] public rulesets;
-
-    // The cache of records that are owned by "rulers" and that are validated when invoking a rule tree
-    mapping(address => mapping(bytes32 => string)) public currentRecords;
 
     // The cache of available sources for retrieving and setting attribute values found on other contracts
     mapping(bytes32 => WonkaEngineStructs.WonkaSource) public sourceMap;
@@ -106,9 +66,6 @@ contract WonkaEngineDiamond is DiamondStorageContract {
     /// @author Aaron Kendall
     /// @notice Currently, the engine will create three dummy Attributes within the cache by default, but they will be removed later
     constructor() public {
-
-        orchestrationMode = false;
-        lastTransactionSuccess = false;
 
         rulesMaster = msg.sender;
         ruleCounter = lastRuleId = 1;
@@ -446,6 +403,13 @@ contract WonkaEngineDiamond is DiamondStorageContract {
         return attributes.length;
     }
 
+    /// @dev This method will return the Souce (if it exists)
+    /// @author Aaron Kendall
+    function getSource(bytes32 keyName) public view returns (WonkaEngineStructs.WonkaSource memory) {
+
+        return sourceMap[keyName];
+    } 
+
     /// @dev This method will indicate whether or not the provided address/account has a RuleTree associated with it
     /// @author Aaron Kendall
     /// @notice This method should only be used for debugging purposes.
@@ -459,6 +423,14 @@ contract WonkaEngineDiamond is DiamondStorageContract {
     function isAttribute(bytes32 keyName) public view returns(bool) {
 
         return attrMap[keyName].isValue;
+    }
+
+    /// @dev This method will set the transaction state to be used by a RuleTree
+    /// @author Aaron Kendall
+    function setTransactionState(address ruler, address transStateAddr) public {
+
+        transStateInd[ruletrees[ruler].ruleTreeId] = true;
+        transStateMap[ruletrees[ruler].ruleTreeId] = TransactionStateInterface(transStateAddr);
     }
 
     // Finds facet for function that is called and executes the

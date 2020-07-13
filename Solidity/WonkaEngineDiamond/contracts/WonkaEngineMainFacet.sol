@@ -18,12 +18,61 @@ import "./TransactionStateInterface.sol";
 /// @dev Even though you can create rule trees by calling this contract directly, it is generally recommended that you create them using the Nethereum library
 contract WonkaEngineMainFacet is DiamondFacet {
 
+    /// @dev Defines an event that will report when a ruletree has been invoked to validate a provided record.
+    /// @author Aaron Kendall
+    /// @notice 
+    event CallRuleTree(
+        address indexed ruler
+    );
+
+    /// @dev Defines an event that will report when a ruleset has been invoked when validating a provided record.
+    /// @author Aaron Kendall
+    /// @notice 
+    event CallRuleSet(
+        address indexed ruler,
+        bytes32 indexed tmpRuleSetId
+    );
+
+    /// @dev Defines an event that will report when a rule has been invoked when validating a provided record.
+    /// @author Aaron Kendall
+    /// @notice 
+    event CallRule(
+        address indexed ruler,
+        bytes32 indexed ruleSetId,
+        bytes32 indexed ruleId,
+        uint ruleType
+    );
+	
+    /// @dev Defines an event that will report when the record does not satisfy a ruleset.
+    /// @author Aaron Kendall
+    event RuleSetError (
+        address indexed ruler,
+        bytes32 indexed ruleSetId,
+        bool severeFailure
+    );
+
+    string constant blankValue = "";
+
+    // An enum for the type of rules currently supported
+    enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, OpDiv, CustomOp, MAX_TYPE }
+    RuleTypes constant defaultType = RuleTypes.IsEqual;
+
+    bool lastTransactionSuccess;
+    bool orchestrationMode;
+
+    bytes32 defaultTargetSource;
+
+    // The cache of records that are owned by "rulers" and that are validated when invoking a rule tree
+    mapping(address => mapping(bytes32 => string)) public currentRecords;
+
     WonkaEngineDiamond diamond;
 
     /// @dev Constructor for the main facet
     /// @author Aaron Kendall
     constructor() public {
-    }    
+        lastTransactionSuccess = false;
+        orchestrationMode = false; 
+    }
 
     modifier onlyEngineOwner()
     {
@@ -312,6 +361,7 @@ contract WonkaEngineMainFacet is DiamondFacet {
 
         return (lastRuleReport.ruleFailCount, lastRuleReport.ruleSetIds, lastRuleReport.ruleIds);
     }
+     **/
 
     /// @dev This method will return the indicator of whether or not the last execuction of the engine was a validation success
     /// @author Aaron Kendall
@@ -320,6 +370,9 @@ contract WonkaEngineMainFacet is DiamondFacet {
         return lastTransactionSuccess;
     }
 
+    /**
+     **
+     **
     /// @dev This method will return the data that composes a particular Rule
     /// @author Aaron Kendall
     function getRuleProps(address ruler, bytes32 rsId, bool evalRuleFlag, uint ruleIdx) public view returns (bytes32, uint, bytes32, string memory, bool, bytes32[] memory) {
@@ -364,45 +417,48 @@ contract WonkaEngineMainFacet is DiamondFacet {
     /// @notice This method should only be used for debugging purposes.
     function getValueOnRecord(address ruler, bytes32 key) public onlyEngineOwnerOrTreeOwner(ruler) returns(string memory) { 
 
-        if (key != "") {
-            return "X";
-        }
-        else {
-            return "Z";
-        }
-
-        /**
-        ** NOTE: These methods need to be altered for the storage
-        **        
-        require (attrMap[key].isValue == true, "The specified Attribute does not exist.");
+        require (diamond.isAttribute(key), "The specified Attribute does not exist.");
 
         if (!orchestrationMode) {
             return (currentRecords[ruler])[key];
         }
         else {
 
-            if (sourceMap[key].isValue){
-                return invokeValueRetrieval(sourceMap[key].contractAddress, ruler, sourceMap[key].methodName, key);
-            }
-            else if (sourceMap[defaultTargetSource].isValue){
-                return invokeValueRetrieval(sourceMap[defaultTargetSource].contractAddress, ruler, sourceMap[defaultTargetSource].methodName, key);
-            }
-            else
-                return blankValue;
-        }
-        */
-    }
+            string memory recordValue = blankValue;
 
-    /**
-     ** NOTE: These methods need to be altered for the storage
-     **
+            DiamondStorage storage ds = diamondStorage();
+
+            address supportFacetAddress = address(bytes20(ds.facets[WonkaEngineSupportFacet.invokeValueRetrieval.selector]));
+
+            if (diamond.getSource(key).isValue) {                
+
+                bytes memory IVRFunction = abi.encodeWithSelector(WonkaEngineSupportFacet.invokeValueRetrieval.selector, diamond.getSource(key).contractAddress, ruler, diamond.getSource(key).methodName, key);
+
+                (bool success, bytes memory returnedData) = address(supportFacetAddress).delegatecall(IVRFunction);
+                require(success);
+
+                (recordValue) = abi.decode(returnedData, (string));
+            }
+            else if (diamond.getSource(defaultTargetSource).isValue){
+
+                bytes memory IVRFunction = abi.encodeWithSelector(WonkaEngineSupportFacet.invokeValueRetrieval.selector, diamond.getSource(defaultTargetSource).contractAddress, ruler, diamond.getSource(defaultTargetSource).methodName, key);
+
+                (bool success, bytes memory returnedData) = address(supportFacetAddress).delegatecall(IVRFunction);
+                require(success);
+
+                (recordValue) = abi.decode(returnedData, (string));
+            }
+
+            return recordValue;
+        }
+    }
 
 	/// @dev This method will indicate whether or not a particular source exists
     /// @author Aaron Kendall
     /// @notice This method should only be used for debugging purposes.
     function getIsSourceMapped(bytes32 key) public view returns(bool) {
 
-        return sourceMap[key].isValue;
+        return diamond.getSource(key).isValue;
     }
 
 	/// @dev This method will indicate whether or not the Orchestration mode has been enabled
@@ -422,14 +478,9 @@ contract WonkaEngineMainFacet is DiamondFacet {
         defaultTargetSource = defSource;
     }
 
-    /// @dev This method will set the transaction state to be used by a RuleTree
-    /// @author Aaron Kendall
-    function setTransactionState(address ruler, address transStateAddr) public {
-
-        transStateInd[ruletrees[ruler].ruleTreeId] = true;
-        transStateMap[ruletrees[ruler].ruleTreeId] = TransactionStateInterface(transStateAddr);
-    }
-
+    /**
+     ** NOTE: 
+     **
     /// @dev This method will set an Attribute value on the record associated with the provided address/account
     /// @author Aaron Kendall
     /// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
@@ -455,9 +506,9 @@ contract WonkaEngineMainFacet is DiamondFacet {
             }
         }
     }
+     **/
 
     // SUPPORT METHODS
-
     /// @dev This method will calculate the value for a Rule according to its type (Add, Subtract, etc.) and its domain values
     /// @notice 
     function calculateValue(address ruler, WonkaEngineStructs.WonkaRule storage targetRule, mapping(bytes32 => WonkaEngineStructs.WonkaAttr) storage attrMap) private returns (uint calcValue){  
@@ -465,14 +516,39 @@ contract WonkaEngineMainFacet is DiamondFacet {
         uint tmpValue   = 0;
         uint finalValue = 0;
 
+        DiamondStorage storage ds = diamondStorage();
+
+        address supportFacetAddress = address(bytes20(ds.facets[WonkaEngineSupportFacet.parseInt.selector]));
+
         for (uint i = 0; i < targetRule.ruleDomainKeys.length; i++) {
 
-            bytes32 keyName = stringToBytes32(targetRule.ruleDomainKeys[i]);
+            bytes32 keyName = "";
+
+            bytes memory STBFunction = abi.encodeWithSelector(WonkaEngineSupportFacet.stringToBytes32.selector, targetRule.ruleDomainKeys[i]);
+
+            (bool successSTB, bytes memory returnedDataSTB) = address(supportFacetAddress).delegatecall(STBFunction);
+            require(successSTB);
+
+            (keyName) = abi.decode(returnedDataSTB, (bytes32));
 
             if (attrMap[keyName].isValue)
-                tmpValue = parseInt(getValueOnRecord(ruler, keyName), 0);
+            {
+                bytes memory PIFunction = abi.encodeWithSelector(WonkaEngineSupportFacet.parseInt.selector, getValueOnRecord(ruler, keyName), 0);
+
+                (bool successPI, bytes memory returnedDataPI) = address(supportFacetAddress).delegatecall(PIFunction);
+                require(successPI);
+
+                (tmpValue) = abi.decode(returnedDataPI, (uint));
+            }
             else
-                tmpValue = parseInt(targetRule.ruleDomainKeys[i], 0);
+            {
+                bytes memory PIFunction = abi.encodeWithSelector(WonkaEngineSupportFacet.parseInt.selector, targetRule.ruleDomainKeys[i], 0);
+
+                (bool successPI, bytes memory returnedDataPI) = address(supportFacetAddress).delegatecall(PIFunction);
+                require(successPI);
+
+                (tmpValue) = abi.decode(returnedDataPI, (uint));
+            }
 
             if (i == 0)
                 finalValue = tmpValue;
@@ -492,7 +568,6 @@ contract WonkaEngineMainFacet is DiamondFacet {
 
         calcValue = finalValue;
     }
-     **/
 
     /// @author Aaron Kendall
     /// @dev This method will assist by returning the correct value, either a literal static value or one obtained through retrieval
