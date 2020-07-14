@@ -478,17 +478,14 @@ contract WonkaEngineMainFacet is DiamondFacet {
         defaultTargetSource = defSource;
     }
 
-    /**
-     ** NOTE: 
-     **
     /// @dev This method will set an Attribute value on the record associated with the provided address/account
     /// @author Aaron Kendall
     /// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
     function setValueOnRecord(address ruler, bytes32 key, string memory value) public returns(string memory) { 
 
-        // NOTE: Likely to retire this check
-        // require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
-        // require(attrMap[key].isValue == true, "The specified Attribute does not exist.");
+        require(diamond.hasRuleTree(ruler), "The provided user does not own anything on this instance of the contract.");
+
+        require(diamond.isAttribute(key), "The specified Attribute does not exist.");
         
         if (!orchestrationMode) {
             (currentRecords[ruler])[key] = value;
@@ -496,17 +493,38 @@ contract WonkaEngineMainFacet is DiamondFacet {
         }
         else {
 
-            bytes32 bytes32Value = stringToBytes32(value);
+            DiamondStorage storage ds = diamondStorage();
 
-            if (sourceMap[key].isValue && (keccak256(abi.encodePacked(sourceMap[key].setMethodName)) != keccak256(abi.encodePacked("")))) {
-                return invokeValueSetter(sourceMap[key].contractAddress, ruler, sourceMap[key].setMethodName, key, bytes32Value);
+            address supportFacetAddress = address(bytes20(ds.facets[WonkaEngineSupportFacet.parseInt.selector]));
+
+            bytes32 bytes32Value = "";
+            bytes32 targetKey = "";
+            string memory retValue = "";
+
+            bytes memory STBFunction = abi.encodeWithSelector(WonkaEngineSupportFacet.stringToBytes32.selector, value);
+
+            (bool successSTB, bytes memory returnedDataSTB) = address(supportFacetAddress).delegatecall(STBFunction);
+            require(successSTB);
+            (bytes32Value) = abi.decode(returnedDataSTB, (bytes32));
+
+            if (diamond.getSource(key).isValue && (keccak256(abi.encodePacked(diamond.getSource(key).setMethodName)) != keccak256(abi.encodePacked("")))) {           
+                targetKey = key;
             }
-            else if (sourceMap[defaultTargetSource].isValue && (keccak256(abi.encodePacked(sourceMap[defaultTargetSource].setMethodName)) != keccak256(abi.encodePacked("")))){                
-                return invokeValueSetter(sourceMap[defaultTargetSource].contractAddress, ruler, sourceMap[defaultTargetSource].setMethodName, key, bytes32Value);
+            else if (diamond.getSource(defaultTargetSource).isValue && (keccak256(abi.encodePacked(diamond.getSource(defaultTargetSource).setMethodName)) != keccak256(abi.encodePacked("")))) {                
+                targetKey = defaultTargetSource;
             }
+
+            if (targetKey != "") { 
+                bytes memory IVSFunction = abi.encodeWithSelector(WonkaEngineSupportFacet.invokeValueSetter.selector, diamond.getSource(targetKey).contractAddress, ruler, diamond.getSource(targetKey).setMethodName, key, bytes32Value);
+
+                (bool successIVS, bytes memory returnedDataIVS) = address(supportFacetAddress).delegatecall(IVSFunction);
+                require(successIVS);
+                (retValue) = abi.decode(returnedDataIVS, (string));
+            }
+
+            return retValue;
         }
     }
-     **/
 
     // SUPPORT METHODS
     /// @dev This method will calculate the value for a Rule according to its type (Add, Subtract, etc.) and its domain values

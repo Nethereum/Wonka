@@ -164,8 +164,15 @@ contract WonkaEngineDiamond is DiamondStorageContract {
 
         diamondCut[3] = abi.encodePacked(
             diamondMainFacet,
-            Diamond.diamondCut.selector)
-        ;
+            Diamond.diamondCut.selector,
+            WonkaEngineMainFacet.setDiamondAddress.selector,
+            WonkaEngineMainFacet.getLastTransactionSuccess.selector,
+            WonkaEngineMainFacet.getValueOnRecord.selector,
+            WonkaEngineMainFacet.getIsSourceMapped.selector,
+            WonkaEngineMainFacet.getOrchestrationMode.selector,
+            WonkaEngineMainFacet.setOrchestrationMode.selector,
+            WonkaEngineMainFacet.setValueOnRecord.selector
+        );
 
         /**
          ** NOTE: Replace this section with adding WonkaEngine functions
