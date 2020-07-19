@@ -410,6 +410,13 @@ contract WonkaEngineDiamond is DiamondStorageContract {
         return attributes.length;
     }
 
+    /// @dev This method will return the Source for the Custom Operator (if it exists)
+    /// @author Aaron Kendall
+    function getCustomOp(bytes32 customOpName) public view returns (WonkaEngineStructs.WonkaSource memory) {
+
+        return opMap[customOpName];
+    } 
+
     /// @dev This method will return the data that composes a particular Rule
     /// @author Aaron Kendall
     function getRuleProps(address ruler, bytes32 rsId, bool evalRuleFlag, uint ruleIdx) public view returns (bytes32, uint, bytes32, string memory, bool, bytes32[] memory) {
@@ -448,7 +455,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
         return (ruletrees[ruler].ruleTreeId, ruletrees[ruler].description, ruletrees[ruler].rootRuleSetName);
     }
 
-    /// @dev This method will return the Souce (if it exists)
+    /// @dev This method will return the Source (if it exists)
     /// @author Aaron Kendall
     function getSource(bytes32 keyName) public view returns (WonkaEngineStructs.WonkaSource memory) {
 
@@ -468,6 +475,15 @@ contract WonkaEngineDiamond is DiamondStorageContract {
     function isAttribute(bytes32 keyName) public view returns(bool) {
 
         return attrMap[keyName].isValue;
+    }
+
+    /// @dev This method will return the flag that indicates if a RuleSet is a leaf
+    /// @author Aaron Kendall
+    function isLeaf(address ruler, bytes32 rsId) public view returns (bool) {
+
+        require(hasRuleTree(ruler), "The specified RuleTree does not exist.");
+
+        return (ruletrees[ruler].allRuleSets[rsId].isLeaf);
     }
 
     /// @dev This method will set the transaction state to be used by a RuleTree
