@@ -166,6 +166,7 @@ contract WonkaEngineDiamond is DiamondStorageContract {
             diamondMainFacet,
             Diamond.diamondCut.selector,
             WonkaEngineMainFacet.setDiamondAddress.selector,
+            WonkaEngineMainFacet.execute.selector,
             WonkaEngineMainFacet.getLastTransactionSuccess.selector,
             WonkaEngineMainFacet.getValueOnRecord.selector,
             WonkaEngineMainFacet.getIsSourceMapped.selector,
@@ -448,11 +449,11 @@ contract WonkaEngineDiamond is DiamondStorageContract {
 
     /// @dev This method will return the data that composes a particular RuleTree
     /// @author Aaron Kendall
-    function getRuleTreeProps(address ruler) public view returns (bytes32, string memory, bytes32) { 
+    function getRuleTreeProps(address ruler) public view returns (bytes32, string memory, bytes32, uint) { 
 
         require(hasRuleTree(ruler), "The specified RuleTree does not exist.");
 
-        return (ruletrees[ruler].ruleTreeId, ruletrees[ruler].description, ruletrees[ruler].rootRuleSetName);
+        return (ruletrees[ruler].ruleTreeId, ruletrees[ruler].description, ruletrees[ruler].rootRuleSetName, ruletrees[ruler].totalRuleCount);
     }
 
     /// @dev This method will return the Source (if it exists)

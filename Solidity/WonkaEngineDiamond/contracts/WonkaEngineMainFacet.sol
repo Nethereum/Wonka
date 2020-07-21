@@ -107,9 +107,6 @@ contract WonkaEngineMainFacet is DiamondFacet {
         diamond = WonkaEngineDiamond(_diamondAddress);
     }    
 
-    /**
-     ** NOTE: These methods need to be altered for the storage
-     **
     /// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
     /// @author Aaron Kendall
     /// @notice This method will only return a boolean
@@ -117,27 +114,31 @@ contract WonkaEngineMainFacet is DiamondFacet {
 
         executeSuccess = true;
 
-        require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
+        // NOTE: Is this necessary?
+        // require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
 
-        // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
+        // NOTE: Is this necessary?
         // require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
 
-        // NOTE: USE WHEN DEBUGGING IS NEEDED
         emit CallRuleTree(ruler);
 
-        lastSenderAddressProvided = ruler;
+        (, , , uint totalRuleNum) = diamond.getRuleTreeProps(ruler);
 
-        WonkaRuleReport memory report = WonkaRuleReport({
+        WonkaEngineStructs.WonkaRuleReport memory report = WonkaEngineStructs.WonkaRuleReport({
             ruleFailCount: 0,
-            ruleSetIds: new bytes32[](ruletrees[ruler].totalRuleCount),
-            ruleIds: new bytes32[](ruletrees[ruler].totalRuleCount)
+            ruleSetIds: new bytes32[](totalRuleNum),
+            ruleIds: new bytes32[](totalRuleNum)
         });
 
-        executeWithReport(ruler, ruletrees[ruler].allRuleSets[ruletrees[ruler].rootRuleSetName], report);
+        // NOTE: These methods need to be altered for the storage
+        // executeWithReport(ruler, ruletrees[ruler].allRuleSets[ruletrees[ruler].rootRuleSetName], report);
 
         executeSuccess = lastTransactionSuccess = (report.ruleFailCount == 0);
     }
 
+    /**
+     ** NOTE: These methods need to be altered for the storage
+     **
     /// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
     /// @author Aaron Kendall
     /// @notice This method will return a disassembled RuleReport that can be reassembled, especially by using the Nethereum library
@@ -239,7 +240,7 @@ contract WonkaEngineMainFacet is DiamondFacet {
     /// @dev This method will invoke one Rule within a RuleSet when validating a stored record
     /// @author Aaron Kendall
     /// @notice This method will return a boolean that assists with traversing the RuleTree
-    function executeWithReport(address ruler, WonkaEngineStructs.WonkaRule storage targetRule, WonkaEngineStructs.WonkaRuleReport memory ruleReport) private returns (bool ruleResult) {
+    function executeRuleWithReport(address ruler, WonkaEngineStructs.WonkaRule storage targetRule, WonkaEngineStructs.WonkaRuleReport memory ruleReport) private returns (bool ruleResult) {
 
         ruleResult = true;
 
