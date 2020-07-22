@@ -122,7 +122,7 @@ contract WonkaEngineMainFacet is DiamondFacet {
 
         emit CallRuleTree(ruler);
 
-        (, , , uint totalRuleNum) = diamond.getRuleTreeProps(ruler);
+        (, , bytes32 rootRSID, uint totalRuleNum) = diamond.getRuleTreeProps(ruler);
 
         WonkaEngineStructs.WonkaRuleReport memory report = WonkaEngineStructs.WonkaRuleReport({
             ruleFailCount: 0,
@@ -131,52 +131,28 @@ contract WonkaEngineMainFacet is DiamondFacet {
         });
 
         // NOTE: These methods need to be altered for the storage
-        // executeWithReport(ruler, ruletrees[ruler].allRuleSets[ruletrees[ruler].rootRuleSetName], report);
+        executeWithReport(ruler, rootRSID, report);
 
         executeSuccess = lastTransactionSuccess = (report.ruleFailCount == 0);
-    }
-
-    /**
-     ** NOTE: These methods need to be altered for the storage
-     **
-    /// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
-    /// @author Aaron Kendall
-    /// @notice This method will return a disassembled RuleReport that can be reassembled, especially by using the Nethereum library
-    function executeWithReport(address ruler) public onlyEngineOwnerOrTreeOwner(ruler) returns (uint fails, bytes32[] memory rsets, bytes32[] memory rules) {
-
-        require(ruletrees[ruler].allRuleSetList.length > 0, "The specified RuleTree is empty.");
-
-        // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
-        // require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
-
-        // NOTE: USE WHEN DEBUGGING IS NEEDED
-        emit CallRuleTree(ruler);
-
-        lastSenderAddressProvided = ruler;
-
-        WonkaRuleReport memory report = WonkaRuleReport({
-            ruleFailCount: 0,
-            ruleSetIds: new bytes32[](ruletrees[ruler].totalRuleCount),
-            ruleIds: new bytes32[](ruletrees[ruler].totalRuleCount)
-            });
-
-        executeWithReport(ruler, ruletrees[ruler].allRuleSets[ruletrees[ruler].rootRuleSetName], report);
-
-        lastRuleReport = report;
-
-        return (report.ruleFailCount, report.ruleSetIds, report.ruleIds);       
     }
 
     /// @dev This method will invoke one RuleSet within a RuleTree when validating a stored record
     /// @author Aaron Kendall
     /// @notice This method will return a boolean that assists with traversing the RuleTree
-    function executeWithReport(address ruler, WonkaRuleSet storage targetRuleSet, WonkaRuleReport memory ruleReport) private returns (bool executeSuccess) {
+    function executeWithReport(address ruler, bytes32 rsId, WonkaEngineStructs.WonkaRuleReport memory ruleReport) private returns (bool executeSuccess) {
        
         executeSuccess = true;
 
-        // NOTE: USE WHEN DEBUGGING IS NEEDED
         emit CallRuleSet(ruler, targetRuleSet.ruleSetId);
 
+        (, bool severeFailure, bool useAndOp, uint evalRuleCount, uint assertiveRuleCount, uint childRSCount) = diamond.getRuleSetProps(ruler, rsId);
+
+        bool tempResult = false;
+        bool tempSetResult = true;
+
+        /**
+         ** NOTE: These methods need to be altered for the storage
+         **
         if (transStateInd[ruletrees[ruler].ruleTreeId]) {
 
             require(transStateMap[ruletrees[ruler].ruleTreeId].isTransactionConfirmed(), "Transaction has not been confirmed.");
@@ -184,11 +160,7 @@ contract WonkaEngineMainFacet is DiamondFacet {
             require(transStateMap[ruletrees[ruler].ruleTreeId].isExecutor(ruler), "Sender is not a permitted executor.");
         }
 
-        bool tempResult = false;
-        bool tempSetResult = true;
-        bool useAndOp = targetRuleSet.andOp;
         bool failImmediately = targetRuleSet.failImmediately;
-        bool severeFailure = targetRuleSet.severeFailure;
 
         // Now invoke the rules
         for (uint idx = 0; idx < targetRuleSet.evalRuleList.length; idx++) {
@@ -234,8 +206,8 @@ contract WonkaEngineMainFacet is DiamondFacet {
         //if (transStateInd[ruletrees[ruler].ruleTreeId]) {
         //    transStateMap[ruletrees[ruler].ruleTreeId].revokeAllConfirmations();
         //}
+        **/
     }
-     **/
 
     /// @dev This method will invoke one Rule within a RuleSet when validating a stored record
     /// @author Aaron Kendall
