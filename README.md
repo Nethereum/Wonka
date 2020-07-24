@@ -18,9 +18,11 @@ A <a target="_blank" href="https://en.wikipedia.org/wiki/Business_rules_engine">
 
 # Quick Run
 
-Though not yet quite available, the code from the [Test Online (Async)](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTestAsync.cs) example will soon be incorporated into the [Nethereum Playground](http://playground.nethereum.com/) set of samples.  There, you will be able to deploy an instance of Wonka to an hosted Ethereum client, after which you can then create and invoke a RuleTree as separate transactions.
+For a slightly more intuitive take on Wonka's potential (via something more akin to a GUI), you can fire up the [Wonka Blazor Editor](https://github.com/jaerith/WonkaRulesBlazorEditor) in order to pull down some rules via IPFS and then invoke them.  You can also add rules, tweaking their parameters, and you can also change the data record on which the rules act upon.  You can also deploy the rules to a private Ethereum node and then run them there as well.
 
 You can also use the simple [Test Online](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTest.cs) example and step through it in order to gain a comprehensive understanding.  If you wish to test against a local Ethereum client on your development box, simply change the CONST_ONLINE_TEST_CHAIN_URL member to an empty value.
+
+Though not yet quite available, the code from the [Test Online (Async)](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTestAsync.cs) example might be someday incorporated into the [Nethereum Playground](http://playground.nethereum.com/) set of samples.  There, you will be able to deploy an instance of Wonka to an hosted Ethereum client, after which you can then create and invoke a RuleTree as separate transactions.
 
 # Quick Setup (i.e., for local use)
 
