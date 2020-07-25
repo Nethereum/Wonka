@@ -18,7 +18,7 @@ A <a target="_blank" href="https://en.wikipedia.org/wiki/Business_rules_engine">
 
 # Quick Run
 
-For a slightly more intuitive take on Wonka's potential (via something more akin to a GUI), you can fire up the [Wonka Blazor Editor](https://github.com/jaerith/WonkaRulesBlazorEditor) in order to pull down some rules via IPFS and then invoke them.  You can also add rules, tweaking their parameters, and you can also change the data record on which the rules act upon.  You can also deploy the rules to a private Ethereum node and then run them there as well.
+For a slightly more intuitive take on Wonka's potential (via something more akin to a poorly-constructed GUI by yours truly), you can fire up the [Wonka Blazor Editor](https://wonkarulesblazoreditorprototype01.azurewebsites.net/) in order to pull down some rules via IPFS and then invoke them.  (You might have to wait a few seconds for Blazor to initialize in your browser.)  In the editor, you can add rules while tweaking their parameters, and you can also change the data record on which the rules act upon.  In addition, you can deploy the rules to a private Ethereum node and then run them there as well.  And, if you're wondering how it all works, you can take a look at the code for the editor [here](https://github.com/jaerith/WonkaRulesBlazorEditor).
 
 You can also use the simple [Test Online](https://github.com/Nethereum/Wonka/blob/master/WonkaSystem/WonkaSystem/TestHarness/WonkaNoviceOnlineChainTest.cs) example and step through it in order to gain a comprehensive understanding.  If you wish to test against a local Ethereum client on your development box, simply change the CONST_ONLINE_TEST_CHAIN_URL member to an empty value.
 
