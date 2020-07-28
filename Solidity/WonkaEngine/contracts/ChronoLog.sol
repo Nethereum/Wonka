@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.8;
 
-contract ChronoLogsOracle {
+contract ChronoLog {
 
     /// @title Defines an chronological event
     /// @author Aaron Kendall
@@ -21,12 +21,14 @@ contract ChronoLogsOracle {
 
         bytes32 privateHash;
 
+        string eventInfoUrl;
+
         bool isValue;
     }
 
     uint idCounter = 1;
 
-    address oracleOwner;
+    address logOwner;
 
     mapping(bytes32 => ChronoLogEvent) private chronoEventMap;
     ChronoLogEvent[] public chronoEvents;
@@ -35,9 +37,9 @@ contract ChronoLogsOracle {
 
     mapping(bytes32 => bytes32[]) private typeIndex;
 
-    modifier onlyOracleOwner()
+    modifier onlyLogOwner()
     {
-        require(msg.sender == oracleOwner, "The caller of this method does not have permission for this action.");
+        require(msg.sender == logOwner, "The caller of this method does not have permission for this action.");
 
         // Do not forget the "_;"! It will
         // be replaced by the actual function
@@ -46,13 +48,13 @@ contract ChronoLogsOracle {
     }
 
 
-    /// @dev Constructor for the ChronoLogsOracle contract
+    /// @dev Constructor for the ChronoLog contract
     /// @author Aaron Kendall
     constructor() public {
-        oracleOwner = msg.sender;
+        logOwner = msg.sender;
     }
 
-    function addChronoLogEvent(bytes32 uniqueName, bytes32 eType, string memory desc, bytes32 data, bytes32 hash, uint time) public onlyOracleOwner {
+    function addChronoLogEvent(bytes32 uniqueName, bytes32 eType, string memory desc, bytes32 data, bytes32 hash, string memory url) public onlyLogOwner {
 
         require(chronoEventMap[uniqueName].isValue == false, "Event with unique ID already exists.");
 
@@ -61,15 +63,16 @@ contract ChronoLogsOracle {
             eventName: uniqueName,
             eventType: eType,
             eventDescription: desc,
-            eventEpochTime: (time > 0) ? time: block.timestamp,
+            eventEpochTime: block.timestamp,
             publicData: data,
             privateHash: hash,
+            eventInfoUrl: url,
             isValue: true
         }));
 
         chronoEventMap[chronoEvents[chronoEvents.length-1].eventName] = chronoEvents[chronoEvents.length-1];
 
-        uint dayIdxVal = time / 24;
+        uint dayIdxVal = chronoEvents[chronoEvents.length-1].eventEpochTime / 24;
         if (dayIndex[dayIdxVal] <= 0)
             dayIndex[dayIdxVal] = idCounter;
 
@@ -78,19 +81,19 @@ contract ChronoLogsOracle {
         (typeIndex[eType]).push(uniqueName);
     }
 
-    function getChronoLogBasic(bytes32 uniqueName) public view returns (uint, bytes32, bytes32) {
-        return (chronoEventMap[uniqueName].eventEpochTime, chronoEventMap[uniqueName].publicData, chronoEventMap[uniqueName].privateHash);
+    function getChronoLogBasic(bytes32 uniqueName) public view returns (uint, bytes32, bytes32, string memory) {
+        return (chronoEventMap[uniqueName].eventEpochTime, chronoEventMap[uniqueName].publicData, chronoEventMap[uniqueName].privateHash, chronoEventMap[uniqueName].eventInfoUrl);
     }
 
-    function getChronoLog(bytes32 uniqueName) public view returns (bytes32, string memory, uint, bytes32, bytes32) {
-        return (chronoEventMap[uniqueName].eventType, chronoEventMap[uniqueName].eventDescription, chronoEventMap[uniqueName].eventEpochTime, chronoEventMap[uniqueName].publicData, chronoEventMap[uniqueName].privateHash);
+    function getChronoLogEvent(bytes32 uniqueName) public view returns (bytes32, string memory, uint, bytes32, bytes32, string memory) {
+        return (chronoEventMap[uniqueName].eventType, chronoEventMap[uniqueName].eventDescription, chronoEventMap[uniqueName].eventEpochTime, chronoEventMap[uniqueName].publicData, chronoEventMap[uniqueName].privateHash, chronoEventMap[uniqueName].eventInfoUrl);
     }
 
-    function getChronoLogsByType(bytes32 eType) public view returns (bytes32[] memory) {
+    function getChronoLogEventsByType(bytes32 eType) public view returns (bytes32[] memory) {
         return typeIndex[eType];
     }
 
-    function getChronoLogsByType(bytes32 eType, uint startTime, uint endTime) public view returns (bytes32[] memory) {
+    function getChronoLogEventsByType(bytes32 eType, uint startTime, uint endTime) public view returns (bytes32[] memory) {
 
         bytes32[] memory logNames;
 
