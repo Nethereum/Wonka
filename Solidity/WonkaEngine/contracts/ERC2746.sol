@@ -5,7 +5,7 @@ pragma solidity ^0.6.8;
     @title ERC-2746 Rules Engine Standard
     @dev See https://eips.ethereum.org/EIPS/eip-2746
  */
-interface ERCRulesEngine {
+interface ERC2746 {
 
     /**
         @dev Should emit when a RuleTree is invoked.
