@@ -72,7 +72,7 @@ contract ChronoLog {
 
         chronoEventMap[chronoEvents[chronoEvents.length-1].eventName] = chronoEvents[chronoEvents.length-1];
 
-        uint dayIdxVal = chronoEvents[chronoEvents.length-1].eventEpochTime / 24;
+        uint dayIdxVal = chronoEvents[chronoEvents.length-1].eventEpochTime / 86400;
         if (dayIndex[dayIdxVal] <= 0)
             dayIndex[dayIdxVal] = idCounter;
 
@@ -93,19 +93,23 @@ contract ChronoLog {
         return typeIndex[eType];
     }
 
-    function getChronoLogEventsByType(bytes32 eType, uint startTime, uint endTime) public view returns (bytes32[] memory) {
+    function getChronoLogEventsByTypeAndTime(bytes32 eType, uint startTime, uint endTime) public view returns (bytes32[] memory) {
 
         bytes32[] memory logNames;
 
-        uint startDayIdx = dayIndex[startTime / 24];
+        uint startDayIdx = dayIndex[startTime / 86400];
 
         if (startDayIdx > 0) {
+
+            // Adjust
+            startDayIdx -= 1;
 
             uint nextDayIdx = dayIndex[startDayIdx+1];
             uint endIdx = 0;
 
             if (nextDayIdx > 0) {
-                endIdx = nextDayIdx;
+                // Adjust
+                endIdx = nextDayIdx - 1;
                 logNames = new bytes32[](nextDayIdx - startDayIdx);
             }
             else {
