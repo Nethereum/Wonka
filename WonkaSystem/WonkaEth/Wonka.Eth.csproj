@@ -58,5 +58,6 @@
     <Folder Include="Extensions\OpSource\ERC721\" />
     <Folder Include="Extensions\OpSource\ERC1155\" />
     <Folder Include="Extensions\OpSource\ERC725\" />
+    <Folder Include="Autogen\ChronoLog\" />
   </ItemGroup>
 </Project>
