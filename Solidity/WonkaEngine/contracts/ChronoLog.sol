@@ -131,4 +131,18 @@ contract ChronoLog {
         return logNames;
     }
 
+    function getChronoLogEventFirst(bytes32 eType) public view returns (bytes32) {
+
+        bytes32[] storage logTypeList = typeIndex[eType];
+
+        return logTypeList[0];
+    }
+
+    function getChronoLogEventLatest(bytes32 eType) public view returns (bytes32) {
+
+        bytes32[] storage logTypeList = typeIndex[eType];
+
+        return logTypeList[logTypeList.length-1];
+    }
+
 }
