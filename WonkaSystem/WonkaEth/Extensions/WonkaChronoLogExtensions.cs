@@ -25,6 +25,40 @@ namespace Wonka.Eth.Extensions
         ///
 		/// NOTE: UNDER CONSTRUCTION
 		/// 
+        /// This method will pull chrono logs from the ChronoLog contract.
+        /// 
+        /// <param name=""></param>
+        /// <returns></returns>
+        /// </summary>
+        public static async Task<List<string>> GetChronoLogs(this Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitData,
+                                                                                                 string psChronoLogContractAddr,
+                                                                GetChronoLogEventsByTypeAndTimeFunction poGetChronoLogEventFunction)
+        {
+            List<string> ChronoLogs = new List<string>();
+
+            var account = new Nethereum.Web3.Accounts.Account(poEngineInitData.EthPassword);
+
+            Nethereum.Web3.Web3 SenderWeb3;
+
+            if (!String.IsNullOrEmpty(poEngineInitData.Web3HttpUrl))
+                SenderWeb3 = new Nethereum.Web3.Web3(account, poEngineInitData.Web3HttpUrl);
+            else
+                SenderWeb3 = new Nethereum.Web3.Web3(account);
+
+            var getLogsHandler = SenderWeb3.Eth.GetContractQueryHandler<GetChronoLogEventsByTypeAndTimeFunction>();
+
+            var ChronoLogList =
+                await getLogsHandler.QueryDeserializingToObjectAsync<GetChronoLogEventsByTypeAndTimeOutputDTOBase>(poGetChronoLogEventFunction, psChronoLogContractAddr);
+
+            ChronoLogList.ReturnValue1.ForEach(x => ChronoLogs.Add(Convert.ToString(x)));
+
+            return ChronoLogs;
+        }
+
+        /// <summary>
+        ///
+		/// NOTE: UNDER CONSTRUCTION
+		/// 
         /// This method will log the Wonka Report to an instance of the ChronoLog contract.
         /// 
         /// <param name=""></param>
@@ -33,7 +67,7 @@ namespace Wonka.Eth.Extensions
         public static async Task<string> WriteToChronoLog(this Wonka.Eth.Extensions.RuleTreeReport poReport,
                                                        Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitData,
                                                                                             string psChronoLogContractAddr,
-                                                                         AddChronoLogEventFunction poChronoLogEventFunction)
+                                                                         AddChronoLogEventFunction poAddChronoLogEventFunction)
         {
             var account = new Nethereum.Web3.Accounts.Account(poEngineInitData.EthPassword);
 
@@ -46,7 +80,7 @@ namespace Wonka.Eth.Extensions
 
             var addLogHandler = SenderWeb3.Eth.GetContractTransactionHandler<AddChronoLogEventFunction>();
 
-            var receipt = await addLogHandler.SendRequestAndWaitForReceiptAsync(psChronoLogContractAddr, poChronoLogEventFunction);
+            var receipt = await addLogHandler.SendRequestAndWaitForReceiptAsync(psChronoLogContractAddr, poAddChronoLogEventFunction);
 
             return receipt.TransactionHash;
         }
