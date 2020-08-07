@@ -4,8 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+
+using ICSharpCode.SharpZipLib.Zip;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.RuleTree;
@@ -18,6 +21,19 @@ namespace Wonka.Storage.Extensions
 {
     public static class WonkaStorageExtensions
     {
+        /// <summary>
+        /// 
+        /// This method will append new metadata from a new source (i.e., psMetadataFileContents) to the current singleton of Wonka metadata.
+        ///
+		/// NOTE: UNDER CONSTRUCTION
+		/// 
+        /// <param name="poRefEnv">The current singleton of Wonka metadata</param>
+        /// <param name="psMetadataFileContents">The new metadata (in markup form) to append to the current metadata</param>
+        /// <param name="pnAttrNumMax">The ID starting counter for appending Attributes</param>
+        /// <param name="pnGrpNumMax">The ID starting counter for appending Groups</param>
+        /// <param name="pnCadreNumMax">The ID starting counter for appending Cadres</param>
+        /// <returns>None</returns>
+        /// </summary>
         public static void AppendMetadata(this WonkaRefEnvironment poRefEnv, string psMetadataFileContents, int pnAttrNumMax = 1, int pnGrpNumMax = 1, int pnCadreNumMax = 1)
 		{
 			XmlTextReader MetadataXmlReader = new XmlTextReader(new StringReader(psMetadataFileContents));
@@ -101,7 +117,6 @@ namespace Wonka.Storage.Extensions
 
 			poRefEnv.RefreshMaps();
 		}
-
 
 		/// <summary>
 		/// 
@@ -438,6 +453,128 @@ namespace Wonka.Storage.Extensions
             // storageService.GetEntityRequestAsync(getEntityFunction);
 
             return CurrentEntity;
+        }
+
+        /// <summary>
+        /// 
+        /// After running an instance of the Wonka engine, this method will:
+		///
+		/// 1.) Persist all data to files (metadata, rules, current data, report), zip the files, and then upload the .ZIP to IPFS
+		/// 2.) Create the hash of the Zip file
+		/// 3.) Create an entry on the ChronoLog contract (including the IPFS URL and hash of the Zip file)
+        ///
+        /// NOTE: UNDER CONSTRUCTION
+        ///
+        /// <param name="poEngine">The instance of the Wonka engine that has just run a RuleTree</param>
+        /// <param name="poEngineInitProps">Various properties of this instance of the Wonka engine</param>
+		/// <param name="poRecord">This record holds the current snapshot of the data being addressed by the metadata (mentioned in WonkaRefEnvironment)</param>
+		/// <param name="poReport">This report holds the verbose results of running the RuleTree</param>
+		/// <param name="psChronoLogContractAddr">This address points to an instance of the ChronoLog contract</param>
+        /// <returns>Unique name for entry in the ChronoLog contract</returns>
+        /// </summary>
+        public static async Task<string> StoreWonkaResultsAsync(this WonkaBizRulesEngine poEngine,
+                                             Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps,
+                                                                            WonkaProduct poRecord,
+                                                     Wonka.Eth.Extensions.RuleTreeReport poReport,
+                                                                                  string psChronoLogContractAddr)
+        {
+            string sLogEventName = "";
+
+            var RefEnv = WonkaRefEnvironment.GetInstance();
+
+            // NOTE: Unique ChronoLog name should be generated here
+            string sUniqueChronoLogName = "TESTING 123";
+
+            string sIpfsUrl =
+                await poEngine.UploadInvocationAsync(poEngineInitProps, poRecord, poReport, sUniqueChronoLogName).ConfigureAwait(false);
+
+            var addChronoLogEventFunction =
+                new Wonka.Eth.Autogen.ChronoLog.AddChronoLogEventFunction()
+                {
+                    UniqueName = Encoding.ASCII.GetBytes(sUniqueChronoLogName),
+                    EType = new byte[0],
+                    Desc = "",
+                    Data = new byte[0],
+                    Hash = new byte[0],
+                    Url = ""
+                };
+
+            string sTrxHash =
+                await poReport.WriteToChronoLog(poEngineInitProps, psChronoLogContractAddr, addChronoLogEventFunction).ConfigureAwait(false);
+
+            return sLogEventName;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will persist all data to files (metadata, rules, current data, report), zip the files, and then upload the .ZIP to IPFS
+        ///
+        /// NOTE: UNDER CONSTRUCTION
+        ///
+        /// <param name="poEngine">The instance of the Wonka engine that has just run</param>
+        /// <param name="poEngineInitProps">Various properties of this instance of the Wonka engine</param>
+        /// <param name="poRecord">This record holds the current snapshot of the data being addressed by the metadata (mentioned in WonkaRefEnvironment)</param>
+		/// <param name="poReport">This report holds the verbose results of running the RuleTree</param>
+		/// <param name="psUniqueChronoLogName">This will be the unique name of the ChronoLog entry</param>
+        /// <returns>IPFS Url of the Zip file</returns>
+        /// </summary>
+        public static async Task<string> UploadInvocationAsync(this WonkaBizRulesEngine poEngine,
+                                            Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps,
+                                                                           WonkaProduct poRecord,
+                                                    Wonka.Eth.Extensions.RuleTreeReport poReport,
+                                                                                 string psUniqueChronoLogName)
+        {
+            string sIpfsUrl = "";
+
+            var RefEnv = WonkaRefEnvironment.GetInstance();
+
+            string sZipFileUrl =
+                await poEngine.ZipInvocationAsync(poEngineInitProps, poRecord, poReport, psUniqueChronoLogName).ConfigureAwait(false);
+
+            // NOTE: Additional work needed
+
+            return sIpfsUrl;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will persist all data to files (metadata, rules, current data, report), zip the files, and then upload the .ZIP to IPFS
+        ///
+        /// NOTE: UNDER CONSTRUCTION
+        ///
+        /// <param name="poEngine">The instance of the Wonka engine that has just run</param>
+        /// <param name="poEngineInitProps">Various properties of this instance of the Wonka engine</param>
+        /// <param name="poRecord">This record holds the current snapshot of the data being addressed by the metadata (mentioned in WonkaRefEnvironment)</param>
+        /// <param name="psUniqueChronoLogName">This will be the unique name of the ChronoLog entry</param>
+        /// <returns>IPFS Url of the Zip file</returns>
+        /// </summary>
+        public static async Task<string> ZipInvocationAsync(this WonkaBizRulesEngine poEngine,
+                                         Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps,
+                                                                        WonkaProduct poRecord,
+                                                 Wonka.Eth.Extensions.RuleTreeReport poReport,
+                                                                              string psUniqueChronoLogName,
+                                                                              string psTmpDirectory = @"./tmp")
+        {
+            string sZipFile = "";
+
+            // NOTE: Additional work needed
+
+            using (var zipOutputStream = new ZipOutputStream(File.Create(psTmpDirectory + "/" + psUniqueChronoLogName + ".zip")))
+            {
+                try
+                {
+                    zipOutputStream.SetLevel(5);
+
+                    // NOTE: Write all four files to the zip file
+                }
+                catch (Exception e)
+                {
+                    // NOTE: What should be done here?
+                    throw e;
+                }
+            }
+
+            return sZipFile;
         }
 
     }
