@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
+using Ipfs.Http;
 using ICSharpCode.SharpZipLib.Zip;
 
 using Wonka.BizRulesEngine;
@@ -469,6 +470,7 @@ namespace Wonka.Storage.Extensions
         /// <param name="poEngineInitProps">Various properties of this instance of the Wonka engine</param>
 		/// <param name="poRecord">This record holds the current snapshot of the data being addressed by the metadata (mentioned in WonkaRefEnvironment)</param>
 		/// <param name="poReport">This report holds the verbose results of running the RuleTree</param>
+		/// <param name="psIpfsUrl">This URL points to the IPFS node that will be used to upload the Zip file of the results</param>
 		/// <param name="psChronoLogContractAddr">This address points to an instance of the ChronoLog contract</param>
         /// <returns>Unique name for entry in the ChronoLog contract</returns>
         /// </summary>
@@ -476,6 +478,7 @@ namespace Wonka.Storage.Extensions
                                              Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps,
                                                                             WonkaProduct poRecord,
                                                      Wonka.Eth.Extensions.RuleTreeReport poReport,
+                                                                                  string psIpfsUrl,
                                                                                   string psChronoLogContractAddr)
         {
             string sLogEventName = "";
@@ -486,7 +489,7 @@ namespace Wonka.Storage.Extensions
             string sUniqueChronoLogName = "TESTING 123";
 
             string sIpfsUrl =
-                await poEngine.UploadInvocationAsync(poEngineInitProps, poRecord, poReport, sUniqueChronoLogName).ConfigureAwait(false);
+                await poEngine.UploadInvocationAsync(poEngineInitProps, poRecord, poReport, psIpfsUrl, sUniqueChronoLogName).ConfigureAwait(false);
 
             var addChronoLogEventFunction =
                 new Wonka.Eth.Autogen.ChronoLog.AddChronoLogEventFunction()
@@ -515,6 +518,7 @@ namespace Wonka.Storage.Extensions
         /// <param name="poEngineInitProps">Various properties of this instance of the Wonka engine</param>
         /// <param name="poRecord">This record holds the current snapshot of the data being addressed by the metadata (mentioned in WonkaRefEnvironment)</param>
 		/// <param name="poReport">This report holds the verbose results of running the RuleTree</param>
+		/// <param name="psIpfsUrl">This URL points to the IPFS node that will be used to upload the Zip file of the results</param>
 		/// <param name="psUniqueChronoLogName">This will be the unique name of the ChronoLog entry</param>
         /// <returns>IPFS Url of the Zip file</returns>
         /// </summary>
@@ -522,6 +526,7 @@ namespace Wonka.Storage.Extensions
                                             Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps,
                                                                            WonkaProduct poRecord,
                                                     Wonka.Eth.Extensions.RuleTreeReport poReport,
+                                                                                 string psIpfsUrl,
                                                                                  string psUniqueChronoLogName)
         {
             string sIpfsUrl = "";
@@ -531,7 +536,19 @@ namespace Wonka.Storage.Extensions
             string sZipFileUrl =
                 await poEngine.ZipInvocationAsync(poEngineInitProps, poRecord, poReport, psUniqueChronoLogName).ConfigureAwait(false);
 
-            // NOTE: Additional work needed
+            var zipBytes = File.ReadAllBytes(sZipFileUrl);
+
+            using (MemoryStream zipStream = new MemoryStream(zipBytes))
+			{
+                var ipfsClient = new IpfsClient(psIpfsUrl);
+
+                var merkleNode =
+                    await ipfsClient.FileSystem.AddFileAsync(sZipFileUrl, new Ipfs.CoreApi.AddFileOptions() { Pin = true }).ConfigureAwait(false);
+
+                sIpfsUrl = psIpfsUrl + "/" + merkleNode.Id.Hash.ToString();
+
+                // NOTE: Additional work may be needed
+            }
 
             return sIpfsUrl;
         }
