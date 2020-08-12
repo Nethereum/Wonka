@@ -12,7 +12,9 @@ using Ipfs.Http;
 using ICSharpCode.SharpZipLib.Zip;
 
 using Wonka.BizRulesEngine;
+using Wonka.BizRulesEngine.Reporting;
 using Wonka.BizRulesEngine.RuleTree;
+using Wonka.BizRulesEngine.Writers;
 using Wonka.Eth.Autogen.BizDataStorage;
 using Wonka.Eth.Extensions;
 using Wonka.MetaData;
@@ -568,21 +570,47 @@ namespace Wonka.Storage.Extensions
         public static async Task<string> ZipInvocationAsync(this WonkaBizRulesEngine poEngine,
                                          Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps,
                                                                         WonkaProduct poRecord,
-                                                 Wonka.Eth.Extensions.RuleTreeReport poReport,
+                                                                     IRuleTreeReport poReport,
                                                                               string psUniqueChronoLogName,
                                                                               string psTmpDirectory = @"./tmp")
         {
             string sZipFile = "";
 
-            // NOTE: Additional work needed
+            var snapshotDirInfo = Directory.CreateDirectory(psTmpDirectory + "/snapshot-" + psUniqueChronoLogName);
 
-            using (var zipOutputStream = new ZipOutputStream(File.Create(psTmpDirectory + "/" + psUniqueChronoLogName + ".zip")))
+            WonkaBizRulesXmlWriter rulesWriter = new WonkaBizRulesXmlWriter(poEngine);
+            File.WriteAllText(snapshotDirInfo.FullName + "/" + psUniqueChronoLogName + ".rules.xml", rulesWriter.ExportXmlString());
+
+            // NOTE: Additional work needed (i.e., generate other files)
+
+            sZipFile = psTmpDirectory + "/" + psUniqueChronoLogName + ".zip";
+            using (var zipOutputStream = new ZipOutputStream(File.Create(sZipFile)))
             {
                 try
                 {
                     zipOutputStream.SetLevel(5);
 
-                    // NOTE: Write all four files to the zip file
+                    var snapshotFileList = snapshotDirInfo.GetFiles();
+                    foreach (var tmpFile in snapshotFileList)
+					{
+                        Int32 nSize = 0;
+
+                        using (FileStream tmpFileStream = File.OpenRead(tmpFile.FullName))
+						{                           
+                            ZipEntry tmpEntry = new ZipEntry(tmpFile.Name);
+
+                            zipOutputStream.PutNextEntry(tmpEntry);
+                            while (tmpFileStream.Position < tmpFileStream.Length)
+                            {
+                                byte[] buffer = new byte[16384];
+
+                                nSize = tmpFileStream.Read(buffer, 0, buffer.Length);
+
+                                zipOutputStream.Write(buffer, 0, nSize);
+                                zipOutputStream.Flush();
+                            }
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
