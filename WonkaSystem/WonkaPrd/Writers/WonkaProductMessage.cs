@@ -14,11 +14,10 @@ namespace Wonka.Product.Writers
 {
     /// <summary>
     /// 
-    /// This class will represent an instance of a Wonka Product message.  They are
-	/// used as serialized versions of any data that belongs within the Product Master System.
+    /// This class will represent an instance of a Wonka Product message.
     /// 
     /// </summary>
-    [DataContract(Namespace = "http://Wonka.barnessandnoble.com")]
+    [DataContract(Namespace = "http://sample.wonkasystem.com")]
     [XmlRoot(ElementName = "WonkaMessage")]
     public class WonkaProductMessage
     {
