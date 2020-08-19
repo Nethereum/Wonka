@@ -21,7 +21,7 @@ namespace Wonka.Product.Writers
     [XmlRoot(ElementName = "WonkaMessage")]
     public class WonkaProductMessage
     {
-        public WonkaProductMessage()
+        public WonkaProductMessage(bool pbPopulateMetadata = true)
         {
             ProductCount    = 0;
             CommitThreshold = 500;
@@ -52,6 +52,18 @@ namespace Wonka.Product.Writers
             ProdList    = new List<WonkaProduct>();
 
             ErrorMessage = null;
+
+            if (pbPopulateMetadata)
+			{
+                WonkaRefEnvironment WonkaRefEnv = WonkaRefEnvironment.GetInstance();
+
+                AttrList.AddRange(WonkaRefEnv.AttrCache);
+                GroupList.AddRange(WonkaRefEnv.GroupCache);
+                CadreList.AddRange(WonkaRefEnv.CadreCache);
+
+                SourceList.AddRange(WonkaRefEnv.SourceCache);
+                SourceCadreList.AddRange(WonkaRefEnv.SourceCadreCache);
+            }
         }
 
         #region Methods
