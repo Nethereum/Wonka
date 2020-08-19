@@ -66,6 +66,16 @@ namespace Wonka.Product.Writers
             }
         }
 
+        public WonkaProductMessage(WonkaProduct poProduct, bool pbPopulateMetadata = true) : this(pbPopulateMetadata)
+        {
+            ProdList.Add(poProduct); 
+        }
+
+        public WonkaProductMessage(List<WonkaProduct> poProductList, bool pbPopulateMetadata = true) : this(pbPopulateMetadata)
+        {
+            ProdList.AddRange(poProductList);
+        }
+
         #region Methods
 
         #endregion
