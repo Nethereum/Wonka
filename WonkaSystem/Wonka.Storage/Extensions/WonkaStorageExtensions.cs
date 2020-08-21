@@ -19,6 +19,7 @@ using Wonka.Eth.Autogen.BizDataStorage;
 using Wonka.Eth.Extensions;
 using Wonka.MetaData;
 using Wonka.Product;
+using Wonka.Product.Writers;
 
 namespace Wonka.Storage.Extensions
 {
@@ -578,10 +579,14 @@ namespace Wonka.Storage.Extensions
 
             var snapshotDirInfo = Directory.CreateDirectory(psTmpDirectory + "/snapshot-" + psUniqueChronoLogName);
 
-            WonkaBizRulesXmlWriter rulesWriter = new WonkaBizRulesXmlWriter(poEngine);
+            var rulesWriter = new WonkaBizRulesXmlWriter(poEngine);
             File.WriteAllText(snapshotDirInfo.FullName + "/" + psUniqueChronoLogName + ".rules.xml", rulesWriter.ExportXmlString());
 
-            // NOTE: Additional work needed (i.e., generate other files)
+            var prodMsgXml = new WonkaProductMsgWriter().WriteWonkaMsg(new WonkaProductMessage(poRecord, true));
+            File.WriteAllText(snapshotDirInfo.FullName + "/" + psUniqueChronoLogName + ".prdmsg.xml", prodMsgXml);
+
+            var reportXml = new WonkaRuleTreeReportWriter(poReport).ExportXmlString();
+            File.WriteAllText(snapshotDirInfo.FullName + "/" + psUniqueChronoLogName + ".report.xml", reportXml);
 
             sZipFile = psTmpDirectory + "/" + psUniqueChronoLogName + ".zip";
             using (var zipOutputStream = new ZipOutputStream(File.Create(sZipFile)))
