@@ -314,7 +314,7 @@ namespace Wonka.Eth.Extensions
 
         public static Dictionary<string, WonkaBizSource> InitializeTokenOpMap(this WonkaEthEngineInitialization poEngInitData)
 		{
-            return WonkaEthCustomRuleERC20Extensions.InitializeTokenOperationsMap(poEngInitData.EthSenderAddress,
+            return WonkaEthCustomRuleTokenExtensions.InitializeTokenOperationsMap(poEngInitData.EthSenderAddress,
 				                                                                  poEngInitData.EthPassword,
                                                                                   poEngInitData.ERC20ContractAddress,
                                                                                   poEngInitData.ERC721ContractAddress,

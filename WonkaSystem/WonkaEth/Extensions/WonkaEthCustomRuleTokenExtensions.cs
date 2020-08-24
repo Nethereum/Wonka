@@ -11,10 +11,11 @@ using Wonka.MetaData;
 
 using Wonka.Eth.Extensions.OpSource.ERC20;
 using Wonka.Eth.Extensions.OpSource.ERC721;
+using Wonka.Eth.Extensions.OpSource.ERC1155;
 
 namespace Wonka.Eth.Extensions
 {
-	public static class WonkaEthCustomRuleERC20Extensions
+	public static class WonkaEthCustomRuleTokenExtensions
 	{
 		private static int mnRuleCounter = 100000;
 
@@ -26,11 +27,15 @@ namespace Wonka.Eth.Extensions
 		public static string CONST_ERC20_TRANSFER_OP      = "ERC20_TRANSFER";
 
 		public static string CONST_ERC721_DUMMY_SOURCE     = "ERC721_SOURCE";
-		public static string CONST_ERC721_APPROVE_OP       = "ERC721_APPROVE";		
+		public static string CONST_ERC721_APPROVE_OP       = "ERC721_APPROVE";
 		public static string CONST_ERC721_GET_BALANCE_OP   = "ERC721_GET_BALANCE";
 		public static string CONST_ERC721_GET_OWNER_OF_OP  = "ERC721_OWNER_OF";
 		public static string CONST_ERC721_SAFE_TRANSFER_OP = "ERC721_SAFE_TRANSFER";
 		public static string CONST_ERC721_TRANSFER_OP      = "ERC721_TRANSFER";
+
+		public static string CONST_ERC1155_DUMMY_SOURCE     = "ERC1155_SOURCE";
+		public static string CONST_ERC1155_GET_BALANCE_OP   = "ERC1155_GET_BALANCE";
+		public static string CONST_ERC1155_SAFE_TRANSFER_OP = "ERC1155_SAFE_TRANSFER";
 
 		public static void AddNethereumERC20GetBalanceRule(this WonkaBizRuleSet poRuleSet,
 			                                                WonkaRefEnvironment poRefEnv, 
@@ -181,15 +186,33 @@ namespace Wonka.Eth.Extensions
 			return ERC20TransferSource;
 		}
 
+		public static WonkaBizSource CreateERC1155GetBalanceOperator(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
+		{
+			var ERC1155GetBalanceSource =
+				new WonkaEthERC1155BalanceOfOpSource(CONST_ERC1155_DUMMY_SOURCE, psEthSender, psEthPwd, psEthContractAddress, CONST_ERC1155_GET_BALANCE_OP, psWeb3Url);
+
+			return ERC1155GetBalanceSource;
+		}
+
+		public static WonkaBizSource CreateERC1155SafeTransferOperator(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
+		{
+			var ERC1155SafeTransferSource =
+				new WonkaEthERC1155SafeTransferFromOpSource(CONST_ERC1155_DUMMY_SOURCE, psEthSender, psEthPwd, psEthContractAddress, CONST_ERC1155_SAFE_TRANSFER_OP, psWeb3Url);
+
+			return ERC1155SafeTransferSource;
+		}
+
 		public static Dictionary<string, WonkaBizSource> InitializeTokenOperationsMap(string psEthSender, string psEthPwd, string psERC20Addr, string psERC721Addr, string psWeb3Url = "")
 		{
 			var TokenOpsMap = new Dictionary<string, WonkaBizSource>();
 
-			var ERC20_Ops_Map  = InitializeERC20OpMap(psEthSender, psEthPwd, psERC20Addr, psWeb3Url);
-			var ERC721_Ops_Map = InitializeERC721OpMap(psEthSender, psEthPwd, psERC721Addr, psWeb3Url);
+			var ERC20_Ops_Map   = InitializeERC20OpMap(psEthSender, psEthPwd, psERC20Addr, psWeb3Url);
+			var ERC721_Ops_Map  = InitializeERC721OpMap(psEthSender, psEthPwd, psERC721Addr, psWeb3Url);
+			var ERC1155_Ops_Map = InitializeERC1155OpMap(psEthSender, psEthPwd, psERC721Addr, psWeb3Url);
 
 			ERC20_Ops_Map.ToList().ForEach(x => TokenOpsMap.Add(x.Key, x.Value));
 			ERC721_Ops_Map.ToList().ForEach(x => TokenOpsMap.Add(x.Key, x.Value));
+			ERC1155_Ops_Map.ToList().ForEach(x => TokenOpsMap.Add(x.Key, x.Value));
 
 			return TokenOpsMap;
 		}
@@ -218,6 +241,16 @@ namespace Wonka.Eth.Extensions
 			OpMapERC721[CONST_ERC721_TRANSFER_OP]      = CreateERC721TransferOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
 
 			return OpMapERC721;
+		}
+
+		public static Dictionary<string, WonkaBizSource> InitializeERC1155OpMap(string psEthSender, string psEthPwd, string psEthContractAddress, string psWeb3Url = "")
+		{
+			var OpMapERC1155 = new Dictionary<string, WonkaBizSource>();
+
+		    OpMapERC1155[CONST_ERC1155_GET_BALANCE_OP]   = CreateERC1155GetBalanceOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
+			OpMapERC1155[CONST_ERC1155_SAFE_TRANSFER_OP] = CreateERC1155SafeTransferOperator(psEthSender, psEthPwd, psEthContractAddress, psWeb3Url);
+
+			return OpMapERC1155;
 		}
 
 	}
