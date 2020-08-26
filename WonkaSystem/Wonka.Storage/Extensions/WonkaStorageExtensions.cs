@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 
 using Ipfs.Http;
 using ICSharpCode.SharpZipLib.Zip;
+using Nethereum.Signer;
 
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.Reporting;
@@ -488,8 +489,14 @@ namespace Wonka.Storage.Extensions
 
             var RefEnv = WonkaRefEnvironment.GetInstance();
 
+            var signer     = new EthereumMessageSigner();
+            var prodMsgXml = new WonkaProductMsgWriter().WriteWonkaMsg(new WonkaProductMessage(poRecord, true));
+
+            var inputSignature
+                = signer.EncodeUTF8AndSign(prodMsgXml, new EthECKey(poEngineInitProps.EthPassword));
+
             // NOTE: Unique ChronoLog name should be generated here
-            string sUniqueChronoLogName = "TESTING 123";
+            string sUniqueChronoLogName = "TESTING123";
 
             string sIpfsUrl =
                 await poEngine.UploadInvocationAsync(poEngineInitProps, poRecord, poReport, psIpfsUrl, sUniqueChronoLogName).ConfigureAwait(false);
@@ -497,12 +504,12 @@ namespace Wonka.Storage.Extensions
             var addChronoLogEventFunction =
                 new Wonka.Eth.Autogen.ChronoLog.AddChronoLogEventFunction()
                 {
-                    UniqueName = Encoding.ASCII.GetBytes(sUniqueChronoLogName),
-                    EType = new byte[0],
+                    UniqueName = Encoding.UTF8.GetBytes(sUniqueChronoLogName),
+                    EType = new byte[0], // NOTE: SStill need to allow the passing of the type to the call
                     Desc = "",
                     Data = new byte[0],
-                    Hash = new byte[0],
-                    Url = ""
+                    Hash = Encoding.UTF8.GetBytes(inputSignature),
+                    Url = sIpfsUrl
                 };
 
             string sTrxHash =
@@ -536,8 +543,7 @@ namespace Wonka.Storage.Extensions
 
             var RefEnv = WonkaRefEnvironment.GetInstance();
 
-            string sZipFileUrl =
-                await poEngine.ZipInvocationAsync(poEngineInitProps, poRecord, poReport, psUniqueChronoLogName).ConfigureAwait(false);
+            string sZipFileUrl = poEngine.ZipInvocation(poRecord, poReport, psUniqueChronoLogName);
 
             var zipBytes = File.ReadAllBytes(sZipFileUrl);
 
@@ -563,17 +569,13 @@ namespace Wonka.Storage.Extensions
         /// NOTE: UNDER CONSTRUCTION
         ///
         /// <param name="poEngine">The instance of the Wonka engine that has just run</param>
-        /// <param name="poEngineInitProps">Various properties of this instance of the Wonka engine</param>
         /// <param name="poRecord">This record holds the current snapshot of the data being addressed by the metadata (mentioned in WonkaRefEnvironment)</param>
+        /// <param name="poReport">This report holds the verbose results of running the RuleTree</param>
         /// <param name="psUniqueChronoLogName">This will be the unique name of the ChronoLog entry</param>
+        /// <param name="psTmpDirectory">The directory which will hold the files to be zipped and uploaded</param>
         /// <returns>IPFS Url of the Zip file</returns>
         /// </summary>
-        public static async Task<string> ZipInvocationAsync(this WonkaBizRulesEngine poEngine,
-                                         Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps,
-                                                                        WonkaProduct poRecord,
-                                                                     IRuleTreeReport poReport,
-                                                                              string psUniqueChronoLogName,
-                                                                              string psTmpDirectory = @"./tmp")
+        public static string ZipInvocation(this WonkaBizRulesEngine poEngine, WonkaProduct poRecord, IRuleTreeReport poReport, string psUniqueChronoLogName, string psTmpDirectory = @"./tmp")
         {
             string sZipFile = "";
 
