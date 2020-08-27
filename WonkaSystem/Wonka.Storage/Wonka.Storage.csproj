@@ -17,6 +17,7 @@
     <PackageReference Include="SharpZipLib.NETStandard" Version="1.0.7" />
     <PackageReference Include="Ipfs.Core" Version="0.55.0" />
     <PackageReference Include="Ipfs.Http.Client" Version="0.33.0" />
+    <PackageReference Include="Nethereum.Signer" Version="3.7.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaBre\Wonka.BizRulesEngine.csproj" />
