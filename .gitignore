@@ -23,3 +23,5 @@ WonkaSystem/WonkaImport/obj/
 Solidity/WonkaEngine/bin/
 WonkaSystem/Wonka.Storage/bin/
 WonkaSystem/Wonka.Storage/obj/
+Wonka.UnitTests/obj
+Wonka.UnitTests/bin

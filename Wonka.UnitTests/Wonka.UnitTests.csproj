@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.14.5" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WonkaSystem\WonkaEth\Wonka.Eth.csproj" />
+    <ProjectReference Include="..\WonkaSystem\WonkaBre\Wonka.BizRulesEngine.csproj" />
+    <ProjectReference Include="..\WonkaSystem\WonkaRef\Wonka.MetaData.csproj" />
+    <ProjectReference Include="..\WonkaSystem\WonkaPrd\Wonka.Product.csproj" />
+  </ItemGroup>
+</Project>
