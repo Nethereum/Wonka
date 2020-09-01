@@ -55,15 +55,15 @@ namespace Wonka.Eth.Autogen.Baseline.Registry
         [Parameter("address", "_address", 1)]
         public virtual string Address { get; set; }
         [Parameter("bytes32", "_name", 2)]
-        public virtual byte[] Name { get; set; }
+        public virtual string Name { get; set; }
         [Parameter("bytes", "_messagingEndpoint", 3)]
-        public virtual byte[] MessagingEndpoint { get; set; }
+        public virtual string MessagingEndpoint { get; set; }
         [Parameter("bytes", "_whisperKey", 4)]
-        public virtual byte[] WhisperKey { get; set; }
+        public virtual string WhisperKey { get; set; }
         [Parameter("bytes", "_zkpPublicKey", 5)]
-        public virtual byte[] ZkpPublicKey { get; set; }
+        public virtual string ZkpPublicKey { get; set; }
         [Parameter("bytes", "_metadata", 6)]
-        public virtual byte[] Metadata { get; set; }
+        public virtual string Metadata { get; set; }
     }
 
     public partial class RegisterInterfacesFunction : RegisterInterfacesFunctionBase { }
@@ -112,17 +112,17 @@ namespace Wonka.Eth.Autogen.Baseline.Registry
     public class RegisterOrgEventDTOBase : IEventDTO
     {
         [Parameter("bytes32", "_name", 1, false)]
-        public virtual byte[] Name { get; set; }
+        public virtual string Name { get; set; }
         [Parameter("address", "_address", 2, false)]
         public virtual string Address { get; set; }
         [Parameter("bytes", "_messagingEndpoint", 3, false)]
-        public virtual byte[] MessagingEndpoint { get; set; }
+        public virtual string MessagingEndpoint { get; set; }
         [Parameter("bytes", "_whisperKey", 4, false)]
-        public virtual byte[] WhisperKey { get; set; }
+        public virtual string WhisperKey { get; set; }
         [Parameter("bytes", "_zkpPublicKey", 5, false)]
-        public virtual byte[] ZkpPublicKey { get; set; }
+        public virtual string ZkpPublicKey { get; set; }
         [Parameter("bytes", "_metadata", 6, false)]
-        public virtual byte[] Metadata { get; set; }
+        public virtual string Metadata { get; set; }
     }
 
     public partial class OrgsOutputDTO : OrgsOutputDTOBase { }
@@ -133,15 +133,15 @@ namespace Wonka.Eth.Autogen.Baseline.Registry
         [Parameter("address", "orgAddress", 1)]
         public virtual string OrgAddress { get; set; }
         [Parameter("bytes32", "name", 2)]
-        public virtual byte[] Name { get; set; }
+        public virtual string Name { get; set; }
         [Parameter("bytes", "messagingEndpoint", 3)]
-        public virtual byte[] MessagingEndpoint { get; set; }
+        public virtual string MessagingEndpoint { get; set; }
         [Parameter("bytes", "whisperKey", 4)]
-        public virtual byte[] WhisperKey { get; set; }
+        public virtual string WhisperKey { get; set; }
         [Parameter("bytes", "zkpPublicKey", 5)]
-        public virtual byte[] ZkpPublicKey { get; set; }
+        public virtual string ZkpPublicKey { get; set; }
         [Parameter("bytes", "metadata", 6)]
-        public virtual byte[] Metadata { get; set; }
+        public virtual string Metadata { get; set; }
     }
 
     public partial class GetInterfacesOutputDTO : GetInterfacesOutputDTOBase { }
@@ -168,17 +168,17 @@ namespace Wonka.Eth.Autogen.Baseline.Registry
     public class GetOrgOutputDTOBase : IFunctionOutputDTO
     {
         [Parameter("address", "", 1)]
-        public virtual string ReturnValue1 { get; set; }
+        public virtual string orgAddress { get; set; }
         [Parameter("bytes32", "", 2)]
-        public virtual byte[] ReturnValue2 { get; set; }
+        public virtual string name { get; set; }
         [Parameter("bytes", "", 3)]
-        public virtual byte[] ReturnValue3 { get; set; }
+        public virtual string messagingEndpoint { get; set; }
         [Parameter("bytes", "", 4)]
-        public virtual byte[] ReturnValue4 { get; set; }
+        public virtual string whisperKey { get; set; }
         [Parameter("bytes", "", 5)]
-        public virtual byte[] ReturnValue5 { get; set; }
+        public virtual string zkpPublicKey { get; set; }
         [Parameter("bytes", "", 6)]
-        public virtual byte[] ReturnValue6 { get; set; }
+        public virtual string metadata { get; set; }
     }
 
     public partial class GetInterfaceAddressesOutputDTO : GetInterfaceAddressesOutputDTOBase { }
