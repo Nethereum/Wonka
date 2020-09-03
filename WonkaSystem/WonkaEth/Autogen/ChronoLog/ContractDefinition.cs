@@ -270,15 +270,15 @@ namespace Wonka.Eth.Autogen.ChronoLog
     public class AddChronoLogEventFunctionBase : FunctionMessage
     {
         [Parameter("bytes32", "uniqueName", 1)]
-        public virtual byte[] UniqueName { get; set; }
+        public virtual string UniqueName { get; set; }
         [Parameter("bytes32", "eType", 2)]
-        public virtual byte[] EType { get; set; }
+        public virtual string EType { get; set; }
         [Parameter("string", "desc", 3)]
         public virtual string Desc { get; set; }
         [Parameter("bytes32", "data", 4)]
-        public virtual byte[] Data { get; set; }
+        public virtual string Data { get; set; }
         [Parameter("bytes32", "hash", 5)]
-        public virtual byte[] Hash { get; set; }
+        public virtual string Hash { get; set; }
         [Parameter("string", "url", 6)]
         public virtual string Url { get; set; }
     }

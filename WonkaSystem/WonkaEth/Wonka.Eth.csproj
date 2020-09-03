@@ -59,6 +59,8 @@
     <Folder Include="Extensions\OpSource\ERC1155\" />
     <Folder Include="Extensions\OpSource\ERC725\" />
     <Folder Include="Autogen\ChronoLog\" />
+    <Folder Include="Extensions\OpSource\Baseline\" />
+    <Folder Include="Extensions\OpSource\Baseline\Registry\" />
     <Folder Include="Autogen\Baseline\" />
     <Folder Include="Autogen\Baseline\Registry\" />
   </ItemGroup>

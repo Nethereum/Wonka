@@ -495,8 +495,7 @@ namespace Wonka.Storage.Extensions
             var inputSignature
                 = signer.EncodeUTF8AndSign(prodMsgXml, new EthECKey(poEngineInitProps.EthPassword));
 
-            // NOTE: Unique ChronoLog name should be generated here
-            string sUniqueChronoLogName = "TESTING123";
+            string sUniqueChronoLogName = "WI-" + DateTime.Now.ToUniversalTime().ToEpochTime();
 
             string sIpfsUrl =
                 await poEngine.UploadInvocationAsync(poEngineInitProps, poRecord, poReport, psIpfsUrl, sUniqueChronoLogName).ConfigureAwait(false);
@@ -504,11 +503,11 @@ namespace Wonka.Storage.Extensions
             var addChronoLogEventFunction =
                 new Wonka.Eth.Autogen.ChronoLog.AddChronoLogEventFunction()
                 {
-                    UniqueName = Encoding.UTF8.GetBytes(sUniqueChronoLogName),
-                    EType = new byte[0], // NOTE: SStill need to allow the passing of the type to the call
-                    Desc = "",
-                    Data = new byte[0],
-                    Hash = Encoding.UTF8.GetBytes(inputSignature),
+                    UniqueName = sUniqueChronoLogName,
+                    EType = "WONKA_INVOKE", 
+                    Desc = "", // Empty for now
+                    Data = "", // Empty for now
+                    Hash = inputSignature,
                     Url = sIpfsUrl
                 };
 

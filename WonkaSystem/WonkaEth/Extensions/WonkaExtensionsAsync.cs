@@ -12,6 +12,7 @@ using Nethereum.Web3.Accounts;
 using Wonka.BizRulesEngine;
 using Wonka.BizRulesEngine.Readers;
 using Wonka.BizRulesEngine.RuleTree;
+using Wonka.Eth.Autogen.ChronoLog;
 using Wonka.Eth.Contracts;
 using Wonka.Eth.Enums;
 using Wonka.MetaData;

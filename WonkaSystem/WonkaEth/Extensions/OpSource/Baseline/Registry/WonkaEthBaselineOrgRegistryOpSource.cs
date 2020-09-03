@@ -8,6 +8,9 @@ using Wonka.Eth.Autogen.Baseline.Registry;
 
 namespace Wonka.Eth.Extensions.OpSource.Baseline.Registry
 {
+    /**
+     ** NOTE: Under construction
+     **/
 	public class WonkaEthBaselineOrgRegistryOpSource : WonkaBizSource
 	{
 		const string CONST_ORG_REGISTRY_ABI =

@@ -42,12 +42,12 @@ namespace Wonka.Eth.Init
 
             EthSenderAddress = EthPassword = EthRuleTreeOwnerAddress = string.Empty;
 
-            RulesEngineABI      = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
-            RegistryContractABI = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
-            StorageContractABI  = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
+            RulesEngineABI       = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
+            RegistryContractABI  = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
+            StorageContractABI   = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
+            ChronoLogContractABI = Wonka.Eth.Autogen.ChronoLog.ChronoLogDeployment.ABI; 
 
-            RulesEngineContractAddress = string.Empty;
-            RegistryContractAddress    = string.Empty;
+            RulesEngineContractAddress = RegistryContractAddress = ChronoLogContractAddress = string.Empty;
 
             UsingStorageContract   = true;
             StorageContractAddress = string.Empty;
@@ -74,6 +74,10 @@ namespace Wonka.Eth.Init
         public string RegistryContractAddress { get; set; }
 
         public string RegistryContractABI { get; set; }
+
+        public string ChronoLogContractAddress { get; set; }
+
+        public string ChronoLogContractABI { get; set; }
 
         public bool UsingStorageContract { get; set; }
 
