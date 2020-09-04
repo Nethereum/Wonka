@@ -169,6 +169,9 @@ namespace Wonka.BizRulesEngine.RuleTree.RuleTypes
                     TempProductGroup = poCurrentRecord.GetProductGroup(nGroupId);
                 }
 
+                if (TempProductGroup.GetRowCount() <= 0)
+                    TempProductGroup.AppendRow();
+
                 TempProductGroup[0][nAttrId] = AssignValue;
             }
 
