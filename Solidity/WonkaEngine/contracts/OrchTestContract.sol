@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.8;
 
+import "./AggregatorV3Interface.sol";
+
 contract OrchTestContract {
      
     address lastAddressProvided;
@@ -66,6 +68,22 @@ contract OrchTestContract {
             return "10";
         else
             return "20";
+    }
+
+    function getLatestPriceForCrypto(bytes32 contractAddrFirstHalf, bytes32 contractAddrSecondHalf, bytes32, bytes32) public view returns (int)
+    {
+        string memory firstHalf = bytes32ToString(contractAddrFirstHalf);
+        string memory secondHalf = bytes32ToString(contractAddrSecondHalf);
+
+        string memory aggregatorContractAddressString = strConcat(firstHalf, secondHalf);
+
+        address contractAddr = parseAddr(aggregatorContractAddressString);
+
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(contractAddr);
+
+        (, int price, , , ) = priceFeed.latestRoundData();
+
+        return price;
     }
 
     function performMyCalc(bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public pure returns(bytes32)    
@@ -206,6 +224,28 @@ contract OrchTestContract {
 
         return mint;
     }
+
+    /// @dev This method will concatenate the provided strings into one larger string
+    /// @notice 
+    function strConcat(string memory _a, string memory _b) private pure returns (string memory) {
+
+        bytes memory _ba = bytes(_a);
+        bytes memory _bb = bytes(_b);
+        string memory abcde = new string(_ba.length + _bb.length);
+        bytes memory babcde = bytes(abcde);
+        
+        uint k = 0;
+        
+        for (uint a = 0; a < _ba.length; a++) {
+            babcde[k++] = _ba[a];
+        }
+
+        for (uint b = 0; b < _bb.length; b++) {
+            babcde[k++] = _bb[b];
+        }
+
+        return string(babcde);
+    }    
 
     /// @notice Copied this code from MIT implentation
     /// @dev This method will convert a 'uint' type to a 'bytes32' type
