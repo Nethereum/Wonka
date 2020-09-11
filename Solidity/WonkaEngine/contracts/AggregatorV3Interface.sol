@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0;
 
+/// @title The interface provided by Chainlink in order for users to retrieve oracle data about price feeds
+/// @author Chainlink
 interface AggregatorV3Interface {
 
   function decimals() external view returns (uint8);
