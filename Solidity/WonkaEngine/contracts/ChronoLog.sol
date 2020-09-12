@@ -19,7 +19,7 @@ contract ChronoLog {
 
         bytes32 publicData;
 
-        bytes32 privateHash;
+        string privateHash;
 
         string eventInfoUrl;
 
@@ -54,7 +54,7 @@ contract ChronoLog {
         logOwner = msg.sender;
     }
 
-    function addChronoLogEvent(bytes32 uniqueName, bytes32 eType, string memory desc, bytes32 data, bytes32 hash, string memory url) public onlyLogOwner {
+    function addChronoLogEvent(bytes32 uniqueName, bytes32 eType, string memory desc, bytes32 data, string memory hash, string memory url) public onlyLogOwner {
 
         require(chronoEventMap[uniqueName].isValue == false, "Event with unique ID already exists.");
 
@@ -81,11 +81,11 @@ contract ChronoLog {
         (typeIndex[eType]).push(uniqueName);
     }
 
-    function getChronoLogBasic(bytes32 uniqueName) public view returns (uint, bytes32, bytes32, string memory) {
+    function getChronoLogBasic(bytes32 uniqueName) public view returns (uint, bytes32, string memory, string memory) {
         return (chronoEventMap[uniqueName].eventEpochTime, chronoEventMap[uniqueName].publicData, chronoEventMap[uniqueName].privateHash, chronoEventMap[uniqueName].eventInfoUrl);
     }
 
-    function getChronoLogEvent(bytes32 uniqueName) public view returns (bytes32, string memory, uint, bytes32, bytes32, string memory) {
+    function getChronoLogEvent(bytes32 uniqueName) public view returns (bytes32, string memory, uint, bytes32, string memory, string memory) {
         return (chronoEventMap[uniqueName].eventType, chronoEventMap[uniqueName].eventDescription, chronoEventMap[uniqueName].eventEpochTime, chronoEventMap[uniqueName].publicData, chronoEventMap[uniqueName].privateHash, chronoEventMap[uniqueName].eventInfoUrl);
     }
 
