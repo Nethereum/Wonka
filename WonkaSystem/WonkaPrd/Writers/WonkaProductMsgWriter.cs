@@ -142,11 +142,11 @@ namespace Wonka.Product.Writers
                 ProductListBuilder.Replace("</ProductCadre>", "      </ProductCadre>");
 
                 ProductListBuilder.Append("\n  </ProductList>");
-                ProductListBuilder.Append("\n</PMMessage>");
+                ProductListBuilder.Append("\n</WonkaMessage>");
             }
 
             if (ProductListBuilder.Length > 0)
-                WonkaXmlMessageBuilder.Replace("</PMMessage>", ProductListBuilder.ToString());
+                WonkaXmlMessageBuilder.Replace("</WonkaMessage>", ProductListBuilder.ToString());
 
             return WonkaXmlMessageBuilder.ToString();
         }
