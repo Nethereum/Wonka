@@ -21,7 +21,10 @@ namespace Wonka.Product.Writers
     [XmlRoot(ElementName = "WonkaMessage")]
     public class WonkaProductMessage
     {
-        public WonkaProductMessage(bool pbPopulateMetadata = true)
+        public WonkaProductMessage(): this(true)
+		{ }
+
+        public WonkaProductMessage(bool pbPopulateMetadata)
         {
             ProductCount    = 0;
             CommitThreshold = 500;
