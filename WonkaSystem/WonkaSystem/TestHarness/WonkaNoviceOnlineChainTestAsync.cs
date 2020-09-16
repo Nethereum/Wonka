@@ -35,8 +35,9 @@ namespace WonkaSystem.TestHarness
     /// </summary>
     public class WonkaNoviceOnlineChainTestAsync
     {
-		public const string CONST_ONLINE_TEST_CHAIN_URL   = "http://testchain.nethereum.com:8545";
-		public const string CONST_INFURA_IPFS_GATEWAY_URL = "https://ipfs.infura.io/ipfs/";
+		public const string CONST_ONLINE_TEST_CHAIN_URL         = "http://testchain.nethereum.com:8545";
+		public const string CONST_INFURA_IPFS_GATEWAY_URL       = "https://ipfs.infura.io/ipfs";
+        public const string CONST_INFURA_IPFS_WRITE_GATEWAY_URL = "https://ipfs.infura.io:5001";
 
 		public const string CONST_CONTRACT_FUNCTION_EXEC_RPT     = "executeWithReport";
         public const string CONST_CONTRACT_FUNCTION_GET_LAST_RPT = "getLastRuleReport";
@@ -52,6 +53,8 @@ namespace WonkaSystem.TestHarness
         private string msByteCodeRegistry;
         private string msAbiOrchTest;
         private string msByteCodeOrchTest;
+        private string msAbiChronoLog;
+        private string msByteCodeChronoLog;
 
         private IMetadataRetrievable moMetadataSource = null;
 
@@ -60,6 +63,7 @@ namespace WonkaSystem.TestHarness
         private string msEngineContractAddress   = "";
         private string msRegistryContractAddress = "";
         private string msTestContractAddress     = "";
+        private string msChronoLogAddress        = "";
 
 		private Wonka.Eth.Init.WonkaEthEngineInitialization moEthEngineInit = null;
 
@@ -73,12 +77,14 @@ namespace WonkaSystem.TestHarness
 			mbInitChainEnv     = pbInitChainEnv;
 			msContractAddress  = psContractAddress;
 
-			msAbiWonka         = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
-            msByteCodeWonka    = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.BYTECODE;
-            msAbiRegistry      = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
-            msByteCodeRegistry = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.BYTECODE;
-            msAbiOrchTest      = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
-            msByteCodeOrchTest = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.BYTECODE;
+			msAbiWonka          = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
+            msByteCodeWonka     = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.BYTECODE;
+            msAbiRegistry       = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
+            msByteCodeRegistry  = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.BYTECODE;
+            msAbiOrchTest       = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
+            msByteCodeOrchTest  = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.BYTECODE;
+            msAbiChronoLog      = Wonka.Eth.Autogen.ChronoLog.ChronoLogDeployment.ABI;
+            msByteCodeChronoLog = Wonka.Eth.Autogen.ChronoLog.ChronoLogDeployment.BYTECODE;
 
             // Create an instance of the class that will provide us with PmdRefAttributes (i.e., the data domain)
             // that define our data record            
@@ -123,19 +129,37 @@ namespace WonkaSystem.TestHarness
 				msTestContractAddress     = "0x4092bc250ef6c384804af2f871Af9c679b672d0B";
 			}
 
-			await InitEngineAsync(mbInitChainEnv).ConfigureAwait(false);
+            if (String.IsNullOrEmpty(msChronoLogAddress))
+			{
+                var web3                = GetWeb3();
+                var ChronoLogDeployment = new Wonka.Eth.Autogen.ChronoLog.ChronoLogDeployment();
 
-			return bResult;
+                Nethereum.Hex.HexTypes.HexBigInteger nDefaultGas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
+
+                msChronoLogAddress =
+                    await ChronoLogDeployment.DeployContractAsync(web3, msAbiChronoLog, msSenderAddress, nDefaultGas, CONST_ONLINE_TEST_CHAIN_URL).ConfigureAwait(false);
+            }
+
+            await InitEngineAsync(mbInitChainEnv).ConfigureAwait(false);
+
+
+            Wonka.BizRulesEngine.Writers.WonkaBizRulesXmlWriter Writer =
+                new Wonka.BizRulesEngine.Writers.WonkaBizRulesXmlWriter(moEthEngineInit.Engine.RulesEngine);
+
+            string sOutputRules = Writer.ExportXmlString();
+
+            return bResult;
 		}
 
 		public async Task<string> DeployWonka()
         {
-            var web3               = GetWeb3();
-            var EngineDeployment   = new Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment();
-            var RegistryDeployment = new Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment();
-            var TestCntDeployment  = new Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment();
+            var web3                = GetWeb3();
+            var EngineDeployment    = new Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment();
+            var RegistryDeployment  = new Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment();
+            var TestCntDeployment   = new Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment();
+            var ChronoLogDeployment = new Wonka.Eth.Autogen.ChronoLog.ChronoLogDeployment();
 
-			Nethereum.Hex.HexTypes.HexBigInteger nEngineGas  = new Nethereum.Hex.HexTypes.HexBigInteger(8388608);
+            Nethereum.Hex.HexTypes.HexBigInteger nEngineGas  = new Nethereum.Hex.HexTypes.HexBigInteger(8388608);
 			Nethereum.Hex.HexTypes.HexBigInteger nDefaultGas = new Nethereum.Hex.HexTypes.HexBigInteger(1000000);
 
 			msEngineContractAddress =
@@ -146,6 +170,9 @@ namespace WonkaSystem.TestHarness
 
 			msTestContractAddress =
 				await TestCntDeployment.DeployContractAsync(web3, msAbiOrchTest, msSenderAddress, nDefaultGas, CONST_ONLINE_TEST_CHAIN_URL).ConfigureAwait(false);
+
+            msChronoLogAddress =
+                await ChronoLogDeployment.DeployContractAsync(web3, msAbiChronoLog, msSenderAddress, nDefaultGas, CONST_ONLINE_TEST_CHAIN_URL).ConfigureAwait(false);
 
             return msEngineContractAddress;
         }
@@ -224,7 +251,13 @@ namespace WonkaSystem.TestHarness
             var contract      = GetContract();
 			var senderAddress = moEthEngineInit.EthSenderAddress;
 
-			var executeWithReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC_RPT);
+            string sFlagBeforeOrchestrationAssignment  = "";
+            string sValueBeforeOrchestrationAssignment = "";
+
+            string sFlagAfterOrchestrationAssignment  = "";
+            string sValueAfterOrchestrationAssignment = "";
+
+            var executeWithReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_EXEC_RPT);
 
             RuleTreeReport ruleTreeReport = null;
 
@@ -236,20 +269,48 @@ namespace WonkaSystem.TestHarness
 				var executeGetLastReportFunction = contract.GetFunction(CONST_CONTRACT_FUNCTION_GET_LAST_RPT);
 
                 // Before invoking the RuleTree, the storage contract should have Review Flag as "" and CurrVal as "999"
-				string sFlagBeforeOrchestrationAssignment  = await RetrieveValueMethodAsync(FlagSource, ReviewFlagAttr.AttrName).ConfigureAwait(false);
-				string sValueBeforeOrchestrationAssignment = await RetrieveValueMethodAsync(CurrValSource, CurrValueAttr.AttrName).ConfigureAwait(false);
+				sFlagBeforeOrchestrationAssignment  = await RetrieveValueMethodAsync(FlagSource, ReviewFlagAttr.AttrName).ConfigureAwait(false);
+				sValueBeforeOrchestrationAssignment = await RetrieveValueMethodAsync(CurrValSource, CurrValueAttr.AttrName).ConfigureAwait(false);
 
-				var EthRuleTreeReport = new Wonka.Eth.Extensions.RuleTreeReport();
+                System.Console.WriteLine("ExecuteWithReportAsync() -> Flag Before Assignment  : (" + sFlagBeforeOrchestrationAssignment + ")");
+                System.Console.WriteLine("ExecuteWithReportAsync() -> Value Before Assignment : (" + sValueBeforeOrchestrationAssignment + ")");
+
+                var EthRuleTreeReport = new Wonka.Eth.Extensions.RuleTreeReport();
 				await poRulesEngine.ExecuteOnChainAsync(moEthEngineInit, EthRuleTreeReport).ConfigureAwait(false);
 
                 // After invoking the RuleTree, the storage contract should have Review Flag as "???" and CurrVal as "1014"
-                string sFlagAfterOrchestrationAssignment  = await RetrieveValueMethodAsync(FlagSource, ReviewFlagAttr.AttrName).ConfigureAwait(false);
-				string sValueAfterOrchestrationAssignment = await RetrieveValueMethodAsync(CurrValSource, CurrValueAttr.AttrName).ConfigureAwait(false);
+                sFlagAfterOrchestrationAssignment  = await RetrieveValueMethodAsync(FlagSource, ReviewFlagAttr.AttrName).ConfigureAwait(false);
+				sValueAfterOrchestrationAssignment = await RetrieveValueMethodAsync(CurrValSource, CurrValueAttr.AttrName).ConfigureAwait(false);
 
-				ruleTreeReport =
+                System.Console.WriteLine("ExecuteWithReportAsync() -> Flag After Assignment  : (" + sFlagAfterOrchestrationAssignment + ")");
+                System.Console.WriteLine("ExecuteWithReportAsync() -> Value After Assignment : (" + sValueAfterOrchestrationAssignment + ")");
+
+                ruleTreeReport =
 					await executeGetLastReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>().ConfigureAwait(false);
-			}
-			else
+
+                System.Console.WriteLine("ExecuteWithReportAsync() -> Flag After Assignment  : (" + sFlagAfterOrchestrationAssignment + ")");
+                System.Console.WriteLine("ExecuteWithReportAsync() -> Value After Assignment : (" + sValueAfterOrchestrationAssignment + ")");
+
+                if (!String.IsNullOrEmpty(moEthEngineInit.ChronoLogContractAddress))
+				{
+                    var report =
+                        new Wonka.Eth.Extensions.RuleTreeReport()
+                        {
+                            NumberOfRuleFailures = ruleTreeReport.NumberOfRuleFailures
+                            , RuleIds = ruleTreeReport.RuleIds
+                            , RuleSetIds = ruleTreeReport.RuleSetIds
+                        };
+
+                    var ChronoLogId =
+                        await poRulesEngine.StoreWonkaResultsAsync(moEthEngineInit
+                                                                   , moProduct
+                                                                   , report
+                                                                   , CONST_INFURA_IPFS_GATEWAY_URL
+                                                                   , CONST_INFURA_IPFS_WRITE_GATEWAY_URL
+                                                                   , moEthEngineInit.ChronoLogContractAddress);
+                }
+            }
+            else
 			{
 				ruleTreeReport =
 					await executeWithReportFunction.CallDeserializingToObjectAsync<RuleTreeReport>(senderAddress).ConfigureAwait(false);
@@ -332,6 +393,7 @@ namespace WonkaSystem.TestHarness
 			moEthEngineInit.Web3HttpUrl                 = CONST_ONLINE_TEST_CHAIN_URL;
 			moEthEngineInit.RulesEngineContractAddress  = msEngineContractAddress;
 			moEthEngineInit.RegistryContractAddress     = msRegistryContractAddress;
+            moEthEngineInit.ChronoLogContractAddress    = msChronoLogAddress;
 			moEthEngineInit.StorageContractAddress      = msTestContractAddress;
 			moEthEngineInit.StorageDefaultSourceId      = sDefaultSource;
 			moEthEngineInit.StorageContractABI          = msAbiOrchTest;
