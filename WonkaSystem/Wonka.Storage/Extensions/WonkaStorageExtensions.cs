@@ -468,13 +468,12 @@ namespace Wonka.Storage.Extensions
 		/// 2.) Create the hash of the Zip file
 		/// 3.) Create an entry on the ChronoLog contract (including the IPFS URL and hash of the Zip file)
         ///
-        /// NOTE: UNDER CONSTRUCTION
-        ///
         /// <param name="poEngine">The instance of the Wonka engine that has just run a RuleTree</param>
         /// <param name="poEngineInitProps">Various properties of this instance of the Wonka engine</param>
 		/// <param name="poRecord">This record holds the current snapshot of the data being addressed by the metadata (mentioned in WonkaRefEnvironment)</param>
 		/// <param name="poReport">This report holds the verbose results of running the RuleTree</param>
-		/// <param name="psIpfsUrl">This URL points to the IPFS node that will be used to upload the Zip file of the results</param>
+		/// <param name="psIpfsUrl">This URL points to the IPFS node that acts as the read-only gateway</param>
+		/// <param name="psWriteIpfsUrl">This URL points to the IPFS node that will be used to upload the Zip file of the results</param>
 		/// <param name="psChronoLogContractAddr">This address points to an instance of the ChronoLog contract</param>
         /// <returns>Unique name for entry in the ChronoLog contract</returns>
         /// </summary>
@@ -483,10 +482,9 @@ namespace Wonka.Storage.Extensions
                                                                             WonkaProduct poRecord,
                                                      Wonka.Eth.Extensions.RuleTreeReport poReport,
                                                                                   string psIpfsUrl,
+                                                                                  string psWriteIpfsUrl,
                                                                                   string psChronoLogContractAddr)
         {
-            string sLogEventName = "";
-
             var RefEnv = WonkaRefEnvironment.GetInstance();
 
             var signer     = new EthereumMessageSigner();
@@ -497,8 +495,8 @@ namespace Wonka.Storage.Extensions
 
             string sUniqueChronoLogName = "WI-" + DateTime.Now.ToUniversalTime().ToEpochTime();
 
-            string sIpfsUrl =
-                await poEngine.UploadInvocationAsync(poEngineInitProps, poRecord, poReport, psIpfsUrl, sUniqueChronoLogName).ConfigureAwait(false);
+            string sZipIpfsUrl =
+                await poEngine.UploadInvocationAsync(poEngineInitProps, poRecord, poReport, psIpfsUrl, psWriteIpfsUrl, sUniqueChronoLogName).ConfigureAwait(false);
 
             var addChronoLogEventFunction =
                 new Wonka.Eth.Autogen.ChronoLog.AddChronoLogEventFunction()
@@ -508,37 +506,37 @@ namespace Wonka.Storage.Extensions
                     Desc = "", // Empty for now
                     Data = "", // Empty for now
                     Hash = inputSignature,
-                    Url = sIpfsUrl
+                    Url = sZipIpfsUrl
                 };
 
             string sTrxHash =
                 await poReport.WriteToChronoLog(poEngineInitProps, psChronoLogContractAddr, addChronoLogEventFunction).ConfigureAwait(false);
 
-            return sLogEventName;
+            return sUniqueChronoLogName;
         }
 
         /// <summary>
         /// 
         /// This method will persist all data to files (metadata, rules, current data, report), zip the files, and then upload the .ZIP to IPFS
         ///
-        /// NOTE: UNDER CONSTRUCTION
-        ///
         /// <param name="poEngine">The instance of the Wonka engine that has just run</param>
         /// <param name="poEngineInitProps">Various properties of this instance of the Wonka engine</param>
         /// <param name="poRecord">This record holds the current snapshot of the data being addressed by the metadata (mentioned in WonkaRefEnvironment)</param>
 		/// <param name="poReport">This report holds the verbose results of running the RuleTree</param>
-		/// <param name="psIpfsUrl">This URL points to the IPFS node that will be used to upload the Zip file of the results</param>
+		/// <param name="psIpfsUrl">This URL points to the IPFS node that acts as the read-only gateway</param>
+		/// <param name="psWriteIpfsUrl">This URL points to the IPFS node that will be used to upload the Zip file of the results</param>
 		/// <param name="psUniqueChronoLogName">This will be the unique name of the ChronoLog entry</param>
-        /// <returns>IPFS Url of the Zip file</returns>
+        /// <returns>IPFS ID of the new file</returns>
         /// </summary>
         public static async Task<string> UploadInvocationAsync(this WonkaBizRulesEngine poEngine,
                                             Wonka.Eth.Init.WonkaEthEngineInitialization poEngineInitProps,
                                                                            WonkaProduct poRecord,
                                                     Wonka.Eth.Extensions.RuleTreeReport poReport,
                                                                                  string psIpfsUrl,
+                                                                                 string psWriteIpfsUrl,
                                                                                  string psUniqueChronoLogName)
         {
-            string sIpfsUrl = "";
+            string sZipIpfsUrl = "";
 
             var RefEnv = WonkaRefEnvironment.GetInstance();
 
@@ -553,19 +551,15 @@ namespace Wonka.Storage.Extensions
                 var merkleNode =
                     await ipfsClient.FileSystem.AddFileAsync(sZipFileUrl, new Ipfs.CoreApi.AddFileOptions() { Pin = true }).ConfigureAwait(false);
 
-                sIpfsUrl = psIpfsUrl + "/" + merkleNode.Id.Hash.ToString();
-
-                // NOTE: Additional work may be needed
+                sZipIpfsUrl = psWriteIpfsUrl + "/" + merkleNode.Id.Hash.ToString();
             }
 
-            return sIpfsUrl;
+            return sZipIpfsUrl;
         }
 
         /// <summary>
         /// 
         /// This method will persist all data to files (metadata, rules, current data, report), zip the files, and then upload the .ZIP to IPFS
-        ///
-        /// NOTE: UNDER CONSTRUCTION
         ///
         /// <param name="poEngine">The instance of the Wonka engine that has just run</param>
         /// <param name="poRecord">This record holds the current snapshot of the data being addressed by the metadata (mentioned in WonkaRefEnvironment)</param>
@@ -577,6 +571,10 @@ namespace Wonka.Storage.Extensions
         public static string ZipInvocation(this WonkaBizRulesEngine poEngine, WonkaProduct poRecord, IRuleTreeReport poReport, string psUniqueChronoLogName, string psTmpDirectory = @"./tmp")
         {
             string sZipFile = "";
+
+            DirectoryInfo tmpDirInfo = new DirectoryInfo(psTmpDirectory);
+            if (!tmpDirInfo.Exists)
+                tmpDirInfo.Create();
 
             var snapshotDirInfo = Directory.CreateDirectory(psTmpDirectory + "/snapshot-" + psUniqueChronoLogName);
 
