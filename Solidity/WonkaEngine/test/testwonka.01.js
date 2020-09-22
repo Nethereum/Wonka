@@ -267,7 +267,7 @@ contract('WonkaTransactionState', function(accounts4) {
   });  
   it("add Values into current record", function() {
 
-    sleep(2000);
+    sleep(1000);
 
     return WonkaEngine.deployed().then(function(instance) {
 
@@ -291,7 +291,7 @@ contract('WonkaTransactionState', function(accounts4) {
   });
   it("run the business rules on the currently populated record", function() {
 
-    sleep(2000);
+    sleep(1000);
 
     return WonkaEngine.deployed().then(function(instance) {
 
@@ -324,7 +324,7 @@ contract('WonkaTransactionState', function(accounts4) {
   });
   it("Running the rules engine with Orchestration mode enabled", function() {
 
-    sleep(2000);
+    sleep(1000);
 
     return WonkaEngine.deployed().then(function(wInstance) {      
       return OrchTestContract.deployed().then(function(testInstance) {
@@ -421,19 +421,19 @@ contract('WonkaTransactionState', function(accounts4) {
 
         tInstance.setOwner(accounts[0], 100);
 
-        sleep(1000);
+        sleep(500);
 
         tInstance.setExecutor(accounts[0]);
 
-        sleep(1000);
+        sleep(500);
 
         tInstance.addConfirmation(accounts[0]);
 
-        sleep(1000);
+        sleep(500);
 
         tInstance.setMinScoreRequirement(1);
 
-        sleep(1000);
+        sleep(500);
 
         instance.setTransactionState(accounts[0], tInstance.address);
 
@@ -444,7 +444,7 @@ contract('WonkaTransactionState', function(accounts4) {
   });
   it("Running the rules engine with a Custom Operator rule", function() {
 
-    sleep(2000);
+    sleep(1000);
 
     return WonkaEngine.deployed().then(function(wInstance) {      
 
