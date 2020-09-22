@@ -23,6 +23,14 @@ var OP_MUL_RULE       = 8;
 var OP_DIV_RULE       = 9;
 var CUSTOM_OP_RULE    = 10;
 
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
+
 contract('WonkaEngine', function(accounts) {
 contract('OrchTestContract', function(accounts) {
 contract('WonkaRegistry', function(accounts3) {
@@ -83,6 +91,7 @@ contract('WonkaTransactionState', function(accounts4) {
   });
   */
   it("check for the ruletree", function() {
+
     return WonkaEngine.deployed().then(function(instance) {
       return instance.hasRuleTree.call(accounts[0]);
     }).then(function(treeExists) {
@@ -90,6 +99,7 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("adding the data structures for rules", function() {
+
     return WonkaEngine.deployed().then(function(instance) {
 
       //var events = engine.allEvents();
@@ -114,13 +124,19 @@ contract('WonkaTransactionState', function(accounts4) {
 
       instance.addRuleTree(accounts[0], web3.utils.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), true, true, false);
 
+      sleep(1000);
+
       console.log("Added the root ruletree!");      
 
       instance.addRule(accounts[0], web3.utils.fromAscii('JohnSmithRuleTree'), web3.utils.fromAscii('AccntNameEqualRule'), web3.utils.fromAscii('BankAccountName'), EQUAL_TO_RULE, new String('JohnSmithFirstCheckingAccount').valueOf(), false, true);
 
+      sleep(1000);
+
       console.log("Added the rule to the root ruleset!");
 
       instance.addRuleSet(accounts[0], web3.utils.fromAscii('CheckAccntSts'), new String('Will determine the account status').valueOf(), web3.utils.fromAscii('JohnSmithRuleTree'), false, false, false);
+
+      sleep(1000);
 
       console.log("Added the first child ruleset to the root ruleset!");
 
@@ -128,9 +144,13 @@ contract('WonkaTransactionState', function(accounts4) {
       instance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntSts'), web3.utils.fromAscii('CheckForTooMuchRule'), web3.utils.fromAscii('AccountCurrValue'), GREATER_THAN_RULE, new String('2000').valueOf(), false, true);
       instance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntSts'), web3.utils.fromAscii('AccountTypeRule'), web3.utils.fromAscii('AccountType'), IN_DOMAIN_RULE, new String('Checking,Savings,TaxHaven').valueOf(), false, true);
 
+      sleep(1000);
+
       console.log("Added the rules to the first child ruleset!");
 
       instance.addRuleSet(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), new String('Will determine the account status - leaf').valueOf(), web3.utils.fromAscii('CheckAccntSts'), true, true, false);
+
+      sleep(1000);
 
       console.log("Added the leaf ruleset to the first child ruleset!");
 
@@ -145,6 +165,9 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("check for the ruletree (after creation)", function() {
+
+    sleep(5000);
+
     return WonkaEngine.deployed().then(function(instance) {
       return instance.hasRuleTree.call(accounts[0]);
     }).then(function(treeExists) {
@@ -152,6 +175,8 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("adding the ruletree to the registry", function() {
+
+    sleep(1000);
     
     return WonkaEngine.deployed().then(function(instance) {
       return OrchTestContract.deployed().then(function(tInstance) {
@@ -165,11 +190,15 @@ contract('WonkaTransactionState', function(accounts4) {
           // var currTimeInMilliseconds = (new Date).getTime();
           var currTimeInSeconds = Math.floor( ((new Date).getTime()) / 1000 );
 
-          console.log("Adding the 'JohnSmithRuleTree' ruletree to the registry!");      
+          console.log("Adding the 'JohnSmithRuleTree' ruletree to the registry!");  
+          
+          sleep(2000);
 
           rInstance.addRuleTreeIndex(accounts[0], web3.utils.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), web3.utils.fromAscii('MyGroup'), groupIndex, instance.address, 100000, 200000, assocArray, attrArray, opArray, currTimeInSeconds);
-
+        
           console.log("Now retrieving info about the 'JohnSmithRuleTree' ruletree from the registry!");
+
+          sleep(2000);
 
           return rInstance.getRuleTreeIndex.call(web3.utils.fromAscii('JohnSmithRuleTree')).then(function(results) {
   
@@ -237,6 +266,9 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });  
   it("add Values into current record", function() {
+
+    sleep(2000);
+
     return WonkaEngine.deployed().then(function(instance) {
 
       instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('Title'), new String('The First Book').valueOf());
@@ -258,6 +290,9 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("run the business rules on the currently populated record", function() {
+
+    sleep(2000);
+
     return WonkaEngine.deployed().then(function(instance) {
 
       /*
@@ -288,6 +323,9 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("Running the rules engine with Orchestration mode enabled", function() {
+
+    sleep(2000);
+
     return WonkaEngine.deployed().then(function(wInstance) {      
       return OrchTestContract.deployed().then(function(testInstance) {
 
@@ -371,6 +409,8 @@ contract('WonkaTransactionState', function(accounts4) {
   });
   it("Set Transaction State for RuleTree", function() {
 
+    sleep(2000);
+
     return WonkaEngine.deployed().then(function(instance) {
 
       console.log("STS - Got the handle for the RuleTree.");
@@ -395,7 +435,11 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("Running the rules engine with a Custom Operator rule", function() {
+
+    sleep(2000);
+
     return WonkaEngine.deployed().then(function(wInstance) {      
+
       return OrchTestContract.deployed().then(function(testInstance) {
 
         console.log("Define a new custom operator");
