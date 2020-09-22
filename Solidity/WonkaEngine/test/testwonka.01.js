@@ -166,7 +166,7 @@ contract('WonkaTransactionState', function(accounts4) {
   });
   it("check for the ruletree (after creation)", function() {
 
-    sleep(5000);
+    sleep(2000);
 
     return WonkaEngine.deployed().then(function(instance) {
       return instance.hasRuleTree.call(accounts[0]);
@@ -421,11 +421,19 @@ contract('WonkaTransactionState', function(accounts4) {
 
         tInstance.setOwner(accounts[0], 100);
 
+        sleep(1000);
+
         tInstance.setExecutor(accounts[0]);
+
+        sleep(1000);
 
         tInstance.addConfirmation(accounts[0]);
 
+        sleep(1000);
+
         tInstance.setMinScoreRequirement(1);
+
+        sleep(1000);
 
         instance.setTransactionState(accounts[0], tInstance.address);
 
@@ -448,11 +456,17 @@ contract('WonkaTransactionState', function(accounts4) {
 
         console.log("Add a new rule with the new custom operator focused on the AccountCurrValue");
 
+        sleep(1000);
+
         // The value "MyCustomOp,AccountCurrValue,11,40,50" indicates that this Custom Operator will invoke the method defined by 'MyCustomOp' with the arguments AccountCurrValue,500,1000,100
         wInstance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('InvokeCustomOp'), web3.utils.fromAscii('AccountCurrValue'), CUSTOM_OP_RULE, new String('MyCustomOp').valueOf(), false, true); 
 
+        sleep(1000);
+
         console.log("Add args to the custom operator");
         wInstance.addRuleCustomOpArgs(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('AccountCurrValue'), web3.utils.fromAscii('500'), web3.utils.fromAscii('1000'), web3.utils.fromAscii('100'));
+
+        sleep(1000);
 
         console.log("Running the engine now with the new Custom Operator rule");
 
