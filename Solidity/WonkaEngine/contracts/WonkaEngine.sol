@@ -2,12 +2,15 @@
 pragma solidity ^0.6.8;
 
 import "./TransactionStateInterface.sol";
+import "./WonkaLibrary.sol";
 
-/// @title An Ethereum library that contains the functionality for a rules engine
+/// @title An Ethereum contract that contains the functionality for a rules engine
 /// @author Aaron Kendall
 /// @notice 1.) Certain steps are required in order to use this engine correctly + 2.) Deployment of this contract to a blockchain is expensive (~8000000 gas) + 3.) Various require() statements are commented out to save deployment costs
 /// @dev Even though you can create rule trees by calling this contract directly, it is generally recommended that you create them using the Nethereum library
 contract WonkaEngine {
+
+    using WonkaLibrary for *;
 
     /// @title Holds metadata which represents an Attribute (i.e., a unique point of data in a user's record)
     /// @author Aaron Kendall
@@ -699,7 +702,7 @@ contract WonkaEngine {
 
             uint calculatedValue = calculateValue(ruler, targetRule);
 
-            string memory convertedValue = bytes32ToString(uintToBytes(calculatedValue));
+            string memory convertedValue = bytes32ToString(calculatedValue.uintToBytes());
 
             setValueOnRecord(ruler, targetRule.targetAttr.attrName, convertedValue);
 
@@ -708,13 +711,13 @@ contract WonkaEngine {
             bytes32 customOpName = "";
 
             if (targetRule.ruleDomainKeys.length > 0)
-                customOpName = stringToBytes32(targetRule.ruleDomainKeys[0]);
+                customOpName = targetRule.ruleDomainKeys[0].stringToBytes32();
 
             bytes32[] memory argsDomain = new bytes32[](CONST_CUSTOM_OP_ARGS);
 
             for (uint idx = 0; idx < CONST_CUSTOM_OP_ARGS; ++idx) {
                 if (idx < targetRule.customOpArgs.length)
-                    argsDomain[idx] = stringToBytes32(determineDomainValue(ruler, idx, targetRule));
+                    argsDomain[idx] = determineDomainValue(ruler, idx, targetRule).stringToBytes32();
                 else
                     argsDomain[idx] = "";                    
             }
@@ -879,7 +882,7 @@ contract WonkaEngine {
         }
         else {
 
-            bytes32 bytes32Value = stringToBytes32(value);
+            bytes32 bytes32Value = value.stringToBytes32();
 
             if (sourceMap[key].isValue && (keccak256(abi.encodePacked(sourceMap[key].setMethodName)) != keccak256(abi.encodePacked("")))) {
                 return invokeValueSetter(sourceMap[key].contractAddress, ruler, sourceMap[key].setMethodName, key, bytes32Value);
@@ -893,7 +896,7 @@ contract WonkaEngine {
     /***********************
      *   SUPPORT METHODS   *
      ***********************/
-
+   
     /// @dev This method will convert a bytes32 type to a String
     /// @notice 
     function bytes32ToString(bytes32 x) public pure returns (string memory) {
@@ -925,7 +928,7 @@ contract WonkaEngine {
 
         for (uint i = 0; i < targetRule.ruleDomainKeys.length; i++) {
 
-            bytes32 keyName = stringToBytes32(targetRule.ruleDomainKeys[i]);
+            bytes32 keyName = targetRule.ruleDomainKeys[i].stringToBytes32();
 
             if (attrMap[keyName].isValue)
                 tmpValue = parseInt(getValueOnRecord(ruler, keyName), 0);
@@ -973,7 +976,7 @@ contract WonkaEngine {
 
         // Since the Solidity compiler complains about the stack being too deep with local stack variables,
         // we must consolidate the code here to be one line
-        bytes4 sig = bytes4(keccak256(abi.encodePacked(strConcat(bytes32ToString(methodName), "(bytes32,bytes32,bytes32,bytes32)"))));
+        bytes4 sig = bytes4(keccak256(abi.encodePacked(bytes32ToString(methodName).strConcat("(bytes32,bytes32,bytes32,bytes32)"))));
 
         assembly {
             // move pointer to free memory spot
@@ -1021,7 +1024,7 @@ contract WonkaEngine {
 
         string memory strMethodName = bytes32ToString(methodName);
 
-        string memory functionNameAndParams = strConcat(strMethodName, "(bytes32)");
+        string memory functionNameAndParams = strMethodName.strConcat("(bytes32)");
 
         bytes4 sig = bytes4(keccak256(abi.encodePacked(functionNameAndParams)));
 
@@ -1064,7 +1067,7 @@ contract WonkaEngine {
 
         string memory strMethodName = bytes32ToString(methodName);
 
-        string memory functionNameAndParams = strConcat(strMethodName, "(bytes32,bytes32)");
+        string memory functionNameAndParams = strMethodName.strConcat("(bytes32,bytes32)");
 
         bytes4 sig = bytes4(keccak256(abi.encodePacked(functionNameAndParams)));        
 
@@ -1167,6 +1170,7 @@ contract WonkaEngine {
         }
     }
 
+    /*
     /// @dev This method will concatenate the provided strings into one larger string
     /// @notice 
     function strConcat(string memory _a, string memory _b, string memory _c, string memory _d, string memory _e) private pure returns (string memory) {
@@ -1249,5 +1253,6 @@ contract WonkaEngine {
 
         return ret;
     }
+    */
 
 }
