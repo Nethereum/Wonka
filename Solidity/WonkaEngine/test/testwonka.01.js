@@ -385,10 +385,14 @@ contract('WonkaTransactionState', function(accounts4) {
         // Now let's add an OpAdd rule to the last ruleset, where we set the AccountCurrValue = AccountCurrValue + AccountPrevValue + 1 (i.e., 2500 = 999 + 1500 + 1)
         wInstance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('SumForCurrValue'), web3.utils.fromAscii('AccountCurrValue'), OP_ADD_RULE, new String('AccountCurrValue,AccountPrevValue,1').valueOf(), false, true);      
 
+        sleep(1000);
+
         console.log("Added OP_ADD rule to set a value on the Orchestration contract using Assembly.");
      
         // Since we've now added an assignment rule (which can now change the blockchain), we must execute the engine's validation within a transaction
         wInstance.execute(accounts[0]);
+
+        sleep(1000);
 
         // Now let's check the validation result, which should still be false
         return wInstance.getLastTransactionSuccess.call();
