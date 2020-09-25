@@ -64,8 +64,8 @@ namespace WonkaSystem.TestHarness
             msSenderAddress = "0x12890D2cce102216644c59daE5baed380d84830c";
             msPassword      = "0xb5b1870957d373ef0eeffecc6e4812c0fd08f554b37b233526acc331bf1544f7";
 
-            msAbiWonka         = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
-            msByteCodeWonka    = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.BYTECODE;
+            msAbiWonka         = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeploymentClassic.ABI;
+            msByteCodeWonka    = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeploymentClassic.BYTECODE;
             msAbiRegistry      = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
             msByteCodeRegistry = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.BYTECODE;
             msAbiOrchTest      = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
@@ -128,7 +128,7 @@ namespace WonkaSystem.TestHarness
 		public string DeployWonka()
         {
             var web3               = GetWeb3();
-            var EngineDeployment   = new Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment();
+            var EngineDeployment   = new Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeploymentClassic();
             var RegistryDeployment = new Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment();
             var TestCntDeployment  = new Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment();
 
