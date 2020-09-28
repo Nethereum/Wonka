@@ -63,5 +63,6 @@
     <Folder Include="Extensions\OpSource\Baseline\Registry\" />
     <Folder Include="Autogen\Baseline\" />
     <Folder Include="Autogen\Baseline\Registry\" />
+    <Folder Include="Autogen\WonkaLibrary\" />
   </ItemGroup>
 </Project>
