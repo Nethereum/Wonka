@@ -188,6 +188,8 @@ namespace Wonka.Eth.Autogen.WonkaLibrary
   ]
 ";
 
+        public static string PLACEHOLDER_KEY = "be0d82ceb0e2c50bfc4ffd508ff40524e4";
+
         public WonkaLibraryDeployment() : base(BYTECODE) { }
         public WonkaLibraryDeployment(string byteCode) : base(byteCode) { }
     }
