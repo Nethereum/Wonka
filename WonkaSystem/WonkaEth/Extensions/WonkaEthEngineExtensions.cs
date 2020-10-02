@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Nethereum.ABI.FunctionEncoding;
 using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Web3.Accounts;
@@ -127,6 +128,87 @@ namespace Wonka.Eth.Extensions
         /// 
         /// <returns>None</returns>
         /// </summary>
+        public static async Task<bool> DeployContractsAsync(this WonkaEthEngineInitialization poEngineInitData)
+        {
+            bool bResult = true;
+
+            var EngineProps = poEngineInitData.Engine;
+
+            if (EngineProps == null)
+                throw new Exception("ERROR!  No engine properties provided.");
+
+            if ((EngineProps.RulesEngine == null) && !String.IsNullOrEmpty(EngineProps.RulesMarkupXml))
+            {
+                var account = new Account(poEngineInitData.EthPassword);
+
+                Nethereum.Web3.Web3 web3 = null;
+                if (!String.IsNullOrEmpty(poEngineInitData.Web3HttpUrl))
+                    web3 = new Nethereum.Web3.Web3(account, poEngineInitData.Web3HttpUrl);
+                else
+                    web3 = new Nethereum.Web3.Web3(account);
+
+                if (String.IsNullOrEmpty(poEngineInitData.RulesEngineContractAddress))
+                {
+                    var WonkaLibABI         = Autogen.WonkaLibrary.WonkaLibraryDeployment.ABI;
+                    var WonkaLibPlaceHolder = Autogen.WonkaLibrary.WonkaLibraryDeployment.PLACEHOLDER_KEY;
+
+                    var EngineDeployment = new Autogen.WonkaEngine.WonkaEngineDeploymentClassic();
+
+                    var WonkaLibDeployment = new Autogen.WonkaLibrary.WonkaLibraryDeployment();
+
+                    HexBigInteger nDeployGas = new HexBigInteger(CONST_DEPLOY_ENGINE_CONTRACT_GAS_COST);
+
+                    // Deploy the library contract first
+                    var LibraryContractAddress =
+                        await WonkaLibDeployment.DeployContractAsync(web3, WonkaLibABI, poEngineInitData.EthSenderAddress, nDeployGas, poEngineInitData.Web3HttpUrl).ConfigureAwait(false);
+
+                    var libraryMapping =
+                        new ByteCodeLibrary() { Address = LibraryContractAddress, PlaceholderKey = WonkaLibPlaceHolder };
+
+                    // Link main contract byte code with the library, in preparation for deployment
+                    var contractByteCode = Autogen.WonkaEngine.WonkaEngineDeployment.BYTECODE;
+                    var libraryMappings  = new ByteCodeLibrary[] { libraryMapping };
+                    var libraryLinker    = new ByteCodeLibraryLinker();
+
+                    var contractByteCodeLinked = libraryLinker.LinkByteCode(contractByteCode, libraryMappings);
+
+                    // Deploy linked contract
+                    var DeployEngineReceipt
+                        = await web3.Eth.DeployContract.SendRequestAndWaitForReceiptAsync(contractByteCodeLinked, poEngineInitData.EthSenderAddress, nDeployGas, null, null, null).ConfigureAwait(false);
+
+                    poEngineInitData.RulesEngineContractAddress = DeployEngineReceipt.ContractAddress;
+                }
+
+                if (String.IsNullOrEmpty(poEngineInitData.RegistryContractAddress))
+                {
+                    var RegistryDeployment = new Autogen.WonkaRegistry.WonkaRegistryDeployment();
+
+                    HexBigInteger nDeployGas = new HexBigInteger(CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST);
+
+                    poEngineInitData.RegistryContractAddress =
+                        await RegistryDeployment.DeployContractAsync(web3, poEngineInitData.RegistryContractABI, poEngineInitData.EthSenderAddress, nDeployGas, poEngineInitData.Web3HttpUrl).ConfigureAwait(false);
+                }
+
+                if (String.IsNullOrEmpty(poEngineInitData.StorageContractAddress))
+                {
+                    var TestContractDeployment = new Autogen.WonkaTestContract.WonkaTestContractDeployment();
+
+                    HexBigInteger nDeployGas = new HexBigInteger(CONST_DEPLOY_DEFAULT_CONTRACT_GAS_COST);
+
+                    poEngineInitData.StorageContractAddress =
+                        await TestContractDeployment.DeployContractAsync(web3, poEngineInitData.StorageContractABI, poEngineInitData.EthSenderAddress, nDeployGas, poEngineInitData.Web3HttpUrl).ConfigureAwait(false);
+                }
+            }
+
+            return bResult;
+        }
+
+        /// <summary>
+        /// 
+        /// This method will deploy all contracts needed to run Wonka on-chain, using all the data provided.
+        /// 
+        /// <returns>None</returns>
+        /// </summary>
         public static async Task<bool> DeployContractsClassicAsync(this WonkaEthEngineInitialization poEngineInitData)
         {
 			bool bResult = true;
@@ -205,7 +287,11 @@ namespace Wonka.Eth.Extensions
 				// Using the metadata source, we create an instance of a defined data domain
 				WonkaRefEnvironment WonkaRefEnv = WonkaRefEnvironment.CreateInstance(false, EngineProps.MetadataSource);
 
-                bool bDeploySuccess = poEngineInitData.DeployContractsClassicAsync().Result;
+                // The old version of deployment, pushing out a contract with all methods (i.e., library)
+                // bool bDeploySuccess = poEngineInitData.DeployContractsClassicAsync().Result;
+
+                // The new version of deployment, pushing out the contract with a link to a library
+                bool bDeploySuccess = poEngineInitData.DeployContractsAsync().Result;
 
                 if (bDeploySuccess)
                 {
@@ -269,7 +355,11 @@ namespace Wonka.Eth.Extensions
                 // Using the metadata source, we create an instance of a defined data domain
                 WonkaRefEnvironment WonkaRefEnv = WonkaRefEnvironment.CreateInstance(false, EngineProps.MetadataSource);
 
-                bool bDeploySuccess = await poEngineInitData.DeployContractsClassicAsync().ConfigureAwait(false);
+                // The old version of deployment, pushing out a contract with all methods (i.e., library)
+                // bool bDeploySuccess = poEngineInitData.DeployContractsClassicAsync().Result;
+
+                // The new version of deployment, pushing out the contract with a link to a library
+                bool bDeploySuccess = poEngineInitData.DeployContractsAsync().Result;
 
                 if (bDeploySuccess)
                 {
