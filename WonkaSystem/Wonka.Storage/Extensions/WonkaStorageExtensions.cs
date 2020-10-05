@@ -546,12 +546,12 @@ namespace Wonka.Storage.Extensions
 
             using (MemoryStream zipStream = new MemoryStream(zipBytes))
 			{
-                var ipfsClient = new IpfsClient(psIpfsUrl);
+                var ipfsClient = new IpfsClient(psWriteIpfsUrl);
 
                 var merkleNode =
                     await ipfsClient.FileSystem.AddFileAsync(sZipFileUrl, new Ipfs.CoreApi.AddFileOptions() { Pin = true }).ConfigureAwait(false);
 
-                sZipIpfsUrl = psWriteIpfsUrl + "/" + merkleNode.Id.Hash.ToString();
+                sZipIpfsUrl = psIpfsUrl + "/" + merkleNode.Id.Hash.ToString();
             }
 
             return sZipIpfsUrl;
