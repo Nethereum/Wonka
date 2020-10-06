@@ -77,8 +77,8 @@ namespace WonkaSystem.TestHarness
 			mbInitChainEnv     = pbInitChainEnv;
 			msContractAddress  = psContractAddress;
 
-			msAbiWonka          = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
-            msByteCodeWonka     = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.BYTECODE;
+			msAbiWonka          = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeploymentClassic.ABI;
+            msByteCodeWonka     = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeploymentClassic.BYTECODE;
             msAbiRegistry       = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
             msByteCodeRegistry  = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.BYTECODE;
             msAbiOrchTest       = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
@@ -154,7 +154,7 @@ namespace WonkaSystem.TestHarness
 		public async Task<string> DeployWonka()
         {
             var web3                = GetWeb3();
-            var EngineDeployment    = new Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment();
+            var EngineDeployment    = new Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeploymentClassic();
             var RegistryDeployment  = new Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment();
             var TestCntDeployment   = new Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment();
             var ChronoLogDeployment = new Wonka.Eth.Autogen.ChronoLog.ChronoLogDeployment();

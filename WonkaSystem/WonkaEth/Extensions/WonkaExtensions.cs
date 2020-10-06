@@ -528,7 +528,7 @@ namespace Wonka.Eth.Extensions
 		public static Nethereum.Contracts.Contract GetEngineContract(this Wonka.Eth.Init.WonkaEthSource poTargetSource, string psWeb3Url = "")
 		{
 			var web3 = GetWeb3(poTargetSource.ContractPassword, psWeb3Url);
-			var contract = web3.Eth.GetContract(Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI, poTargetSource.ContractAddress);
+			var contract = web3.Eth.GetContract(Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeploymentClassic.ABI, poTargetSource.ContractAddress);
 
 			return contract;
 		}

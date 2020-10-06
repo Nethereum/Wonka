@@ -23,6 +23,14 @@ var OP_MUL_RULE       = 8;
 var OP_DIV_RULE       = 9;
 var CUSTOM_OP_RULE    = 10;
 
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
+
 contract('WonkaEngine', function(accounts) {
 contract('OrchTestContract', function(accounts) {
 contract('WonkaRegistry', function(accounts3) {
@@ -83,6 +91,7 @@ contract('WonkaTransactionState', function(accounts4) {
   });
   */
   it("check for the ruletree", function() {
+
     return WonkaEngine.deployed().then(function(instance) {
       return instance.hasRuleTree.call(accounts[0]);
     }).then(function(treeExists) {
@@ -90,6 +99,7 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("adding the data structures for rules", function() {
+
     return WonkaEngine.deployed().then(function(instance) {
 
       //var events = engine.allEvents();
@@ -114,13 +124,19 @@ contract('WonkaTransactionState', function(accounts4) {
 
       instance.addRuleTree(accounts[0], web3.utils.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), true, true, false);
 
+      sleep(1000);
+
       console.log("Added the root ruletree!");      
 
       instance.addRule(accounts[0], web3.utils.fromAscii('JohnSmithRuleTree'), web3.utils.fromAscii('AccntNameEqualRule'), web3.utils.fromAscii('BankAccountName'), EQUAL_TO_RULE, new String('JohnSmithFirstCheckingAccount').valueOf(), false, true);
 
+      sleep(1000);
+
       console.log("Added the rule to the root ruleset!");
 
       instance.addRuleSet(accounts[0], web3.utils.fromAscii('CheckAccntSts'), new String('Will determine the account status').valueOf(), web3.utils.fromAscii('JohnSmithRuleTree'), false, false, false);
+
+      sleep(1000);
 
       console.log("Added the first child ruleset to the root ruleset!");
 
@@ -128,9 +144,13 @@ contract('WonkaTransactionState', function(accounts4) {
       instance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntSts'), web3.utils.fromAscii('CheckForTooMuchRule'), web3.utils.fromAscii('AccountCurrValue'), GREATER_THAN_RULE, new String('2000').valueOf(), false, true);
       instance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntSts'), web3.utils.fromAscii('AccountTypeRule'), web3.utils.fromAscii('AccountType'), IN_DOMAIN_RULE, new String('Checking,Savings,TaxHaven').valueOf(), false, true);
 
+      sleep(1000);
+
       console.log("Added the rules to the first child ruleset!");
 
       instance.addRuleSet(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), new String('Will determine the account status - leaf').valueOf(), web3.utils.fromAscii('CheckAccntSts'), true, true, false);
+
+      sleep(1000);
 
       console.log("Added the leaf ruleset to the first child ruleset!");
 
@@ -145,6 +165,9 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("check for the ruletree (after creation)", function() {
+
+    sleep(2000);
+
     return WonkaEngine.deployed().then(function(instance) {
       return instance.hasRuleTree.call(accounts[0]);
     }).then(function(treeExists) {
@@ -152,6 +175,8 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("adding the ruletree to the registry", function() {
+
+    sleep(1000);
     
     return WonkaEngine.deployed().then(function(instance) {
       return OrchTestContract.deployed().then(function(tInstance) {
@@ -165,11 +190,15 @@ contract('WonkaTransactionState', function(accounts4) {
           // var currTimeInMilliseconds = (new Date).getTime();
           var currTimeInSeconds = Math.floor( ((new Date).getTime()) / 1000 );
 
-          console.log("Adding the 'JohnSmithRuleTree' ruletree to the registry!");      
+          console.log("Adding the 'JohnSmithRuleTree' ruletree to the registry!");  
+          
+          sleep(2000);
 
           rInstance.addRuleTreeIndex(accounts[0], web3.utils.fromAscii('JohnSmithRuleTree'), new String('John Smith Rule Tree').valueOf(), web3.utils.fromAscii('MyGroup'), groupIndex, instance.address, 100000, 200000, assocArray, attrArray, opArray, currTimeInSeconds);
-
+        
           console.log("Now retrieving info about the 'JohnSmithRuleTree' ruletree from the registry!");
+
+          sleep(2000);
 
           return rInstance.getRuleTreeIndex.call(web3.utils.fromAscii('JohnSmithRuleTree')).then(function(results) {
   
@@ -237,6 +266,9 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });  
   it("add Values into current record", function() {
+
+    sleep(1000);
+
     return WonkaEngine.deployed().then(function(instance) {
 
       instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('Title'), new String('The First Book').valueOf());
@@ -258,6 +290,9 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("run the business rules on the currently populated record", function() {
+
+    sleep(1000);
+
     return WonkaEngine.deployed().then(function(instance) {
 
       /*
@@ -288,6 +323,9 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("Running the rules engine with Orchestration mode enabled", function() {
+
+    sleep(1000);
+
     return WonkaEngine.deployed().then(function(wInstance) {      
       return OrchTestContract.deployed().then(function(testInstance) {
 
@@ -347,10 +385,14 @@ contract('WonkaTransactionState', function(accounts4) {
         // Now let's add an OpAdd rule to the last ruleset, where we set the AccountCurrValue = AccountCurrValue + AccountPrevValue + 1 (i.e., 2500 = 999 + 1500 + 1)
         wInstance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('SumForCurrValue'), web3.utils.fromAscii('AccountCurrValue'), OP_ADD_RULE, new String('AccountCurrValue,AccountPrevValue,1').valueOf(), false, true);      
 
+        sleep(1000);
+
         console.log("Added OP_ADD rule to set a value on the Orchestration contract using Assembly.");
      
         // Since we've now added an assignment rule (which can now change the blockchain), we must execute the engine's validation within a transaction
         wInstance.execute(accounts[0]);
+
+        sleep(1000);
 
         // Now let's check the validation result, which should still be false
         return wInstance.getLastTransactionSuccess.call();
@@ -371,6 +413,8 @@ contract('WonkaTransactionState', function(accounts4) {
   });
   it("Set Transaction State for RuleTree", function() {
 
+    sleep(2000);
+
     return WonkaEngine.deployed().then(function(instance) {
 
       console.log("STS - Got the handle for the RuleTree.");
@@ -381,11 +425,19 @@ contract('WonkaTransactionState', function(accounts4) {
 
         tInstance.setOwner(accounts[0], 100);
 
+        sleep(500);
+
         tInstance.setExecutor(accounts[0]);
+
+        sleep(500);
 
         tInstance.addConfirmation(accounts[0]);
 
+        sleep(500);
+
         tInstance.setMinScoreRequirement(1);
+
+        sleep(500);
 
         instance.setTransactionState(accounts[0], tInstance.address);
 
@@ -395,7 +447,11 @@ contract('WonkaTransactionState', function(accounts4) {
     });
   });
   it("Running the rules engine with a Custom Operator rule", function() {
+
+    sleep(1000);
+
     return WonkaEngine.deployed().then(function(wInstance) {      
+
       return OrchTestContract.deployed().then(function(testInstance) {
 
         console.log("Define a new custom operator");
@@ -404,11 +460,17 @@ contract('WonkaTransactionState', function(accounts4) {
 
         console.log("Add a new rule with the new custom operator focused on the AccountCurrValue");
 
+        sleep(1000);
+
         // The value "MyCustomOp,AccountCurrValue,11,40,50" indicates that this Custom Operator will invoke the method defined by 'MyCustomOp' with the arguments AccountCurrValue,500,1000,100
         wInstance.addRule(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('InvokeCustomOp'), web3.utils.fromAscii('AccountCurrValue'), CUSTOM_OP_RULE, new String('MyCustomOp').valueOf(), false, true); 
 
+        sleep(1000);
+
         console.log("Add args to the custom operator");
         wInstance.addRuleCustomOpArgs(accounts[0], web3.utils.fromAscii('CheckAccntStsLeaf'), web3.utils.fromAscii('AccountCurrValue'), web3.utils.fromAscii('500'), web3.utils.fromAscii('1000'), web3.utils.fromAscii('100'));
+
+        sleep(1000);
 
         console.log("Running the engine now with the new Custom Operator rule");
 

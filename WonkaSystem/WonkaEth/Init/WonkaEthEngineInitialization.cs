@@ -42,7 +42,7 @@ namespace Wonka.Eth.Init
 
             EthSenderAddress = EthPassword = EthRuleTreeOwnerAddress = string.Empty;
 
-            RulesEngineABI       = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeployment.ABI;
+            RulesEngineABI       = Wonka.Eth.Autogen.WonkaEngine.WonkaEngineDeploymentClassic.ABI;
             RegistryContractABI  = Wonka.Eth.Autogen.WonkaRegistry.WonkaRegistryDeployment.ABI;
             StorageContractABI   = Wonka.Eth.Autogen.WonkaTestContract.WonkaTestContractDeployment.ABI;
             ChronoLogContractABI = Wonka.Eth.Autogen.ChronoLog.ChronoLogDeployment.ABI; 
