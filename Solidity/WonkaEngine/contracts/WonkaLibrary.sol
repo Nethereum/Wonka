@@ -77,11 +77,11 @@ library WonkaLibrary {
     /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
     function invokeValueRetrieval(address targetContract, address, bytes32 methodName, bytes32 attrName) public returns (string memory strAnswer) {
 
-        bytes32 answer;
-
         string memory strMethodName = bytes32ToString(methodName);
 
         string memory functionNameAndParams = strConcat(strMethodName, "(bytes32)");
+
+        bytes32 answer;
 
         bytes4 sig = bytes4(keccak256(abi.encodePacked(functionNameAndParams)));
 
@@ -118,11 +118,11 @@ library WonkaLibrary {
     /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
     function invokeValueSetter(address targetContract, address, bytes32 methodName, bytes32 attrName, bytes32 value) public returns (string memory strAnswer) {
 
-        bytes32 answer = methodName;
-
         string memory strMethodName = bytes32ToString(methodName);
 
         string memory functionNameAndParams = strConcat(strMethodName, "(bytes32,bytes32)");
+
+        bytes32 answer = methodName;
 
         bytes4 sig = bytes4(keccak256(abi.encodePacked(functionNameAndParams)));        
 
@@ -163,11 +163,11 @@ library WonkaLibrary {
     /// @param _b The number of decimal places that we wish to include in the unsigned integer, with 0 meaning none
     /// @return The unsigned integer converted from the string
     function parseInt(string memory _a, uint _b) public pure returns (uint) {
-
-        bytes memory bresult = bytes(_a);
         
         uint bint = _b;
         uint mint = 0;
+
+        bytes memory bresult = bytes(_a);
         bool decimals = false;
 
         for (uint i = 0; i < bresult.length; i++) {

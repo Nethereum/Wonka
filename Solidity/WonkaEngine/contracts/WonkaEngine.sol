@@ -314,13 +314,11 @@ contract WonkaEngine {
     /// @notice 
     function addAttribute(bytes32 pAttrName, uint pMaxLen, uint pMaxNumVal, string memory pDefVal, bool pIsStr, bool pIsNum) public onlyEngineOwner {
 
-        bool maxLenTrun = (pMaxLen > 0);
-
         attributes.push(WonkaAttr({
             attrId: attrCounter++,
             attrName: pAttrName,
             maxLength: pMaxLen,
-            maxLengthTruncate: maxLenTrun,
+            maxLengthTruncate: (pMaxLen > 0),
             maxNumValue: pMaxNumVal,
             defaultValue: pDefVal,
             isString: pIsStr,
@@ -627,11 +625,11 @@ contract WonkaEngine {
 
         ruleResult = true;
 
-        bool almostOpInd  = false;
         uint testNumValue = 0;
         uint ruleNumValue = 0;
 
         string memory tempValue = getValueOnRecord(ruler, targetRule.targetAttr.attrName);
+        bool almostOpInd  = false;
 
         // NOTE: USE WHEN DEBUGGING IS NEEDED
         emit CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
@@ -659,7 +657,6 @@ contract WonkaEngine {
                 ruleNumValue = block.number;
             }
         }
-
         
         if (almostOpInd) {
 
