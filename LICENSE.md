@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) 2018 Nethereum.com (Juan Blanco) , Aaron Kendall (https://github.com/jaerith)
+Copyright (c) 2020 Nethereum.com (Juan Blanco) , Aaron Kendall (https://github.com/jaerith)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
