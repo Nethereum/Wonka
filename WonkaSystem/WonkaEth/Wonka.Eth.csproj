@@ -6,6 +6,19 @@
     <AssemblyVersion>1.0.*</AssemblyVersion>
     <FileVersion>1.0.*</FileVersion>
     <ConsolePause>false</ConsolePause>
+    <Version>0.1.0</Version>
+    <Authors>jaerith</Authors>
+    <Company>Nethereum</Company>
+    <Description>Relying heavily on the Nethereum project, this library contains classes that interact with the Ethereum foundation and that extend the Wonka engine, particulary the base class WonkaBizRulesEngine in the Wonka.BizRulesEngine library.  With the funtionality provided here, Wonka becomes a business rules engine for both the .NET platform and the Ethereum platform, one that is inherently metadata-driven and serves as a reference implementation for EIP-2746. Once the rules are written into a markup language and are parsed/deserialized by the .NET form of the engine, these rules can then be serialized onto the blockchain using Nethereum, and stored within a smart contract (i.e., the Ethereum version of the engine) built using the Solidity language.  The Ethereum version of this engine can also be deployed as a contract by this library.  After providing a number of rules and populating a record, a user can submit the populated record for validation by the rules engine, whether it exists in .NET or the blockchain.</Description>
+    <Copyright>Copyright ©  2020</Copyright>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/Nethereum/Wonka</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Nethereum/Wonka</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Ethereum Rules</PackageTags>
+    <PackageReleaseNotes>Alpha Release</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageIcon>logo192x192.png</PackageIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -44,8 +57,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WonkaBre\Wonka.BizRulesEngine.csproj" />
-    <ProjectReference Include="..\WonkaPrd\Wonka.Product.csproj" />
     <ProjectReference Include="..\WonkaIpfs\Wonka.IpfsW.csproj" />
+    <ProjectReference Include="..\WonkaPrd\Wonka.Product.csproj" />
     <ProjectReference Include="..\WonkaRef\Wonka.MetaData.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -64,5 +77,15 @@
     <Folder Include="Autogen\Baseline\" />
     <Folder Include="Autogen\Baseline\Registry\" />
     <Folder Include="Autogen\WonkaLibrary\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\logos\logo192x192.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 </Project>

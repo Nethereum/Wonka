@@ -6,6 +6,19 @@
     <AssemblyVersion>1.0.*</AssemblyVersion>
     <FileVersion>1.0.*</FileVersion>
     <ConsolePause>false</ConsolePause>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>jaerith</Authors>
+    <Company>Nethereum</Company>
+    <Description>This library wraps the functionality found in the Ipfs.Api library.  It is merely a proof of concept, and it should not be relied upon.</Description>
+    <Copyright>Copyright ©  2020</Copyright>
+    <Version>0.0.1</Version>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageIcon>logo192x192.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/Nethereum/Wonka</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Nethereum/Wonka</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Ethereum Rules</PackageTags>
+    <PackageReleaseNotes>Prototype</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -29,5 +42,15 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\logos\logo192x192.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 </Project>

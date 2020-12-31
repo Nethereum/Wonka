@@ -2,9 +2,21 @@
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
     <AssemblyTitle>WonkaBre</AssemblyTitle>
-    <Product>WonkaBre</Product>
-    <Copyright>Copyright ©  2018</Copyright>
+    <Product>Wonka.BizRulesEngine</Product>
+    <Copyright>Copyright ©  2020</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>0.1.0</Version>
+    <Authors>jaerith</Authors>
+    <Company>Nethereum</Company>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <Description>This library contains the base implementation of the Wonka engine and its supporting classes.  The Wonka engine is a business rules engine that is inherently metadata-driven, and it forms the base class for other functionality/classes that interact with the Ethereum blockchain.</Description>
+    <PackageProjectUrl>https://github.com/Nethereum/Wonka</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Nethereum/Wonka</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Ethereum Rules</PackageTags>
+    <PackageReleaseNotes>Alpha Release</PackageReleaseNotes>
+    <PackageIcon>logo192x192.png</PackageIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -26,6 +38,14 @@
     <ProjectReference Include="..\WonkaRef\Wonka.MetaData.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\logos\logo192x192.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
     <None Include="Samples\SimpleAccountCheck.xml" />
   </ItemGroup>
   <ItemGroup>

@@ -2,9 +2,21 @@
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
     <AssemblyTitle>WonkaRef</AssemblyTitle>
-    <Product>WonkaRef</Product>
-    <Copyright>Copyright ©  2017</Copyright>
+    <Product>Wonka.Metadata</Product>
+    <Copyright>Copyright ©  2020</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>0.1.0</Version>
+    <Authors>jaerith</Authors>
+    <Company>Nethereum</Company>
+    <Description>This library encapsulates the metadata classes that provide Wonka with the definition of a data domain.  This data domain provides meaning to the data points (i.e., Attributes) that are referenced in the business rules.</Description>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/Nethereum/Wonka</PackageProjectUrl>
+    <PackageIcon>logo192x192.png</PackageIcon>
+    <RepositoryUrl>https://github.com/Nethereum/Wonka</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Ethereum Rules</PackageTags>
+    <PackageReleaseNotes>Alpha Release</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -16,5 +28,15 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\logos\logo192x192.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 </Project>
