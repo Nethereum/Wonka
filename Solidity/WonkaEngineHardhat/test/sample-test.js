@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 
 describe("WonkaEngineTest", function() {
-  it("Should return the number of default Attributes in the deployed WonkaEngine", async function() {
+  it("Testing deployed WonkaEngine", async function() {
 
     const TestContract = 
       await ethers.getContractFactory("OrchTestContract");
@@ -10,22 +10,22 @@ describe("WonkaEngineTest", function() {
     await test.deployed();
 
     const LibraryContract = 
-      await ethers.getContractFactory("WonkaLibrary");
+    await ethers.getContractFactory("WonkaLibrary");
 
     const library = await LibraryContract.deploy();
     await library.deployed();
 
     const WonkaEngineContract = 
-        await ethers.getContractFactory("WonkaEngine",
-          {
-              libraries: {
-                WonkaLibrary: library.address
-              }
-          }
-        );
+      await ethers.getContractFactory("WonkaEngine",
+        {
+            libraries: {
+              WonkaLibrary: library.address
+            }
+        }
+      );
 
     const wonkaEngine = await WonkaEngineContract.deploy();
-    
+
     await wonkaEngine.deployed();
 
     expect(await wonkaEngine.getNumberOfAttributes()).to.equal(3);

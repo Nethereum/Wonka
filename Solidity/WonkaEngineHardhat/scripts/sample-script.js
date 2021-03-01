@@ -37,8 +37,9 @@ async function main() {
   const wonkaEngine = await WonkaEngineContract.deploy();
 
   await wonkaEngine.deployed();
-  
-  console.log("Default number of Attributes launched with engine:", wonkaEngine.getNumberOfAttributes());
+
+  const numAttr = await wonkaEngine.getNumberOfAttributes();
+  console.log("Default number of Attributes launched with engine:", numAttr);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
