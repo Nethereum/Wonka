@@ -20,6 +20,9 @@ module.exports = {
   /*
   networks: {
     hardhat: {
+      forking: {
+        url: "https://eth-mainnet.alchemyapi.io/v2/<key>"
+      }
     },
     rinkeby: {
       url: "https://eth-mainnet.alchemyapi.io/v2/123abc123abc123abc123abc123abcde",
