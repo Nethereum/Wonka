@@ -68,6 +68,27 @@ namespace Wonka.Eth.Extensions.OpSource.ERC20
 			return balance.ToString();
 		}
 
+		public string InvokeERC20GetGasEstimate(string psToAccount, string psTransferAmt, string psDummyVal1 = "", string psDummyVal2 = "")
+		{
+			var tokenService = GetERC20TokenService();
+
+			psTransferAmt = psTransferAmt.StartsWith("0x") ? psTransferAmt.Replace("0x", "0") : psTransferAmt;
+
+			var nAmtToSend =
+				System.Numerics.BigInteger.Parse(psTransferAmt, System.Globalization.NumberStyles.HexNumber);
+
+			var transferHandler = this.SenderWeb3.Eth.GetContractTransactionHandler<TransferFunction>();
+			var transfer = new TransferFunction()
+			{
+				To = psToAccount,
+				Value = nAmtToSend
+			};
+
+			var estimate = transferHandler.EstimateGasAsync(this.ContractAddress, transfer).Result;
+
+			return estimate.Value.ToString();
+		}
+
 		public string InvokeERC20GetTotalSupply(string psDummyVal1 = "", string psDummyVal2 = "", string psDummyVal3 = "", string psDummyVal4 = "")
 		{
 			var tokenService = GetERC20TokenService();
