@@ -99,7 +99,7 @@ namespace Wonka.Eth.Extensions.OpSource.ERC20
 
 		}
 
-		public string InvokeERC20Transfer(string psToAccount, string psTransferAmt, string psDummyVal1 = "", string psDummyVal2 = "")
+		public string InvokeERC20Transfer(string psToAccount, string psTransferAmt, string psGasToSend = "", string psDummyVal1 = "")
 		{
 			var tokenService = GetERC20TokenService();
 
@@ -108,7 +108,18 @@ namespace Wonka.Eth.Extensions.OpSource.ERC20
 			var nAmtToSend =
 	            System.Numerics.BigInteger.Parse(psTransferAmt, System.Globalization.NumberStyles.HexNumber);
 
-			var trxReceipt = tokenService.TransferRequestAndWaitForReceiptAsync(new TransferFunction() { To = psToAccount, Value = nAmtToSend }).Result;
+			var ERC20TransferFunction =
+				new TransferFunction() { To = psToAccount, Value = nAmtToSend };
+
+			if (!String.IsNullOrEmpty(psGasToSend))
+			{
+				var nGasToSend =
+					System.Numerics.BigInteger.Parse(psGasToSend, System.Globalization.NumberStyles.HexNumber);
+
+				ERC20TransferFunction.Gas = nGasToSend;
+			}
+
+			var trxReceipt = tokenService.TransferRequestAndWaitForReceiptAsync(ERC20TransferFunction).Result;
 
 			return trxReceipt.TransactionHash;
 
