@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.8;
+pragma solidity ^0.7.6;
 
 contract OrchTestContract {
      
@@ -11,7 +11,7 @@ contract OrchTestContract {
 
     /// @dev Constructor for the Orchestration contract
     /// @author Aaron Kendall
-    constructor() public {
+    constructor() {
 
         //testRecord["Title"] = "The First Book";
         //testRecord["Price"] = "0999";
