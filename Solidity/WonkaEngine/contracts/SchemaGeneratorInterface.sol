@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.8;
+pragma solidity ^0.7.6;
 
 /// @title An interface for classes that want to replicate an existing schema within their internal storage
 /// @author Aaron Kendall

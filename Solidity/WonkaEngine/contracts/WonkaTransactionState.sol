@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.8;
+pragma solidity ^0.7.6;
 
 import "./TransactionStateInterface.sol";
 
@@ -22,9 +22,8 @@ contract WonkaTransactionState is TransactionStateInterface {
     mapping(address => bool) executors;
     
     /// @dev Constructor for the transaction state
-    /// @author Aaron Kendall
     /// @notice 
-    constructor() public {
+    constructor() {
         
         minReqScoreForApproval = 0;
     }    

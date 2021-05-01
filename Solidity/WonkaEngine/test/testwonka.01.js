@@ -287,6 +287,7 @@ contract('WonkaTransactionState', function(accounts4) {
       console.log("Added more values onto current record!");
 
       instance.setValueOnRecord(accounts[0], web3.utils.fromAscii('Language'), new String('ENG').valueOf());
+      
     });
   });
   it("run the business rules on the currently populated record", function() {
@@ -314,7 +315,7 @@ contract('WonkaTransactionState', function(accounts4) {
       });
       */
 
-      return instance.execute.call(accounts[0]);
+      return instance.executeRuleTree.call(accounts[0]);
       // instance.executeWithReport(accounts[0]);
 
     }).then(function(recordValid) {
@@ -354,7 +355,7 @@ contract('WonkaTransactionState', function(accounts4) {
 
         console.log("Value of StartSaleDate attribute is (" + new String(startSaleDt).valueOf() + ")");        
 
-        return wInstance.execute.call(accounts[0]);
+        return wInstance.executeRuleTree.call(accounts[0]);
 
       }).then(function(recordValid) {
   
@@ -366,7 +367,7 @@ contract('WonkaTransactionState', function(accounts4) {
         console.log("Added assignment rule to set a value on the Orchestration contract using Assembly.");
      
         // Since we've now added an assignment rule (which can now change the blockchain), we must execute the engine's validation within a transaction
-        wInstance.execute(accounts[0]);
+        wInstance.executeRuleTree(accounts[0]);
 
         // Now let's check the validation result, which should still be false
         return wInstance.getLastTransactionSuccess.call();
@@ -390,7 +391,7 @@ contract('WonkaTransactionState', function(accounts4) {
         console.log("Added OP_ADD rule to set a value on the Orchestration contract using Assembly.");
      
         // Since we've now added an assignment rule (which can now change the blockchain), we must execute the engine's validation within a transaction
-        wInstance.execute(accounts[0]);
+        wInstance.executeRuleTree(accounts[0]);
 
         sleep(1000);
 
@@ -477,7 +478,7 @@ contract('WonkaTransactionState', function(accounts4) {
         // First, invoke the OpAdd rule, where AccountCurrValue = AccountCurrValue + AccountPrevValue + 1 (i.e., 4001 = 2500 + 1500 + 1)
         // And then, we invoke the Custom Operator rule, where we set the AccountCurrValue = (((AccountCurrValue - 500) + 1000) / 100)
         // The final result should be: 45 = (((4001 - 500) + 1000) / 100)]
-        wInstance.execute(accounts[0]);
+        wInstance.executeRuleTree(accounts[0]);
 
         return wInstance.getLastTransactionSuccess.call();
 

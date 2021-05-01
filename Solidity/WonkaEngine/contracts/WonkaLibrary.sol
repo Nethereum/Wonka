@@ -1,9 +1,172 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.8;
+pragma solidity ^0.7.6;
 
 /// @title An Ethereum library that contains useful routines for the Wonka engine
 /// @author Aaron Kendall
 library WonkaLibrary {
+
+    // An enum for the type of rules currently supported
+    enum RuleTypes { IsEqual, IsLessThan, IsGreaterThan, Populated, InDomain, Assign, OpAdd, OpSub, OpMult, OpDiv, CustomOp, MAX_TYPE }
+    RuleTypes constant defaultType = RuleTypes.IsEqual;
+
+    uint constant CONST_CUSTOM_OP_ARGS = 4;
+
+    /// @title Holds metadata which represents an Attribute (i.e., a unique point of data in a user's record)
+    /// @notice Not all struct members are currently used
+    struct WonkaAttr {
+ 
+        uint attrId;
+
+        bytes32 attrName;
+
+        uint maxLength;
+
+        bool maxLengthTruncate;
+
+        uint maxNumValue;
+
+        string defaultValue;
+
+        bool isString;
+
+        bool isDecimal;
+        
+        bool isNumeric;
+
+        bool isValue;
+    }
+
+    /// @title A data structure that represents a Source (i.e., a provider of a record)
+    /// @notice This structure isn't currently used
+    struct WonkaSource {
+
+        bytes32 sourceName;
+
+        bytes32 status;
+
+        // For retrieving an Attribute value
+        bytes32 methodName;
+
+        // For setting an Attribute value
+        bytes32 setMethodName;
+        
+        address contractAddress;
+
+        bool isValue;
+    }
+
+    /// @title Defines a rule (i.e., a logical unit for testing the validity of an Attribute value in a record)
+    /// @notice 1.) Only one Attribute can be targeted now, but in the future, rules could be able to target multiple Attributes + 2.) A Rule can only be owned by one RuleSet
+    /// @dev 
+    struct WonkaRule {
+
+        uint ruleId;
+
+        bytes32 name;
+
+        uint ruleType;
+
+        WonkaAttr targetAttr;
+
+        string ruleValue;
+
+        mapping(string => string) ruleValueDomain;
+
+        string[] ruleDomainKeys;
+
+        bytes32[] customOpArgs;
+
+        bytes32 parentRuleSetId;
+
+        bool notOpFlag;
+
+        bool isPassiveFlag;
+    }
+
+    /// @title Contains a list of all rules that have failed during a validation (and the rulesets to which they belong)
+    /// @notice 
+    /// @dev The arrays will be set to the total number of rules in a RuleTree, but 'ruleFailCount' will indicate how many of them are actually populated
+    struct WonkaRuleReport {
+
+        uint ruleFailCount;
+
+        bytes32[] ruleSetIds;
+
+        bytes32[] ruleIds;
+    }
+
+    /// @title Defines a ruleset (i.e., a logical grouping of rules)
+    /// @notice A RuleSet can only be owned by one RuleTree
+    /// @dev The collective evaluation of its rules will make a determination (such as how to navigate the RuleTree or whether or not the provided record is valid)  
+    struct WonkaRuleSet {
+
+        bytes32     ruleSetId;
+
+        string      description;
+        bytes32     parentRuleSetId;
+        bool        severeFailure;
+        // string      customFailureMsg;
+
+        uint[]                           evalRuleList;
+        mapping(uint => WonkaRule)       evaluativeRules;
+
+        uint[]                           assertiveRuleList;
+        mapping(uint => WonkaRule)       assertiveRules;
+
+        bytes32[]                        childRuleSetList;
+
+        bool        andOp;
+        bool        failImmediately;
+        bool        isLeaf;
+        bool        isValue;
+    }
+
+    /// @title Defines a ruletree (i.e., a logical, hierarchical grouping of rulesets)
+    /// @notice Currently, only one ruletree can be defined for any given address/account
+    /// @dev The collective evaluation of its rulesets will determine whether or not the provided record is valid  
+    struct WonkaRuleTree {
+
+        bytes32     ruleTreeId;
+        string      description;
+
+        bytes32 rootRuleSetName;
+
+        bytes32[]                        allRuleSetList;
+        mapping(bytes32 => WonkaRuleSet) allRuleSets;
+
+        uint totalRuleCount;
+
+        bool isValue;
+    }    
+
+    /// @dev Defines an event that will report when a ruletree has been invoked to validate a provided record.
+    /// @notice 
+    event CallRuleTree(
+        address indexed ruler
+    );
+
+    /// @dev Defines an event that will report when a ruleset has been invoked when validating a provided record.
+    /// @notice 
+    event CallRuleSet(
+        address indexed ruler,
+        bytes32 indexed tmpRuleSetId
+    );
+
+    /// @dev Defines an event that will report when a rule has been invoked when validating a provided record.
+    /// @notice 
+    event CallRule(
+        address indexed ruler,
+        bytes32 indexed ruleSetId,
+        bytes32 indexed ruleId,
+        uint ruleType
+    );
+	
+    /// @dev Defines an event that will report when the record does not satisfy a ruleset.
+    event RuleSetError (
+        address indexed ruler,
+        bytes32 indexed ruleSetId,
+        bool severeFailure
+    );	
 
     /// @dev This method will convert a bytes32 type to a String
     /// @notice 
@@ -25,9 +188,8 @@ library WonkaLibrary {
         }
 
         return string(bytesStringTrimmed);
-    }
+    }    
 
-    /// @author Aaron Kendall
     /// @dev This method will supply the functionality for a Custom Operator rule, calling a method on another contract (like perform a calculation) via assembly
     function invokeCustomOperator(address targetContract, address, bytes32 methodName, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public returns (string memory strAnswer) {
 
@@ -73,7 +235,6 @@ library WonkaLibrary {
     }
 
     /// @dev This method allows the rules engine to call another contract's method via assembly, retrieving a value for evaluation
-    /// @author Aaron Kendall
     /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
     function invokeValueRetrieval(address targetContract, address, bytes32 methodName, bytes32 attrName) public returns (string memory strAnswer) {
 
@@ -114,7 +275,6 @@ library WonkaLibrary {
     }
 
     /// @dev This method allows the rules engine to call another contract's method via assembly, for the purpose of assigning a value
-    /// @author Aaron Kendall
     /// @notice The target contract being called is expected to have a function 'methodName' with a specific signature
     function invokeValueSetter(address targetContract, address, bytes32 methodName, bytes32 attrName, bytes32 value) public returns (string memory strAnswer) {
 
@@ -156,7 +316,6 @@ library WonkaLibrary {
         strAnswer = bytes32ToString(answer);
     }
 
-    /// @author 
     /// @notice Copied this code from Oraclize - // Copyright (c) 2015-2016 Oraclize srl, Thomas Bertani
     /// @dev This code definitely works
     /// @param _a The string to convert into an unsigned integer

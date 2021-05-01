@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.8;
-
-import "./AggregatorV3Interface.sol";
+pragma solidity ^0.7.6;
 
 contract OrchTestContract {
      
@@ -13,7 +11,7 @@ contract OrchTestContract {
 
     /// @dev Constructor for the Orchestration contract
     /// @author Aaron Kendall
-    constructor() public {
+    constructor() {
 
         //testRecord["Title"] = "The First Book";
         //testRecord["Price"] = "0999";
@@ -68,22 +66,6 @@ contract OrchTestContract {
             return "10";
         else
             return "20";
-    }
-
-    function getLatestPriceForCrypto(bytes32 contractAddrFirstHalf, bytes32 contractAddrSecondHalf, bytes32, bytes32) public view returns (int)
-    {
-        string memory firstHalf = bytes32ToString(contractAddrFirstHalf);
-        string memory secondHalf = bytes32ToString(contractAddrSecondHalf);
-
-        string memory aggregatorContractAddressString = strConcat(firstHalf, secondHalf);
-
-        address contractAddr = parseAddr(aggregatorContractAddressString);
-
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(contractAddr);
-
-        (, int price, , , ) = priceFeed.latestRoundData();
-
-        return price;
     }
 
     function performMyCalc(bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public pure returns(bytes32)    

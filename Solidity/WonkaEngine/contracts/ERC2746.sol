@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.8;
+pragma solidity ^0.7.6;
 
 /**
     @title ERC-2746 Rules Engine Standard
@@ -69,7 +69,7 @@ interface ERC2746 {
         @param _ruleTreeName   Name of the RuleTree
         @param _desc           Verbose description of the RuleTree's purpose
     */
-    function addRuleTree(address _owner, bytes32 _ruleTreeName, string calldata _desc) external;
+    function addRuleTree(address _owner, bytes32 _ruleTreeName, string calldata _desc, bool _severeFailureFlag, bool _useAndOperator, bool _flagFailImmediately) external;
 
     /**
         @notice Adds a new RuleSet onto the hierarchy of a RuleTree.
@@ -95,7 +95,7 @@ interface ERC2746 {
         @param _rightHandValue  The registered value to be used by the Rule when performing its action upon the Attribute
         @param _notFlag         Indicator of whether or not the NOT operator should be performed on this Rule.
     */    
-    function addRule(address _owner, bytes32 _ruleSetName, bytes32 _ruleName, bytes32 _attrName, uint _ruleType, string calldata _rightHandValue, bool _notFlag) external;
+    function addRule(address _owner, bytes32 _ruleSetName, bytes32 _ruleName, bytes32 _attrName, uint _ruleType, string calldata _rightHandValue, bool _notFlag, bool _passiveFlag) external;
 
     /**
         @notice Executes a RuleTree.
@@ -115,7 +115,7 @@ interface ERC2746 {
         @return bool            Flag for NOT operator in Rule
         @return bytes32[]       Values that should be provided in delegated call (if Rule is custom operator)
     */
-    function getRuleProps(address _owner, bytes32 _ruleSetName, uint _ruleIdx) external returns (bytes32, uint, bytes32, string memory, bool, bytes32[] memory);
+    function getRuleProps(address _owner, bytes32 _ruleSetName, bool _evalRuleFlag, uint _ruleIdx) external returns (bytes32, uint, bytes32, string memory, bool, bytes32[] memory);
 
     /**
         @notice Retrieves the properties of a RuleSet
@@ -125,9 +125,9 @@ interface ERC2746 {
         @return bool         Flag that indicates whether this RuleSet's failure (if a leaf) will cause the RuleTree to fail
         @return bool         Flag that indicates whether this RuleSet uses the AND operator when executing rules collectively
         @return uint         Indicates the number of rules hosted by this RuleSet
-        @return bytes32[]    The list of RuleSets that are children of this RuleSet
+        @return uint         The length of the list of RuleSets that are children of this RuleSet
     */
-    function getRuleSetProps(address _owner, bytes32 _ruleSetName) external returns (string memory, bool, bool, uint, uint, bytes32[] memory);
+    function getRuleSetProps(address _owner, bytes32 _ruleSetName) external returns (string memory, bool, bool, uint, uint, uint);
 
     /**
         @notice Retrieves the properties of a RuleSet
@@ -139,8 +139,25 @@ interface ERC2746 {
     function getRuleTreeProps(address _owner) external returns (bytes32, string memory, bytes32);
 
     /**
+        @notice Retrieves the value of a field on the current logical record
+        @param _owner        Owner/ID of the RuleTree
+        @param _key          Name of the field
+        @return string       Value of the field
+    */
+    function getValueOnRecord(address _owner, bytes32 _key) external returns(string memory);
+
+    /**
         @notice Removes a RuleTree.
         @param _owner           Owner/ID of the RuleTree
     */
     function removeRuleTree(address _owner) external returns (bool);    
+
+    /**
+        @notice Sets the value of a field on the current logical record
+        @param _owner        Owner/ID of the RuleTree
+        @param _key          Name of the field
+        @param _value        Value of the field
+    */
+    function setValueOnRecord(address _owner, bytes32 _key, string calldata _value) external returns(string memory);
+
 }
