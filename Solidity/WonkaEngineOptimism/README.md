@@ -1,0 +1,3 @@
+This version of the Wonka Engine for Ethereum (i.e., written in Solidity) is an enhanced implementation, where the previous WonkaEngine contract has been trifurcated in the attempt to make the engine more modular and less bulky.  This way, Wonka can be deployed without triggering the maximum size error (i.e., "code size exceeds 24576 bytes [a limit introduced in Spurious Dragon]").
+
+In particular, this version of Wonka has been created with the future intent of deploying it to the Optimism L2 layer, once certain complicated issues (like storage) have been resolved and once solutions are somewhat finalized and available to the public.  However, as simple validation for potential compatibility, these contracts were able to be compiled by the OVM compiler.
