@@ -48,7 +48,7 @@
     <PackageReference Include="Nethereum.StandardTokenEIP20" Version="3.7.1" />
     <PackageReference Include="Nethereum.Util" Version="3.7.1" />
     <PackageReference Include="Nethereum.Web3" Version="3.7.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Nethereum.StandardNonFungibleTokenERC721" Version="3.7.1" />
   </ItemGroup>
   <ItemGroup>
