@@ -1,6 +1,15 @@
 node_modules
-BAK
+.env
 
-#Hardhat files
-cache
-artifacts
+# Hardhat files
+/cache
+/artifacts
+/ignition
+
+# TypeChain files
+/typechain
+/typechain-types
+
+# solidity-coverage files
+/coverage
+/coverage.json

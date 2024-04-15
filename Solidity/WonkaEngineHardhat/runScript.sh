@@ -1,1 +1,0 @@
-npx hardhat run scripts/sample-script.js --network localhost
