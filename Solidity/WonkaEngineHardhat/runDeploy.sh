@@ -1,0 +1,1 @@
+yarn hardhat run scripts/deployWonka.js --network localhost
