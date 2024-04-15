@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.9;
 
 /// @title An Ethereum library that contains useful routines for the Wonka engine
 /// @author Aaron Kendall
@@ -66,7 +66,7 @@ library WonkaLibrary {
 
         uint ruleType;
 
-        WonkaAttr targetAttr;
+        bytes32 targetAttrName;
 
         string ruleValue;
 
@@ -168,6 +168,8 @@ library WonkaLibrary {
         bool severeFailure
     );	
 
+    /**
+     ** OLD WAY
     /// @dev This method will convert a bytes32 type to a String
     /// @notice 
     function bytes32ToString(bytes32 x) public pure returns (string memory) {
@@ -175,7 +177,7 @@ library WonkaLibrary {
         bytes memory bytesString = new bytes(32);
         uint charCount = 0;
         for (uint j = 0; j < 32; j++) {
-            byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
+            bytes1 char = bytes1(bytes32(uint(x) * 2 ** (8 * j)));
             if (char != 0) {
                 bytesString[charCount] = char;
                 charCount++;
@@ -189,6 +191,36 @@ library WonkaLibrary {
 
         return string(bytesStringTrimmed);
     }    
+     **/
+
+    /// @dev This method will convert a bytes32 type to a String
+    /// @notice 
+    function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
+
+        // Count the number of non-zero bytes in the input
+        uint256 i = 0;
+        uint charCount = 0;
+
+        while(i < 32 && _bytes32[i] != 0) {
+            i++;
+        }
+
+        // Allocate a new bytes array with the size of non-zero bytes
+        bytes memory bytesArray = new bytes(i);
+
+        // Copy non-zero bytes from the input to the new array
+        for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
+            bytesArray[i] = _bytes32[i];
+        }
+
+        bytes memory bytesStringTrimmed = new bytes(charCount);
+        for (uint k = 0; k < charCount; k++) {
+            bytesStringTrimmed[k] = bytesArray[k];
+        }
+
+        // Convert the bytes array to a string
+        return string(bytesArray);
+    }
 
     /// @dev This method will supply the functionality for a Custom Operator rule, calling a method on another contract (like perform a calculation) via assembly
     function invokeCustomOperator(address targetContract, address, bytes32 methodName, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public returns (string memory strAnswer) {

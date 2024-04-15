@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.9;
 
 /**
     @title ERC-2746 Rules Engine Standard
     @dev See https://eips.ethereum.org/EIPS/eip-2746 (though this interface is a slight variation of the EIP)
  */
 interface ERC2746 {
-
-    
 
     /**
         @dev Should emit when a RuleTree is invoked.
@@ -137,8 +135,9 @@ interface ERC2746 {
         @return bytes32      Name of the RuleTree
         @return string       Verbose description of the RuleTree
         @return bytes32      ID/Name of the RuleSet that serves as the root node for the RuleTree
+        @return uint         Total number of rules in the tree
     */
-    function getRuleTreeProps(address _owner) external returns (bytes32, string memory, bytes32);
+    function getRuleTreeProps(address _owner) external returns (bytes32, string memory, bytes32, uint);
 
     /**
         @notice Retrieves the value of a field on the current logical record

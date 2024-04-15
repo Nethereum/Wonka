@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.9;
 
-import "./ERC2746.sol";
-import "./TransactionStateInterface.sol";
+pragma experimental ABIEncoderV2;
+
 import "./WonkaLibrary.sol";
+import "./WonkaEngineMetadata.sol";
 
 /// @title An Ethereum contract that contains the functionality for a rules engine
 /// @author Aaron Kendall
 /// @notice 1.) Certain steps are required in order to use this engine correctly + 2.) Deployment of this contract to a blockchain is expensive (~8000000 gas) + 3.) Various require() statements are commented out to save deployment costs
 /// @dev Even though you can create rule trees by calling this contract directly, it is generally recommended that you create them using the Nethereum library
-contract WonkaEngine is ERC2746 {
+contract WonkaEngineRuleSets {
 
     using WonkaLibrary for *;
 
@@ -22,25 +23,19 @@ contract WonkaEngine is ERC2746 {
     uint constant CONST_CUSTOM_OP_ARGS = 4;
 
     address public rulesMaster;
-    uint    public attrCounter;
     uint    public ruleCounter;
     uint    public lastRuleId;
-
-    address lastSenderAddressProvided;
-    bool    lastTransactionSuccess;
 
     bool    orchestrationMode;
     bytes32 defaultTargetSource;
 
-    // The Attributes known by this instance of the rules engine
-    mapping(bytes32 => WonkaLibrary.WonkaAttr) private attrMap;    
-    WonkaLibrary.WonkaAttr[] public attributes;
+    WonkaEngineMetadata metadata;
 
-    // The cache of rule trees that are owned by owner 
-    mapping(address => WonkaLibrary.WonkaRuleTree) private ruletrees;
+    // The cache map for rulesets
+    mapping(address => mapping(bytes32 => WonkaLibrary.WonkaRuleSet)) private ruleTreesMap;
 
-    // The cache of all created rulesets
-    WonkaLibrary.WonkaRuleSet[] public rulesets;
+    // The cache list for rulesets
+    mapping(address => bytes32[]) private ruleTreesList;
 
     // The cache of records that are owned by "rulers" and that are validated when invoking a rule tree
     mapping(address => mapping(bytes32 => string)) currentRecords;
@@ -51,77 +46,26 @@ contract WonkaEngine is ERC2746 {
     // The cache of available sources for calling 'op' methods (i.e., that contain special logic to implement a custom operator)
     mapping(bytes32 => WonkaLibrary.WonkaSource) opMap;
 
-    // The cache that indicates if a transaction state exist for a RuleTree
-    mapping(bytes32 => bool) transStateInd;
-
-    // The cache of transaction states assigned to RuleTrees
-    mapping(bytes32 => TransactionStateInterface) transStateMap;
-
     // For the function splitStr(...)
     // Currently unsure how the function will perform in a multithreaded scenario
     bytes splitTempStr; // temporarily holds the string part until a space is received
 
     /// @dev Constructor for the rules engine
     /// @notice Currently, the engine will create three dummy Attributes within the cache by default, but they will be removed later
-    constructor() {
+    constructor(address _metadataAddr) {
 
         orchestrationMode = false;
-        lastTransactionSuccess = false;
 
         rulesMaster = msg.sender;
-        ruleCounter = lastRuleId = attrCounter = 1;
+        ruleCounter = lastRuleId = 1;
 
-        attributes.push(WonkaLibrary.WonkaAttr({
-            attrId: 1,
-            attrName: "Title",
-            maxLength: 256,
-            maxLengthTruncate: true,
-            maxNumValue: 0,
-            defaultValue: "",
-            isString: true,
-            isDecimal: false,
-            isNumeric: false,
-            isValue: true                
-        }));
-
-        attrMap[attributes[attributes.length-1].attrName] = attributes[attributes.length-1];
-
-        attributes.push(WonkaLibrary.WonkaAttr({
-            attrId: 2,
-            attrName: "Price",
-            maxLength: 128,
-            maxLengthTruncate: false,
-            maxNumValue: 1000000,
-            defaultValue: "",
-            isString: false,
-            isDecimal: false,
-            isNumeric: true,
-            isValue: true               
-        }));
-
-        attrMap[attributes[attributes.length-1].attrName] = attributes[attributes.length-1];
-        
-        attributes.push(WonkaLibrary.WonkaAttr({
-            attrId: 3,
-            attrName: "PageAmount",
-            maxLength: 256,
-            maxLengthTruncate: false,
-            maxNumValue: 1000,
-            defaultValue: "",
-            isString: false,
-            isDecimal: false,
-            isNumeric: true,
-            isValue: true              
-        }));
-
-        attrMap[attributes[attributes.length-1].attrName] = attributes[attributes.length-1];
-
-        attrCounter = 4;
+        metadata = WonkaEngineMetadata(_metadataAddr);
     }
 
     modifier onlyEngineOwner() {
         
-        require(msg.sender == rulesMaster, "No exec perm");
+        // NOTE: Should be altered later
+        // require(msg.sender == rulesMaster, "No exec perm");
 
         // Do not forget the "_;"! It will
         // be replaced by the actual function
@@ -131,53 +75,16 @@ contract WonkaEngine is ERC2746 {
 
     modifier onlyEngineOwnerOrTreeOwner(address _RTOwner) {
 
-        require((msg.sender == rulesMaster) || (msg.sender == _RTOwner), "No exec perm");
+        // NOTE: To be addressed later
+        // require((msg.sender == rulesMaster) || (msg.sender == _RTOwner), "No exec perm");
 
-        require(ruletrees[_RTOwner].isValue == true, "No RT");
+        // NOTE: To be addressed later
+        // require(ruletrees[_RTOwner].isValue == true, "No RT");
 
         // Do not forget the "_;"! It will
         // be replaced by the actual function
         // body when the modifier is used.
         _;
-    }
-
-    /// @dev This method will add a new Attribute to the cache.  By adding Attributes, we expand the set of possible values that can be held by a record.
-    /// @notice 
-    function addAttribute(bytes32 pAttrName, uint pMaxLen, uint pMaxNumVal, string memory pDefVal, bool pIsStr, bool pIsNum) public onlyEngineOwner override {
-
-        attributes.push(WonkaLibrary.WonkaAttr({
-            attrId: attrCounter++,
-            attrName: pAttrName,
-            maxLength: pMaxLen,
-            maxLengthTruncate: (pMaxLen > 0),
-            maxNumValue: pMaxNumVal,
-            defaultValue: pDefVal,
-            isString: pIsStr,
-            isDecimal: false,
-            isNumeric: pIsNum,
-            isValue: true              
-        }));
-
-        attrMap[attributes[attributes.length-1].attrName] = attributes[attributes.length-1];
-    }
-
-    /// @dev This method will add a new Attribute to the cache.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
-    /// @notice Currently, only one ruletree can be defined for any given address/account
-    function addRuleTree(address ruler, bytes32 rsName, string memory desc, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public onlyEngineOwner override {
-
-        require(ruletrees[ruler].isValue != true, "RT already exists");
-
-        WonkaLibrary.WonkaRuleTree storage NewRuleTree = ruletrees[ruler];
-        NewRuleTree.ruleTreeId = rsName;
-        NewRuleTree.description = desc;
-        NewRuleTree.rootRuleSetName = rsName;
-        NewRuleTree.allRuleSetList = new bytes32[](0);
-        NewRuleTree.totalRuleCount = 0;
-        NewRuleTree.isValue = true;
-
-        addRuleSet(ruler, rsName, desc, "", severeFailureFlag, useAndOperator, flagFailImmediately);
-
-        transStateInd[ruletrees[ruler].ruleTreeId] = false;
     }
 
     /// @dev This method will add a new custom operator to the cache.
@@ -197,18 +104,17 @@ contract WonkaEngine is ERC2746 {
 
     /// @dev This method will add a new RuleSet to the cache and to the indicated RuleTree.  Using flagFailImmediately is not recommended and will likely be deprecated in the near future.
     /// @notice Currently, a RuleSet can only belong to one RuleTree and be a child of one parent RuleSet, though there are plans to have a RuleSet capable of being shared among parents
-    function addRuleSet(address ruler, bytes32 ruleSetName, string memory desc, bytes32 parentRSName, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public onlyEngineOwnerOrTreeOwner(ruler) override {
+    function addRuleSet(address ruler, bytes32 ruleSetName, string memory desc, bytes32 parentRSName, bool severeFailureFlag, bool useAndOperator, bool flagFailImmediately) public onlyEngineOwnerOrTreeOwner(ruler) {
 
         if (parentRSName != "") {
-            require(ruletrees[ruler].allRuleSets[parentRSName].isValue == true, "No parent RS");
+            require(ruleTreesMap[ruler][parentRSName].isValue == true, "No parent RS");
         }
 
-        // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
-        // require(ruletrees[ruler].allRuleSets[ruleSetName].isValue == false, "The specified RuleSet with the provided ID already exists.");
+        require(ruleTreesMap[ruler][ruleSetName].isValue == false, "The specified RuleSet with the provided ID already exists.");
 
-        ruletrees[ruler].allRuleSetList.push(ruleSetName);
+        ruleTreesList[ruler].push(ruleSetName);
 
-        WonkaLibrary.WonkaRuleSet storage NewRuleSet = ruletrees[ruler].allRuleSets[ruleSetName];
+        WonkaLibrary.WonkaRuleSet storage NewRuleSet = ruleTreesMap[ruler][ruleSetName];
 
         NewRuleSet.ruleSetId = ruleSetName;
         NewRuleSet.description = desc;
@@ -223,18 +129,18 @@ contract WonkaEngine is ERC2746 {
         NewRuleSet.isValue = true; 
 
         if (parentRSName != "") {
-            ruletrees[ruler].allRuleSets[parentRSName].childRuleSetList.push(ruleSetName);
-            ruletrees[ruler].allRuleSets[parentRSName].isLeaf = false;
+            ruleTreesMap[ruler][parentRSName].childRuleSetList.push(ruleSetName);
+            ruleTreesMap[ruler][parentRSName].isLeaf = false;
         }
     }
 
     /// @dev This method will add a new Rule to the indicated RuleSet
     /// @notice Currently, a Rule can only belong to one RuleSet
-    function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string memory rVal, bool notFlag, bool passiveFlag) public onlyEngineOwnerOrTreeOwner(ruler) override {
+    function addRule(address ruler, bytes32 ruleSetId, bytes32 ruleName, bytes32 attrName, uint rType, string memory rVal, bool notFlag, bool passiveFlag) public onlyEngineOwnerOrTreeOwner(ruler) {
 
-        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, "No RS");
+        require(ruleTreesMap[ruler][ruleSetId].isValue == true, "No RS");
 
-        require(attrMap[attrName].isValue, "No Attr");
+        require(metadata.getAttribute(attrName).isValue, "No Attr (A)");
 
         require(rType < uint(RuleTypes.MAX_TYPE), "No RuleType");
 
@@ -242,37 +148,37 @@ contract WonkaEngine is ERC2746 {
 
         ruleCounter = ruleCounter + 1;
 
-        ruletrees[ruler].totalRuleCount += 1; 
-
         if (passiveFlag) {
-            ruletrees[ruler].allRuleSets[ruleSetId].evalRuleList.push(currRuleId);
+            ruleTreesMap[ruler][ruleSetId].evalRuleList.push(currRuleId);
 
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId].ruleId = currRuleId;
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId].name = ruleName;
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId].ruleType = rType;
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId].targetAttr = attrMap[attrName];
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId].ruleValue = rVal;
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId].ruleDomainKeys = new string[](0);   
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId].customOpArgs = new bytes32[](CONST_CUSTOM_OP_ARGS);
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId].parentRuleSetId = ruleSetId;
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId].notOpFlag = notFlag;
-            ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId].isPassiveFlag = passiveFlag;
+            ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId].ruleId = currRuleId;
+            ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId].name = ruleName;
+            ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId].ruleType = rType;
+
+            ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId].targetAttrName = attrName;
+
+            ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId].ruleValue = rVal;
+            ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId].ruleDomainKeys = new string[](0);   
+            ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId].customOpArgs = new bytes32[](CONST_CUSTOM_OP_ARGS);
+            ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId].parentRuleSetId = ruleSetId;
+            ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId].notOpFlag = notFlag;
+            ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId].isPassiveFlag = passiveFlag;
             
             bool isOpRule = ((uint(RuleTypes.OpAdd) == rType) || (uint(RuleTypes.OpSub) == rType) || (uint(RuleTypes.OpMult) == rType) || (uint(RuleTypes.OpDiv) == rType) || (uint(RuleTypes.CustomOp) == rType));
 
             if ( (uint(RuleTypes.InDomain) == rType) || isOpRule)  {
-                splitStrIntoMap(rVal, ",", ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[currRuleId], isOpRule);
+                splitStrIntoMap(rVal, ",", ruleTreesMap[ruler][ruleSetId].evaluativeRules[currRuleId], isOpRule);
             }
 
         } else {
-            ruletrees[ruler].allRuleSets[ruleSetId].assertiveRuleList.push(currRuleId);
+            ruleTreesMap[ruler][ruleSetId].assertiveRuleList.push(currRuleId);
 
-            WonkaLibrary.WonkaRule storage NewRule = ruletrees[ruler].allRuleSets[ruleSetId].assertiveRules[currRuleId];
+            WonkaLibrary.WonkaRule storage NewRule = ruleTreesMap[ruler][ruleSetId].assertiveRules[currRuleId];
 
             NewRule.ruleId = currRuleId;
             NewRule.name = ruleName;
             NewRule.ruleType = rType;
-            NewRule.targetAttr = attrMap[attrName];
+            NewRule.targetAttrName = attrName;
             NewRule.ruleValue = rVal;
             NewRule.ruleDomainKeys = new string[](0);
             NewRule.customOpArgs = new bytes32[](CONST_CUSTOM_OP_ARGS);
@@ -287,14 +193,14 @@ contract WonkaEngine is ERC2746 {
     /// @notice Currently, a Rule can only belong to one RuleSet
     function addRuleCustomOpArgs(address ruler, bytes32 ruleSetId, bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public onlyEngineOwnerOrTreeOwner(ruler) {
 
-        require(ruletrees[ruler].allRuleSets[ruleSetId].isValue == true, "No RS");
+        require(ruleTreesMap[ruler][ruleSetId].isValue == true, "No RS");
 
-        require(ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].ruleType == uint(RuleTypes.CustomOp), "LR not CO");
+        require(ruleTreesMap[ruler][ruleSetId].evaluativeRules[lastRuleId].ruleType == uint(RuleTypes.CustomOp), "LR not CO");
 
-        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[0] = arg1;
-        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[1] = arg2;
-        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[2] = arg3;
-        ruletrees[ruler].allRuleSets[ruleSetId].evaluativeRules[lastRuleId].customOpArgs[3] = arg4;
+        ruleTreesMap[ruler][ruleSetId].evaluativeRules[lastRuleId].customOpArgs[0] = arg1;
+        ruleTreesMap[ruler][ruleSetId].evaluativeRules[lastRuleId].customOpArgs[1] = arg2;
+        ruleTreesMap[ruler][ruleSetId].evaluativeRules[lastRuleId].customOpArgs[2] = arg3;
+        ruleTreesMap[ruler][ruleSetId].evaluativeRules[lastRuleId].customOpArgs[3] = arg4;
     }    
 
     /// @dev This method will add a new source to the mapping cache.
@@ -312,56 +218,11 @@ contract WonkaEngine is ERC2746 {
         });
     }
 
-    /// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
-    /// @notice This method will only return a boolean
-    function executeRuleTree(address ruler) public onlyEngineOwnerOrTreeOwner(ruler) override returns (bool executeSuccess) {
+    /// @dev This method will invoke one RuleSet within a RuleTree when validating a stored record
+    /// @notice This method will return a boolean that assists with traversing the RuleTree
+    function executeWithReport(address ruler, bytes32 rsId, WonkaLibrary.WonkaRuleReport memory ruleReport) public returns (bool executeSuccess) {
 
-        executeSuccess = true;
-
-        require(ruletrees[ruler].allRuleSetList.length > 0, "Empty RT");
-
-        // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
-        // require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
-
-        // NOTE: USE WHEN DEBUGGING IS NEEDED
-        emit WonkaLibrary.CallRuleTree(ruler);
-
-        lastSenderAddressProvided = ruler;
-
-        WonkaLibrary.WonkaRuleReport memory report = WonkaLibrary.WonkaRuleReport({
-            ruleFailCount: 0,
-            ruleSetIds: new bytes32[](ruletrees[ruler].totalRuleCount),
-            ruleIds: new bytes32[](ruletrees[ruler].totalRuleCount)
-        });
-
-        executeWithReport(ruler, ruletrees[ruler].allRuleSets[ruletrees[ruler].rootRuleSetName], report);
-
-        executeSuccess = lastTransactionSuccess = (report.ruleFailCount == 0);
-    }
-
-    /// @dev This method will invoke the ruler's RuleTree in order to validate their stored record.  This method should be invoked via a call() and not a transaction().
-    /// @notice This method will return a disassembled RuleReport that can be reassembled, especially by using the Nethereum library
-    function executeWithReport(address ruler) public onlyEngineOwnerOrTreeOwner(ruler) returns (uint fails, bytes32[] memory rsets, bytes32[] memory rules) {
-
-        require(ruletrees[ruler].allRuleSetList.length > 0, "Empty RT");
-
-        // NOTE: Unnecessary and commented out in order to save deployment costs (in terms of gas)
-        // require(ruletrees[ruler].rootRuleSetName != "", "The specified RuleTree has an invalid root.");
-
-        // NOTE: USE WHEN DEBUGGING IS NEEDED
-        emit WonkaLibrary.CallRuleTree(ruler);
-
-        lastSenderAddressProvided = ruler;
-
-        WonkaLibrary.WonkaRuleReport memory report = WonkaLibrary.WonkaRuleReport({
-            ruleFailCount: 0,
-            ruleSetIds: new bytes32[](ruletrees[ruler].totalRuleCount),
-            ruleIds: new bytes32[](ruletrees[ruler].totalRuleCount)
-            });
-
-        executeWithReport(ruler, ruletrees[ruler].allRuleSets[ruletrees[ruler].rootRuleSetName], report);
-
-        return (report.ruleFailCount, report.ruleSetIds, report.ruleIds);       
+        return executeWithReport(ruler, ruleTreesMap[ruler][rsId], ruleReport);
     }
 
     /// @dev This method will invoke one RuleSet within a RuleTree when validating a stored record
@@ -370,15 +231,17 @@ contract WonkaEngine is ERC2746 {
        
         executeSuccess = true;
 
-        // NOTE: USE WHEN DEBUGGING IS NEEDED
         emit WonkaLibrary.CallRuleSet(ruler, targetRuleSet.ruleSetId);
 
+        /*
+         * NOTE: Should be supported?
         if (transStateInd[ruletrees[ruler].ruleTreeId]) {
 
             require(transStateMap[ruletrees[ruler].ruleTreeId].isTransactionConfirmed(), "No conf trx");
 
             require(transStateMap[ruletrees[ruler].ruleTreeId].isExecutor(ruler), "No exec perm");
         }
+        */
 
         bool tempResult = false;
         bool tempSetResult = true;
@@ -419,7 +282,7 @@ contract WonkaEngine is ERC2746 {
 
             // Now invoke the rulesets
             for (uint rsIdx = 0; rsIdx < targetRuleSet.childRuleSetList.length; rsIdx++) {
-                tempResult = executeWithReport(ruler, ruletrees[ruler].allRuleSets[targetRuleSet.childRuleSetList[rsIdx]], ruleReport);
+                tempResult = executeWithReport(ruler, ruleTreesMap[ruler][targetRuleSet.childRuleSetList[rsIdx]], ruleReport);
                 executeSuccess = (executeSuccess && tempResult);
             }
         }
@@ -430,7 +293,6 @@ contract WonkaEngine is ERC2746 {
         //if (transStateInd[ruletrees[ruler].ruleTreeId]) {
         //    transStateMap[ruletrees[ruler].ruleTreeId].revokeAllConfirmations();
         //}
-
     }
 
     /// @dev This method will invoke one Rule within a RuleSet when validating a stored record
@@ -442,13 +304,13 @@ contract WonkaEngine is ERC2746 {
         uint testNumValue = 0;
         uint ruleNumValue = 0;
 
-        string memory tempValue = getValueOnRecord(ruler, targetRule.targetAttr.attrName);
+        string memory tempValue = getValueOnRecord(ruler, targetRule.targetAttrName);         
+
         bool almostOpInd  = false;
 
-        // NOTE: USE WHEN DEBUGGING IS NEEDED
         emit WonkaLibrary.CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
 
-        if (targetRule.targetAttr.isNumeric) {
+        if (metadata.getAttribute(targetRule.targetAttrName).isNumeric) {
 
             testNumValue = tempValue.parseInt(0);
             ruleNumValue = targetRule.ruleValue.parseInt(0);
@@ -457,7 +319,7 @@ contract WonkaEngine is ERC2746 {
             // if (keccak256(abi.encodePacked(targetRule.ruleValue)) != keccak256(abi.encodePacked("NOW"))) {
 
             // This indicates that we are doing a timestamp comparison with the value for NOW (and maybe looking for a window of one day ahead)
-            if (targetRule.targetAttr.isString && targetRule.targetAttr.isNumeric && (ruleNumValue <= 1)) {
+            if (metadata.getAttribute(targetRule.targetAttrName).isString && metadata.getAttribute(targetRule.targetAttrName).isNumeric && (ruleNumValue <= 1)) {
 
                 if (ruleNumValue == 1) {
                     almostOpInd = true;
@@ -478,7 +340,7 @@ contract WonkaEngine is ERC2746 {
 
         } else if (uint(RuleTypes.IsEqual) == targetRule.ruleType) {
 
-            if (targetRule.targetAttr.isNumeric) {
+            if (metadata.getAttribute(targetRule.targetAttrName).isNumeric) {
                 ruleResult = (testNumValue == ruleNumValue);
             } else {
                 ruleResult = (keccak256(abi.encodePacked(tempValue)) == keccak256(abi.encodePacked(targetRule.ruleValue)));
@@ -486,12 +348,12 @@ contract WonkaEngine is ERC2746 {
 
         } else if (uint(RuleTypes.IsLessThan) == targetRule.ruleType) {
 
-            if (targetRule.targetAttr.isNumeric)
+            if (metadata.getAttribute(targetRule.targetAttrName).isNumeric)
                 ruleResult = (testNumValue < ruleNumValue);
 
         } else if (uint(RuleTypes.IsGreaterThan) == targetRule.ruleType) {
 
-            if (targetRule.targetAttr.isNumeric)
+            if (metadata.getAttribute(targetRule.targetAttrName).isNumeric)
                 ruleResult = (testNumValue > ruleNumValue);
         }
         else if (uint(RuleTypes.Populated) == targetRule.ruleType) {
@@ -504,7 +366,7 @@ contract WonkaEngine is ERC2746 {
 
         } else if (uint(RuleTypes.Assign) == targetRule.ruleType) {
 
-            setValueOnRecord(ruler, targetRule.targetAttr.attrName, targetRule.ruleValue);
+            setValueOnRecord(ruler, metadata.getAttribute(targetRule.targetAttrName).attrName, targetRule.ruleValue);
 
         } else if ( (uint(RuleTypes.OpAdd) == targetRule.ruleType) ||
                     (uint(RuleTypes.OpSub) == targetRule.ruleType) || 
@@ -515,7 +377,7 @@ contract WonkaEngine is ERC2746 {
 
             string memory convertedValue = calculatedValue.uintToBytes().bytes32ToString();
 
-            setValueOnRecord(ruler, targetRule.targetAttr.attrName, convertedValue);
+            setValueOnRecord(ruler, metadata.getAttribute(targetRule.targetAttrName).attrName, convertedValue);
 
         } else if (uint(RuleTypes.CustomOp) == targetRule.ruleType) {
 
@@ -535,12 +397,11 @@ contract WonkaEngine is ERC2746 {
 
             string memory customOpResult = opMap[customOpName].contractAddress.invokeCustomOperator(ruler, opMap[customOpName].methodName, argsDomain[0], argsDomain[1], argsDomain[2], argsDomain[3]);
 
-            setValueOnRecord(ruler, targetRule.targetAttr.attrName, customOpResult);
+            setValueOnRecord(ruler, metadata.getAttribute(targetRule.targetAttrName).attrName, customOpResult);
         }
 
-        if (!ruleResult && ruletrees[ruler].allRuleSets[targetRule.parentRuleSetId].isLeaf) {            
+        if (!ruleResult && ruleTreesMap[ruler][targetRule.parentRuleSetId].isLeaf) {            
 
-            // NOTE: USE WHEN DEBUGGING IS NEEDED
             emit WonkaLibrary.CallRule(ruler, targetRule.parentRuleSetId, targetRule.name, targetRule.ruleType);
 
             ruleReport.ruleSetIds[ruleReport.ruleFailCount] = targetRule.parentRuleSetId;
@@ -552,67 +413,55 @@ contract WonkaEngine is ERC2746 {
 
     }
 
-    /// @dev This method will return the indicator of whether or not the last execuction of the engine was a validation success
-    function getLastTransactionSuccess() public view returns(bool) {
+    /// @dev This method will return the default source
+    function getDefaultSource() public view returns (bytes32) {
 
-        return lastTransactionSuccess;
+        return defaultTargetSource;
     }
 
     /// @dev This method will return the data that composes a particular Rule
-    function getRuleProps(address ruler, bytes32 rsId, bool evalRuleFlag, uint ruleIdx) public view override returns (bytes32, uint, bytes32, string memory, bool, bytes32[] memory) {
+    function getRuleProps(address ruler, bytes32 rsId, bool evalRuleFlag, uint ruleIdx) public view returns (bytes32, uint, bytes32, string memory, bool, bytes32[] memory) {
 
-        require(ruletrees[ruler].isValue == true, "No RT");
-
-        WonkaLibrary.WonkaRule storage targetRule = (evalRuleFlag) ? ruletrees[ruler].allRuleSets[rsId].evaluativeRules[ruletrees[ruler].allRuleSets[rsId].evalRuleList[ruleIdx]] : ruletrees[ruler].allRuleSets[rsId].assertiveRules[ruletrees[ruler].allRuleSets[rsId].assertiveRuleList[ruleIdx]];
+        WonkaLibrary.WonkaRule storage targetRule = (evalRuleFlag) ? ruleTreesMap[ruler][rsId].evaluativeRules[ruleTreesMap[ruler][rsId].evalRuleList[ruleIdx]] : ruleTreesMap[ruler][rsId].assertiveRules[ruleTreesMap[ruler][rsId].assertiveRuleList[ruleIdx]];
         
-        return (targetRule.name, targetRule.ruleType, targetRule.targetAttr.attrName, targetRule.ruleValue, targetRule.notOpFlag, targetRule.customOpArgs);
+        return (targetRule.name, targetRule.ruleType, metadata.getAttribute(targetRule.targetAttrName).attrName, targetRule.ruleValue, targetRule.notOpFlag, targetRule.customOpArgs);
     }
 
     /// @dev This method will return the ID of a RuleSet that is the child of a parent RuleSet
     function getRuleSetChildId(address ruler, bytes32 rsId, uint rsChildIdx) public view returns (bytes32) {
 
-        require(ruletrees[ruler].isValue == true, "No RT");
-
-        return ruletrees[ruler].allRuleSets[rsId].childRuleSetList[rsChildIdx];
+        return ruleTreesMap[ruler][rsId].childRuleSetList[rsChildIdx];
     }
 
     /// @dev This method will return the data that composes a particular RuleSet
-    function getRuleSetProps(address ruler, bytes32 rsId) public view override returns (string memory, bool, bool, uint, uint, uint) {
+    function getRuleSetProps(address ruler, bytes32 rsId) public view returns (string memory, bool, bool, uint, uint, uint) {
 
-        require(ruletrees[ruler].isValue == true, "No RT");
-
-        return (ruletrees[ruler].allRuleSets[rsId].description, ruletrees[ruler].allRuleSets[rsId].severeFailure, ruletrees[ruler].allRuleSets[rsId].andOp, ruletrees[ruler].allRuleSets[rsId].evalRuleList.length, ruletrees[ruler].allRuleSets[rsId].assertiveRuleList.length, ruletrees[ruler].allRuleSets[rsId].childRuleSetList.length);
-    }
-
-    /// @dev This method will return the data that composes a particular RuleTree
-    function getRuleTreeProps(address ruler) public view override returns (bytes32, string memory, bytes32) { 
-
-        require(ruletrees[ruler].isValue == true, "No RT");
-
-        return (ruletrees[ruler].ruleTreeId, ruletrees[ruler].description, ruletrees[ruler].rootRuleSetName);
+        return (ruleTreesMap[ruler][rsId].description, ruleTreesMap[ruler][rsId].severeFailure, ruleTreesMap[ruler][rsId].andOp, ruleTreesMap[ruler][rsId].evalRuleList.length, ruleTreesMap[ruler][rsId].assertiveRuleList.length, ruleTreesMap[ruler][rsId].childRuleSetList.length);
     }
 
     /// @dev This method will return the value for an Attribute that is currently stored within the ruler's record
     /// @notice This method should only be used for debugging purposes.
-    function getValueOnRecord(address ruler, bytes32 key) public override returns(string memory) { 
+    function getValueOnRecord(address ruler, bytes32 key) public returns(string memory) { 
 
         // NOTE: Likely to retire this check
         // require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
-        // require (attrMap[key].isValue == true, "The specified Attribute does not exist.");
+
+        require(metadata.getAttribute(key).isValue, "No Attr (G)");
 
         if (!orchestrationMode) {
             return (currentRecords[ruler])[key];
         }
         else {
-
+            
             if (sourceMap[key].isValue){
                 return sourceMap[key].contractAddress.invokeValueRetrieval(ruler, sourceMap[key].methodName, key);
             }
             else if (sourceMap[defaultTargetSource].isValue){
                 return sourceMap[defaultTargetSource].contractAddress.invokeValueRetrieval(ruler, sourceMap[defaultTargetSource].methodName, key);
             }
-            else
+            else {
                 return blankValue;
+            }
         }
     }
 
@@ -623,31 +472,12 @@ contract WonkaEngine is ERC2746 {
         return sourceMap[key].isValue;
     }
 
-    /// @dev This method will return the current number of Attributes in the cache
-    /// @notice This method should only be used for debugging purposes.
-    function getNumberOfAttributes() public view returns(uint) {
-
-        return attributes.length;
-    }
-
 	/// @dev This method will indicate whether or not the Orchestration mode has been enabled
     /// @notice This method should only be used for debugging purposes.
     function getOrchestrationMode() public view returns(bool) {
 
         return orchestrationMode;
     }	
-
-    /// @dev This method will indicate whether or not the provided address/account has a RuleTree associated with it
-    /// @notice This method should only be used for debugging purposes.
-    function hasRuleTree(address ruler) public view returns(bool) {
-
-        return (ruletrees[ruler].isValue == true);
-    }
-
-    function removeRuleTree(address /*_owner*/) public pure override returns (bool) {
-        // NOTE: Does nothing currently
-        return true;
-    }    
 
     /// @dev This method will set the flag as to whether or not the engine should run in Orchestration mode (i.e., use the sourceMap)
     function setOrchestrationMode(bool orchMode, bytes32 defSource) public onlyEngineOwner { 
@@ -657,20 +487,14 @@ contract WonkaEngine is ERC2746 {
         defaultTargetSource = defSource;
     }
 
-    /// @dev This method will set the transaction state to be used by a RuleTree
-    function setTransactionState(address ruler, address transStateAddr) public {
-
-        transStateInd[ruletrees[ruler].ruleTreeId] = true;
-        transStateMap[ruletrees[ruler].ruleTreeId] = TransactionStateInterface(transStateAddr);
-    }
-
     /// @dev This method will set an Attribute value on the record associated with the provided address/account
     /// @notice We do not currently check here to see if the value qualifies according to the Attribute's definition
-    function setValueOnRecord(address ruler, bytes32 key, string memory value) public override returns(string memory) { 
+    function setValueOnRecord(address ruler, bytes32 key, string memory value) public returns(string memory) { 
 
         // NOTE: Likely to retire this check
         // require(ruletrees[ruler].isValue, "The provided user does not own anything on this instance of the contract.");
-        // require(attrMap[key].isValue == true, "The specified Attribute does not exist.");
+
+        require(metadata.getAttribute(key).isValue, "No Attr (S)");
         
         if (!orchestrationMode) {
             (currentRecords[ruler])[key] = value;
@@ -707,7 +531,7 @@ contract WonkaEngine is ERC2746 {
 
             bytes32 keyName = targetRule.ruleDomainKeys[i].stringToBytes32();
 
-            if (attrMap[keyName].isValue)
+            if (metadata.getAttribute(keyName).isValue)
                 tmpValue = getValueOnRecord(ruler, keyName).parseInt(0);
             else
                 tmpValue = targetRule.ruleDomainKeys[i].parseInt(0);
@@ -734,9 +558,11 @@ contract WonkaEngine is ERC2746 {
     /// @dev This method will assist by returning the correct value, either a literal static value or one obtained through retrieval
     function determineDomainValue(address ruler, uint domainIdx, WonkaLibrary.WonkaRule storage targetRule) private returns (string memory retValue) {
 
+        retValue = "";
+
         bytes32 keyName = targetRule.customOpArgs[domainIdx];
 
-        if (attrMap[keyName].isValue)
+        if (metadata.getAttribute(keyName).isValue)
             retValue = getValueOnRecord(ruler, keyName);
         else
             retValue = keyName.bytes32ToString();

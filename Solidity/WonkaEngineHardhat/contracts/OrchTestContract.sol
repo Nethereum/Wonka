@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.9;
 
 contract OrchTestContract {
      
@@ -126,28 +126,34 @@ contract OrchTestContract {
     /**
      ** SUPPORT METHODS
      **/
-
     /// @dev This method will convert a bytes32 type to a String
     /// @notice 
-    function bytes32ToString(bytes32 x) public pure returns (string memory) {
+    function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
 
-        bytes memory bytesString = new bytes(32);
+        // Count the number of non-zero bytes in the input
+        uint256 i = 0;
         uint charCount = 0;
-        for (uint j = 0; j < 32; j++) {
-            byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
-            if (char != 0) {
-                bytesString[charCount] = char;
-                charCount++;
-            }
+
+        while(i < 32 && _bytes32[i] != 0) {
+            i++;
+        }
+
+        // Allocate a new bytes array with the size of non-zero bytes
+        bytes memory bytesArray = new bytes(i);
+
+        // Copy non-zero bytes from the input to the new array
+        for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
+            bytesArray[i] = _bytes32[i];
         }
 
         bytes memory bytesStringTrimmed = new bytes(charCount);
         for (uint k = 0; k < charCount; k++) {
-            bytesStringTrimmed[k] = bytesString[k];
+            bytesStringTrimmed[k] = bytesArray[k];
         }
 
-        return string(bytesStringTrimmed);
-    }     
+        // Convert the bytes array to a string
+        return string(bytesArray);
+    }
 
     function parseAddr(string memory _a) internal pure returns (address _parsedAddress) {
         bytes memory tmp = bytes(_a);
