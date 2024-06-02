@@ -33,7 +33,7 @@
     <PackageReference Include="Nethereum.Signer" Version="3.7.1" />
     <PackageReference Include="Nethereum.Util" Version="3.7.1" />
     <PackageReference Include="Nethereum.Web3" Version="3.7.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
     <PackageReference Include="xunit.analyzers" Version="0.10.0" />
