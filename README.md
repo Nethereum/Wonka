@@ -16,6 +16,10 @@ A <a target="_blank" href="https://en.wikipedia.org/wiki/Business_rules_engine">
 * Registry and Grove functionality, helping users to discover/reuse existing RuleTree instances and group them into collections.
 * Export functionality, so that a RuleTree existing on the blockchain side can be extracted and then serialized into a legible form (like XML).
 
+## Possible Future Features
+
+* Integration with the [MUD Framework](https://mud.dev/), where it could serve as a potential persistence layer for the target attributes [i.e., data domain] in the rules.
+
 # Quick Run
 
 For a slightly more intuitive take on Wonka's potential (via something more akin to a poorly-constructed GUI by yours truly), you can fire up the Wonka Blazor Editor in order to pull down some rules via IPFS and then invoke them.  (You might have to wait a few seconds for Blazor to initialize in your browser.)  In the editor, you can add rules while tweaking their parameters, and you can also change the data record on which the rules act upon.  In addition, you can deploy the rules to a private Ethereum node and then run them there as well.  And, if you're wondering how it all works, you can take a look at the code for the editor [here](https://github.com/jaerith/WonkaRulesBlazorEditor).
